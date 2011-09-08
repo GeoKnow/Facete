@@ -1,0 +1,63 @@
+
+.mybg {
+	display:block;
+	background:url(images/background.png);
+	color:#ffffff;
+}
+
+
+span.dynatree-active a
+{
+	border: 1px solid #99DEFD;
+	color:#ffffff;
+}
+
+ul.dynatree-container
+{
+	font-family: tahoma, arial, helvetica;
+	font-size: 10pt; /* font size should not be too big */
+	color: white;
+	white-space: nowrap;
+	padding: 3px;
+	margin: 0; /* issue 201 */
+
+	background:url(images/background.png);
+	border: 1px dotted gray;
+
+	overflow: auto;
+}
+
+ul.dynatree-container a
+/*, ul.dynatree-container a:visited*/
+{
+	color: white; /* inherit doesn't work on IE */
+	font-weight:bold;
+}
+
+ul.dynatree-container a:hover
+{
+/*	text-decoration: underline; */
+	background: #000000; /* light blue */
+	border-color: #B8D6FB; /* darker light blue */
+}
+
+span.dynatree-focused a:link  /* @IE */
+{
+/*	background-color: #EFEBDE; /* gray */
+}
+
+
+ul.dynatree-container img
+{	
+	width: 16px;
+	height: 16px;
+	margin-left: 3px;
+	vertical-align: top;
+	border-style: none;
+}
+
+span.dynatree-node
+{
+	display: inline-block;
+}
+

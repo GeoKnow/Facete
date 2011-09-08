@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.aksw.linkedgeodata</groupId>
+	<artifactId>browser</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>Codehaus Snapshot</id>
+			<url>http://snapshots.repository.codehaus.org</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<outputDirectory>target/scripts</outputDirectory>
+		<testOutputDirectory>target/test-scripts</testOutputDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javascript-maven-plugin</artifactId>
+				<version>1.0-alpha-1-SNAPSHOT</version>
+				<extensions>true</extensions>
+				  <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+                <!-- <header>src/main/javascript/HEADER</header>  -->
+                <includes>
+                    <include>lib/jquery/1.6.2/jquery-1.6.2.js</include>
+                    <include>lib/jquery-ui/1.8.16/ui/jquery-ui.js</include>
+                    <include>lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js</include>
+                    <include>lib/dynatree/1.2.0_rc1/jquery/jquery.ui.core.js</include>
+                    <include>lib/dynatree/1.2.0_rc1/jquery/jquery.cookie.js</include>
+                    <include>lib/underscore/1.1.7/underscore.js</include>
+                    <include>lib/backbone/0.5.3/backbone.js</include>
+                    <include>lib/gritter/e6e8b03/js/jquery.gritter.js</include>
+                    <include>lib/open-layers/2.10/OpenLayers.js</include>
+                    <include>lib/webr3-rdf/cbfabc9/rdf.js</include>
+                    <include>lib/sparql/unknown/sparql.js</include>
+                    
+                    
+                    <include>main.js</include>
+                    <include>facet-controller.js</include>
+                </includes>
+            </configuration>
+          </execution>
+        </executions>
+			</plugin>
+
+			<!--
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javascript-maven-tools</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			-->
+		</plugins>
+	</build>
+
+</project>

@@ -1,14 +1,14 @@
-function fetchDirectSuperClasses(service, uris, fn) {
+function fetchDirectSuperClasses(service, uris, callback) {
 	if(uris.length == 0) {
 		return;
 	}
 
 	var queryString = "Select ?p ?c { ?c rdfs:subClassOf ?p . Filter(?c In (<" + uris.join(">,<") + ">)) . }";
-	sparqlQuery("http://linkedgeodata.org/sparql", queryString, {
+	service.executeSelect(queryString, {
 		failure: function() { notify("Error", "Sparql Query Failed"); },
 		success: function(response) {
 			
-			var multiMap = jsonRdfResultSetToMultiMap(JSON.parse(response), "c", "p");
+			var multiMap = jsonRdfResultSetToMultiMap($.parseJSON(response), "c", "p");
 
 			// Add uris for which no super classes were found
 			for(var i = 0; i < uris.length; ++i) {
@@ -19,20 +19,20 @@ function fetchDirectSuperClasses(service, uris, fn) {
 				}
 			}
 			
-			fn(uris, multiMap);
+			callback(uris, multiMap);
 		}	
 	});		
 }
 
-function fetchTransitiveSuperClasses(service, uris, result, fn) {
+function fetchTransitiveSuperClasses(service, uris, result, callback) {
 	if(!result) {
 		result = new BidiMultiMap();
 	}
 
 	fetchTransitiveSuperClassesRec(service, uris, result);
 	
-	if(fn) {
-		fn(result);
+	if(callback) {
+		callback(result);
 	}
 }
 
@@ -46,36 +46,36 @@ function fetchTransitiveSuperClasses(service, uris, result, fn) {
  * @param result
  * @returns
  */
-var fetchTransitiveSuperClassesRec = function(service, uris, result) {
+function fetchTransitiveSuperClassesRec(service, uris, result) {
 	//var result = new BidiMultiMap();
 	
 	
-	var superClassesToFetch = [];
+	var classHierarchyToFetch = [];
 	for(var i = 0; i < uris.length; ++i) {
 		var uri = uris[i];
 		
 		if(!(uri in result.forward.entries)) {
-			superClassesToFetch.push(uri);
+			classHierarchyToFetch.push(uri);
 		}
 	}
 
 	
 	//console.log("Entries: ");
 	//console.log(result.forward.entries);
-	//console.log(superClassesToFetch);
+	//console.log(classHierarchyToFetch);
 	//console.log(result);
 	/*
 	for(uri in uris) {
 		if(!(uri in result.forward)) {
-			superClassesToFetch.push(uri);
+			classHierarchyToFetch.push(uri);
 		}
 	}*/
 	
-	if(superClassesToFetch.length == 0) {
+	if(classHierarchyToFetch.length == 0) {
 		return;
 	}
 
-	fetchDirectSuperClasses(service, superClassesToFetch, function(uris, map) {
+	fetchDirectSuperClasses(service, classHierarchyToFetch, function(uris, map) {
 		//console.log(map);
 		/*
 		for(var i = 0; i < uris.length; ++i) {

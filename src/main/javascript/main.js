@@ -44,8 +44,10 @@ $(document).ready(function() {
 	var self = this;
 	// TODO Allow configuration of multiple sparql endpoint services per map layer
 	// Layer description -> list of sparql endpoints
-	sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql");
-	this.backend = new DelayBackend(new VirtuosoBackend());
+	this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql", ["http://linkedgeodata.org"]);
+	var queryFactory = new LinkedGeoDataQueryFactory();
+	
+	this.backend = new DelayBackend(new VirtuosoBackend(this.sparqlService, queryFactory));
 
 	
 	
@@ -79,18 +81,40 @@ $(document).ready(function() {
 	this.classHierarchy = new BidiMultiMap();
 	
 	
+	
+	this.notificationScheduler = new Scheduler();
+	
+	// Initialize the widgets
 
-	$("#results").ssb_instances({instanceToLabel: this.nodeToLabel, instanceToType: this.nodeToType, schemaIcons: this.schemaIcons});
-	$("#map").ssb_map({nodeToPos: this.nodeToPos, nodeToFeature: this.nodeToFeature, wayToFeature: this.wayToFeature, instanceToLabel: this.nodeToLabel, instanceToType: this.nodeToType, schemaIcons: this.schemaIcons});
+	$("#results").ssb_instances({
+		instanceToLabel: this.nodeToLabel,
+		instanceToType: this.nodeToType,
+		schemaIcons: this.schemaIcons
+	});
+	
+	$("#map").ssb_map({
+		nodeToPos: this.nodeToPos,
+		nodeToFeature: this.nodeToFeature,
+		wayToFeature: this.wayToFeature,
+		instanceToLabel: this.nodeToLabel,
+		nodeToType: this.nodeToType,
+		schemaIcons: this.schemaIcons
+	});
 
-	$("#facets").ssb_facets({test:"value"});
+	$("#facets").ssb_facets({
+		schemaIcons: this.schemaIcons,
+		schemaLabels: this.schemaLabels,
+		classHierarchy: this.classHierarchy
+	});
 
+	
 	$("#map").bind("ssb_maponmapevent", function(event, ui) {
 		notify("MapEvent", "weee");
 		
 		
 		
 		//var self = this;
+
 		var map = ui.map;
 		console.log(event);
 		console.log(ui);
@@ -101,13 +125,72 @@ $(document).ready(function() {
 		var minZoom = 15;
 		
 		if(zoom < minZoom) {
-			this.notificationScheduler.schedule(function() { notify("Info", "Current zoom level " + zoom + " is less than minimum " + minZoom);});
+			self.notificationScheduler.schedule(function() { notify("Info", "Current zoom level " + zoom + " is less than minimum " + minZoom);});
 			return;
 		}
 		
 		
-		$("#facets").data("ssb_facets").onMapEvent(event, bounds);
+		//$("#facets").data("ssb_facets").onMapEvent(event, bounds);
 
+		
+		//var onMapEvent = function(event, facets) 
+		//{
+			self.backend.fetchClasses(bounds, function(uris) {
+			
+				var facets = uris;
+				
+				// Check for which facets we need to load the labels
+				var labelsToLoad = [];
+				var iconsToLoad = [];
+				var superClassesToFetch = [];
+				for(var uri in facets) {
+					var label = self.schemaLabels.get(uri, self.activeLanguage);
+					if(!label) {
+						labelsToLoad.push(uri);
+					}
+					
+					var icon = self.schemaIcons.get(uri);
+					if(!icon) {
+						iconsToLoad.push(uri);
+					}
+	
+					if(!(uri in self.classHierarchy.forward.entries)) {
+						superClassesToFetch.push(uri);
+					}
+				}
+				
+				self.backend.fetchLabels(labelsToLoad, self.activeLanguage, function(map) {					
+					var uris = labelsToLoad;
+					
+					for(var i = 0; i < uris.length; ++i) {
+						var uri = uris[i];
+					//for(uri in uris) {
+						var label = uri in map ? map[uri] : "(missing label)";
+						
+						self.schemaLabels.put(uri, self.activeLanguage, label);
+					}
+					console.log(self.schemaLabels);
+				});
+				
+				self.backend.fetchIcons(iconsToLoad, function(map) {
+					var uris = iconsToLoad;
+					
+					for(var i = 0; i < uris.length; ++i) {
+						var uri = uris[i];
+					//for(uri in uris) {
+						var icon = uri in map ? map[uri] : "(missing icon)";
+						
+						self.schemaIcons.put(uri, icon);
+					}
+				});
+				//this.fetchSuperClasses(superClassesToLoad);
+				
+				fetchTransitiveSuperClasses(self.sparqlService, superClassesToFetch, self.classHierarchy);
+				removeReflexivity(self.classHierarchy);
+				
+				$("#facets").data("ssb_facets").setFacets(uris);
+			});
+		//}		
 		
 
 		// Fetch basic node information (position, label, type)
@@ -245,26 +328,26 @@ function LinkedGeoDataQueryFactory() {
 
 
 
+function VirtuosoBackend(sparqlService, queryFactory) {
+	this.sparqlService = sparqlService; // new VirtuosoSparqlService("http://linkedgeodata.org/sparql"); //new LinkedGeoDataQueryFactory();
+	this.queryFactory = queryFactory; //new LinkedGeoDataQueryFactory();		
+}
 
 
 /**
  * The other backend classes suck - here we redo it
  */
-function VirtuosoBackend() {
-	this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql");
-	
-
-	this.queryFactory = new LinkedGeoDataQueryFactory();
+VirtuosoBackend.prototype = {
 	
 	
-	this.fetchNodes = function(bounds, callback) {
+	fetchNodes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodesQuery(bounds);
 		
 		this.sparqlService.executeSelect(queryString, {
 			failure: function() { notify("Error", "Sparql Query Failed"); },
 			success: function(response) { 
 
-				var data = JSON.parse(response);
+				var data = $.parseJSON(response);
 
 				var nodeToPoint = jsonRdfResultSetToMap(data, "n", "g");
 				for(var s in nodeToPoint) {
@@ -277,10 +360,10 @@ function VirtuosoBackend() {
 				callback({"nodeToType": nodeToType, "nodeToLabel": nodeToLabel, "nodeToPoint": nodeToPoint});
 			}
 		});
-	}
+	},
 	
 	// TODO Filter configuration as attribute or parameter? -> Would go for first option
-	this.fetchWayGeometries = function(bounds, callback) {
+	fetchWayGeometries: function(bounds, callback) {
 		var queryString = this.queryFactory.createWayGeometriesQuery(bounds);
 
 		console.log(queryString);
@@ -300,8 +383,13 @@ function VirtuosoBackend() {
 			failure: function() { notify("Error", "Sparql Query Failed"); },
 			success: function(response) { 
 
-				var map = jsonRdfResultSetToMap(JSON.parse(response), "w", "g");
+				//var json = $.parseJSON(response);
+				//console.log("wweee");
+				//console.log(json);
+				
+				var map = jsonRdfResultSetToMap($.parseJSON(response), "w", "g");
 
+				
 				var tmp = {};
 				for(var key in map) {
 					var value = map[key];
@@ -312,84 +400,124 @@ function VirtuosoBackend() {
 				callback(tmp);
 			}
 		});
-	};
+	},
+	
+	
+	
+	
+	fetchClasses: function(bound, callback) {
+		var queryString = "Select distinct ?o, count(?o) As ?c { ?s a ?o . ?s geo:geometry ?geo . " + createSparqlFilter("geo", bound) + "}"; 
+		//notify("classes", queryString);
+		
+		
+		var self = this;
+		this.sparqlService.executeSelect(queryString, {
+			failure: function() { notify("Error", "Sparql Query Failed"); },
+			success: function(response) {
+				
+				var map = jsonRdfResultSetToMap($.parseJSON(response), "o", "c");
+				
+				//Dispatcher.fireEvent("facetsLoaded", map);
+				
+				//notify("Debug - wee", JSON.stringify(map));
+				//self.onFacetsLoaded("facetsLoaded", map);
+				callback(map);
+			}	
+		});
+		
+	},
+		
+			
+
+	fetchLabels: function(uris, language, callback) {		
+		if(uris.length == 0) {
+			return;
+		}
+		
+		console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
+
+		
+		var queryString = "Select ?u ?l { ?u rdfs:label ?l . Filter(langMatches(lang(?l), '" + language + "')) . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
+
+		//var self = this;
+		//alert(queryString);
+		this.sparqlService.executeSelect(queryString, {
+			failure: function() { notify("Error", "Sparql Query Failed"); },
+			success: function(response) {
+				
+				var map = jsonRdfResultSetToMap($.parseJSON(response), "u", "l");
+
+				callback(map);				
+			}	
+		});	
+	},
+
+	
+	fetchIcons: function(uris, callback) {		
+		if(uris.length == 0) {
+			return;
+		}
+		
+		console.log("Fetching icons for (<" + uris.join('> , <') + ">)");	
+		var queryString = "Select ?u ?i { ?u <http://linkedgeodata.org/ontology/schemaIcon> ?i . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
+
+		//var self = this;
+		//alert(queryString);
+		this.sparqlService.executeSelect(queryString, {
+			failure: function() { notify("Error", "Sparql Query Failed"); },
+			success: function(response) {
+				
+				var map = jsonRdfResultSetToMap($.parseJSON(response), "u", "i");
+				
+				callback(map);
+			}	
+		});	
+	},
+
 }
 
 
 function DelayBackend(decoratee) {
 	this.decoratee = decoratee;
-	
+
 	this.fetchWayGeometriesScheduler = new Scheduler();
 	this.fetchNodesScheduler = new Scheduler();
-	
-	this.fetchWayGeometries = function(bounds, callback) {
-		this.fetchWayGeometriesScheduler.schedule(function() {decoratee.fetchWayGeometries(bounds, callback);});
-	};
 
-	this.fetchNodes = function(bounds, callback) {
-		this.fetchNodesScheduler.schedule(function() {decoratee.fetchNodes(bounds, callback);});		
-	};
+	this.fetchClassesScheduler = new Scheduler();
+	this.fetchLabelsScheduler = new Scheduler();
+	this.fetchIconsScheduler = new Scheduler();
 }
 
 
-function createLinkedGeoDataBackend() {
-	//return new SparqlInstanceBackend("http://linkedgeodata.org/sparql", new Array("http://linkedgeodata.org"), "Construct { ?ns ?np ?no .  ?ws ?wp ?wo . } { ?ns ?np ?no . ?ws <http://linkedgeodata.org/ontology/hasNodes> ?ns . ?ws ?wp wo .", " }", "ns");
-	//return new SparqlInstanceBackend("http://linkedgeodata.org/sparql", new Array("http://linkedgeodata.org"), "Construct { ?ns ?np ?no . } { ?ns ?np ?no . ", " }", "ns");
-	return new SparqlInstanceBackend("http://linkedgeodata.org/sparql", new Array("http://linkedgeodata.org"), "Construct { ?ns geo:geometry ?geo. } { ?ns a <http://linkedgeodata.org/ontology/Node> . ", " }", "ns");
+// TODO There is probably a way to generate these methods on access in js...?
+DelayBackend.prototype = {
+	
+	fetchWayGeometries: function(bounds, callback) {
+		var self = this;
+		this.fetchWayGeometriesScheduler.schedule(function() {self.decoratee.fetchWayGeometries(bounds, callback);});
+	},
+
+	fetchNodes: function(bounds, callback) {
+		var self = this;
+		this.fetchNodesScheduler.schedule(function() {self.decoratee.fetchNodes(bounds, callback);});		
+	},
+	
+	fetchClasses: function(bounds, callback) {
+		var self = this;
+		this.fetchClassesScheduler.schedule(function() {self.decoratee.fetchClasses(bounds, callback);});		
+	},
+	fetchLabels: function(uris, language, callback) {
+		var self = this;
+		this.fetchLabelsScheduler.schedule(function() {self.decoratee.fetchLabels(uris, language, callback);});		
+	},
+	fetchIcons: function(uris, callback) {
+		var self = this;
+		this.fetchIconsScheduler.schedule(function() {self.decoratee.fetchIcons(uris, callback);});		
+	},
+	
+	
 }
 
-
-/**
- * Constructs query for a given rectangular area.
- * 
- * 
- * @param queryHeader
- * @param queryFooter
- * @returns
- */
-function SparqlInstanceBackend(service, defaultGraphs, queryHeader, queryFooter, nodeSubject)
-{
-	this.queryHeader = queryHeader;
-	this.queryFooter = queryFooter;
-	this.nodeSubject  = nodeSubject;
-	this.sparqler = new SPARQL.Service(service);
-	
-	for (item in defaultGraphs) {
-		this.sparqler.addDefaultGraph(item);
-	}
-	
-	this.createQuery = function(bound) {
-		
-		//return this.queryHeader + "?" + nodeSubject + " geo:geometry ?geo ; geo:lat ?lat ; geo:long ?long. Filter(bif:st_intersects(?geo, bif:st_point(" + cx + ", " + cy + "), " + d + ")) . Filter(?lat > " + bound.bottom + " && ?lat  < " + bound.top + " && ?long > " + bound.left + " && ?long < " + bound.right + ") . " + this.queryFooter;
-		return this.queryHeader + "?" + nodeSubject + " geo:geometry ?geo . " + createSparqlFilter("geo", bound) + this.queryFooter;
-	};
-
-	this.executeQuery = function(bound) {
-		var queryString = this.createQuery(bound);
-
-		//alert(queryString);
-		
-		this.sparqler.query(queryString, {
-			failure: function() { notify("Error", queryString); },
-			success: function(json) {
-				
-				console.html(extractTags(json));
-				
-				/*
-				newTags = extractTags(json);
-					for (key in newTags) { tags[key] = newTags[key]; }
-					//var mergedTags = tags.merge(newTags);
-					//mergedTags.loadedDBpedia = true;
-					
-					popup.setContentHTML(oldrenderNode(nodeId, popup.lonlat.lon, popup.lonlat.lat, tags));
-					}	
-				})
-				*/;
-
-			}
-		});
-	};	
-}
 
 //Prefix lgd:<http://linkedgeodata.org/> Prefix lgdo:<http://linkedgeodata.org/ontology/> Select distinct ?o count(?o) From <http://linkedgeodata.org> { ?s lgdo:seats ?o .}
 
@@ -525,12 +653,13 @@ function Scheduler() {
  * @param serviceUrl
  * @returns {VirtuosoSparqlService}
  */
-function VirtuosoSparqlService(serviceUrl)
+function VirtuosoSparqlService(serviceUrl, defaultGraphUri)
 {
 	this.serviceUrl = serviceUrl;
+	this.defaultGraphUri = defaultGraphUri;
 	
 	this.executeSelect = function(queryString, callback) {
-		sparqlQuery(serviceUrl, queryString, callback);
+		sparqlQuery(this.serviceUrl, this.defaultGraphUri, queryString, callback);
 	};
 }
 
@@ -543,7 +672,7 @@ function VirtuosoSparqlService(serviceUrl)
  * @param callback
  * @param format
  */
-function sparqlQuery(baseURL, query, callback, format) {
+function sparqlQuery(baseURL, defaultGraphUri, query, callback, format) {
 	if(!format)
 		format="application/json";
 	
@@ -555,7 +684,7 @@ function sparqlQuery(baseURL, query, callback, format) {
 	};
 	*/
 	var params={
-			"default-graph-uri": "http://linkedgeodata.org", "query": query,
+			"default-graph-uri": defaultGraphUri, "query": query,
 			"format": format,
 	};
 
@@ -637,4 +766,67 @@ for(var s in data) {
 $("#map").ssb_map("test");
 $("#map").data("ssb_map").test();
 //console.log(mapWidget);
+*/
+
+
+/*
+function createLinkedGeoDataBackend() {
+	//return new SparqlInstanceBackend("http://linkedgeodata.org/sparql", new Array("http://linkedgeodata.org"), "Construct { ?ns ?np ?no .  ?ws ?wp ?wo . } { ?ns ?np ?no . ?ws <http://linkedgeodata.org/ontology/hasNodes> ?ns . ?ws ?wp wo .", " }", "ns");
+	//return new SparqlInstanceBackend("http://linkedgeodata.org/sparql", new Array("http://linkedgeodata.org"), "Construct { ?ns ?np ?no . } { ?ns ?np ?no . ", " }", "ns");
+	return new SparqlInstanceBackend("http://linkedgeodata.org/sparql", new Array("http://linkedgeodata.org"), "Construct { ?ns geo:geometry ?geo. } { ?ns a <http://linkedgeodata.org/ontology/Node> . ", " }", "ns");
+}
+
+
+/ **
+ * Constructs query for a given rectangular area.
+ * 
+ * 
+ * @param queryHeader
+ * @param queryFooter
+ * @returns
+ * /
+function SparqlInstanceBackend(service, defaultGraphs, queryHeader, queryFooter, nodeSubject)
+{
+	this.queryHeader = queryHeader;
+	this.queryFooter = queryFooter;
+	this.nodeSubject  = nodeSubject;
+	this.sparqler = new SPARQL.Service(service);
+	
+	for (item in defaultGraphs) {
+		this.sparqler.addDefaultGraph(item);
+	}
+	
+	this.createQuery = function(bound) {
+		
+		//return this.queryHeader + "?" + nodeSubject + " geo:geometry ?geo ; geo:lat ?lat ; geo:long ?long. Filter(bif:st_intersects(?geo, bif:st_point(" + cx + ", " + cy + "), " + d + ")) . Filter(?lat > " + bound.bottom + " && ?lat  < " + bound.top + " && ?long > " + bound.left + " && ?long < " + bound.right + ") . " + this.queryFooter;
+		return this.queryHeader + "?" + nodeSubject + " geo:geometry ?geo . " + createSparqlFilter("geo", bound) + this.queryFooter;
+	};
+
+	this.executeQuery = function(bound) {
+		var queryString = this.createQuery(bound);
+
+		//alert(queryString);
+		
+		this.sparqler.query(queryString, {
+			failure: function() { notify("Error", queryString); },
+			success: function(json) {
+				
+				console.html(extractTags(json));
+				
+				/*
+				newTags = extractTags(json);
+					for (key in newTags) { tags[key] = newTags[key]; }
+					//var mergedTags = tags.merge(newTags);
+					//mergedTags.loadedDBpedia = true;
+					
+					popup.setContentHTML(oldrenderNode(nodeId, popup.lonlat.lon, popup.lonlat.lat, tags));
+					}	
+				})
+				* /;
+
+			}
+		});
+	};	
+}
+
 */

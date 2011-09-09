@@ -17,6 +17,9 @@ $.widget("ui.ssb_map", {
 		this.nodeToFeature = this.options.nodeToFeature;
 		this.wayToFeature = this.options.wayToFeature;
 		
+		this.nodeToType = this.options.nodeToType;
+		this.schemaIcons = this.options.schemaIcons;
+		
 		//console.log(this.nodeToPos);
 		//this.mapWidget = new MapWidget(this);
 		//this.mapWidget._load();
@@ -151,10 +154,25 @@ $.widget("ui.ssb_map", {
 	
 	createMarker: function(point, nodeId) {
 		
+		var iconUrl = this.schemaIcons.get(this.nodeToType.get(nodeId));
+		
+		if(!iconUrl || iconUrl == "(missing icon)") {
+			iconUrl = "http://www.openlayers.org/dev/img/marker.png";
+		}
+		
 		//var tPoint = point.transform(map.displayProjection, map.projection);
 		//console.log(tPoint);
 		
-		var feature = new OpenLayers.Feature(this.markerLayer, point);
+		var size = new OpenLayers.Size(21, 25);
+		var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+		var icon = new OpenLayers.Icon(iconUrl, size, offset);
+
+		/*
+		markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,0),icon));
+		*/
+
+		
+		var feature = new OpenLayers.Feature(this.markerLayer, point, {icon: icon});
 		feature.closeBox = true;
 		feature.popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud,{'panMapIfOutOfView':false, 'autoSize': true});
 		feature.data.popupContentHTML = "No content loaded yet";

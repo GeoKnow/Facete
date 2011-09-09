@@ -23,9 +23,9 @@ $.widget("ui.ssb_facets", {
 		});
 	
 		
-		this.icons = new MapCollection();		
-		this.labels = new LabelCollection();
-		this.superClasses = new BidiMultiMap();
+		this.schemaIcons = this.options.schemaIcons;    //new MapCollection();		
+		this.schemaLabels = this.options.schemaLabels;   //new LabelCollection();
+		this.classHierarchy = this.options.classHierarchy; //new BidiMultiMap();
 		this.activeLanguage = "en";
 		
 		
@@ -79,124 +79,18 @@ $.widget("ui.ssb_facets", {
 		this.fetchClasses(bound);
 		//this.fetchProperties(bound);
 	},
-		
-		
-	fetchClasses: function(bound) {
-		var queryString = "Select distinct ?o, count(?o) As ?c { ?s a ?o . ?s geo:geometry ?geo . " + createSparqlFilter("geo", bound) + "}"; 
-		//notify("classes", queryString);
-		
-		
-		var self = this;
-		sparqlQuery("http://linkedgeodata.org/sparql", queryString, {
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(response) {
-				
-				var map = jsonRdfResultSetToMap(JSON.parse(response), "o", "c");
-				
-				//Dispatcher.fireEvent("facetsLoaded", map);
-				
-				//notify("Debug - wee", JSON.stringify(map));
-				self.onFacetsLoaded("facetsLoaded", map);
-			}	
-		});
-		
-	},
-		
-			
-
-	fetchLabels: function(uris) {		
-		if(uris.length == 0) {
-			return;
-		}
-		
-		console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
-
-		
-		var queryString = "Select ?u ?l { ?u rdfs:label ?l . Filter(langMatches(lang(?l), '" + this.activeLanguage + "')) . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
-
-		var self = this;
-		//alert(queryString);
-		sparqlQuery("http://linkedgeodata.org/sparql", queryString, {
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(response) {
-				
-				var map = jsonRdfResultSetToMap(JSON.parse(response), "u", "l");
-
-				for(var i = 0; i < uris.length; ++i) {
-					var uri = uris[i];
-				//for(uri in uris) {
-					var label = uri in map ? map[uri] : "(missing label)";
-					
-					self.labels.put(uri, self.activeLanguage, label);
-				}
-			}	
-		});	
-	},
 
 	
-	fetchIcons: function(uris) {		
-		if(uris.length == 0) {
-			return;
-		}
-		
-		console.log("Fetching icons for (<" + uris.join('> , <') + ">)");	
-		var queryString = "Select ?u ?i { ?u <http://linkedgeodata.org/ontology/schemaIcon> ?i . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
-
-		var self = this;
-		//alert(queryString);
-		sparqlQuery("http://linkedgeodata.org/sparql", queryString, {
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(response) {
-				
-				var map = jsonRdfResultSetToMap(JSON.parse(response), "u", "i");
-
-				for(var i = 0; i < uris.length; ++i) {
-					var uri = uris[i];
-				//for(uri in uris) {
-					var icon = uri in map ? map[uri] : "(missing icon)";
-					
-					self.icons.put(uri, icon);
-				}
-			}	
-		});	
-	},
 
 	
-	onFacetsLoaded: function(event, facets) {
+	setFacets: function(facets) {
 		
-		var outer = this;
-		
-		// Check for which facets we need to load the labels
-		var labelsToLoad = [];
-		var iconsToLoad = [];
-		var superClassesToFetch = [];
-		for(var uri in facets) {
-			var label = outer.labels.get(uri, this.activeLanguage);
-			if(!label) {
-				labelsToLoad.push(uri);
-			}
-			
-			var icon = outer.icons.get(uri);
-			if(!icon) {
-				iconsToLoad.push(uri);
-			}
+		var self = this;
 
-			if(!(uri in outer.superClasses.forward.entries)) {
-				superClassesToFetch.push(uri);
-			}
-		}
-		
-		this.fetchLabels(labelsToLoad);
-		this.fetchIcons(iconsToLoad);
-		//this.fetchSuperClasses(superClassesToLoad);
-		
-		fetchTransitiveSuperClasses("http://linkedgeodata.org/sparql", superClassesToFetch, outer.superClasses);
-		removeReflexivity(outer.superClasses);
-		
 		//console.log("Hierarchy:");
-		//console.log(outer.superClasses);
+		//console.log(self.classHierarchy);
 		
-		var fullTree = computeTreeStructure(this.superClasses);
+		var fullTree = computeTreeStructure(this.classHierarchy);
 		
 		var keys = [];
 		
@@ -219,14 +113,14 @@ $.widget("ui.ssb_facets", {
 		for(var uri in facets) {
 			var count = facets[uri];
 			
-			var label = outer.labels.get(uri, outer.activeLanguage); 
+			var label = self.schemaLabels.get(uri, self.activeLanguage); 
 			if(!label || label == "(missing label)") {
 				var i = uri.lastIndexOf("/");
 				
 				label = i >= 0 ? uri.substring(i + 1) : uri;
 			}
 			
-			var icon = outer.icons.get(uri);
+			var icon = self.schemaIcons.get(uri);
 			if(!icon || icon == "(missing icon)") {
 				icon = false;
 			}
@@ -272,14 +166,14 @@ $.widget("ui.ssb_facets", {
 		for(var uri in facets) {
 			var count = facets[uri];
 			
-			var label = outer.labels.get(uri, outer.activeLanguage); 
+			var label = self.labels.get(uri, self.activeLanguage); 
 			if(!label || label == "(missing label)") {
 				var i = uri.lastIndexOf("/");
 				
 				label = i >= 0 ? uri.substring(i + 1) : uri;
 			}
 			
-			var icon = outer.icons.get(uri);
+			var icon = self.icons.get(uri);
 			if(!icon || icon == "(missing icon)") {
 				icon = "";
 			}
@@ -403,14 +297,14 @@ this.fetchSuperClasses =  function(uris) {
 		failure: function() { notify("Error", "Sparql Query Failed"); },
 		success: function(response) {
 			
-			var multiMap = jsonRdfResultSetToMultiMap(JSON.parse(response), "c", "p");
+			var multiMap = jsonRdfResultSetToMultiMap($.parseJSON(response), "c", "p");
 
 			for(var i = 0; i < uris.length; ++i) {
 				var uri = uris[i];
 			//for(uri in uris) {
 				var parents = uri in multiMap ? multiMap[uri] : " ";
 				
-				outer.superClasses.put(uri, parents);
+				self.classHierarchy.put(uri, parents);
 			}
 		}	
 	});	

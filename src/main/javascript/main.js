@@ -344,7 +344,11 @@ LinkedGeoDataQueryFactory.prototype = {
 	
 
 	createNodesQuery: function(bounds) {
-		return "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?n ?g ?t ?l { ?n a lgdo:Node . ?n rdfs:label ?l . ?n lgdo:directType ?t . ?n geo:geometry ?g . ?n rdf:type ?t . { Select ?n { ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "} } " + this.createClassFilter("n") + "}";
+		var uris = this.options.classFilter.toArray();
+		
+		return (uris.length == 0)
+			? "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?n ?g ?t ?l { ?n a lgdo:Node . ?n rdfs:label ?l . ?n lgdo:directType ?t . ?n geo:geometry ?g . { Select ?n { ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "} } }"
+			: "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?n ?g ?t ?l { ?n a lgdo:Node . ?n rdfs:label ?l . ?n lgdo:directType ?t . ?n geo:geometry ?g . { Select Distinct ?n { ?n rdf:type ?ts { Select ?n { ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "} } " + this.createClassFilter("ts") + "} } }";		
 	}
 }
 
@@ -364,6 +368,8 @@ VirtuosoBackend.prototype = {
 	
 	fetchNodes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodesQuery(bounds);
+		
+		console.log("NodesQuery: " + queryString);
 		
 		this.sparqlService.executeSelect(queryString, {
 			failure: function() { notify("Error", "Sparql Query Failed"); },

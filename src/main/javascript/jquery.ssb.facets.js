@@ -55,7 +55,11 @@ $.widget("ui.ssb_facets", {
 	        onSelect: function(select, node) {
 	        	var resource = self.fullTree.keyToUri.getFirst(node.data.key);
 	        	
-	        	self.selection.add(resource);
+	        	if(select == true) {
+	        		self.selection.add(resource);
+	        	} else {
+	        		self.selection.remove(resource);
+	        	}
 	        	
 	            //alert("You checked " + node.data.title);
 	        	//dtnode.visit(function(dtnode){ $("#chb-"+dtnode.data.key).attr("checked",select); },null,true);
@@ -152,8 +156,10 @@ $.widget("ui.ssb_facets", {
 		
 		
 		// Include all currently selected keys in the excerpt
-		keys.concat(this.selection.toArray());
-
+		keys.push.apply(keys, this.selection.toArray());
+		console.log("KEYYYs");
+		console.log(keys);
+		console.log(this.selection.toArray());
 
 		var tree = computeTreeStructureExcerpt(this.fullTree, keys);
 		

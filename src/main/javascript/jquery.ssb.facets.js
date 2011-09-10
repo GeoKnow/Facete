@@ -133,7 +133,20 @@ $.widget("ui.ssb_facets", {
 	},
 	
 	
-	setFacets: function(facets) {
+	setFacets: function(tmpFacets) {
+
+		var facets = tmpFacets;
+		
+		// Add all selected facets
+		var sel = this.selection.toArray();
+		for(var i = 0; i < sel.length; ++i) {
+			var uri = sel[i];
+			
+			if(!(uri in facets)) {
+				facets[uri] = 0;
+			}
+		}
+		
 		
 		var self = this;
 
@@ -143,9 +156,9 @@ $.widget("ui.ssb_facets", {
 		this.fullTree = computeTreeStructure(this.classHierarchy);
 		
 		var keys = [];
-		
 		var uriToKeys = this.fullTree.keyToUri.inverse.entries;
-		//console.log(uriToKeys);
+		
+		// console.log(uriToKeys);
 		for(var uri in facets) {
 			if(uri in uriToKeys) {
 				for(var key in uriToKeys[uri]) {
@@ -269,6 +282,7 @@ $.widget("ui.ssb_facets", {
 			uri = tmp;
 		}
 		var facet = this.uriToFacet[uri];
+		
 		
 		if(!facet) {
 			facet = {title:"unnamed - " + key};

@@ -45,7 +45,11 @@ $.widget("ui.ssb_facets", {
 	        onActivate: function(node) {
 	            // A DynaTreeNode object is passed to the activation handler
 	            // Note: we also get this event, if persistence is on, and the page is reloaded.
-	            //alert("You activated " + node.data.title);
+	            alert("You activated " + node.data.title);
+	        },
+	        onSelect: function(select, node) {
+	            alert("You checked " + node.data.title);
+	        	//dtnode.visit(function(dtnode){ $("#chb-"+dtnode.data.key).attr("checked",select); },null,true);
 	        },
 	        persist: true,
 	        children: [ // Pass an array of nodes.

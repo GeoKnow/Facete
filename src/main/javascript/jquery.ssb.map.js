@@ -15,6 +15,7 @@ $.widget("ui.ssb_map", {
 		
 		this.nodeToPos = this.options.nodeToPos;
 		this.nodeToFeature = this.options.nodeToFeature;
+		this.nodeToLabel = this.options.nodeToLabel;
 		this.wayToFeature = this.options.wayToFeature;
 		
 		this.nodeToType = this.options.nodeToType;
@@ -45,7 +46,7 @@ $.widget("ui.ssb_map", {
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
-	    					new OpenLayers.Control.PanZoomBar(),
+	    					//new OpenLayers.Control.PanZoomBar(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
 	    					new OpenLayers.Control.ScaleLine(),
@@ -60,12 +61,14 @@ $.widget("ui.ssb_map", {
 	    this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
 	    
 	    
-		this.map.addLayers([mapnikLayer, this.markerLayer, this.vectorLayer]);
+		this.map.addLayers([mapnikLayer, this.vectorLayer, this.markerLayer]);
 
 		
+		/*
 		var size = new OpenLayers.Size(21,25);
 		var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
 		var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
+		*/
 
 		this.map.setCenter(new OpenLayers.LonLat(12.372966, 51.310228) // Center of the map
 	    	.transform(
@@ -120,12 +123,14 @@ $.widget("ui.ssb_map", {
 				//console.log("Features removed");
 				value = change.removed[key];
 				self.markerLayer.removeMarker(value);
+				//self.vectorLayer.removeMarker(value);
 			}
 
 
 			for(key in change.added) {
 				value = change.added[key];
 				self.markerLayer.addMarker(value);
+				//self.vectorLayer.addMarker(value);
 			}		
 		});
 			
@@ -178,28 +183,32 @@ $.widget("ui.ssb_map", {
 		feature.data.popupContentHTML = "No content loaded yet";
 		feature.data.overflow = "auto";
 
-		
-		
 		var marker = feature.createMarker();
 
-		var markerClick = function (evt) {
+		var self = this;
+		var markerClick = function(event) {
 			
-			for (var i = map.popups.length - 1; i >= 0; --i) {
-				map.popups[i].hide();
+			self._trigger("onMarkerClick", event, {"nodeId": nodeId});
+			
+			/*
+			for (var i = self.map.popups.length - 1; i >= 0; --i) {
+				self.map.popups[i].hide();
 			}
 			if (this.popup == null) {
 				this.popup = this.createPopup(this.closeBox);
-				map.addPopup(this.popup);
+				self.map.addPopup(this.popup);
 				this.popup.show();
 			} else {
 				this.popup.toggle();
 			}
-			currentPopup = this.popup;
+			
+			this.popup.setContentHTML(self.nodeToLabels.get(nodeId));
 			
 			//loadData(currentPopup, nodeId, xlon, xlat, tags);
-			
+			*/
 			OpenLayers.Event.stop(evt);
 		};
+		
 		//marker.events.register("mouseover", feature, markerClick);
 		//marker.events.register("mouseout", feature, markerClick);
 		marker.events.register("click", feature, markerClick);

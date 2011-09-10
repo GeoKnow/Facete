@@ -107,9 +107,12 @@ $(document).ready(function() {
 		classHierarchy: this.classHierarchy
 	});
 
+	$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
+		notify("AEOU", "EU");
+	});
 	
 	$("#map").bind("ssb_maponmapevent", function(event, ui) {
-		notify("MapEvent", "weee");
+		//notify("MapEvent", "weee");
 		
 		
 		
@@ -728,6 +731,10 @@ function sparqlQueryTest(baseURL, query, callback, format) {
 	$.ajax(queryURL, callback);	
 }
 
+
+function doSearch() {
+	notify("search", "aoeu");
+}
 
 
 /*

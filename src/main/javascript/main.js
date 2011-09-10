@@ -45,7 +45,10 @@ $(document).ready(function() {
 	// TODO Allow configuration of multiple sparql endpoint services per map layer
 	// Layer description -> list of sparql endpoints
 	this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql", ["http://linkedgeodata.org"]);
-	var queryFactory = new LinkedGeoDataQueryFactory();
+	
+	this.selection = new Set();
+	
+	var queryFactory = new LinkedGeoDataQueryFactory({classFilter: this.selection});
 	
 	this.backend = new DelayBackend(new VirtuosoBackend(this.sparqlService, queryFactory));
 
@@ -58,6 +61,7 @@ $(document).ready(function() {
 	// The active language
 	this.activeLanguage = "en";
 
+	
 	// Model classes for the instances
 	// TODO Combine these maps into a single one...
 	//this.nodeToLabels = new LabelCollection();
@@ -104,7 +108,8 @@ $(document).ready(function() {
 	$("#facets").ssb_facets({
 		schemaIcons: this.schemaIcons,
 		schemaLabels: this.schemaLabels,
-		classHierarchy: this.classHierarchy
+		classHierarchy: this.classHierarchy,
+		selection: this.selection
 	});
 
 	$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
@@ -307,11 +312,25 @@ function notify(title, text)
 
 
 
-function LinkedGeoDataQueryFactory() {
+function LinkedGeoDataQueryFactory(options) {
+	this.options = options;
+}
+
+LinkedGeoDataQueryFactory.prototype = {
+		
+	createClassFilter: function(varName) {
+		var uris = this.options.classFilter.toArray();
+
+		return uris.length == 0 ? "" : "Filter(?" + varName + " In (<" + uris.join(">,<") + ">)) . ";
+	},
+		
 	/**
 	 * Must return columns ?w ?g
 	 */
-	this.createWayGeometriesQuery = function(bounds) {
+	createWayGeometriesQuery: function(bounds) {
+		
+		
+		
 		var result = "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?w ?g { ?w ?p ?g ; lgdo:hasNodes ?wn . ?wn ?x ?n . Filter(?p = georss:polygon || ?p = georss:linestring) . { Select ?n { ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "} } }";
 		
 		//console.log(result);
@@ -320,13 +339,13 @@ function LinkedGeoDataQueryFactory() {
 		//return "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?w ?g { ?w ?p ?g ; lgdo:hasNodes ?wn . ?wn ?x ?n . Filter(?p = georss:polygon || ?p = georss:linestring) . ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "}";
 	
 		return result;
-	};
+	},
 	
 	
 
-	this.createNodesQuery = function(bounds) {
-		return "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?n ?g ?t ?l { ?n a lgdo:Node . ?n rdfs:label ?l . ?n lgdo:directType ?t . ?n geo:geometry ?g . { Select ?n { ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "} } }";
-	};	
+	createNodesQuery: function(bounds) {
+		return "Prefix lgdo:<http://linkedgeodata.org/ontology/> Prefix georss:<http://www.georss.org/georss/> Select ?n ?g ?t ?l { ?n a lgdo:Node . ?n rdfs:label ?l . ?n lgdo:directType ?t . ?n geo:geometry ?g . ?n rdf:type ?t . { Select ?n { ?n geo:geometry ?geo . " + createSparqlFilter("geo", bounds) + "} } " + this.createClassFilter("n") + "}";
+	}
 }
 
 

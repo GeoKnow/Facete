@@ -27,7 +27,12 @@ $.widget("ui.ssb_facets", {
 		this.schemaLabels = this.options.schemaLabels;   //new LabelCollection();
 		this.classHierarchy = this.options.classHierarchy; //new BidiMultiMap();
 		this.activeLanguage = "en";
+
 		
+		this.selection = this.options.selection;
+		
+		// The tree structure derived from the class hierarchy
+		this.fullTree = undefined; //{"rootKeys": [], "keyHierarchy": keyHierarchy, "keyToUri": keyToUri};
 		
 		// uri to view object
 		// NOTE one uri maps to multiple nodes, but 1 node only maps to 1 uri
@@ -48,7 +53,11 @@ $.widget("ui.ssb_facets", {
 	            alert("You activated " + node.data.title);
 	        },
 	        onSelect: function(select, node) {
-	            alert("You checked " + node.data.title);
+	        	var resource = self.fullTree.keyToUri.getFirst(node.data.key);
+	        	
+	        	self.selection.add(resource);
+	        	
+	            //alert("You checked " + node.data.title);
 	        	//dtnode.visit(function(dtnode){ $("#chb-"+dtnode.data.key).attr("checked",select); },null,true);
 	        },
 	        persist: true,
@@ -84,8 +93,41 @@ $.widget("ui.ssb_facets", {
 		//this.fetchProperties(bound);
 	},
 
-	
 
+	/*
+	getAllSelected: function() {
+		var result = [];
+		var rootNode = $(this.domElement).dynatree("getRoot");
+
+		this.getAllSelected(rootNode, result);
+		
+
+		return result;
+	},
+
+	getAllSelected: function(node, result) {
+		var children = node.getChildren();
+		if(children) {
+			for(var i = 0; i < children.length; ++i) {
+				var childNode = children[i];
+				
+				if(childNode.data)
+				
+				this.getAllSelected(childNode, result);
+			}
+		}		
+	}*/
+	
+	getSelectedFacets: function() {
+		console.log(this.keyToFacetState);
+		/*
+		var selection = $(this.domElement).dynatree("getSelectedNodes");
+
+		for(var i = 0; i < selection.length; ++i) {
+			
+		}*/
+	},
+	
 	
 	setFacets: function(facets) {
 		
@@ -94,11 +136,11 @@ $.widget("ui.ssb_facets", {
 		//console.log("Hierarchy:");
 		//console.log(self.classHierarchy);
 		
-		var fullTree = computeTreeStructure(this.classHierarchy);
+		this.fullTree = computeTreeStructure(this.classHierarchy);
 		
 		var keys = [];
 		
-		var uriToKeys = fullTree.keyToUri.inverse.entries;
+		var uriToKeys = this.fullTree.keyToUri.inverse.entries;
 		//console.log(uriToKeys);
 		for(var uri in facets) {
 			if(uri in uriToKeys) {
@@ -110,7 +152,7 @@ $.widget("ui.ssb_facets", {
 		
 
 
-		var tree = computeTreeStructureExcerpt(fullTree, keys);
+		var tree = computeTreeStructureExcerpt(this.fullTree, keys);
 		
 		// Based on the facets and the class hierarchy, derive a tree structure:
 		// For all facets, get their parents

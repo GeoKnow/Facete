@@ -150,6 +150,9 @@ $.widget("ui.ssb_facets", {
 			} 
 		}
 		
+		
+		// Include all currently selected keys in the excerpt
+		keys.concat(this.selection.toArray());
 
 
 		var tree = computeTreeStructureExcerpt(this.fullTree, keys);
@@ -182,7 +185,7 @@ $.widget("ui.ssb_facets", {
 			}*/
 			
 			if(!(uri in this.uriToFacet)) {
-				this.uriToFacet[uri] = {title: "unnamed", icon: null, checked:false, visible:false};
+				this.uriToFacet[uri] = {title: "unnamed", icon: null, select:false, visible:false};
 			}
 			
 			var facet = this.uriToFacet[uri];
@@ -232,7 +235,7 @@ $.widget("ui.ssb_facets", {
 	
 	saveFacetState: function(node) {
 		//console.log("Saving key " + node.data.key);
-		this.keyToFacetState[node.data.key] = {select: node.data.select, expand: node.data.expand, visible: node.isVisible()};
+		this.keyToFacetState[node.data.key] = {select: node.isSelected(), expand: node.isExpanded(), visible: node.isVisible()};
 		
 		var children = node.getChildren();
 		if(children) {

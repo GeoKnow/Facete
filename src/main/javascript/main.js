@@ -45,7 +45,7 @@ $(document).ready(function() {
 	// TODO Allow configuration of multiple sparql endpoint services per map layer
 	// Layer description -> list of sparql endpoints
 	//this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql", ["http://linkedgeodata.org"]);
-	this.sparqlService = new VirtuosoSparqlService("../php/SparqlProxy.php", ["http://linkedgeodata.org"]);
+	this.sparqlService = new VirtuosoSparqlService("src/main/php/SparqlProxy.php", ["http://linkedgeodata.org"]);
 	
 	this.selection = new Set();
 	
@@ -807,14 +807,14 @@ function sparqlQueryTest(baseURL, query, callback, format) {
 
 
 function doSearch() {
-	notify("Info", "Search");
+	//notify("Info", "Search");
 	$("#searchResults").html("searching");
 	
 	var map = $("#map").data("ssb_map").map; 
 	
 	var searchValue = encodeURI($('#search-field').val());
 
-	var url = "../php/search_proxy.php?query=" + searchValue;
+	var url = "src/main/php/search_proxy.php?query=" + searchValue;
 	//console.log(url);
 	$.ajax(url, {
 		failure: function() {notify("Something went wrong"); },

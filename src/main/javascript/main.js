@@ -44,7 +44,8 @@ $(document).ready(function() {
 	var self = this;
 	// TODO Allow configuration of multiple sparql endpoint services per map layer
 	// Layer description -> list of sparql endpoints
-	this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql", ["http://linkedgeodata.org"]);
+	//this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql", ["http://linkedgeodata.org"]);
+	this.sparqlService = new VirtuosoSparqlService("../php/SparqlProxy.php", ["http://linkedgeodata.org"]);
 	
 	this.selection = new Set();
 	
@@ -111,9 +112,54 @@ $(document).ready(function() {
 		classHierarchy: this.classHierarchy,
 		selection: this.selection
 	});
+	
+	// TODO hacky
+	this.map = $("#map").data("ssb_map").map;
 
 	$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
-		notify("AEOU", "EU");
+
+		var feature = ui.feature;
+
+		//console.log(event);
+		//console.log(ui);
+		
+		
+		
+		//var outer = this;
+		self.backend.fetchStatementsBySubject([ui.nodeId], function(jsonRdf) {
+			
+			var point = feature.lonlat.clone().transform(self.map.projection, self.map.displayProjection);
+			
+			//console.log(point);
+			
+			
+			//console.log(feature);
+			//console.log(jsonRdf);
+			var tags = extractTags(jsonRdf);			
+			var html = oldRenderNode(ui.nodeId, point.lon, point.lat, tags);
+			
+			//console.log("info", "here");
+			
+			for (var i = self.map.popups.length - 1; i >= 0; --i) {
+				self.map.popups[i].hide();
+			}
+			if (feature.popup == null) {
+				feature.popup = feature.createPopup(feature.closeBox);
+				feature.popup.size = new OpenLayers.Size(400, 500);
+				feature.popup.maxSize = new OpenLayers.Size(400, 500);
+				feature.popup.setContentHTML(html);
+				self.map.addPopup(feature.popup);
+				feature.popup.show();
+			} else {
+				feature.popup.toggle();
+			}
+
+		});
+		
+
+		
+		//loadData(currentPopup, nodeId, xlon, xlat, tags);
+
 	});
 	
 	$("#map").bind("ssb_maponmapevent", function(event, ui) {
@@ -124,8 +170,8 @@ $(document).ready(function() {
 		//var self = this;
 
 		var map = ui.map;
-		console.log(event);
-		console.log(ui);
+		//console.log(event);
+		//console.log(ui);
 		
 		var zoom = map.getZoom();
 		var bounds = map.getExtent().transform(map.projection, map.displayProjection);
@@ -177,7 +223,7 @@ $(document).ready(function() {
 						
 						self.schemaLabels.put(uri, self.activeLanguage, label);
 					}
-					console.log(self.schemaLabels);
+					//console.log(self.schemaLabels);
 				});
 				
 				self.backend.fetchIcons(iconsToLoad, function(map) {
@@ -210,7 +256,7 @@ $(document).ready(function() {
 			self.nodeToLabel.clear(); //removeAll(getKeys(self.nodeToPos));
 			self.nodeToPos.clear();
 			
-			console.log(o);
+			//console.log(o);
 			for(var s in o.nodeToPoint) {
 
 				self.nodeToType.put(s, o.nodeToType[s]);
@@ -501,7 +547,27 @@ VirtuosoBackend.prototype = {
 			}	
 		});	
 	},
+	
+	fetchStatementsBySubject: function(uris, callback) {		
+		if(uris.length == 0) {
+			return;
+		}
+		
+		console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
+		var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uris.join(">,<") + ">)) . }";
 
+		//var self = this;
+		//alert(queryString);
+		this.sparqlService.executeSelect(queryString, {
+			failure: function() { notify("Error", "Sparql Query Failed"); },
+			success: function(response) {
+
+				
+				callback($.parseJSON(response));
+			}	
+		});	
+	},
+ 
 }
 
 
@@ -514,10 +580,12 @@ function DelayBackend(decoratee) {
 	this.fetchClassesScheduler = new Scheduler();
 	this.fetchLabelsScheduler = new Scheduler();
 	this.fetchIconsScheduler = new Scheduler();
+	this.fetchStatementsBySubjectScheduler = new Scheduler();
 }
 
 
 // TODO There is probably a way to generate these methods on access in js...?
+// Probably a function that returns a function ...
 DelayBackend.prototype = {
 	
 	fetchWayGeometries: function(bounds, callback) {
@@ -542,8 +610,10 @@ DelayBackend.prototype = {
 		var self = this;
 		this.fetchIconsScheduler.schedule(function() {self.decoratee.fetchIcons(uris, callback);});		
 	},
-	
-	
+	fetchStatementsBySubject: function(uris, callback) {
+		var self = this;
+		this.fetchStatementsBySubjectScheduler.schedule(function() {self.decoratee.fetchStatementsBySubject(uris, callback);});				
+	}
 }
 
 
@@ -592,27 +662,6 @@ function getDistanceRad(x1, y1, x2, y2) {
 	return d;
 }
 
-
-function extractTags(json)
-{
-	var result = {};
-	for(var item in json.results.bindings) {
-		var key = item.p.value;
-		
-		// Check if the key is prefixed with a known namespace
-		// In that case replace it
-		var namespacedKey = namespaceUri(key);
-		if(namespacedKey != null)
-			key = namespacedKey;
-		
-		if(item.o['xml:lang'] != null)
-			key = key += "@" + item.o['xml:lang'];
-		
-		result[key] = item.o.value;
-	}
-	
-	return result;
-}
 
 
 /*
@@ -758,9 +807,179 @@ function sparqlQueryTest(baseURL, query, callback, format) {
 
 
 function doSearch() {
-	notify("search", "aoeu");
+	notify("Info", "Search");
+	$("#searchResults").html("searching");
+	
+	var map = $("#map").data("ssb_map").map; 
+	
+	var searchValue = encodeURI($('#search-field').val());
+
+	var url = "../php/search_proxy.php?query=" + searchValue;
+	//console.log(url);
+	$.ajax(url, {
+		failure: function() {notify("Something went wrong"); },
+		success: function(response) {
+			
+			var json = response;
+			//console.log(response);
+			//json = $.parseJSON(response);
+			
+			
+			var html = "<ol>";
+			
+			for(var i = 0; i < json.length; ++i) {
+				var item = json[i];
+				
+				var nameParts = item.display_name.split(",");
+				
+				var name = nameParts[0];
+				var isIn = nameParts[1];
+				
+				
+				var clazz = "";
+				
+				var str = 
+					"<li id='sr" + i + "' class='" + clazz + "'><b>" + name + "</b><br /><div style='margin-left:20px;'>" + isIn + "</div></li>";
+					
+					
+				html += str;
+					/*
+					onmouseout=\"
+						$(this).removeClass('highlight');
+					\"
+					onclick=\"
+						center=new OpenLayers.LonLat($lon, $lat).transform(map.displayProjection,map.projection);
+						map.setCenter(center, $zoom);
+						mapEvent(1);
+					\"
+					onmouseover=\"
+						$(this).addClass('highlight');
+					\"
+				
+				*/
+
+				
+			}
+			
+			
+			html += "</ol>";
+			
+			$("#searchResults").html(html);
+			
+			
+			var zoom = 15;
+			for(var i = 0; i < json.length; ++i) {
+				
+				$("#sr" + i).click((function(item) {
+					
+					return function() {
+						//console.log(item);
+						//notify("Info", "Selected (" + item.lat + ", " + item.lon + ")");
+						center=new OpenLayers.LonLat(item.lon, item.lat).transform(map.displayProjection, map.projection);
+						map.setCenter(center, zoom);
+					};
+				})(json[i])
+				);
+			}
+			
+			//console.log(json);
+		}
+	});
 }
 
+
+function namespaceUri(uri)
+{
+	var knownPrefixes = {
+			'http://linkedgeodata.org/ontology/': 'lgdo',
+			'http://linkedgeodata.org/property/': 'lgdp',
+			'http://dbpedia.org/': 'dbpedia',
+			'http://xmlns.com/foaf/0.1/' : 'foaf',
+			'http://www.w3.org/1999/02/22-rdf-syntax-ns#' : 'rdf',
+			'http://www.w3.org/2000/01/rdf-schema#' : 'rdfs',
+			'http://www.w3.org/2002/07/owl#' : 'owl',
+			'http://www.w3.org/2001/XMLSchema#' : 'xsd',
+			'http://www.w3.org/2003/01/geo/wgs84_pos#' : 'geo'
+		};
+
+	for (var prefix in knownPrefixes) {
+		var namespace = knownPrefixes[prefix];
+		
+		// FIXME replace with startsWith
+		if(uri.substr(0, prefix.length)==prefix) {
+			return namespace + ':' + uri.substr(prefix.length);
+			break;
+		}					
+	}
+	return null;
+}
+
+function extractTags(json)
+{
+	var result = {};
+	for(var i = 0; i < json.results.bindings.length; ++i) {
+		var item = json.results.bindings[i];
+		//console.log(item);
+		var key = item.p.value;
+		
+		// Check if the key is prefixed with a known namespace
+		// In that case replace it
+		var namespacedKey = namespaceUri(key);
+		if(namespacedKey != null)
+			key = namespacedKey;
+		
+		if(item.o['xml:lang'] != null)
+			key = key += "@" + item.o['xml:lang'];
+		
+		result[key] = item.o.value;
+	}
+	
+	return result;
+}
+
+// This method is a mess... cleanup
+function oldRenderNode(id, xlon, xlat, tags) {
+
+	
+	var ret = "";
+	
+	ret += '<b>View '+(tags['name']||'')+"</b>";
+	
+	ret += "<br />";
+        //ret += "<a href='http://linkedgeodata.org/triplify/node" + id + ".ttl'><img class='noborder' src='icon/rdf-export2.png'> <br />";
+        ret += "<a href='" + id + ".ttl'>node:" + id + "</a><br />";
+        //ret += "<a href='http://openstreetmap.org/edit?editor=potlatch&lat=" + xlat + "&lon=" + xlon + "&zoom=18&node=" + id + "' target='_blank'>Edit on OpenStreetMap</a><br />";
+
+	var depiction = tags['foaf:depiction'];
+	if(depiction != null)
+		ret += "<img style='float:left;' src = '" + depiction + "' />";
+	
+	var abstractEn = tags['dbpedia:property/abstract@en'];
+	if(abstractEn != null)
+		ret += abstractEn;
+	
+	ret += "<p style='clear:left;' >";
+	
+	ret +='<form class="nodeform"><input type="hidden" name="id" value="'+(id||'')+'" /><input type="hidden" name="lon" value="'+xlon+'" /><input type="hidden" name="lat" value="'+xlat+'" />\
+		<table><tr><td>Name</td><td><input disabled="true" type="text" name="t[name]" value="'+(tags['name']||'')+'" /></td></tr>\
+		<tr><td>Description</td><td><textarea disabled="true" name="t[description]">'+(tags['description']||'')+'</textarea></td></tr>\
+		<tr><td>Image</td><td><input disabled="true" type="text" name="t[image]" value="'+(tags['image']||'')+'" /></td></tr>\
+		<tr><td>Source_ref</td><td><input disabled="true" type="text" name="t[source_ref]" value="'+(tags['source_ref']||'')+'" /></td>';
+	for(t in tags)
+		if(t!='name' && t!='description' && t!='image' && t!='source_ref') {
+			ret+='<tr><td>'+t+'</td><td><input disabled="true" class="autocomplete" type="text" name="t['+t+']" id="'+t+'" value="'+tags[t]+'" />';//<a onclick="$(this).parent().parent().remove()">[-]</a></td></tr>';
+			//autoc+='$(\'#'+t+'\').autocomplete(\'autocomplete.php\',{extraParams:{p:\''+t+'\'}});'
+		}
+	//ret+='</tr></table>\
+	//	<a onclick="appendrow($(this));">[+]</a><br />';
+	ret+='</form>';
+	
+	ret += "</p>";
+	
+	//ret+='<script type="text/javascript">'+autoc+'</script>';
+
+	return ret;
+}
 
 /*
 for(var s in data) {

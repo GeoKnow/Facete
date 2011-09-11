@@ -74,7 +74,7 @@ $.widget("ui.ssb_map", {
 	    	.transform(
 	    			new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
 	    			new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
-	    	), 15 // Zoom level
+	    	), 16 // Zoom level
 		);
 
 		//map.events.register("click"  , map, function(event) { Dispatcher.fireEvent("mapEvent", self.getBound());});
@@ -180,7 +180,7 @@ $.widget("ui.ssb_map", {
 		var feature = new OpenLayers.Feature(this.markerLayer, point, {icon: icon});
 		feature.closeBox = true;
 		feature.popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud,{'panMapIfOutOfView':false, 'autoSize': true});
-		feature.data.popupContentHTML = "No content loaded yet";
+		//feature.data.popupContentHTML = "No content loaded yet";
 		feature.data.overflow = "auto";
 
 		var marker = feature.createMarker();
@@ -188,7 +188,9 @@ $.widget("ui.ssb_map", {
 		var self = this;
 		var markerClick = function(event) {
 			
-			self._trigger("onMarkerClick", event, {"nodeId": nodeId});
+			OpenLayers.Event.stop(event);
+			
+			self._trigger("onMarkerClick", event, {"nodeId": nodeId, "feature": feature});
 			
 			/*
 			for (var i = self.map.popups.length - 1; i >= 0; --i) {
@@ -206,7 +208,6 @@ $.widget("ui.ssb_map", {
 			
 			//loadData(currentPopup, nodeId, xlon, xlat, tags);
 			*/
-			OpenLayers.Event.stop(evt);
 		};
 		
 		//marker.events.register("mouseover", feature, markerClick);

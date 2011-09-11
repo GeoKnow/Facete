@@ -65,7 +65,9 @@ $.widget("ui.ssb_facets", {
 	        	//dtnode.visit(function(dtnode){ $("#chb-"+dtnode.data.key).attr("checked",select); },null,true);
 	        },
 	        persist: true,
-	        children: [ // Pass an array of nodes.
+	        children: [
+	                   /*
+	            // Pass an array of nodes.
 	            {title: "Item 1", select: true},
 	            {title: "Folder 2", isFolder: true, expand: true,
 	                children: [
@@ -74,6 +76,7 @@ $.widget("ui.ssb_facets", {
 	                ]
 	            },
 	            {title: "Item 3"}
+	            */
 	        ]
 	    });
 	    
@@ -170,9 +173,9 @@ $.widget("ui.ssb_facets", {
 		
 		// Include all currently selected keys in the excerpt
 		keys.push.apply(keys, this.selection.toArray());
-		console.log("KEYYYs");
-		console.log(keys);
-		console.log(this.selection.toArray());
+		//console.log("KEYYYs");
+		//console.log(keys);
+		//console.log(this.selection.toArray());
 
 		var tree = computeTreeStructureExcerpt(this.fullTree, keys);
 		

@@ -13,9 +13,8 @@ function stripNameFinderName($name)
 
 function processNameFinderQuery($search, $global)
 {
-	$base = "http://nominatim.openstreetmap.org/search?format=xml&q=";
+	$base = "http://nominatim.openstreetmap.org/search?format=json&q=";
 	$url = $base . urlencode($search);
-	$url .= "&format=json";
 
 	$c = curl_init();
 	curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
@@ -27,10 +26,13 @@ function processNameFinderQuery($search, $global)
 	return $contents;
 }
 
-$value = urldecode($_REQUEST['search']);
+$value = urldecode($_REQUEST['query']);
 $queryResult = processNameFinderQuery($value, 0);
 
-
+// http://snippets.dzone.com/posts/show/5882
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Content-type: application/json');
 echo $queryResult;
 
 ?>

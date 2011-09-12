@@ -45,7 +45,7 @@ $.widget("ui.ssb_instances", {
 		//notify("data", "changed");
 		//var map = jsonRdfResultSetToMap(JSON.parse(response), "s", "o");
 		
-		var text = "<ul class='dynatree-container'>";
+		var text = "<ul class='ssb-container'>";
 		var map = this.instanceToLabel.entries;
 		
 		var i = 0;
@@ -62,7 +62,7 @@ $.widget("ui.ssb_instances", {
 			}
 			
 			//TODO fire event when clicked
-			text += "<li><span class='dynatree-node dynatree-has-children dynatree-lastsib dynatree-exp-cl dynatree-ico-c'><a class='dynatree-title' href='#'>" + i + ": " + img + value + "</a><span></li>";
+			text += "<li><span class=''><a class='' href='#'>" + i + ": " + img + value + "</a><span></li>";
 		}
 		
 		text += "</ul>";

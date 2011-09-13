@@ -18,6 +18,8 @@
 }
 
 
+
+
 span.dynatree-active a
 {
 	border: 1px solid #99DEFD;
@@ -152,3 +154,24 @@ ul.ssb-container a:hover
 	border-color: #B8D6FB; /* darker light blue */
 }
 
+
+
+a
+/*, ul.dynatree-container a:visited*/
+{
+	color: white; /* inherit doesn't work on IE */
+	font-weight:bold;
+	text-decoration: none;
+	vertical-align: top;
+	margin: 0px;
+	margin-left: 3px;
+/*	outline: 0; /* @ Firefox, prevent dotted border after click */
+}
+
+
+a:hover
+{
+/*	text-decoration: underline; */
+	background: #888888; /* light blue */
+	border-color: #B8D6FB; /* darker light blue */
+}

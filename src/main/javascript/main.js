@@ -112,9 +112,14 @@ $(document).ready(function() {
 		classHierarchy: this.classHierarchy,
 		selection: this.selection
 	});
-	
+
 	// TODO hacky
 	this.map = $("#map").data("ssb_map").map;
+
+	// TODO: Do not depend directly on map, but on a "visible area"
+	$("#searchResults").ssb_search({map: this.map});
+	
+	
 
 	$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
 
@@ -809,6 +814,7 @@ function sparqlQueryTest(baseURL, query, callback, format) {
 function doSearch() {
 	//notify("Info", "Search");
 	$("#searchResults").html("searching");
+	$("#searchResults").slideDown("slow");
 	
 	var map = $("#map").data("ssb_map").map; 
 	
@@ -821,68 +827,25 @@ function doSearch() {
 		success: function(response) {
 			
 			var json = response;
-			//console.log(response);
-			//json = $.parseJSON(response);
 			
-			
-			var html = "<ol>";
-			
+			var items = [];
 			for(var i = 0; i < json.length; ++i) {
-				var item = json[i];
+				
+				var item = json[i];				
 				
 				var nameParts = item.display_name.split(",");
+								
+				var tmp = {
+						name: nameParts[0],
+						description: nameParts[1],
+						lonlat: new OpenLayers.LonLat(item.lon, item.lat)
+				};
 				
-				var name = nameParts[0];
-				var isIn = nameParts[1];
 				
-				
-				var clazz = "";
-				
-				var str = 
-					"<li id='sr" + i + "' class='" + clazz + "'><b>" + name + "</b><br /><div style='margin-left:20px;'>" + isIn + "</div></li>";
-					
-					
-				html += str;
-					/*
-					onmouseout=\"
-						$(this).removeClass('highlight');
-					\"
-					onclick=\"
-						center=new OpenLayers.LonLat($lon, $lat).transform(map.displayProjection,map.projection);
-						map.setCenter(center, $zoom);
-						mapEvent(1);
-					\"
-					onmouseover=\"
-						$(this).addClass('highlight');
-					\"
-				
-				*/
-
-				
+				items.push(tmp);
 			}
 			
-			
-			html += "</ol>";
-			
-			$("#searchResults").html(html);
-			
-			
-			var zoom = 15;
-			for(var i = 0; i < json.length; ++i) {
-				
-				$("#sr" + i).click((function(item) {
-					
-					return function() {
-						//console.log(item);
-						//notify("Info", "Selected (" + item.lat + ", " + item.lon + ")");
-						center=new OpenLayers.LonLat(item.lon, item.lat).transform(map.displayProjection, map.projection);
-						map.setCenter(center, zoom);
-					};
-				})(json[i])
-				);
-			}
-			
-			//console.log(json);
+			$("#searchResults").data("ssb_search").setItems(items);
 		}
 	});
 }

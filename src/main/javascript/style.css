@@ -2,7 +2,19 @@
 .mybg {
 	display:block;
 	background:url(images/background.png);
+	color:white;
+	font-family: tahoma, arial, helvetica;
+	font-size: 10pt; /* font size should not be too big */
+
+}
+
+.myborder {
+	border: 1px solid #888888;
+	border-radius: 7px;
 	color:#ffffff;
+	padding: 7px;
+	margin-left: 7px;
+	margin-top: 7px;
 }
 
 

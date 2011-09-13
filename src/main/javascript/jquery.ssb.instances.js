@@ -69,6 +69,6 @@ $.widget("ui.ssb_instances", {
 		
 		$(this.domElement).html(text);
 	}
-})
+});
 
 })(jQuery);

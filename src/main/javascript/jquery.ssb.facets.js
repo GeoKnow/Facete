@@ -68,7 +68,7 @@ $.widget("ui.ssb_facets", {
 	        onActivate: function(node) {
 	            // A DynaTreeNode object is passed to the activation handler
 	            // Note: we also get this event, if persistence is on, and the page is reloaded.
-	            alert("You activated " + node.data.title);
+	            //alert("You activated " + node.data.title);
 	        },
 	        onSelect: function(select, node) {
 	        	var resource = self.fullTree.keyToUri.getFirst(node.data.key);

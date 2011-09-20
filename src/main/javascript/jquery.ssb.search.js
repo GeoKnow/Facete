@@ -61,7 +61,7 @@ $.widget("ui.ssb_search", {
 	 */
 	setItems: function(items) {
 
-		var html = "<div>" // style:'width: 50%'>";
+		var html = "<div>"; // style:'width: 50%'>";
 
 		for(var i = 0; i < items.length; ++i) {
 			var item = items[i];

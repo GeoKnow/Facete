@@ -104,7 +104,8 @@ $.widget("ui.ssb_search", {
 		$("#searchResultsToggle").click(function() {
 			$("#searchResults").slideUp("slow");
 		});
-		
+	
+		// Add the click events
 		var self = this;		
 		var zoom = 15;
 		for(var i = 0; i < items.length; ++i) {
@@ -112,11 +113,18 @@ $.widget("ui.ssb_search", {
 			$("#sr" + i).click((function(item) {
 				
 				return function() {
-					console.log(self);
 					//console.log(item);
 					//notify("Info", "Selected (" + item.lat + ", " + item.lon + ")");
-					center=item.lonlat.transform(self.map.displayProjection, self.map.projection);
+					/*
+					console.log("Hello:");
+					console.log(item);
+					console.log(self.map.displayProjection);
+					console.log(self.map.projection);
+					 */
+					var center=item.lonlat.clone().transform(self.map.displayProjection, self.map.projection);
+					console.log(center);
 					self.map.setCenter(center, zoom);
+					//self.map.
 				};
 			})(items[i])
 			);

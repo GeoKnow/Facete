@@ -2,6 +2,17 @@
 
 $(document).ready(function() {
 
+	/**
+	 * This is a bit hacky, as we resize the instance list to 100% minus some pixel,
+	 * but its less hacky than hiding divs on mouse over and such
+	 * (and we require javascript anyway)
+	 */
+	$(window).resize(function() {
+		$("#instances").css('max-height', ($(window).height() - 75) + "px");
+	});
+
+	$(window).resize();
+
 	// http://wiki.jqueryui.com/w/page/12138135/Widget%20factory
 	// http://docs.jquery.com/UI_Developer_Guide
 	// http://www.carpe-hora.com/2011/07/working-with-jquery-ui-events/ <-- finally i got events working with that
@@ -91,7 +102,7 @@ $(document).ready(function() {
 	
 	// Initialize the widgets
 
-	$("#results").ssb_instances({
+	$("#instances").ssb_instances({
 		instanceToLabel: this.nodeToLabel,
 		instanceToType: this.nodeToType,
 		schemaIcons: this.schemaIcons
@@ -113,6 +124,7 @@ $(document).ready(function() {
 		selection: this.selection
 	});
 
+	
 	// TODO hacky
 	this.map = $("#map").data("ssb_map").map;
 
@@ -813,8 +825,8 @@ function sparqlQueryTest(baseURL, query, callback, format) {
 
 function doSearch() {
 	//notify("Info", "Search");
-	$("#searchResults").html("searching");
-	$("#searchResults").slideDown("slow");
+	//$("#searchResults").html("searching");
+	$("#searchResults").slideUp("slow");
 	
 	var map = $("#map").data("ssb_map").map; 
 	
@@ -846,6 +858,7 @@ function doSearch() {
 			}
 			
 			$("#searchResults").data("ssb_search").setItems(items);
+			$("#searchResults").slideDown("slow");
 		}
 	});
 }

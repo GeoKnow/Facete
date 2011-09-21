@@ -53,7 +53,7 @@ ul.dynatree-container
 	font-size: 10pt; /* font size should not be too big */
 	color: white;
 	white-space: nowrap;
-	padding: 3px;
+	padding: 0px;
 	margin: 0; /* issue 201 */
 
 
@@ -69,6 +69,13 @@ ul.dynatree-container
 	border: none; /*1px dotted gray;*/
 
 	overflow: auto;
+}
+
+
+ul.dynatree-container ul
+{
+	padding: 0 0 0 0px;
+	margin: 0;
 }
 
 
@@ -104,7 +111,7 @@ ul.ssb-container
 
 
 	border: none;
-	overflow: auto;
+	/* overflow: auto; */
 }
 
 ul.ssb-container li

@@ -88,7 +88,7 @@ $.widget("ui.ssb_map", {
 		var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
 		*/
 
-		this.map.setCenter(new OpenLayers.LonLat(12.372966, 51.310228) // Center of the map
+		this.map.setCenter(new OpenLayers.LonLat(12.3747, 51.3405) // Center of the map
 	    	.transform(
 	    			new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
 	    			new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
@@ -139,15 +139,15 @@ $.widget("ui.ssb_map", {
 		$(this.nodeToFeature).bind("changed", function(event, change) {
 			for(key in change.removed) {
 				//console.log("Features removed");
-				value = change.removed[key];
-				self.markerLayer.removeMarker(value);
+				var marker = change.removed[key].marker;
+				self.markerLayer.removeMarker(marker);
 				//self.vectorLayer.removeMarker(value);
 			}
 
 
 			for(key in change.added) {
-				value = change.added[key];
-				self.markerLayer.addMarker(value);
+				var marker = change.added[key].marker;
+				self.markerLayer.addMarker(marker);
 				//self.vectorLayer.addMarker(value);
 			}		
 		});
@@ -235,7 +235,7 @@ $.widget("ui.ssb_map", {
 		
 		//markerLayer.addMarker(marker);
 		
-		return marker;
+		return feature;
 	},
 
 

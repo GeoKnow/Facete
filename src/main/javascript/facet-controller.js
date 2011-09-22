@@ -1,4 +1,7 @@
 function fetchDirectSuperClasses(service, uris, callback) {
+	
+	uris = filterUrisValidate(uris);
+	
 	if(uris.length == 0) {
 		return;
 	}

@@ -1,4 +1,23 @@
 
+function isValidUri(str) {
+	return !str.contains('+');
+}
+
+
+function filterUrisValidate(uris) {
+	var result = [];
+	
+	for(var i = 0; i < uris.length; ++i) {
+		var uri = uris[i];
+		
+		if(isValidUri(uri)) {
+			result.push(uri);
+		}
+	}
+	
+	return result;
+}
+
 
 $(document).ready(function() {
 
@@ -9,6 +28,7 @@ $(document).ready(function() {
 	 */
 	$(window).resize(function() {
 		$("#instances").css('max-height', ($(window).height() - 75) + "px");
+		$("#facets").css('max-height', ($(window).height() - 75) + "px");
 	});
 
 	$(window).resize();
@@ -56,7 +76,7 @@ $(document).ready(function() {
 	// TODO Allow configuration of multiple sparql endpoint services per map layer
 	// Layer description -> list of sparql endpoints
 	//this.sparqlService = new VirtuosoSparqlService("http://linkedgeodata.org/sparql", ["http://linkedgeodata.org"]);
-	this.sparqlService = new VirtuosoSparqlService("src/main/php/SparqlProxy.php", ["http://linkedgeodata.org"]);
+	this.sparqlService = new VirtuosoSparqlService("src/main/php/sparql-proxy-lgd.php", ["http://linkedgeodata.org"]);
 	
 	this.selection = new Set();
 	
@@ -64,6 +84,10 @@ $(document).ready(function() {
 	
 	this.backend = new DelayBackend(new VirtuosoBackend(this.sparqlService, queryFactory));
 
+	
+	
+	this.sparqlServiceDBpedia = new VirtuosoSparqlService("src/main/php/sparql-proxy-dbpedia.php", ["http://dbpedia.org"]);
+	this.backendDBpedia = new DelayBackend(new VirtuosoBackend(this.sparqlServiceDBpedia, queryFactory)); 
 	
 	
 	//var nodeToLabel = new Map();
@@ -124,54 +148,152 @@ $(document).ready(function() {
 		selection: this.selection
 	});
 
+	$("#facts").ssb_facts({});
+
 	
 	// TODO hacky
 	this.map = $("#map").data("ssb_map").map;
+
+	this.facts = $("#facts").data("ssb_facts");
 
 	// TODO: Do not depend directly on map, but on a "visible area"
 	$("#searchResults").ssb_search({map: this.map});
 	
 	
+	// The currently selected feature
+	// FIXME Change to something like "selectedResource", so we can track
+	// the active feature between mapEvents (features get destroyed on map events)
+	this.selectedFeature = undefined;
+	
+	var onInstanceClicked = function(uri) {
+		
+		if(this.selectedFeature) {
+			var icon = this.selectedFeature.marker.icon;
+			var size = new OpenLayers.Size(icon.size.w - 15, icon.size.h - 15);
+			icon.setSize(size);
+			icon.setUrl("http://www.openlayers.org/dev/img/marker.png");
+		}
+		
+		
+		var feature = self.nodeToFeature.get(uri);
+
+		this.selectedFeature = feature;
+
+		if(feature) {
+			// TODO FFS Why did I use select rather than construct here?
+			self.backend.fetchStatementsBySubject([uri], function(jsonRdf) {
+				
+				var point = feature.lonlat.clone().transform(self.map.projection, self.map.displayProjection);
+				
+				var icon = feature.marker.icon;
+				
+				// FIXME Update the position when changing the size
+				// FIXME Make the handling of the icons nicer
+				var size = new OpenLayers.Size(icon.size.w + 15, icon.size.h + 15);
+				if(icon.url == "http://www.openlayers.org/dev/img/marker.png") {
+					icon.setUrl("http://www.openlayers.org/dev/img/marker-gold.png");
+				}
+				
+	            icon.setSize(size);  
+				
+				//console.log(point);
+				
+				
+				//console.log(feature);
+				//console.log(jsonRdf);
+				//var tags = extractTags(jsonRdf);			
+				
+				self.facts.setData(uri, [jsonRdf]);
+				$("#facts").slideDown("slow");
+				
+				
+				
+				// If there are any same as links, try to fetch something from DBpedia
+				console.log(jsonRdf);
+				//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
+				var tags = extractTags(jsonRdf);
+				
+				objects = "owl:sameAs" in tags ? tags["owl:sameAs"] : [];
+				
+				
+				for(var i = 0; i < objects.length; ++i) {
+					
+					var object = objects[i]; //.value;
+					if(object.startsWith("http://dbpedia.org/resource/")) {
+						
+						self.backendDBpedia.fetchStatementsBySubject([object], function(jsonRdf2) {
+							self.facts.setData(uri, [jsonRdf, jsonRdf2]);
+						});
+						
+					}
+					
+				}
+				
+				
+				/*
+				var html = oldRenderNode(uri, point.lon, point.lat, tags);
+				
+				//console.log("info", "here");
+				
+				for (var i = self.map.popups.length - 1; i >= 0; --i) {
+					self.map.popups[i].hide();
+				}
+				if (feature.popup == null) {
+					feature.popup = feature.createPopup(feature.closeBox);
+					feature.popup.size = new OpenLayers.Size(400, 500);
+					feature.popup.maxSize = new OpenLayers.Size(400, 500);
+					feature.popup.setContentHTML(html);
+					self.map.addPopup(feature.popup);
+					feature.popup.show();
+				} else {
+					feature.popup.toggle();
+				}*/
+			});
+		}
+			
+		
+	};
+	
+
+	
+	var mapEvent = function() {
+		self.map.setCenter(self.map.center, self.map.zoom);
+	};
+	
+	
+	// Initialize
+	// FIXME This is somewhat hacky, as we assume that the schema information can be retrieved after a few seconds
+	// Might sometimes go wrong (its not critical, but widget won't be shown until the next mapEvent)
+	setTimeout(function() { mapEvent(); }, 1000);
+	setTimeout(function() { mapEvent(); }, 4000);
+	
+	
+	$("#facets").bind("ssb_facetschanged", function(event, ui) {
+		//console.log("Got a map event");
+		mapEvent();
+	});
+
+	
+	
+	$("#instances").bind("ssb_instancesclick", function(event, ui) {
+		//console.log(ui.key);
+		onInstanceClicked(ui.key);
+		
+	});
+	
 
 	$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
 
-		var feature = ui.feature;
+		
+		onInstanceClicked(ui.nodeId);
+		//var feature = ui.feature;
 
 		//console.log(event);
 		//console.log(ui);
 		
 		
 		
-		//var outer = this;
-		self.backend.fetchStatementsBySubject([ui.nodeId], function(jsonRdf) {
-			
-			var point = feature.lonlat.clone().transform(self.map.projection, self.map.displayProjection);
-			
-			//console.log(point);
-			
-			
-			//console.log(feature);
-			//console.log(jsonRdf);
-			var tags = extractTags(jsonRdf);			
-			var html = oldRenderNode(ui.nodeId, point.lon, point.lat, tags);
-			
-			//console.log("info", "here");
-			
-			for (var i = self.map.popups.length - 1; i >= 0; --i) {
-				self.map.popups[i].hide();
-			}
-			if (feature.popup == null) {
-				feature.popup = feature.createPopup(feature.closeBox);
-				feature.popup.size = new OpenLayers.Size(400, 500);
-				feature.popup.maxSize = new OpenLayers.Size(400, 500);
-				feature.popup.setContentHTML(html);
-				self.map.addPopup(feature.popup);
-				feature.popup.show();
-			} else {
-				feature.popup.toggle();
-			}
-
-		});
+	
 		
 
 		
@@ -196,7 +318,7 @@ $(document).ready(function() {
 		var minZoom = 15;
 		
 		if(zoom < minZoom) {
-			self.notificationScheduler.schedule(function() { notify("Info", "Current zoom level " + zoom + " is less than minimum " + minZoom);});
+			self.notificationScheduler.schedule(function() { notify("Info", "Disabled fetching data because current zoom level " + zoom + " is less than the minimum " + minZoom + ".");});
 			return;
 		}
 		
@@ -207,7 +329,7 @@ $(document).ready(function() {
 		//var onMapEvent = function(event, facets) 
 		//{
 			self.backend.fetchClasses(bounds, function(uris) {
-			
+
 				var facets = uris;
 				
 				// Check for which facets we need to load the labels
@@ -521,6 +643,9 @@ VirtuosoBackend.prototype = {
 			
 
 	fetchLabels: function(uris, language, callback) {		
+		
+		uris = filterUrisValidate(uris);
+		
 		if(uris.length == 0) {
 			return;
 		}
@@ -545,6 +670,9 @@ VirtuosoBackend.prototype = {
 
 	
 	fetchIcons: function(uris, callback) {		
+		
+		uris = filterUrisValidate(uris);
+		
 		if(uris.length == 0) {
 			return;
 		}
@@ -552,6 +680,7 @@ VirtuosoBackend.prototype = {
 		console.log("Fetching icons for (<" + uris.join('> , <') + ">)");	
 		var queryString = "Select ?u ?i { ?u <http://linkedgeodata.org/ontology/schemaIcon> ?i . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
 
+		
 		//var self = this;
 		//alert(queryString);
 		this.sparqlService.executeSelect(queryString, {
@@ -566,6 +695,9 @@ VirtuosoBackend.prototype = {
 	},
 	
 	fetchStatementsBySubject: function(uris, callback) {		
+		
+		uris = filterUrisValidate(uris);
+		
 		if(uris.length == 0) {
 			return;
 		}
@@ -785,9 +917,11 @@ function sparqlQuery(baseURL, defaultGraphUri, query, callback, format) {
 	
 	var querypart="";
 	for(var k in params) {
+		//querypart+=k+"="+encodeURI(params[k])+"&";
 		querypart+=k+"="+encodeURIComponent(params[k])+"&";
 	}
 	var queryURL=baseURL + '?' + querypart;
+	
 	
 	
 	$.ajax(queryURL, callback);	
@@ -890,9 +1024,23 @@ function namespaceUri(uri)
 	return null;
 }
 
-function extractTags(json)
+function extractTagsMulti(jsonRdfs)
 {
 	var result = {};
+	for(var i = 0; i < jsonRdfs.length; ++i) {
+		extractTagsCore(result, jsonRdfs[i]);
+	}
+	
+	return result;
+}
+
+function extractTags(json)
+{
+	return extractTagsCore({}, json);
+}
+
+function extractTagsCore(result, json)
+{
 	for(var i = 0; i < json.results.bindings.length; ++i) {
 		var item = json.results.bindings[i];
 		//console.log(item);
@@ -907,7 +1055,11 @@ function extractTags(json)
 		if(item.o['xml:lang'] != null)
 			key = key += "@" + item.o['xml:lang'];
 		
-		result[key] = item.o.value;
+		if(!(key in result)) {
+			result[key] = [];
+		}
+		
+		result[key].push(item.o.value);
 	}
 	
 	return result;

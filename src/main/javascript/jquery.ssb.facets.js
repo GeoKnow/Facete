@@ -79,6 +79,7 @@ $.widget("ui.ssb_facets", {
 	        		self.selection.remove(resource);
 	        	}
 	        	
+	        	self._trigger("changed", {}, {});
 	            //alert("You checked " + node.data.title);
 	        	//dtnode.visit(function(dtnode){ $("#chb-"+dtnode.data.key).attr("checked",select); },null,true);
 	        },

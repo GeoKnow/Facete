@@ -18,11 +18,18 @@
  */
 (function($) {
 
+	  function escapeHTML(text) {
+		  
+		    return !text ? "" : text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+		  }
 
+
+	  /*
 	function escapeHTML(text)
 	{
 		return $('<div/>').text(text).html();
 	}
+	*l
 
 /**
  * Ideally, when its done, it should look like this:

@@ -92,7 +92,20 @@ var JsonRdfExtractionUtils = {
 		var ts = data[subject];
 	
 		return (predicate in ts) ? ts[predicate][0]["value"] : null;
+	},
+	
+	extractObjects: function(jsonRdf, subject, predicate) {
+		if(subject in jsonRdf) {
+			var ts = jsonRdf[subject];
+			if(predicate in ts) {
+				var objects = ts[predicate];
+				
+				return objects;
+			}
+		}
+		
+		return [];
 	}
-
+	
 };
 

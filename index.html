@@ -4,18 +4,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
 
 -->
+<html>
+
   <head>
     <title>LinkedGeoData Browser Widgets Tests</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 
-
     <script type="text/javascript" src="lib/jquery/1.6.2/jquery-1.6.2.js"></script>
 	
     <script type="text/javascript" src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
+
 
 	
 	<!-- <script type="text/javascript" src="../../../lib/dynatree/1.2.0_rc1/jquery/jquery.ui.core.js"></script>  -->
@@ -46,6 +47,7 @@
 
     <!-- <script type="text/javascript" src="lib/webr3-rdf/cbfabc9/rdf.js"></script -->
 
+
 	
 	<!-- script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script -->
 	<script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
@@ -64,14 +66,16 @@
     <script type="text/javascript" src="src/main/javascript/jquery.ssb.instances.js"></script>
     <script type="text/javascript" src="src/main/javascript/jquery.ssb.map.js"></script>
     <script type="text/javascript" src="src/main/javascript/jquery.ssb.search.js"></script>
+    <script type="text/javascript" src="src/main/javascript/jquery.ssb.facts.js"></script>
     
     <script type="text/javascript" src="src/main/javascript/main.js"></script>    
-        
+
+
   </head>
   
   <body>
  
- 	<a href="http://aksw.org" target="_blank"><img src="src/main/resources/AKSW_Logo_rgb.svg" style="position:absolute; bottom:20px; right:0px; z-index:1; width:150px;"></img></a>
+ 	<a href="http://aksw.org" target="_blank"><img src="src/main/resources/AKSW_Logo_rgb.svg" style="position:absolute; bottom:20px; right:0px; z-index:-1; width:150px;"></img></a>
       
 
     <div id="searchDiv" class="mybg" style="position:absolute; top:0; left:200px; z-index:1; right:200px; height:24px; overflow:auto">
@@ -81,46 +85,20 @@
 		</form>
 		powered by <a class='link' href='http://nominatim.openstreetmap.org' target="_blank"><img class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>  
     </div>
-    <div id="searchResults" class="mybg" style="position:absolute; top:24px; left:200px; right:200px; z-index:1; overflow:auto;"></div>
+    <div id="searchResults" class="mybg" style="position:absolute; top:24px; left:200px; right:200px; z-index:2; overflow:auto;"></div>
     
     <div id="map" style="position:absolute; top:0px; left:0px; z-index:-9999; width:100%; height:100%;"></div>
 
-<!-- 
-    <div id="facts" class="mybg" style="position:absolute; top:24px; left:200px; z-index:1; width:300px; height:100%; overflow:auto;"></div>
-    //height:-90%;
--->
 	
-	<div class="mybg" style="position:absolute; top:0px; left:0px; height:24px; width:200px;">Instances:</div>
-
-	
-
-<!--
-	<div style="position:absolute; top:0px; left:0px; width: 200px;">
-		<div style="heigth: 24px">
-		</div>
-		<div style="margin: 24px 0px; height:50%; overflow:scroll;">
-		    <div id="instances" class="mybg" style="max-height:100%; overflow:scroll;"></div>
-		</div>
-		<div style="heigth: 24px">
-		</div>
-	</div>
-  -->
-  
-	<div id="instances" class="mybg" style="position:absolute; top:24px; left:0px; width: 200px; max-height:90%; overflow:auto;"></div>
-    
-<!--
-	<div style="position:absolute; top:0px; left:0px; width:200px; margin: 24px 0px; height:100%;">
-    	<div id="instances" class="mybg" style="top:0px; left:0px; width:200px; max-height:100%; overflow:auto;"></div>
-	</div>
-  -->
-    <div id="facets"        class="mybg" style="position:absolute; padding-top: 24px; top:0px; right:0px; width:200px; z-index:1; overflow:aute;"></div>    
-
+	<div class="mybg" style="position:absolute; top:0px; left:0px; height:24px; width:200px;">Instances</div>  
+	<div id="instances" class="mybg" style="position:absolute; top:24px; left:0px;  width:200px; max-height:90%; overflow:auto;"></div>
 
     
-    <!--
-    <div id="resultsCont" style="position:absolute; top:0%; left:0px; z-index:1; width:200px; height:100%; overflow:auto;">
-    	<div id="results" class="mybg" style="position:absolute; top:24px; left:0px; z-index:1;"></div>
-    </div>
-      -->
+	<div class="mybg" style="position:absolute; top:0px; right:0px; height:24px; width:200px;">Facets</div>  
+    <div id="facets"    class="mybg" style="position:absolute; top:24px; right:0px; width:200px; max-height:90%; overflow:auto;"></div>    
+
+    <div id="facts"     class="mybg" style="position:absolute; left: 250px; bottom:0px; right:250px; max-height:70%; z-index:1; overflow:auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>    
+
+
     </body>
 </html>

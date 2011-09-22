@@ -72,12 +72,13 @@ ul.dynatree-container
 }
 
 
+/*
 ul.dynatree-container ul
 {
 	padding: 0 0 0 0px;
 	margin: 0;
 }
-
+*/
 
 ul.dynatree-container img
 {	

@@ -48,6 +48,7 @@ $.widget("ui.ssb_instances", {
 		var text = "<ul class='ssb-container'>";
 		var map = this.instanceToLabel.entries;
 		
+		var self = this;
 		var i = 0;
 		for(var key in map) {
 			++i;
@@ -57,18 +58,36 @@ $.widget("ui.ssb_instances", {
 			var img = "";
 				
 			var icon = this.schemaIcons.get(this.instanceToType.get(key));
-			if(icon) {
+			if(icon && icon != "(missing icon)") { // FIXME The special case should not occur, but does right now
 				img = "<img alt='' src='" + icon + "'> ";
 			}
 			
+			var id = "inst" + i;
+			
 			//TODO fire event when clicked
-			text += "<li><span class=''><a class='' href='#'>" + i + ": " + img + value + "</a><span></li>";
+			text += "<li><span class=''><a id='" + id + "' class='' href='#'>" + i + ": " + img + value + "</a><span></li>";
 		}
 		
 		text += "</ul>";
 		
 		$(this.domElement).html(text);
+
+		// Add the events
+		i = 0;
+		for(var key in map) {
+			++i;
+
+			var id = "inst" + i;
+			
+			$("#" + id).click(function(i, key) {
+				return function (event) {
+					self._trigger("click", event, {"key": key});
+				};				
+			}(i, key));
+		}
+
 	}
 });
 
 })(jQuery);
+

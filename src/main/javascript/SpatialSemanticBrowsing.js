@@ -311,7 +311,9 @@ SpatialSemanticBrowsing.prototype = {
 		}
 	},
 	
-	updateInstances: function() {
+	onInstanceClicked: function(uri) {
+		var self = this;
+		
 		if(this.selectedFeature) {
 			var icon = this.selectedFeature.marker.icon;
 			var size = new OpenLayers.Size(icon.size.w - 15, icon.size.h - 15);

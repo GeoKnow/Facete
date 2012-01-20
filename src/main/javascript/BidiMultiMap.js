@@ -57,4 +57,5 @@ BidiMultiMap.prototype = {
 	this.get = function(key) {
 		return key in this.entries ? this.entries[key] : {};
 	};*/	
-}
+};
+

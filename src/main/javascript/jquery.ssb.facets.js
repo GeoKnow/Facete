@@ -84,19 +84,7 @@ $.widget("ui.ssb_facets", {
 	        	//dtnode.visit(function(dtnode){ $("#chb-"+dtnode.data.key).attr("checked",select); },null,true);
 	        },
 	        persist: true,
-	        children: [
-	                   /*
-	            // Pass an array of nodes.
-	            {title: "Item 1", select: true},
-	            {title: "Folder 2", isFolder: true, expand: true,
-	                children: [
-	                    {title: "Sub-item 2.1"},
-	                    {title: "Sub-item 2.2"}
-	                ]
-	            },
-	            {title: "Item 3"}
-	            */
-	        ]
+	        children: []
 	    });
 	    
 

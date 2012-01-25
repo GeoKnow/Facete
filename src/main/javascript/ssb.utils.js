@@ -28,6 +28,20 @@ function Scheduler() {
 	};
 }
 
+function toOpenLayersBounds(bounds) {
+	return new OpenLayers.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
+}
+
+function toQuadTreeBounds(bounds) {
+	return new Bounds(bounds.left, bounds.right, bounds.bottom, bounds.top);
+}
+
+
+function mergeMapsInPlace(a, b) {
+	for(k in b) {
+		a[k] = b[k];
+	}
+}
 
 /*
  * Utility functions for some geometric computations 
@@ -169,3 +183,28 @@ function notify(title, text)
 //		sticky: false,
 	});
 }
+
+
+function fetchStatementsBySubject(service, uris, callback) {		
+	
+	uris = filterUrisValidate(uris);
+	
+	if(uris.length == 0) {
+		return;
+	}
+	
+	console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
+	var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uris.join(">,<") + ">)) . }";
+
+	//var self = this;
+	//alert(queryString);
+	service.executeSelect(queryString, {
+		failure: function() { notify("Error", "Sparql Query Failed"); },
+		success: function(response) {
+
+			
+			callback(response);
+		}	
+	});	
+};
+

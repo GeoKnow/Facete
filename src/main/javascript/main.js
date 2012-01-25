@@ -5,27 +5,113 @@
  * browsing component.
  * 
  */
-$(document).ready(function() {
 
-	var sparqlService = new VirtuosoSparqlService("src/main/php/sparql-proxy-lgd.php", ["http://linkedgeodata.org"]);
-	
-	
-	var queryFactory = new LinkedGeoDataQueryFactory();
-	
-	var backend = new DelayBackend(new VirtuosoBackend(sparqlService, queryFactory));
+function AutoConfig(callback) {
+	//this.sparqlService = sparqlService;
+	this.callback = callback;
+}
 
 
-	//this.sparqlServiceDBpedia = new VirtuosoSparqlService("src/main/php/sparql-proxy-dbpedia.php", ["http://dbpedia.org"]);
-	//this.backendDBpedia = new DelayBackend(new VirtuosoBackend(this.sparqlServiceDBpedia, queryFactory)); 
+
+
+// Select Count(*) { { Select Distinct ?s { ?s geo:long ?x ; geo:lat ?y . Filter(?x > -5 && ?x < 100 && ?y > -5 && ?y < 100) . } Limit 1000 } }
+
+AutoConfig.prototype = {
+		ready: "ready",
+		
+		configureService: function(sparqlService) {
+			var self = this;
+			var result = {};
+			
+			sparqlService.executeAsk("Ask { ?s geo:long ?x; geo:lat ?y . }", {
+				failure: function() {
+					result.wgsPoint = false;
+					self.checkReady(result, callback);					
+				},
+				success: function(jsonRdf) {
+					result.wgsPoint = jsonRdf.boolean;
+					self.checkReady(result, sparqlService);
+				} 
+			});
+			
+		},
+
+		// As soon as all capabilities have been collected, invoke the callback
+		checkReady: function(result, sparqlService) {
+			if(typeof(result.wgsPoint) !== undefined) {
+				this.callback(sparqlService, result);
+				//$(this).trigger(ready, result);
+			}
+		}
+};
+
+
+function init(sparqlService, caps) {
+	// Destroy the old resources
+	
+	//console.log(caps);
+	
+	var queryFactory = null;
+	var backend = null;
+	
+	if(caps.wgsPoint) {
+		 queryFactory = new QueryFactoryWgs84();
+		 backend = new BackendWgs84(sparqlService, queryFactory);
+		 backend = new BackendQuadTree(backend, queryFactory);		 
+		 backend = new DelayBackend(backend);
+	}
+	
+	if(!backend || !queryFactory) {
+	
+		alert("No geographic data found");
+		
+		return;
+	}
+	
+	
+	var prefixToService = {
+			//'http://dbpedia.org/': new DelaySparqlService(new VirtuosoSparqlService("src/main/php/sparql-proxy-dbpedia.php", ["http://dbpedia.org"]))
+	};
 
 	
-	// TODO Allow configuration of multiple sparql endpoint services per map layer
-	// Layer description -> list of sparql endpoints
+	var delayBackend = new DelayBackend(backend);
+	
 	var ssb = new SpatialSemanticBrowsing();
-	ssb.setBackend(backend);
+	ssb.setBackend(delayBackend);
 	ssb.setSparqlService(sparqlService);
+	ssb.setQueryFactory(queryFactory);
+	
+	ssb.addFactSources(prefixToService);
 	
 	ssb.init();
+	console.log("Initialization in progress");
+}
+
+$(document).ready(function() {
+	//var sparqlService = new VirtuosoSparqlService("src/main/php/sparql-proxy-lgd.php", ["http://linkedgeodata.org"]);
+	//var sparqlService = new VirtuosoSparqlService("src/main/php/sparql-proxy-local.php", ["http://climbing.org"]);
+	var sparqlService = new VirtuosoSparqlService("sparql", ["http://climbing.org"]);
+	
+	var config = new AutoConfig(init);
+	config.configureService(sparqlService);
+	
+	
+	/*
+	var queryFactory = new LinkedGeoDataQueryFactory();
+	var delayBackend = new DelayBackend(new VirtuosoBackend(sparqlService, queryFactory));
+	var prefixToService = {
+			'http://dbpedia.org/': new DelaySparqlService(new VirtuosoSparqlService("src/main/php/sparql-proxy-dbpedia.php", ["http://dbpedia.org"]))
+	};
+
+	var ssb = new SpatialSemanticBrowsing();
+	ssb.setBackend(delayBackend);
+	ssb.setSparqlService(sparqlService);
+	ssb.setQueryFactory(queryFactory);
+	
+	ssb.addFactSources(prefixToService);
+	
+	ssb.init();
+	*/
 });
 
 

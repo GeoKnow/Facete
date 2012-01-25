@@ -28,15 +28,16 @@ $.widget("ui.ssb_map", {
 		var opts = this.options;
 		//this.options.event += ".ssbinstances"; // namespace event
 		
+		this.idToBox = {};
 		
 		this.domElement = this.element.get(0);
 		
-		this.nodeToPos = this.options.nodeToPos;
+		//this.nodeToPos = this.options.nodeToPos;
 		this.nodeToFeature = this.options.nodeToFeature;
 		this.nodeToLabel = this.options.nodeToLabel;
 		this.wayToFeature = this.options.wayToFeature;
 		
-		this.nodeToType = this.options.nodeToType;
+		this.nodeToTypes = this.options.nodeToTypes;
 		this.schemaIcons = this.options.schemaIcons;
 		
 		//console.log(this.nodeToPos);
@@ -75,11 +76,12 @@ $.widget("ui.ssb_map", {
 
 		
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+		this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
 		this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
 	    this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
 	    
 	    
-		this.map.addLayers([mapnikLayer, this.vectorLayer, this.markerLayer]);
+		this.map.addLayers([mapnikLayer, this.boxLayer, this.vectorLayer, this.markerLayer]);
 
 		
 		/*
@@ -88,12 +90,21 @@ $.widget("ui.ssb_map", {
 		var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
 		*/
 
-		this.map.setCenter(new OpenLayers.LonLat(12.3747, 51.3405) // Center of the map
-	    	.transform(
-	    			new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-	    			new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
-	    	), 16 // Zoom level
-		);
+		//var center = new OpenLayers.LonLat(12.3747, 51.3405);
+		var center = new OpenLayers.LonLat(-3.56, 56.07);
+		
+		var tCenter = center.clone().transform(
+    			this.map.displayProjection,
+    			this.map.projection);
+		
+		console.log(center);
+		this.map.setCenter(tCenter, 3);
+		
+		
+//new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+//new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
+		
+		
 
 		//map.events.register("click"  , map, function(event) { Dispatcher.fireEvent("mapEvent", self.getBound());});
 		//this.map.events.register("moveend", this.map, function(event) { Dispatcher.fireEvent("mapEvent", self.getBound());});
@@ -109,6 +120,96 @@ $.widget("ui.ssb_map", {
 		this._doBind();
 	},
 
+	addItems : function(idToPos) {
+		var self = this;
+		
+		$.each(idToPos, function(id, point) {
+			//var point = idToPos[id];
+
+			//point = point.transform(self.map.displayProjection, self.map.projection);
+			//console.log(point);
+			
+			var feature = self.createMarker(point, id);
+			self.nodeToFeature.put(id, feature);
+			//console.log("Adding feature/marker");
+			//console.log(feature);
+			self.markerLayer.addMarker(feature.marker);
+		});		
+	},
+	
+	removeItems : function(ids) {
+		var self = this;
+		
+		console.log("Items removal");
+		
+		$.each(ids, function(i, id) {
+			var feature = self.nodeToFeature.entries[id];
+			self.markerLayer.removeMarker(feature.marker);
+			
+			delete self.nodeToFeature[id];
+		});
+	},
+	
+	addBox : function(id, bounds) {
+		
+		var a = new OpenLayers.LonLat(bounds.left, bounds.bottom);
+		var b = new OpenLayers.LonLat(bounds.right, bounds.top);
+		
+		var ta = this._pointToScreen(a);
+		var tb = this._pointToScreen(b);
+		
+		var b = new OpenLayers.Bounds();
+		b.extend(ta);
+		b.extend(tb);
+
+		//box = new OpenLayers.Marker.Box(bounds);
+		box = new OpenLayers.Marker.Box(b);
+		console.log("My Box");
+		console.log(b);
+		this.boxLayer.addMarker(box);
+
+		this.idToBox[id] = box;
+	},
+	
+	removeBox : function(id) {
+		var box = this.idToBox[id];
+		if(box) {
+			this.boxLayer.removeMarker(box);
+		}
+	},
+
+	/*
+	setNodeToPos: function(nodeToPos) {
+		console.log(nodeToPos);
+		var self = this;
+		
+		//self.nodeToFeature.removeAll(getKeys(change.removed));
+
+		for(id in self.nodeToFeature.entries) {
+			var feature = self.nodeToFeature.entries[id];
+			self.markerLayer.removeMarker(feature.marker);
+		}
+		
+		this.nodeToFeature.clear();
+		
+		for(id in nodeToPos) {
+			var point = nodeToPos[id];
+
+			//point = point.transform(self.map.displayProjection, self.map.projection);
+			//console.log(point);
+			
+			var feature = self.createMarker(point, id);
+			self.nodeToFeature.put(id, feature);
+			//console.log("Adding feature/marker");
+			//console.log(feature);
+			self.markerLayer.addMarker(feature.marker);
+		}
+		
+		
+
+	},
+	*/
+	
 	_doBind: function() {
 
 		var self = this;
@@ -116,26 +217,30 @@ $.widget("ui.ssb_map", {
 		/**
 		 * For each entry in the nodeToPos map we create a feature
 		 */
+		/*
 		$(this.nodeToPos).bind("changed", function(event, change) {
 			
 			self.nodeToFeature.removeAll(getKeys(change.removed));
 
 			//console.log("pos");
-			//console.log(change);
+			console.log(change);
 			for(id in change.added) {
-				var point = change.added[id];
+				var point = change.added[id].clone();
 
-				point = point.transform(self.map.displayProjection, self.map.projection);
+				//point = point.transform(self.map.displayProjection, self.map.projection);
+				//console.log(point);
 				
 				var marker = self.createMarker(point, id);
 				self.nodeToFeature.put(id, marker);
 			}		
 		});
+		*/
 
 		
 		/**
 		 * We add all nodeFeatures to the map 
 		 */ 
+		/*
 		$(this.nodeToFeature).bind("changed", function(event, change) {
 			for(key in change.removed) {
 				//console.log("Features removed");
@@ -151,8 +256,9 @@ $.widget("ui.ssb_map", {
 				//self.vectorLayer.addMarker(value);
 			}		
 		});
+		*/
 			
-		
+		/*
 		$(this.wayToFeature).bind("changed", function(event, change) {
 			
 			for(key in change.removed) {
@@ -173,17 +279,33 @@ $.widget("ui.ssb_map", {
 			
 			
 		});
+		*/
+	},
+	
+	_pointToScreen: function(point) {
+		return point.clone().transform(this.map.displayProjection, this.map.projection);
 	},
 	
 	createMarker: function(point, nodeId) {
+		//console.log("Creating marker: " + point);
 		
-		var iconUrl = this.schemaIcons.get(this.nodeToType.get(nodeId));
+		var types = this.nodeToTypes.get(nodeId);
+		var type = null;
+		if(types) {
+			type = types[0];
+		}
+		
+		var iconUrl = type ? this.schemaIcons.get(type) : null;
 		
 		if(!iconUrl || iconUrl == "(missing icon)") {
 			iconUrl = "http://www.openlayers.org/dev/img/marker.png";
 		}
 		
-		//var tPoint = point.transform(map.displayProjection, map.projection);
+		//point = new OpenLayers.LonLat(-1, 52);
+		
+		var tPoint = point.clone().transform(this.map.displayProjection, this.map.projection);
+		//var tPoint = point;
+		
 		//console.log(tPoint);
 		
 		var size = new OpenLayers.Size(21, 25);
@@ -195,7 +317,7 @@ $.widget("ui.ssb_map", {
 		*/
 
 		
-		var feature = new OpenLayers.Feature(this.markerLayer, point, {icon: icon});
+		var feature = new OpenLayers.Feature(this.markerLayer, tPoint, {icon: icon});
 		feature.closeBox = true;
 		feature.popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud,{'panMapIfOutOfView':false, 'autoSize': true});
 		//feature.data.popupContentHTML = "No content loaded yet";

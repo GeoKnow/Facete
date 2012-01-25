@@ -1,3 +1,16 @@
+
+
+/**
+ * Determines the set of types that are not subsumed by another type
+ * @param classHierarchy
+ * @param types
+ */
+function getMostSpecificClasses(classHierarchy, types) {
+	
+}
+
+
+
 /**
  * The main class for the Spatial Semantic Browsing Widgets.
  * Holds references to model classes, and can initialize the controller.
@@ -8,6 +21,7 @@
 function SpatialSemanticBrowsing() {
 	this.backend = null;
 	this.sparqlService = null;
+	this.queryFactory = null;
 
 	// TODO Actually multi selection would be cool
 	this.selection = new Set();
@@ -26,7 +40,7 @@ function SpatialSemanticBrowsing() {
 	// TODO Consider combining these maps into a single one...
 	// TODO I think I reinvented a bit of backbone here, so I should use backbone directly
 	this.nodeToLabel = new Map();
-	this.nodeToType  = new Map();
+	this.nodeToTypes  = new MultiMap();
 	this.nodeToPos   = new Map();
 	this.nodeToFeature = new Map();
 	
@@ -44,11 +58,20 @@ function SpatialSemanticBrowsing() {
 	this.schemaLabels = new LabelCollection();
 	this.classHierarchy = new BidiMultiMap();
 
+	this.quadTreeModel = null;
+
+	
 	// Reference to the OpenLayers map
+	this.mapWidget = null;
 	this.map = null;
+	
+	
+	this.test = 0.0;
+	
 	
 	//this.propertyHierarchy = new PropertyHierarchy();
 
+	this.prefixToService = {};
 } 
 
 SpatialSemanticBrowsing.prototype = {
@@ -74,13 +97,13 @@ SpatialSemanticBrowsing.prototype = {
 			nodeToFeature: this.nodeToFeature,
 			wayToFeature: this.wayToFeature,
 			instanceToLabel: this.nodeToLabel,
-			nodeToType: this.nodeToType,
+			nodeToTypes: this.nodeToTypes,
 			schemaIcons: this.schemaIcons
 		});
 
 		$("#instances").ssb_instances({
 			instanceToLabel: this.nodeToLabel,
-			instanceToType: this.nodeToType,
+			instanceToType: this.nodeToTypes,
 			schemaIcons: this.schemaIcons
 		});
 		
@@ -94,17 +117,25 @@ SpatialSemanticBrowsing.prototype = {
 		$("#facts").ssb_facts({});
 
 		
-		this.map = $("#map").data("ssb_map").map;
+		this.mapWidget = $("#map").data("ssb_map");
+		this.map = this.mapWidget.map;
 		this.facts = $("#facts").data("ssb_facts");
 
 		// TODO: Do not depend directly on map, but on a "visible area"
-		$("#searchResults").ssb_search({map: this.map});
+		$("#searchResults").ssb_search({map: this.map});		
 	},
 	
 	initEvents: function() {
 		var self = this;
 		
 		$("#facets").bind("ssb_facetschanged", function(event, ui) {
+			//var sel = $("#facets").data;
+			console.log("Selection is:");
+			console.log(self.selection);
+			
+			self.queryFactory.setClassFilter(self.selection);
+			
+			
 			self.mapEvent();
 		});
 		
@@ -128,28 +159,55 @@ SpatialSemanticBrowsing.prototype = {
 	refresh: function(bounds) {
 		var self = this;
 
-		this.backend.fetchClasses(bounds, function(uris) { self.updateClasses(uris); });
-		this.backend.fetchNodes(bounds, function(o) { self.updateNodes(o); });
-		this.backend.fetchWayGeometries(bounds, function(data) {self.updateGeometries(data); });
+		// First: check the global cache of whether it can provide data for the selected filter criteria
+		
+		
+		// Second: If that fails, use the location cache
+		
+		
+		this.quadTreeModel.setBounds(toQuadTreeBounds(bounds));
+		
+		//this.backend.fetchClasses(bounds, function(uris) { self.updateClasses(uris); });
+		
+		//this.backend.fetchNodes(bounds, function(nodeToPos) { self.updateNodePositions(nodeToPos); });
+		
+		// NOTE OpenLayers bounds to QuadTree.Bounds
+		
+		//this.backend.fetchNodeTypes(bounds, function(nodeToTypes) { self.updateNodeTypes(nodeToTypes); });
+		//this.backend.fetchNodeLabels(bounds, function(nodeToLabel) { self.updateNodeLabels(nodeToLabel); });
+		
+		//this.backend.fetchWayGeometries(bounds, function(data) {self.updateGeometries(data); });
 	},
 	
 	mapEvent: function() {
+		this.test += 0.0005;
+		//this.mapWidget.setNodeToPos({"http://test.org":  new OpenLayers.LonLat(-1.0 + this.test, 53.0)});
+
 		var map = this.map;
 		//var map = ui.map;
 		//console.log(event);
 		//console.log(ui);
 		
-		var zoom = map.getZoom();
+		//var zoom = map.getZoom();
 		var bounds = map.getExtent().transform(map.projection, map.displayProjection);
 
+		/*
 		var minZoom = 15;
 		
 		if(zoom < minZoom) {
 			self.notificationScheduler.schedule(function() { notify("Info", "Disabled fetching data because current zoom level " + zoom + " is less than the minimum " + minZoom + ".");});
 			return;
-		}
+		}*/
 		
 		this.refresh(bounds);
+	},
+	
+	addFactSources: function(prefixToService) {
+		var self = this;
+
+		for(key in prefixToService) {
+			self.prefixToService[key] = prefixToService[key];
+		}
 	},
 	
 	/*
@@ -159,8 +217,48 @@ SpatialSemanticBrowsing.prototype = {
 		setSparqlEndpoint(service);
 	},*/
 	
+	setQueryFactory: function(queryFactory) {
+		this.queryFactory = queryFactory;
+	},
+	
 	setBackend: function(backend) {
+		var self = this;
+		
 		this.backend = backend;
+		this.quadTreeModel = new QuadTreeModel(backend);
+		
+		$(this.quadTreeModel).bind("changed", function(event, change) {
+			
+			$.each(change.removed, function(i, node) {
+				if(node.data.idToPos) {
+					self.mapWidget.removeItems(getKeys(node.data.idToPos));
+				} else {
+					self.mapWidget.removeBox(node.getBounds().toString());
+				}
+			});
+
+			//console.log("here");
+
+			$.each(change.added, function(i, node) {
+				if(node.data.idToTypes) {
+					self.updateNodeTypes(node.data.idToTypes);
+				}
+			});
+			
+			$.each(change.added, function(i, node) {
+				if(node.data.idToLabels) {
+					self.updateNodeTypes(node.data.idToTypes);
+				}
+			});			
+			
+			$.each(change.added, function(i, node) {
+				if(node.data.idToPos) {
+					self.mapWidget.addItems(node.data.idToPos);
+				} else {
+					self.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
+				}
+			});
+		});
 	},
 
 	setSparqlService: function(sparqlService) {
@@ -247,32 +345,56 @@ SpatialSemanticBrowsing.prototype = {
 	},
 	
 	
-	updateNodes: function(o) {
+	updateNodeTypes: function(nodeToTypes) {
+		for(var id in nodeToTypes) {
+			this.nodeToTypes.putAll(id, nodeToTypes[id]);
+		}		
+	},
+	
+	
+	updateNodeLabels: function(nodeToLabel) {
+		this.nodeToLabel.clear();
+		
+		for(var id in nodeToLabel) {
+			//self.nodeToLabels.putAll(id, nodeToLabels[id]);
+			this.nodeToLabel.put(id, nodeToLabel[id]);
+		}				
+	},
+	
+	updateNodePositions: function(nodeToPoint) {
+		console.log("updateNodes");
 		var self = this;
 
 		//self.markerLayer.clearMarkers();
 		
 		// Remove all types and labels
-		self.nodeToType.removeAll(getKeys(self.nodeToPos));
-		self.nodeToLabel.clear(); //removeAll(getKeys(self.nodeToPos));
-		self.nodeToPos.clear();
+		//self.nodeToTypes.removeAll(getKeys(self.nodeToPos));
+		//self.nodeToLabel.clear(); //removeAll(getKeys(self.nodeToPos));
+		//self.nodeToPos.clear();
 		
-		//console.log(o);
-		for(var s in o.nodeToPoint) {
+		for(var s in nodeToPoint) {
 
-			self.nodeToType.put(s, o.nodeToType[s]);
+			//self.nodeToTypes.put(s, o.nodeToType[s]);
 			//self.nodeToLabels.put(s, this.activeLanguage, o.nodeToLabels[s]);
-			self.nodeToLabel.put(s, o.nodeToLabel[s]);
-			self.nodeToPos.put(s, o.nodeToPoint[s]);
+			//self.nodeToLabel.put(s, o.nodeToLabel[s]);
+			self.nodeToPos.put(s, nodeToPoint[s]);
 			
+
 			/*
 			var point = o.nodeToPoint[s];
 			if(point) {
 				addMarker(point, s);
 			}*/			
-		}			
+		}
+		
+		this.mapWidget.setNodeToPos(self.nodeToPos.entries);
 	},
 	
+	
+	
+	
+	
+
 	updateGeometries: function(data) {
 		var self = this;
 		var map = this.map;
@@ -312,6 +434,7 @@ SpatialSemanticBrowsing.prototype = {
 	},
 	
 	onInstanceClicked: function(uri) {
+		console.log("Clicked: " + uri)
 		var self = this;
 		
 		if(this.selectedFeature) {
@@ -328,7 +451,7 @@ SpatialSemanticBrowsing.prototype = {
 
 		if(feature) {
 			// TODO FFS Why did I use select rather than construct here?
-			self.backend.fetchStatementsBySubject([uri], function(jsonRdf) {
+			fetchStatementsBySubject(self.sparqlService, [uri], function(jsonRdf) {
 				
 				var point = feature.lonlat.clone().transform(self.map.projection, self.map.displayProjection);
 				
@@ -355,25 +478,27 @@ SpatialSemanticBrowsing.prototype = {
 				
 				
 				
-				// If there are any same as links, try to fetch something from DBpedia
+				// If there are any same as links, try to fetch something from
+				// additional sources (e.g. DBpedia)
 				console.log(jsonRdf);
 				//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
 				var tags = extractTags(jsonRdf);
 				
 				objects = "owl:sameAs" in tags ? tags["owl:sameAs"] : [];
 				
+				for(prefix in self.prefixToService) {
+					var service = self.prefixToService[prefix];
 				
-				for(var i = 0; i < objects.length; ++i) {
-					
-					var object = objects[i]; //.value;
-					if(object.startsWith("http://dbpedia.org/resource/")) {
+					for(var i = 0; i < objects.length; ++i) {
 						
-						self.backendDBpedia.fetchStatementsBySubject([object], function(jsonRdf2) {
-							self.facts.setData(uri, [jsonRdf, jsonRdf2]);
-						});
+						var object = objects[i]; //.value;
+						if(object.startsWith(prefix)) {
+							fetchStatementsBySubject(service, [object], function(jsonRdf2) {
+								self.facts.setData(uri, [jsonRdf, jsonRdf2]);
+							});
+						}
 						
 					}
-					
 				}
 			});
 		}

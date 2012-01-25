@@ -21,10 +21,34 @@ VirtuosoBackend.prototype = {
 	
 	fetchNodes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodesQuery(bounds);
-		
 		console.log("NodesQuery: " + queryString);
+		if(!queryString) {
+			return;
+		}
+
+		
 		
 		this.sparqlService.executeSelect(queryString, {
+			failure: function() { notify("Error", "Sparql Query Failed"); },
+			success: function(data) { 
+
+				//var data = $.parseJSON(response);
+
+				var nodeToPoint = jsonRdfResultSetToMapList(data, "n", "x", "y");
+				for(var s in nodeToPoint) {
+					nodeToPoint[s] = JsonRdfExtractionUtils.parsePoint(nodeToPoint[s]);
+				}
+				
+				var nodeToType = jsonRdfResultSetToMap(data, "n", "t");
+				var nodeToLabel = jsonRdfResultSetToMap(data, "n", "l");
+				
+				callback({"nodeToType": nodeToType, "nodeToLabel": nodeToLabel, "nodeToPoint": nodeToPoint});
+			}
+		});
+		
+		
+		/*
+		this.sparqlService.executeSelectOld(queryString, {
 			failure: function() { notify("Error", "Sparql Query Failed"); },
 			success: function(response) { 
 
@@ -41,13 +65,17 @@ VirtuosoBackend.prototype = {
 				callback({"nodeToType": nodeToType, "nodeToLabel": nodeToLabel, "nodeToPoint": nodeToPoint});
 			}
 		});
+		*/
 	},
 	
 	// TODO Filter configuration as attribute or parameter? -> Would go for first option
 	fetchWayGeometries: function(bounds, callback) {
 		var queryString = this.queryFactory.createWayGeometriesQuery(bounds);
-
 		console.log(queryString);
+		if(!queryString) {
+			return;
+		}
+		
 
 		/*
 		sparqlQueryTest("http://linkedgeodata.org/sparql", queryString, {
@@ -162,6 +190,7 @@ VirtuosoBackend.prototype = {
 		});	
 	},
 	
+	// TODO I think this method does not belong here
 	fetchStatementsBySubject: function(uris, callback) {		
 		
 		uris = filterUrisValidate(uris);
@@ -188,8 +217,8 @@ VirtuosoBackend.prototype = {
 };
 
 
-function createSparqlFilterWgs84(lat, lon, bounds) {
-	return "Filter(?" + lon + " > " + bound.left + " && " + lon < " + bound.right + " && "  + lat > " + bound.bottom + " && lat < " + bound.top + ") . ";	
+function createBBoxFilterWgs84(lon, lat, bounds) {
+	return "Filter(?" + lon + " > " + bounds.left + " && ?" + lon +  " < " + bounds.right + " && ?"  + lat + " > " + bounds.bottom + " && ?" + lat + " < " + bounds.top + ") . ";	
 }
 
 /**
@@ -220,11 +249,63 @@ function VirtuosoSparqlService(serviceUrl, defaultGraphUri)
 {
 	this.serviceUrl = serviceUrl;
 	this.defaultGraphUri = defaultGraphUri;
+
+	this.executeAny = function(queryString, callback) {
+		if(!queryString) {
+			console.log("Empty queryString - should not happen");
+		}
+		
+		return executeQuery(this.serviceUrl, this.defaultGraphUri, queryString, 
+				{
+					failure: function() {
+						callback.failure();
+					},
+					success: function(json) {
+						//console.log(json);
+						//var json = $.parseJSON(jsonStr);
+						callback.success(json);
+					}
+				});
+	};
 	
 	this.executeSelect = function(queryString, callback) {
-		executeQuery(this.serviceUrl, this.defaultGraphUri, queryString, callback);
+		return this.executeAny(queryString, callback);
+		//executeQuery(this.serviceUrl, this.defaultGraphUri, queryString, callback);
+		
+	};
+	
+	this.executeAsk = function(queryString, callback) {
+		return this.executeAny(queryString, callback);
+		/*
+		executeQuery(this.serviceUrl, this.defaultGraphUri, queryString, 
+				{
+					failure: function() {
+						callback.failure();
+					},
+					success: function(jsonStr) {
+						var json = $.parseJSON(jsonStr);
+						callback.success(json);
+					}
+				});
+		*/
 	};
 }
+
+
+function DelaySparqlService(delegate, delay) {
+	this.delegate = delegate;
+	this.scheduler = new Scheduler(delay); 
+}
+
+DelaySparqlService.prototype = {
+		executeSelect: function(queryString, callback) {
+			return delegate.executeSelect(queryString, callback);
+		},
+
+		executeAsk: function(queryString, callback) {
+			return delegate.executeAsk(queryString, callback);
+		}
+};
 
 
 /**
@@ -236,8 +317,9 @@ function VirtuosoSparqlService(serviceUrl, defaultGraphUri)
  * @param format
  */
 function executeQuery(baseURL, defaultGraphUri, query, callback, format) {
-	if(!format)
+	if(!format) {
 		format="application/json";
+	}
 	
 	/*
 	var params={
@@ -259,7 +341,7 @@ function executeQuery(baseURL, defaultGraphUri, query, callback, format) {
 	}
 	var queryURL=baseURL + '?' + querypart;
 	
-	$.ajax(queryURL, callback);	
+	return $.ajax(queryURL, callback);	
 }
 
 

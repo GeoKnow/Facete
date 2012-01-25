@@ -1,3 +1,4 @@
+
 function getKeys(obj){
    var keys = [];
    for(var key in obj){
@@ -43,15 +44,55 @@ TripleStore.prototype.removeAllById(id) {
 
 
 
-function Set() {
-	this.entries = {};
+function Set(initEntries) {
+	this.entries = !initEntries ? {} : initEntries;
 }
+
+Set.fromArray = function(list) {
+	var tmp = {};
+	
+	$.each(list, function(k, v) { tmp[k] = 1; });
+	
+	return new Set(tmp);
+};
 
 Set.prototype = {
 	add: function(key) {
 		this.entries[key] = value;
 		
-		$(this).trigger("changed", {added:[key], removed:[] });		
+		$(this).trigger("changed", {added:[key], removed:[] });
+	},
+	
+	contains: function(key) {
+		return this.entries[key] != undefined;
+	},
+
+	difference: function(otherSet) {
+		var result = [];
+		
+		for(var key in this.entries) {
+			if(!otherSet.contains(key)) {
+				result.push(key);
+			}
+		}
+		
+		return result;
+	},
+	
+	addAll: function(otherSet) {
+		var added = [];
+		
+		for(var k in otherSet.entries) {
+			var v = this.entries[k];
+			if(!v) {
+				this.entries[k] = 1;
+				added.push[k];
+			} else {
+				this.entries[k] = v + 1;
+			}
+		}
+		
+		$(this).trigger("changed", {added:added, removed:[] });
 	},
 	
 	remove: function(key) {
@@ -63,6 +104,10 @@ Set.prototype = {
 			
 			$(this).trigger("changed", {added:[], removed:[key] });
 		}
+	},
+	
+	clone: function() {
+		return new Set(entries.clone());
 	},
 	
 	toArray: function() {
@@ -157,6 +202,13 @@ MultiMap.prototype = {
 
 		set[value] = (value in set) ? set[value] + 1 : 1;
 	},
+	
+	putAll: function(key, values) {
+		for(var i in values) {
+			this.put(key,  values[i]);
+		}
+	},
+
 
 
 	remove: function(key, value) {
@@ -171,9 +223,24 @@ MultiMap.prototype = {
 		}
 	},
 	
+	removeAll: function(keys) {
+		// OPTIMIZE send only a single event
+		for(var i = 0; i < keys.length; ++i) {
+			this.remove(keys[i]);
+		}
+	},
+
 	get: function(key) {
 		return key in this.entries ? this.entries[key] : {};
-	}
+	},
+	
+	clear: function() {
+		var tmp = this.entries;
+		this.entries = {};
+		
+		$(this).trigger("changed", {added:{}, removed: tmp});
+	},
+
 };
 
 

@@ -334,60 +334,7 @@ $.widget("ui.ssb_facets", {
 			this.buildFacetViewRec(childNode, tree, key);
 		}*/
 	}
-
-
-
-
-
-})
+});
 
 })(jQuery);
 
-
-
-
-
-/*
-this.fetchProperties = function(bound) {
-	var queryString = "Select distinct ?s, ?l, count(?p)  { ?s ?p ?o . Optional { ?s rdfs:label ?l } . ?s geo:geometry ?geo . Filter(langMatches(lang(?l) = 'de') . " + filter("geo", bound) + "}"; 
-	
-};
-
-this.fetchObjects = function(bound, predicate) {
-	var queryString = "Select distinct ?o, count(?o)  { ?s <" + predicate + "> ?o . ?s geo:geometry ?geo . " + filter("geo", bound) + "}";
-};
-
-this.onResourcesChanged = function(added, removed) {
-	
-};
-*/
-
-
-/*
-this.fetchSuperClasses =  function(uris) {		
-	if(uris.length == 0) {
-		return;
-	}
-	
-	console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
-	
-	var queryString = "Select ?p ?c { ?c rdfs:subClassOf ?p . Filter(?c In (<" + uris.join(">,<") + ">)) . }";
-	sparqlQuery("http://linkedgeodata.org/sparql", queryString, {
-		failure: function() { notify("Error", "Sparql Query Failed"); },
-		success: function(response) {
-			
-			var multiMap = jsonRdfResultSetToMultiMap($.parseJSON(response), "c", "p");
-
-			for(var i = 0; i < uris.length; ++i) {
-				var uri = uris[i];
-			//for(uri in uris) {
-				var parents = uri in multiMap ? multiMap[uri] : " ";
-				
-				self.classHierarchy.put(uri, parents);
-			}
-		}	
-	});	
-	
-	
-};
-*/

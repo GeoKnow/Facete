@@ -99,11 +99,26 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 		
 			if(node.data.idToPos == undefined && node.data.minItemCount < maxItemCount) {
 			
-				var deferred = self.backend.fetchNodes(node.getBounds(), function(idToPos) {
-					node.data.idToPos = idToPos;
-				});
+				// TODO Either the loaded data must be associated with the filter settings
+				// Or we use a whole new quad tree for each filter settings
+				loadTasks.push(
+					self.backend.fetchNodes(node.getBounds(), function(idToPos) {
+						node.data.idToPos = idToPos;
+					})
+				);
 				
-				loadTasks.push(deferred);
+				loadTasks.push(
+					self.backend.fetchNodeTypes(node.getBounds(), function(idToTypes) {
+						node.data.idToTypes = idToTypes;
+					})
+				);
+
+				loadTasks.push(
+					self.backend.fetchNodeLabels(node.getBounds(), function(idToLabels) {
+						node.data.idToLabels = idToLabels;
+					})
+				);
+
 			}
 		});
 			

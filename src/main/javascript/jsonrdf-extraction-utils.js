@@ -15,7 +15,8 @@ var JsonRdfExtractionUtils = {
 			
 			//console.log("point(" + x + ", " + y + ")");
 			
-			var p = new OpenLayers.Geometry.Point(x, y);
+			//var p = new OpenLayers.Geometry.Point(x, y);
+			var p = new OpenLayers.Geometry.Lonlat(x, y);
 			points.push(p);
 		}
 

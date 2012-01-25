@@ -44,6 +44,7 @@ BackendWgs84.prototype = {
 		});		
 	},*/
 
+
 	fetchNodeCount: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodeCountQuery(bounds);
 		return this.sparqlService.executeSelect(queryString, {
@@ -88,6 +89,27 @@ BackendWgs84.prototype = {
 			}
 		});
 	},
+	
+ 
+	/**
+	 * Fetches all instances with a given class
+	 * 
+	 * This is a different dimension of access - TODO implement it
+	 * 
+	 * @param callback
+	 * /
+	fetchAllInstances: function(callback) {
+		var queryString = this.queryFactory.createInstanceQuery();
+		this.sparqlService.executeSelect(queryString, {
+			
+			failure: function() { notify("Error", "Sparql Query Failed"); },
+			success: function(data) { 
+				var nodeToLabel = jsonRdfResultSetToMap(data, "n", "l");
+				callback(nodeToLabel);
+			}
+		});		
+	},
+	*/
 	
 	fetchNodeTypes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodeTypesQuery(bounds);

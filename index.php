@@ -91,8 +91,8 @@
 
     <script type="text/javascript">
         var ssbconf = {};
-        var ssbconf.endpoint = 'sparql'; // begins with http -> absolute, else relative
-        var ssbconf.models = ['http://climbing.org'];
+        ssbconf.endpoint = 'sparql'; // begins with http -> absolute, else relative
+        ssbconf.models = ['http://climbing.org'];
     </script>
 
     <!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->

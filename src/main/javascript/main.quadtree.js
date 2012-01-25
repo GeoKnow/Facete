@@ -209,7 +209,8 @@ $(document).ready(function() {
 	
 	//console.log("" + _.difference([], [2]));
 
-	var sparqlService = new VirtuosoSparqlService("sparql", ["http://climbing.org"]);
+	//var sparqlService = new VirtuosoSparqlService("sparql", ["http://climbing.org"]);
+	var sparqlService = new VirtuosoSparqlService(ssbconf.endpoint, ssbconf.models);
 	var queryFactory = new QueryFactoryWgs84();
 	var backend = new BackendWgs84(sparqlService, queryFactory);
 	//backend = new BackendQuadTree(backend, queryFactory);		 

@@ -1,0 +1,13 @@
+Package: spatial-semantic-browser
+Version: 0.8-1
+Architecture: all
+Maintainer: Sebastian Tramp <tramp@informatik.uni-leipzig.de>
+Installed-Size: 7984
+Depends: virtuoso-opensource-6.1, apache2, php5 | libapache2-mod-php5
+Section: web
+Priority: extra
+Description: A javascript-based browser for spatial semantic data.
+ This browser application is able to visualize spatial semantic data
+ from a SPARQL endpoint on a map.
+ .
+ This package is part of the LOD2 Technology Stack.

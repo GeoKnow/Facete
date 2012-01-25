@@ -1,0 +1,90 @@
+Replacement for rdfa-api library, which is getting mothballed, work in progress.
+
+This will be long term stable..
+
+Classes:
+
+  rdf.BlankNode
+  rdf.NamedNode
+  rdf.Literal
+  rdf.Triple
+  rdf.Graph
+  rdf.TripleAction
+  rdf.PrefixMap
+  rdf.TermMap
+  rdf.Profile
+  rdf.RDFEnvironment
+
+  rdf.Hash
+  rdf.IRI
+  rdf.Converter
+  
+  rdf.parsers.NTriples
+  rdf.parsers.Turtle
+  
+  rdf.serializers.NTriples
+  rdf.serializers.Turtle
+
+Members:
+
+  rdf.prefixes
+  rdf.terms
+  
+  rdf.importProfile(in Profile profile, in optional boolean override)
+  rdf.setDefaultVocabulary(in DOMString iri)
+  rdf.setDefaultPrefix(in DOMString iri)
+  rdf.setTerm(in DOMString term, in DOMString iri)
+  rdf.setPrefix(in DOMString prefix, in DOMString iri)
+  rdf.resolve(in DOMString toresolve)
+  
+  rdf.createBlankNode()
+  rdf.createNamedNode(in DOMString value)
+  rdf.createLiteral(in DOMString value, in optional DOMString? language, in optional NamedNode? datatype)
+  rdf.createTriple(in RDFNode subject, in RDFNode predicate, in RDFNode object)
+  rdf.createGraph(in optional []Triple triples)
+  rdf.createAction(in TripleFilter test, in TripleCallback action)
+  rdf.createProfile(in optional boolean empty)
+  rdf.createTermMap(in optional boolean empty)
+  rdf.createPrefixMap(in optional boolean empty)
+  rdf.createIRI(in DOMString i)
+  
+  rdf.encodeString(in DOMString s)
+  
+  // parse and processing
+  rdf.parseNT(in DOMString toparse, in ParserCallback? callback, in optional DOMString base, in optional TripleFilter filter, in optional Graph graph)
+  rdf.processNT(in DOMString toparse, in ProcessorCallback callback, in optional DOMString base, in optional TripleFilter filter)
+  rdf.parseTurtle(in DOMString toparse, in ParserCallback? callback, in optional DOMString base, in optional TripleFilter filter, in optional Graph graph)
+  rdf.processTurtle(in DOMString toparse, in ProcessorCallback callback, in optional DOMString base, in optional TripleFilter filter)
+  
+  // serializers
+  rdf.nt(in Graph g)
+  rdf.turtle(in Graph g)
+  
+  // general
+  rdf.converter.convert(in any value, in string typeOrLang)
+  rdf.links(in Graph g)
+  rdf.isOldSchool(in Graph g)
+  rdf.filterCount(in Graph g, in TripleFilter f);
+  rdf.ref(in optional DOMString v)
+  rdf.iri(in DOMString iri)
+  rdf.literal(in any value, in optional string typeOrLang)
+  rdf.node(in any? value, in optional string typeOrLang)
+  
+  // all filters arguments can be anything, or an array of values to match
+  rdf.filters.s(in any s)  
+  rdf.filters.p(in any p)
+  rdf.filters.o(in any o)
+  rdf.filters.sp(in any s, in any p)
+  rdf.filters.so(in any s, in any o)
+  rdf.filters.po(in any p, in any o)
+  rdf.filters.spo(in any s, in any p, in any o)
+  rdf.filters.describes(in any so)
+  rdf.filters.type(in any type)
+  rdf.filters.constrainedTriple()
+  rdf.filters.link()
+
+Class Extensions
+  rdf.Graph.subjects()
+  rdf.Graph.predicates()
+  rdf.Graph.objects()
+  rdf.Graph.isGround()

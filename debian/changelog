@@ -1,4 +1,12 @@
-spatial-semantic-browser (0.8-1) lod2; urgency=low
+spatial-semantic-browser (0.8.1) lod2; urgency=low
+
+  * removed unused libs
+  * correct usage of licenses
+  * fix lintian new-package-should-close-itp-bug :-)
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Thu, 26 Jan 2012 10:03:59 +0100
+
+spatial-semantic-browser (0.8) lod2; urgency=low
 
   * initial version
 

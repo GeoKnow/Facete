@@ -1,4 +1,6 @@
 
+
+// TODO Use underscores _.keys({}) instead.
 function getKeys(obj){
    var keys = [];
    for(var key in obj){
@@ -189,20 +191,70 @@ Map.prototype = {
 };
 
 
-
+/**
+ * TODO Toggle between different semantics:
+ * Map<Primitive, Set<Primitive>>
+ * Map<Primivite, MultiSet<Primitive, Count>
+ * 
+ * 
+ * @returns {MultiMap}
+ */
 function MultiMap() {
 	
 	this.entries = {};
 }
 
+
 MultiMap.prototype = {
-	put: function(key, value) {
+    addKey: function(key) {
+		if(!(key in this.entries)) {
+			this.entries[key] = {};
+		}
+    },
+		
+	inc: function(key, value) {
         
 		var set = (key in this.entries) ? this.entries[key] : this.entries[key] = {};
 
 		set[value] = (value in set) ? set[value] + 1 : 1;
 	},
 	
+	dec: function(key, value, deleteKey) {
+		if(!(key in this.entries)) {
+			return;
+		}
+
+		var set = this.entries[key];
+		
+		if(!(value in set)) {
+			return;
+		}
+		
+		var count = set[value];
+		--count;
+
+		if(count <= 0) {
+			delete set[value];
+		} else {
+			set[value] = count;
+		}
+		
+		if(deleteKey) {
+			if(_.isEmpty(set)) {
+				delete this.entries[key];
+			}
+		}
+	},
+
+	put: function(key, value) {
+		this.inc(key, value);
+	},
+	
+	/**
+	 * 
+	 * @param key
+	 * @param values An array of values, e.g. [1, 2, 3]
+	 */
 	putAll: function(key, values) {
 		for(var i in values) {
 			this.put(key,  values[i]);

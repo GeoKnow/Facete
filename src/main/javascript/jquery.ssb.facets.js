@@ -30,7 +30,7 @@ $.widget("ui.ssb_facets", {
 		this.repaintScheduler = new Scheduler();
 		
 		this.instanceToLabel = this.options.instanceToLabel;
-		this.instanceToType  = this.options.instanceToType;
+		//this.instanceToTypes  = this.options.instanceToType;
 		this.schemaIcons = this.options.schemaIcons;	
 
 		

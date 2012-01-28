@@ -89,6 +89,10 @@ function Bounds(left, right, bottom, top) {
 	this.top = top;
 }
 
+Bounds.prototype.containsPoint = function(point) {
+	return point.x >= this.left && point.x <= this.right && point.y >= this.bottom && point.y <= this.top;
+};
+
 
 Bounds.prototype.getCenter = function() {
 	return new Point(0.5 * (this.left + this.right), 0.5 * (this.bottom + this.top));
@@ -169,7 +173,77 @@ function Node(parent, bounds, maxDepth, depth, k) {
 	
 	this.data = {};
 	
+	this._minItemCount = null; // Concrete minumum item count
+	this.infMinItemCount = null; // Inferred minimum item count by taking the sum
+	
+	// The contained items: id->position (so each item must have an id)
+	this.idToPos = {};
+	
 	this._classConstructor = Node;
+};
+
+
+Node.prototype.addItem = function(id, pos) {
+	this.idToPos[id] = pos;
+};
+
+
+Node.prototype.addItems = function(idToPos) {
+	for(id in idToPos) {
+		pos = idToPos[id];
+		
+		this.addItem(id, pos);
+	}
+};
+
+
+Node.prototype.removeItem = function(id) {
+	delete this.idToPos[id];
+};
+
+/**
+ * Sets the minimum item count on this node and recursively updates
+ * the inferred minimum item count (.infMinItemCount) on its parents.
+ * 
+ * @param value
+ */
+Node.prototype.setMinItemCount = function(value) {
+	this._minItemCount = value;
+    this.infMinItemCount = value;
+	
+	if(this.parent) {
+		this.parent.updateInfMinItemCount();
+	}
+};
+
+Node.prototype.getMinItemCount = function() {
+	return this._minItemCount;
+};
+
+
+//Node.prototype.get
+
+
+Node.prototype.updateInfMinItemCount = function() {
+	if(!this.children && this._minItemCount !== null) {
+		return;
+	}
+	
+	var sum = 0;
+	
+	$.each(this.children, function(index, child) {
+		if(child._minItemCount !== null) {
+			sum += child._minItemCount;
+		} else if(child.infMinItemCount) {
+			sum += child.infMinItemCount;
+		}
+	});
+	
+	this.infMinItemCount = sum;
+	
+	if(this.parent) {
+		this.parent.updateInfMinItemCount();
+	}
 };
 
 Node.prototype.getBounds = function() {
@@ -317,6 +391,8 @@ Node.prototype.queryRec = function(bounds, result) {
 };
 
 
+
+
 /**
  * 
  * @param bounds
@@ -353,6 +429,7 @@ Node.prototype.splitFor = function(bounds, depth, result) {
 	var h = bounds.getHeight() / this._bounds.getHeight();
 
 	var r = Math.max(w, h);
+	//var r = Math.min(w, h);
 	
 	if(r >= depth || this._depth >= this._maxDepth) {
 		if(result) {

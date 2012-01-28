@@ -43,6 +43,17 @@ function mergeMapsInPlace(a, b) {
 	}
 }
 
+function mergeSum(a, b) {
+	for(k in b) {
+		if(k in a) {
+			a[k] += b[k];
+		} else {
+			a[k] = b[k];
+		}		
+	}
+}
+
+
 /*
  * Utility functions for some geometric computations 
  */
@@ -206,5 +217,35 @@ function fetchStatementsBySubject(service, uris, callback) {
 			callback(response);
 		}	
 	});	
+};
+
+/**
+ * Source: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+ * 
+ * @returns {Number}
+ */
+if(!String.prototype.hashCode) {
+	String.prototype.hashCode = function(){
+		var hash = 0;
+		if (this.length == 0) return hash;
+		for (var i = 0; i < this.length; i++) {
+			char = this.charCodeAt(i);
+			hash = ((hash<<5)-hash)+char;
+			hash = hash & hash; // Convert to 32bit integer
+		}
+		return hash;
+	};
+}
+
+if(!ssb) {
+	ssb = {};
+}
+
+ssb.hashCode = function(obj) {
+	if(!obj) {
+		return 0;
+	} else {
+		obj.hashCode();
+	}
 };
 

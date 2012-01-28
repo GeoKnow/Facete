@@ -49,7 +49,9 @@ BackendWgs84.prototype = {
 		var queryString = this.queryFactory.createNodeCountQuery(bounds);
 		return this.sparqlService.executeSelect(queryString, {
 			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(data) { callback(parseInt(data.results.bindings[0].c.value)); } 
+			success: function(data) {
+				callback(parseInt(data.results.bindings[0].c.value));
+			} 
 		});
 	},
 		
@@ -117,8 +119,8 @@ BackendWgs84.prototype = {
 			
 			failure: function() { notify("Error", "Sparql Query Failed"); },
 			success: function(data) { 
-				var nodeToLabel = jsonRdfResultSetToMap(data, "n", "t");
-				callback(nodeToLabel);
+				var nodeToTypes = jsonRdfResultSetToMultiMap(data, "n", "t");
+				callback(nodeToTypes);
 			}
 		});
 	},	

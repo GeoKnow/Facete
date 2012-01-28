@@ -40,6 +40,7 @@ $.widget("ui.ssb_map", {
 		this.nodeToTypes = this.options.nodeToTypes;
 		this.schemaIcons = this.options.schemaIcons;
 		
+		
 		//console.log(this.nodeToPos);
 		//this.mapWidget = new MapWidget(this);
 		//this.mapWidget._load();
@@ -65,7 +66,7 @@ $.widget("ui.ssb_map", {
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
-	    					//new OpenLayers.Control.PanZoomBar(),
+	    					new OpenLayers.Control.PanZoomBar(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
 	    					new OpenLayers.Control.ScaleLine(),
@@ -76,7 +77,9 @@ $.widget("ui.ssb_map", {
 
 		
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
-		this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
+		//this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
+		this.boxLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
+		
 		this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
 	    this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
 	    
@@ -120,21 +123,28 @@ $.widget("ui.ssb_map", {
 		this._doBind();
 	},
 
+	addItem: function(id, lonlat) {
+		var feature = this.createMarker(lonlat, id);
+		this.nodeToFeature.put(id, feature);
+		//console.log("Adding feature/marker");
+		//console.log(feature);
+		this.markerLayer.addMarker(feature.marker);		
+	},
+	
 	addItems : function(idToPos) {
-		var self = this;
-		
+		for(var id in idToLonlat) {
+			var lonlat = idToLonlat[id];
+			this.addItem(id, lonlat);
+		}
+		/*
 		$.each(idToPos, function(id, point) {
 			//var point = idToPos[id];
 
 			//point = point.transform(self.map.displayProjection, self.map.projection);
 			//console.log(point);
 			
-			var feature = self.createMarker(point, id);
-			self.nodeToFeature.put(id, feature);
-			//console.log("Adding feature/marker");
-			//console.log(feature);
-			self.markerLayer.addMarker(feature.marker);
-		});		
+		});
+		*/		
 	},
 	
 	removeItems : function(ids) {
@@ -144,14 +154,34 @@ $.widget("ui.ssb_map", {
 		
 		$.each(ids, function(i, id) {
 			var feature = self.nodeToFeature.entries[id];
-			self.markerLayer.removeMarker(feature.marker);
-			
-			delete self.nodeToFeature[id];
+			if(feature) {
+				self.markerLayer.removeMarker(feature.marker);
+				delete self.nodeToFeature[id];
+			}			
 		});
+	},
+	
+	_intersectBounds : function() {
+		
 	},
 	
 	addBox : function(id, bounds) {
 		
+		console.log("Adding box: " + bounds);
+
+		var limit = new OpenLayers.Bounds(-179.999, -85.0, 179.999, 85.0);
+
+		
+		var b = new OpenLayers.Bounds(
+				Math.max(bounds.left, limit.left),
+				Math.max(bounds.bottom, limit.bottom),
+				Math.min(bounds.right, limit.right),
+				Math.min(bounds.top, limit.top));
+		
+		b.transform(this.map.displayProjection, this.map.projection);
+		
+		
+		/*
 		var a = new OpenLayers.LonLat(bounds.left, bounds.bottom);
 		var b = new OpenLayers.LonLat(bounds.right, bounds.top);
 		
@@ -162,11 +192,20 @@ $.widget("ui.ssb_map", {
 		b.extend(ta);
 		b.extend(tb);
 
+		
+		var limit = new OpenLayers.Bounds(-179.999, -89.999, 179.999, 89.999);
+		*/
+		
 		//box = new OpenLayers.Marker.Box(bounds);
+
+		/* For box layer
 		box = new OpenLayers.Marker.Box(b);
-		console.log("My Box");
-		console.log(b);
 		this.boxLayer.addMarker(box);
+		*/
+		
+		// Vector layer
+        box = new OpenLayers.Feature.Vector(b.toGeometry());
+        this.boxLayer.addFeatures(box);
 
 		this.idToBox[id] = box;
 	},
@@ -174,7 +213,8 @@ $.widget("ui.ssb_map", {
 	removeBox : function(id) {
 		var box = this.idToBox[id];
 		if(box) {
-			this.boxLayer.removeMarker(box);
+			//this.boxLayer.removeMarker(box);
+			this.boxLayer.removeFeatures(box);
 		}
 	},
 

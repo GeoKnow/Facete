@@ -1,16 +1,33 @@
 
 
+/*
+function FilterConfig() {
+	this.classUris = [];
+	this.language = null;
+}
+
+FilterConfig.prototype.hashCode() {
+	ssb.hashCode(classUris) * 3
+}
+
+
+function MultiQuadTreeModel(backend) {
+	
+}
+*/
+
 // backbonejs tutorial: http://arturadib.com/hello-backbonejs/docs/1.html
 
 /* The map widget depends on the idToPosition map
 */ 
 function QuadTreeModel(backend) { // TODO Refactor into a framework: countCallback, threshold, fetchCallback, mergeCallback
 	this.currentNodes = [];
+	this.currentBounds = null;
 	
 	this.idToPosition = new Map();
 
 	var maxBounds = new Bounds(-180.0, 180.0, -90.0, 90.0);
-	this.quadTree = new QuadTree(maxBounds, 10, 0);
+	this.quadTree = new QuadTree(maxBounds, 18, 0);
 
 	this.backend = backend;
 }
@@ -28,30 +45,89 @@ var maxItemCount = 1000;
  * 
  * @param nodes
  */
-QuadTreeModel.prototype._setNodes = function(newNodes) {
+QuadTreeModel.prototype._setNodes = function(newNodes, newBounds) {
 
 	console.log(newNodes);
 
-	var added = _.difference(newNodes, this.currentNodes);
-	var removed = _.difference(this.currentNodes, newNodes);
+	var oldNodes = this.currentNodes; 
+	
+	var addedNodes = _.difference(newNodes, this.currentNodes);
+	var removedNodes = _.difference(this.currentNodes, newNodes);
+	
+	//var retainedNodes = _.intersection(newNodes, oldNodes);
+	
+	var oldBounds = this.currentBounds;
+	this.currentBounds = newBounds;
 	
 	this.currentNodes = newNodes;
 
+	// The changes for each of the newNodes that occured to partially covers
+	// Does not contain changes 
+	var removedItemsPerNode = [];
+	var addedItemsPerNode = [];
+	
+	// If a node went out of sight, then all items can be removed
+	/*
+	for(var i in removedNodes) {
+		var removedNode = removedNodes[i];
+		mergeMapsInPlace(removedItems, removedNode.idToPos);
+	}*/
+
+	
+	// Filter existing markers by the new bounds
+	for(var i in this.currentNodes) {
+		var node = this.currentNodes[i];
+
+		var addedItems = {};
+		var removedItems = {};
+		
+		addedItemsPerNode[i] = addedItems;
+		removedItemsPerNode[i] = removedItems;
+		
+		// If the node was and still is fully contained in the view rect, we can skip a check
+		// as all items must be within the new bounds
+		if(newBounds.contains(node.getBounds()) && oldBounds && oldBounds.contains(node.getBounds()) || !node.idToPos) {			
+			continue;
+		}
+
+		for(id in node.idToPos) {
+			var pos = node.idToPos[id];
+
+			// TODO This does not work when zooming in: a point the becomes visible may
+			// have been within the old bounds, but due to too many items it was not loaded
+			if(!oldBounds || !oldBounds.containsPoint(pos) && newBounds.containsPoint(pos)) {
+				addedItems[id] = pos;
+			} else if(oldBounds && oldBounds.containsPoint(pos) && !newBounds.containsPoint(pos)) {
+				removedItems[id] = pos;
+			}
+		}		
+	}
+
+	//if(!(added.length == 0 && removed.length == 0)) {
+	$(this).trigger("changed", {
+		oldBounds    : oldBounds,
+		newBounds    : newBounds,
+		oldNodes     : oldNodes,
+		newNodes     : newNodes,
+		addedNodes   : addedNodes,
+		removedNodes : removedNodes,
+		addedItemsPerNode   : addedItemsPerNode,
+		removedItemsPerNode : removedItemsPerNode
+	});
+	//}
 	
 	//console.log("added: " + added);
 	//console.log("removed: " + removed);
 	//console.log(added);
 	//console.log(removed);
-	
-	if(!(added.length == 0 && removed.length == 0)) {
-		$(this).trigger("changed", {added:added, removed:removed });
-	}
 };
+
 
 QuadTreeModel.prototype.setBounds = function(bounds) {
 	var self = this;
 	//var nodes = this.quadTree.query(bounds, 1);
-	var nodes = this.quadTree.aquireNodes(bounds, 0.5);
+	console.log("Aquiring nodes for " + bounds);
+	var nodes = this.quadTree.aquireNodes(bounds, 2);
 
 	/*
 	var nodes = {};
@@ -59,21 +135,24 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 		nodes[node] = 1;
 	});*/
 	
-	
 	console.log("Found some nodes: " + nodes.length);
+	$.each(nodes, function(index, node) {
+		console.log(index + ": " + node.getBounds());
+	});
+	
 	var countTasks = []; 
 	
 	$.each(nodes, function(index, node) {
 	
 		// Check if the minimumItemCount is available
-		if(node.data.minItemCount == undefined) {
+		if(node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < maxItemCount)) {
 			console.log("" + node.getBounds());
 			
 			//node.data = {};
 			
 			var deferred = self.backend.fetchNodeCount(node.getBounds(), function(value) {
 				
-				node.data.minItemCount = value; 
+				node.setMinItemCount(value); 
 				if(value < maxItemCount) {
 					node.data.ItemCount = value;
 				}				
@@ -97,28 +176,44 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 		
 		$.each(nodes, function(index, node) {
 		
-			if(node.data.idToPos == undefined && node.data.minItemCount < maxItemCount) {
-			
-				// TODO Either the loaded data must be associated with the filter settings
-				// Or we use a whole new quad tree for each filter settings
+			if(node.infMinItemCount < maxItemCount) {
+
+				if(node.isLoaded) {
+					return true;;
+				}
+
 				loadTasks.push(
-					self.backend.fetchNodes(node.getBounds(), function(idToPos) {
-						node.data.idToPos = idToPos;
+					self.backend.fetchNodes(node.getBounds(), function(idToLonlat) {
+						for(var id in idToLonlat) {
+							var lonlat = idToLonlat[id];
+							var pos = new Point(lonlat.lon, lonlat.lat);
+
+							node.addItem(id, pos);
+							
+						}
+						//node.data.idToPos = idToPos;
+						node.isLoaded = true;
 					})
 				);
 				
-				loadTasks.push(
-					self.backend.fetchNodeTypes(node.getBounds(), function(idToTypes) {
-						node.data.idToTypes = idToTypes;
-					})
-				);
+				
+				if(node.data.idToTypes === undefined) {
+					loadTasks.push(
+						self.backend.fetchNodeTypes(node.getBounds(), function(idToTypes) {
+							node.data.idToTypes = idToTypes;
+						})
+					);
+				}
 
-				loadTasks.push(
-					self.backend.fetchNodeLabels(node.getBounds(), function(idToLabels) {
-						node.data.idToLabels = idToLabels;
-					})
-				);
+				if(node.data.idToLabels === undefined) {
+					loadTasks.push(
+						self.backend.fetchNodeLabels(node.getBounds(), function(idToLabels) {
+							node.data.idToLabels = idToLabels;
+						})
+					
+					);
 
+				}
 			}
 		});
 			
@@ -170,12 +265,33 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 			
 			_.compact(nodes);
 			
+			/*
+			$.each(nodes, function(i, node) {
+				node.isLoaded = true;
+			});
+			*/
+			
 			console.log("All done");
-			self._setNodes(nodes);
+			self._setNodes(nodes, bounds);
 		});
 	});				
 };
 
+
+QuadTreeModel.prototype.clear = function() {
+	var removed = this.currentNodes;
+	this.currentNodes = [];
+
+	
+	//console.log("added: " + added);
+	//console.log("removed: " + removed);
+	//console.log(added);
+	//console.log(removed);
+	
+	if(removed.length != 0) {
+		$(this).trigger("changed", {added:[], removed:removed });
+	}
+};
 
 /**
  * 
@@ -184,6 +300,8 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
  * @returns {Boolean} true if the node was merged, false otherwise
  */
 function tryMergeNode(parent) {
+	return; // Need to figure out how to merge the node data first - probably the data object should have a addAll method
+	
 	if(!parent) {
 		return;
 	}
@@ -209,12 +327,15 @@ function tryMergeNode(parent) {
 	for(var i in parent.children) {
 		var child = parent.children[i];
 		
-		parent.data.ids.addAll(child.data.ids); 
+		//parent.data.ids.addAll(child.data.ids);
+		//parent.data.addAll(child.data);
 	}
 	
 	
 	// Unlink children
 	parent.children = null;
+	
+	console.log("Merged a node");
 	
 	return true;
 }

@@ -11,7 +11,7 @@ function fetchDirectSuperClasses(service, uris, callback) {
 		failure: function() { notify("Error", "Sparql Query Failed"); },
 		success: function(response) {
 			
-			var multiMap = jsonRdfResultSetToMultiMap(response, "c", "p");
+			var multiMap = jsonRdfResultSetToBidiMultiMap(response, "c", "p");
 
 			// Add uris for which no super classes were found
 			for(var i = 0; i < uris.length; ++i) {
@@ -345,7 +345,7 @@ function jsonRdfResultSetToMap(json, keyName, valueName) {
 	return result;
 }
 
-function jsonRdfResultSetToMultiMap(json, keyName, valueName) {
+function jsonRdfResultSetToBidiMultiMap(json, keyName, valueName) {
 	var result = new BidiMultiMap();
 	
 	for(var index in json.results.bindings) {
@@ -361,6 +361,25 @@ function jsonRdfResultSetToMultiMap(json, keyName, valueName) {
 	//notify("Debug", json.results.bindings.length + " facets loaded.");
 	
 	return result;
+}
+
+
+function jsonRdfResultSetToMultiMap(json, keyName, valueName) {
+	var result = new MultiMap();
+	
+	for(var index in json.results.bindings) {
+		var item = json.results.bindings[index];
+				
+		var key = parseJsonRdfNode(item[keyName]);
+		var value = parseJsonRdfNode(item[valueName]);
+		
+		//result[key] = value;
+		result.put(key, value);
+	}
+	
+	//notify("Debug", json.results.bindings.length + " facets loaded.");
+	
+	return result.entries;
 }
 
 

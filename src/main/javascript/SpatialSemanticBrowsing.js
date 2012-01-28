@@ -72,6 +72,8 @@ function SpatialSemanticBrowsing() {
 	//this.propertyHierarchy = new PropertyHierarchy();
 
 	this.prefixToService = {};
+	
+	this.refreshScheduler = new Scheduler();
 } 
 
 SpatialSemanticBrowsing.prototype = {
@@ -156,8 +158,15 @@ SpatialSemanticBrowsing.prototype = {
 		});
 	},
 	
-	refresh: function(bounds) {
+	refresh: function(bounds, delay) {
 		var self = this;
+
+		/*
+		if(delay) {
+			this.refreshScheduler.schedule(function() { self.refresh(bounds); });
+			return;
+		}*/
+		
 
 		// First: check the global cache of whether it can provide data for the selected filter criteria
 		
@@ -199,7 +208,7 @@ SpatialSemanticBrowsing.prototype = {
 			return;
 		}*/
 		
-		this.refresh(bounds);
+		this.refresh(bounds, true);
 	},
 	
 	addFactSources: function(prefixToService) {
@@ -221,43 +230,132 @@ SpatialSemanticBrowsing.prototype = {
 		this.queryFactory = queryFactory;
 	},
 	
+	
 	setBackend: function(backend) {
 		var self = this;
 		
+		if(this.quadTreeModel) {
+			$(this.quadTreeModel).unbind("changed");
+		}
+		
 		this.backend = backend;
+
 		this.quadTreeModel = new QuadTreeModel(backend);
 		
+		
+		
 		$(this.quadTreeModel).bind("changed", function(event, change) {
+			//var bounds = change.newBounds;
+			var classUris = {};
+
+			for(var i in change.removedNodes) {
+				var node = change.removedNodes[i];
+				
+				for(var id in node.idToPos) {
+					self.nodeToLabel.remove(id);
+				}
+
+				/*
+				for(var id in node.data.idToTypes) {
+					var types = node.data.idToTypes[id];
+					mergeSum(classUris, types);
+
+					for(var i in types) {
+						var type = types[i];
+						
+						if(type) {
+							classUris[type] = 1;
+						}
+					}
+				}*/
+			}
 			
-			$.each(change.removed, function(i, node) {
-				if(node.data.idToPos) {
-					self.mapWidget.removeItems(getKeys(node.data.idToPos));
+			/*
+			for(var i in change.addedNodes) {
+				var node = change.addedNodes[i];
+				
+				for(var id in node.idToPos) {
+					self.nodeToLabel.remove(id);
+				}
+			}
+			*/
+			
+			
+			// Determine which items moved into/outside the bounds
+			for(var i in change.newNodes) {
+				var node = change.newNodes[i];
+				
+				var addedItems = change.addedItemsPerNode[i];
+				var removedItems = change.removedItemsPerNode[i];
+
+				for(var id in addedItems) {
+					self.nodeToLabel.put(id, node.data.idToLabels[id]);
+					
+					var types = node.data.idToTypes[id];
+					mergeSum(classUris, types);
+					/*
+					for(var i in types) {
+						var type = types[i];
+						
+						//self.nodeToTypes.inc(id, type);
+						if(type) {
+							classUris[type] = 1;
+						}
+
+					}*/
+
+				}
+				
+				for(var id in removedItems) {
+
+					/*
+					var types = node.data.idToTypes[id];
+					for(var i in types) {
+						var type = types[i];
+						
+						self.nodeToTypes.dec(id, type, true);
+					}*/
+
+					
+					self.nodeToLabel.remove(id);
+				}
+			}
+			
+			
+			self.updateClasses(classUris);
+			
+			console.log(classUris);
+			console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
+						
+						
+			// Remove markers of removed nodes
+			for(var i in change.removedNodes) {
+				var node = change.removedNodes[i];
+				
+				if(node.isLoaded) {
+					var ids = _.keys(node.idToPos);					
+					self.mapWidget.removeItems(ids);
 				} else {
 					self.mapWidget.removeBox(node.getBounds().toString());
 				}
-			});
+			}
 
-			//console.log("here");
 
-			$.each(change.added, function(i, node) {
-				if(node.data.idToTypes) {
-					self.updateNodeTypes(node.data.idToTypes);
-				}
-			});
-			
-			$.each(change.added, function(i, node) {
-				if(node.data.idToLabels) {
-					self.updateNodeTypes(node.data.idToTypes);
-				}
-			});			
-			
-			$.each(change.added, function(i, node) {
-				if(node.data.idToPos) {
-					self.mapWidget.addItems(node.data.idToPos);
+			// Add markers of new nodes
+			for(var i in change.addedNodes) {
+				var node = change.addedNodes[i];
+				
+				//if(node.infMinItemCount && node.idToPos.length != 0) {
+				if(node.isLoaded) {
+					for(var id in node.idToPos) {
+						var pos = node.idToPos[id];
+						var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
+						self.mapWidget.addItem(id, lonlat);
+					}
 				} else {
 					self.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 				}
-			});
+			}
 		});
 	},
 

@@ -43,7 +43,7 @@ function mergeMapsInPlace(a, b) {
 	}
 }
 
-function mergeSum(a, b) {
+function mergeInc(a, b) {
 	for(k in b) {
 		if(k in a) {
 			a[k] += b[k];
@@ -51,6 +51,38 @@ function mergeSum(a, b) {
 			a[k] = b[k];
 		}		
 	}
+}
+
+function mergeDec(a, b) {
+	for(k in b) {
+		if(k in a) {
+			a[k] -= b[k];
+		} else {
+			a[k] = b[k];
+		}		
+	}
+}
+
+
+function inc(map, key) {
+	if(key in map) {
+		++map[key];
+	} else {
+		map[key] = 1;
+	}
+}
+
+function dec(map, key, deleteKeyOnZero) {
+	if(key in map) {
+		var value = --map[key];
+		
+		if(value === 0) {
+			delete map[key];
+		}
+		
+	} else {
+		map[key] = -1;
+	}	
 }
 
 
@@ -237,6 +269,10 @@ if(!String.prototype.hashCode) {
 	};
 }
 
+
+/*
+// Not sure if we really need to mimic Java's hashCode/equals stuff. For now it seems I can get
+// on without it.
 if(!ssb) {
 	ssb = {};
 }
@@ -248,4 +284,4 @@ ssb.hashCode = function(obj) {
 		obj.hashCode();
 	}
 };
-
+*/

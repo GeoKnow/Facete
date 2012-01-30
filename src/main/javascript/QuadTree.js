@@ -1,60 +1,18 @@
-
 /**
+ * A LooseQuadTree data structure.
  * 
- * A quad tree where nodes are loaded on access:
- * 
- * query(bounds):
- * This will
- * 1. locate the n adjacent best matching nodes that fully contain the given bounds*(see below)
- * 2. create the tree down to it. Then it invokes the load callback on it.
- *    The load callback may refuse to load a node if it contains to many elements. In this case it must indicate a minimum number of elements.
- * 
- * 3a. As soon as the node is loaded, the metadata of the parents is updated (minElementCount)
- * 3b. If it happens that all children of a node become loaded, a merge action may be triggered (in case of a merge, the children are removed, and the parent becomes loaded)
- * if the total number of elements does not exceed a threshold.
- * 
- * 
- * 
- * * If we have a small view-rect containing the center of the tree, the only node that is fully contains the view-rect is the root node. 
- *   This is undesirable. For this reason, it is better to collect n nodes from depths below the view rect. 
- * 
- * 
- * callback(node)
- * 
- * @param bounds
- * @param callback
+ * @param bounds Maximum bounds (e.g. (-180, -90) - (180, 90) for spanning the all wgs84 coordinates)
+ * @param maxDepth Maximum depth of the tree
+ * @param k The factor controlling the additional size of nodes in contrast to classic QuadTrees.
+ * @returns {QuadTree}
  */
-function LazyLoadingQuadTree(bounds, callback) {
-	
-	
-}
-
-/**
- * Query items in the given area.
- * 
- */
-LazyLoadingQuadTree.prototype.query = function(bounds, resultCallback) {
-	
-};
-
-
-
-
-
 function QuadTree(bounds, maxDepth, k) {
 	if(k == undefined) {
 		k = 0.25;
 	}
 	
-	this.node = new Node(null, bounds, maxDepth, 0, k);
-	//this.maxDepth = maxDepth; 
+	this.node = new Node(null, bounds, maxDepth, 0, k); 
 }
-
-
-function LazyLoadingNode() {
-	this.isLoaded = false;
-}
-
 
 
 /**
@@ -77,6 +35,9 @@ QuadTree.prototype.insert = function(item) {
 };
 
 
+// In order to make the QuadTree self contained, I added a Point and Bounds class
+// However, this makes it necessary to and from OpenLayers.
+// TODO Clarify whether this implementation should be tied to OpenLayers.
 function Point(x, y) {
 	this.x = x;
 	this.y = y;
@@ -90,7 +51,7 @@ function Bounds(left, right, bottom, top) {
 }
 
 Bounds.prototype.containsPoint = function(point) {
-	return point.x >= this.left && point.x <= this.right && point.y >= this.bottom && point.y <= this.top;
+	return point.x >= this.left && point.x < this.right && point.y >= this.bottom && point.y < this.top;
 };
 
 
@@ -108,7 +69,7 @@ Bounds.prototype.getHeight = function() {
 
 
 Bounds.prototype.contains = function(bounds) {
-	return bounds.left >= this.left && bounds.right <= this.right && bounds.bottom >= this.bottom && bounds.top <= this.top;
+	return bounds.left >= this.left && bounds.right < this.right && bounds.bottom >= this.bottom && bounds.top < this.top;
 };
 
 Bounds.prototype.rangeX = function() {
@@ -183,6 +144,12 @@ function Node(parent, bounds, maxDepth, depth, k) {
 };
 
 
+Node.TOP_LEFT = 0;
+Node.TOP_RIGHT = 1;
+Node.BOTTOM_LEFT = 2;
+Node.BOTTOM_RIGHT = 3;
+
+
 Node.prototype.addItem = function(id, pos) {
 	this.idToPos[id] = pos;
 };
@@ -250,11 +217,6 @@ Node.prototype.getBounds = function() {
 	return this._bounds;
 };
 
-Node.TOP_LEFT = 0;
-Node.TOP_RIGHT = 1;
-Node.BOTTOM_LEFT = 2;
-Node.BOTTOM_RIGHT = 3;
-
 
 Node.prototype.getCenter = function() {
 	return this._bounds.getCenter();
@@ -308,12 +270,14 @@ Node.prototype.subdivide = function()
 	this._maxDepth, depth, this._k);
 	
 	
-	//console.log("Subdivided " + this._bounds + " into ");
+	// Uncomment for debug output
+	/*
+	console.log("Subdivided " + this._bounds + " into ");
 	for(var i in this.children) {
 		var child = this.children[i];
-		//console.log("    " + child._bounds);
+		console.log("    " + child._bounds);
 	}
-	
+	*/
 };
 
 
@@ -394,9 +358,18 @@ Node.prototype.queryRec = function(bounds, result) {
 
 
 /**
+ * If the node'size is above a certain ration of the size of the bounds,
+ * it is placed into result. Otherwise, it is recursively split until
+ * the child nodes' ratio to given bounds has become large enough.
+ * 
+ * Use example:
+ * If the screen is centered on a certain location, then this method
+ * picks tiles (quad-tree-nodes) of appropriate size (not too big and not too small).
+ * 
  * 
  * @param bounds
  * @param depth
+ * @param result
  */
 Node.prototype.splitFor = function(bounds, depth, result) {
 	/*

@@ -44,6 +44,9 @@ function SpatialSemanticBrowsing() {
 	this.nodeToPos   = new Map();
 	this.nodeToFeature = new Map();
 	
+	this.typeToCount = {};
+	
+	//this.idToTypes = new BidiMultiMap();
 	
 	/*
 	this.wayToLabel   = new Map();
@@ -134,8 +137,7 @@ SpatialSemanticBrowsing.prototype = {
 			//var sel = $("#facets").data;
 			console.log("Selection is:");
 			console.log(self.selection);
-			
-			self.queryFactory.setClassFilter(self.selection);
+			//self.queryFactory.setClassFilter(self.selection);
 			
 			
 			self.mapEvent();
@@ -245,86 +247,59 @@ SpatialSemanticBrowsing.prototype = {
 		
 		
 		$(this.quadTreeModel).bind("changed", function(event, change) {
-			//var bounds = change.newBounds;
-			var classUris = {};
-
-			for(var i in change.removedNodes) {
-				var node = change.removedNodes[i];
-				
-				for(var id in node.idToPos) {
-					self.nodeToLabel.remove(id);
-				}
-
-				/*
-				for(var id in node.data.idToTypes) {
-					var types = node.data.idToTypes[id];
-					mergeSum(classUris, types);
-
-					for(var i in types) {
-						var type = types[i];
-						
-						if(type) {
-							classUris[type] = 1;
-						}
-					}
-				}*/
-			}
 			
+			// Relative method for determining visibility changes in the items 
 			/*
-			for(var i in change.addedNodes) {
-				var node = change.addedNodes[i];
+			for(var i in change.involvedNodes) {
+				var node = change.involvedNodes[i];
 				
-				for(var id in node.idToPos) {
-					self.nodeToLabel.remove(id);
-				}
-			}
-			*/
-			
-			
-			// Determine which items moved into/outside the bounds
-			for(var i in change.newNodes) {
-				var node = change.newNodes[i];
-				
-				var addedItems = change.addedItemsPerNode[i];
 				var removedItems = change.removedItemsPerNode[i];
+				var addedItems = change.addedItemsPerNode[i];
 
+				for(var id in removedItems) {
+					self.nodeToLabel.remove(id);
+
+					var types = node.data.idToTypes[id];
+					mergeDec(self.typeToCount, types);
+				}
+				
 				for(var id in addedItems) {
 					self.nodeToLabel.put(id, node.data.idToLabels[id]);
 					
 					var types = node.data.idToTypes[id];
-					mergeSum(classUris, types);
-					/*
-					for(var i in types) {
-						var type = types[i];
-						
-						//self.nodeToTypes.inc(id, type);
-						if(type) {
-							classUris[type] = 1;
-						}
-
-					}*/
-
-				}
+					mergeInc(self.typeToCount, types);
+				}				
+			}*/
+			
+			
+			// Absolute approach
+			self.nodeToLabel.clear();
+			self.typeToCount = {};
+			for(var i in change.newNodes) {
+				var node = change.newNodes[i];
 				
-				for(var id in removedItems) {
-
-					/*
-					var types = node.data.idToTypes[id];
-					for(var i in types) {
-						var type = types[i];
-						
-						self.nodeToTypes.dec(id, type, true);
-					}*/
-
+				for(var id in node.idToPos) {
+					var pos = node.idToPos[id];
 					
-					self.nodeToLabel.remove(id);
+					if(!change.newBounds.containsPoint(pos)) {
+						continue;
+					}
+					
+					//self.nodeToLabel.put(id, node.data.idToLabels[id]);
+					
+					var types = node.data.idToTypes[id];
+					
+					mergeInc(self.typeToCount, types);
 				}
 			}
 			
 			
-			self.updateClasses(classUris);
 			
-			console.log(classUris);
+			
+			console.log(self.typeToCount);
+			self.updateClasses(self.typeToCount);
+			
+			//console.log(classUris);
 			console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
 						
 						
@@ -354,6 +329,33 @@ SpatialSemanticBrowsing.prototype = {
 					}
 				} else {
 					self.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
+				}
+			}
+			
+			
+			
+			var classFilter = _.keys(self.selection.entries);
+			
+			// Perform the filtering
+			for(var i in change.newNodes) {
+				var node = change.newNodes[i];
+				
+				for(var id in node.idToPos) {
+					var pos = node.idToPos[id];
+					
+					if(!change.newBounds.containsPoint(pos)) {
+						continue;
+					}
+										
+					var types = _.keys(node.data.idToTypes[id]);
+					
+					
+					if(classFilter.length === 0 || _.intersection(classFilter, types).length !== 0) {
+						self.mapWidget.setVisible(id, true);						
+						self.nodeToLabel.put(id, node.data.idToLabels[id]);
+					} else {
+						self.mapWidget.setVisible(id, false);
+					}
 				}
 			}
 		});

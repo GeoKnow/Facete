@@ -60,7 +60,7 @@ Set.fromArray = function(list) {
 
 Set.prototype = {
 	add: function(key) {
-		this.entries[key] = value;
+		this.entries[key] = 1; //;value;
 		
 		$(this).trigger("changed", {added:[key], removed:[] });
 	},
@@ -106,6 +106,10 @@ Set.prototype = {
 			
 			$(this).trigger("changed", {added:[], removed:[key] });
 		}
+	},
+	
+	isEmpty: function() {
+		return _.isEmpty(this.entries);
 	},
 	
 	clone: function() {
@@ -219,7 +223,7 @@ MultiMap.prototype = {
 		set[value] = (value in set) ? set[value] + 1 : 1;
 	},
 	
-	dec: function(key, value, deleteKey) {
+	dec: function(key, value, retainKey) {
 		if(!(key in this.entries)) {
 			return;
 		}
@@ -239,11 +243,15 @@ MultiMap.prototype = {
 			set[value] = count;
 		}
 		
-		if(deleteKey) {
+		if(!retainKey) {
 			if(_.isEmpty(set)) {
 				delete this.entries[key];
 			}
 		}
+	},
+	
+	count: function(key, value) {
+		return this.entries[key][value];
 	},
 
 	put: function(key, value) {

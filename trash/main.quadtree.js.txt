@@ -1,0 +1,120 @@
+$(document).ready(function() {
+	
+	//console.log("" + _.difference([], [2]));
+
+	//var sparqlService = new VirtuosoSparqlService("sparql", ["http://climbing.org"]);
+	var sparqlService = new VirtuosoSparqlService(ssbconf.endpoint, ssbconf.models);
+	var queryFactory = new QueryFactoryWgs84();
+	var backend = new BackendWgs84(sparqlService, queryFactory);
+	//backend = new BackendQuadTree(backend, queryFactory);		 
+	//backend = new DelayBackend(backend);
+
+	
+	var model = new QuadTreeModel(backend);
+
+	this.idToPos = new Map();
+
+	$(model).bind("changed", function(event, change) {
+		$.each(change.removed, function(i, node) {
+			this.idToPos.removeAll(getKeys(node.data.idToPos));
+		});
+
+		//console.log("Something changed");
+		$.each(change.added, function(i, node) {
+			this.idToPos.addAll(node.data.idToPos);
+		});
+	});
+	
+	
+	
+	var ssb = new SpatialSemanticBrowsing();
+	ssb.setBackend(backend);
+	ssb.setSparqlService(sparqlService);
+	ssb.setQueryFactory(queryFactory);
+
+	var prefixToService = {};
+	ssb.addFactSources(prefixToService);
+	
+	ssb.init();
+
+	
+	
+	
+	/*
+	
+	var bounds = new Bounds(10.0, 20.0, 10.0, 15.0);
+	
+
+	var s = new Scheduler();
+	
+	s.schedule(function() {
+		model.setBounds(bounds);
+	});
+
+	setTimeout(function() {
+		model.setBounds(bounds);
+	}, 2000);
+	
+	*/
+
+	//var nodes = quadTree.aquireNodes(bounds, 1);
+
+	
+	/*
+	var maxBounds = new Bounds(-180.0, 180.0, -90.0, 90.0);
+	var quadTree = new QuadTree(maxBounds, 0.0);
+	var a = new Range(0, 10);
+	var b = new Range(-10, 5);
+	console.log(a.getOverlap(b));
+	*/
+
+	//var bounds = new Bounds(1.0, 1.0, 4.0, 4.0);
+	/*
+	var bounds = new Bounds(10.0, 20.0, 10.0, 20.0);
+	var nodes = quadTree.aquireNodes(bounds, 1);
+	
+	for(i in nodes) {
+		var node = nodes[i];
+		//console.log(node.depth);
+		console.log(node._bounds);
+	}
+	
+	console.log(nodes.length);
+	
+	//console.log(nodes);
+
+	
+	/*
+	var sparqlService = new VirtuosoSparqlService("src/main/php/sparql-proxy-local.php", ["http://climbing.org"]);
+
+	
+	var maxBounds = new QuadTree.Bounds(-180.0, 180.0, -90.0, 90.0);
+	var quadTree = new QuadTree(maxBounds);
+	
+	
+	
+	var bounds = new QuadTree.Bounds(-5.0, -4, 53, 54);
+	
+	var nodes = quadTree.query(bounds);
+	*/
+	
+	
+	/*
+	var queryFactory = new LinkedGeoDataQueryFactory();
+	var delayBackend = new DelayBackend(new VirtuosoBackend(sparqlService, queryFactory));
+	var prefixToService = {
+			'http://dbpedia.org/': new DelaySparqlService(new VirtuosoSparqlService("src/main/php/sparql-proxy-dbpedia.php", ["http://dbpedia.org"]))
+	};
+
+	var ssb = new SpatialSemanticBrowsing();
+	ssb.setBackend(delayBackend);
+	ssb.setSparqlService(sparqlService);
+	ssb.setQueryFactory(queryFactory);
+	
+	ssb.addFactSources(prefixToService);
+	
+	ssb.init();
+	*/
+
+	
+});

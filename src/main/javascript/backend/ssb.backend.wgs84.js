@@ -10,57 +10,54 @@ function BackendWgs84(sparqlService, queryFactory) {
  */
 BackendWgs84.prototype = {
 	
-	/*
-	fetchNodesOld: function(bounds, callback) {
-		var queryString = this.queryFactory.createNodesQuery(bounds);
-		console.log("NodesQuery: " + queryString);
-		if(!queryString) {
-			return;
-		}
-
-
-		this.sparqlService.executeSelect(queryString, {
-			
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(data) { 
-				//var data = $.parseJSON(response);
-				var nodeToPoint = {};
-				
-				var tmp = jsonRdfResultSetToMapList(data, "n", "x", "y");
-				for(var s in tmp) {
-					//nodeToPoint[s] = JsonRdfExtractionUtils.parsePoint(nodeToPoint[s]);
-					var list = tmp[s];
-					
-					var x = parseFloat(list[0].value);
-					var y = parseFloat(list[1].value);
-					nodeToPoint[s] = new OpenLayers.LonLat(x, y); 
-				}
-				
-				var nodeToType = jsonRdfResultSetToMap(data, "n", "t");
-				var nodeToLabel = jsonRdfResultSetToMap(data, "n", "l");
-				
-				callback({"nodeToType": nodeToType, "nodeToLabel": nodeToLabel, "nodeToPoint": nodeToPoint});
-			}
-		});		
-	},*/
-
+	/**
+	 * Fetches positions, types, and labels of features within the give bounds
+	 * 
+	 * @param bounds
+	 */
+	fetchBasicData: function(bounds) {
+		var nodesTask = this.fetchNodes(bounds);
+		var typesTask = this.fetchNodeTypes(bounds);
+		var labelsTask = this.fetchNodeLabels(bounds);
+		
+		/*
+		$.when(typesTask).done(function(idToTypes) {
+			console.log("Got:");
+			console.log(idToTypes);			
+		});*/
+		
+		var result = $.when(nodesTask, typesTask, labelsTask).pipe(function(idToPos, idToTypes, idToLabels) { return {idToPos: idToPos, idToTypes: idToTypes, idToLabels: idToLabels }; });
+		
+		return result;
+		
+		/*
+		$.when(nodesTask, typesTask, labelsTask).done(function(idToPos, idToTypes, idToLabels) {
+			console.log("Got:");
+			console.log(idToPos);
+			console.log(idToTypes);
+			console.log(idToLabels);
+		});*/
+	},
 
 	fetchNodeCount: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodeCountQuery(bounds);
-		return this.sparqlService.executeSelect(queryString, {
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(data) {
-				callback(parseInt(data.results.bindings[0].c.value));
-			} 
+		var result = this.sparqlService.executeSelect(queryString).pipe(function(data) {
+			var count = parseInt(data.results.bindings[0].c.value);
+			
+			if(callback) {
+				callback(count);
+			}
+			
+			return count;
 		});
+		
+		return result;
 	},
 		
 	fetchNodes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodesQuery(bounds);
-		return this.sparqlService.executeSelect(queryString, {
-			
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(data) { 
+		
+		var result = this.sparqlService.executeSelect(queryString).pipe(function(data) {
 				//var data = $.parseJSON(response);
 				var nodeToPoint = {};
 				
@@ -75,21 +72,30 @@ BackendWgs84.prototype = {
 				}
 
 				//callback({"nodeToType": nodeToType, "nodeToLabel": nodeToLabel, "nodeToPoint": nodeToPoint});
-				callback(nodeToPoint);
-			}
-		});		
+				if(callback) {
+					callback(nodeToPoint);
+				}
+				
+				return nodeToPoint;
+			});
+		
+		return result;
 	},
 	
 	fetchNodeLabels: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodeLabelsQuery(bounds);
-		this.sparqlService.executeSelect(queryString, {
-			
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(data) { 
-				var nodeToLabel = jsonRdfResultSetToMap(data, "n", "l");
-				callback(nodeToLabel);
+		
+		var result = this.sparqlService.executeSelect(queryString).pipe(function(data) { 
+			// TODO Make that a multimap
+			var nodeToLabels = jsonRdfResultSetToMap(data, "n", "l");
+			if(callback) {
+				callback(nodeToLabels);
 			}
+			
+			return nodeToLabels;
 		});
+		
+		return result;
 	},
 	
  
@@ -115,14 +121,16 @@ BackendWgs84.prototype = {
 	
 	fetchNodeTypes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodeTypesQuery(bounds);
-		this.sparqlService.executeSelect(queryString, {
-			
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(data) { 
-				var nodeToTypes = jsonRdfResultSetToMultiMap(data, "n", "t");
+		var result = this.sparqlService.executeSelect(queryString).pipe(function(data) {
+			var nodeToTypes = jsonRdfResultSetToMultiMap(data, "n", "t");
+			if(callback) {
 				callback(nodeToTypes);
 			}
+			
+			return nodeToTypes;
 		});
+		
+		return result;
 	},	
 	
 	
@@ -165,7 +173,7 @@ BackendWgs84.prototype = {
 			success: function(response) {				
 				var map = jsonRdfResultSetToMap(response, "u", "l");
 				callback(map);				
-			}	
+			}
 		});	
 	},
 

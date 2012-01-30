@@ -129,8 +129,8 @@ $.widget("ui.ssb_search", {
 					console.log(self.map.projection);
 					 */
 					var center=item.lonlat.clone().transform(self.map.displayProjection, self.map.projection);
-					console.log(center);
-					self.map.setCenter(center, zoom);
+					//console.log(center);
+					self.map.setCenter(center, zoom, true, true);
 					//self.map.
 				};
 			})(items[i])

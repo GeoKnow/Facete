@@ -123,12 +123,37 @@ $.widget("ui.ssb_map", {
 		this._doBind();
 	},
 
-	addItem: function(id, lonlat) {
+
+	/**
+	 * Creates a feature for the given id.
+	 * By default they are not added to the map.
+	 * 
+	 * 
+	 * @param id
+	 * @param lonlat
+	 */
+	addItem: function(id, lonlat, visible) {
 		var feature = this.createMarker(lonlat, id);
 		this.nodeToFeature.put(id, feature);
 		//console.log("Adding feature/marker");
 		//console.log(feature);
-		this.markerLayer.addMarker(feature.marker);		
+		
+		if(visible) {
+			this.markerLayer.addMarker(feature.marker);
+		}
+	},
+	
+	setVisible: function(id, value) {
+		var feature = this.nodeToFeature.get(id);
+		if(!feature) {
+			return;
+		}
+		
+		if(value) {
+			this.markerLayer.addMarker(feature.marker);
+		} else {
+			this.markerLayer.removeMarker(feature.marker);
+		}
 	},
 	
 	addItems : function(idToPos) {

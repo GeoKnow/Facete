@@ -66,7 +66,7 @@ $.widget("ui.ssb_map", {
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
-	    					new OpenLayers.Control.PanZoomBar(),
+//	    					new OpenLayers.Control.PanZoomBar(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
 	    					new OpenLayers.Control.ScaleLine(),
@@ -100,7 +100,7 @@ $.widget("ui.ssb_map", {
     			this.map.displayProjection,
     			this.map.projection);
 		
-		console.log(center);
+		//console.log(center);
 		this.map.setCenter(tCenter, 3);
 		
 		
@@ -192,7 +192,7 @@ $.widget("ui.ssb_map", {
 	
 	addBox : function(id, bounds) {
 		
-		console.log("Adding box: " + bounds);
+		//console.log("Adding box: " + bounds);
 
 		var limit = new OpenLayers.Bounds(-179.999, -85.0, 179.999, 85.0);
 

@@ -112,7 +112,7 @@ $.widget("ui.ssb_facts", {
 
 		this.domElement = this.element.get(0);
 
-		this.repaintScheduler = new Scheduler();
+		//this.repaintScheduler = new Scheduler();
 
 		/*
 		
@@ -124,9 +124,10 @@ $.widget("ui.ssb_facts", {
 		
 		var self = this;
 		
+		/*
 		$(this.instanceToLabel).bind("changed", function(event, change) {
 			self.repaintScheduler.schedule(function() { self.onDataChange(change); });
-		});
+		});*/
 	},
 
 	setData: function(subject, jsonRdfs) {

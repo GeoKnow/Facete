@@ -67,7 +67,7 @@ function SpatialSemanticBrowsing() {
 	// Reference to the OpenLayers map
 	this.mapWidget = null;
 	this.map = null;
-	
+	this.instanceWidget = null;
 	
 	this.test = 0.0;
 	
@@ -76,7 +76,7 @@ function SpatialSemanticBrowsing() {
 
 	this.prefixToService = {};
 	
-	this.refreshScheduler = new Scheduler();
+	//this.refreshScheduler = new Scheduler();
 } 
 
 SpatialSemanticBrowsing.prototype = {
@@ -111,6 +111,7 @@ SpatialSemanticBrowsing.prototype = {
 			instanceToType: this.nodeToTypes,
 			schemaIcons: this.schemaIcons
 		});
+		this.instanceWidget = $("#instances").data("ssb_instances");
 		
 		$("#facets").ssb_facets({
 			schemaIcons: this.schemaIcons,
@@ -296,7 +297,7 @@ SpatialSemanticBrowsing.prototype = {
 			
 			
 			
-			console.log(self.typeToCount);
+			//console.log(self.typeToCount);
 			self.updateClasses(self.typeToCount);
 			
 			//console.log(classUris);
@@ -358,7 +359,9 @@ SpatialSemanticBrowsing.prototype = {
 					}
 				}
 			}
-		});
+			
+			self.instanceWidget.refresh();	
+		});		
 	},
 
 	setSparqlService: function(sparqlService) {

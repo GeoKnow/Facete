@@ -70,13 +70,13 @@ function init(sparqlService, caps) {
 
 	
 	var ssb = new SpatialSemanticBrowsing();
-	ssb.setBackend(backend);
 	ssb.setSparqlService(sparqlService);
 	ssb.setQueryFactory(queryFactory);
 	
 	ssb.addFactSources(prefixToService);
 	
 	ssb.init();
+	ssb.setBackend(backend);
 	console.log("Initialization in progress");
 }
 

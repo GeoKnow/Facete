@@ -179,8 +179,15 @@ $.widget("ui.ssb_facets", {
 		}
 		
 		
-		// Include all currently selected keys in the excerpt
-		keys.push.apply(keys, this.selection.toArray());
+		// Include all keys of the currently selected resource
+		for(var i in sel) {
+			var uri = sel[i];
+			for(var key in uriToKeys[uri]) {
+				keys.push(key);
+			}
+		}
+		
+		
 		//console.log("KEYYYs");
 		//console.log(keys);
 		//console.log(this.selection.toArray());
@@ -289,26 +296,19 @@ $.widget("ui.ssb_facets", {
 	buildFacetViewRec: function(node, tree, key) {
 
 		var uri;
-		for(tmp in tree.keyToUri.forward.entries[key]) {
+		for(var tmp in tree.keyToUri.forward.entries[key]) {
 			uri = tmp;
 		}
 		var facet = this.uriToFacet[uri];
 		
 		
 		if(!facet) {
+			console.log("No entry for uri");
+
 			facet = {title:"unnamed - " + key};
 		}
-		//console.log(tree);
 		
 		
-		//console.log(this.keyToFacetState);
-		/*
-		console.log(this.uriToFacet);
-		console.log(key);
-		console.log(tree);
-		console.log(uri);
-		console.log(facet);
-		*/
 		var facetState = (key in this.keyToFacetState) ? this.keyToFacetState[key] : {};
 		
 
@@ -316,24 +316,12 @@ $.widget("ui.ssb_facets", {
 
 		if(facetState.visible === true) {
 			childNode.makeVisible();
-		}
-		//childNode.expand(true);
-		//}
-		//console.log("key is " + childNode.data.key);
+		}		
 		
 		
-		
-		for(child in tree.keyHierarchy.inverse.entries[key]) {
+		for(var child in tree.keyHierarchy.inverse.entries[key]) {
 			this.buildFacetViewRec(childNode, tree, child);
 		}
-
-		/*
-		
-		for(var i = 0; i < tree.rootKeys.length; ++i) {
-			var key = tree.rootKeys[i];
-			
-			this.buildFacetViewRec(childNode, tree, key);
-		}*/
 	}
 });
 

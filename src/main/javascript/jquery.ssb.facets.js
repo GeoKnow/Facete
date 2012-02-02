@@ -27,18 +27,19 @@ $.widget("ui.ssb_facets", {
 
 		this.domElement = this.element.get(0);
 		
-		this.repaintScheduler = new Scheduler();
+		//this.repaintScheduler = new Scheduler();
 		
-		this.instanceToLabel = this.options.instanceToLabel;
-		this.instanceToType  = this.options.instanceToType;
+		//this.instanceToLabel = this.options.instanceToLabel;
+		//this.instanceToTypes  = this.options.instanceToType;
 		this.schemaIcons = this.options.schemaIcons;	
 
 		
 		var self = this;
 		
+		/*
 		$(this.instanceToLabel).bind("changed", function(event, change) {
 			self.repaintScheduler.schedule(function() { self.onDataChange(change); });
-		});
+		});*/
 	
 		
 		this.schemaIcons = this.options.schemaIcons;    //new MapCollection();		
@@ -143,9 +144,9 @@ $.widget("ui.ssb_facets", {
 	},
 	
 	
-	setFacets: function(tmpFacets) {
+	setFacets: function(uriToCount) {
 
-		var facets = tmpFacets;
+		var facets = uriToCount;
 		
 		// Add all selected facets
 		var sel = this.selection.toArray();

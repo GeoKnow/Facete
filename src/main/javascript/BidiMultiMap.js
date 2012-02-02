@@ -4,6 +4,16 @@ function BidiMultiMap() {
 }
 
 BidiMultiMap.prototype = {
+	inc: function(key, value) {
+		this.forward.inc(key, value);
+		this.inverse.inc(value, key);		
+	},
+
+	dec: function(key, value, retainKey) {
+		this.forward.inc(key, value, retainKey);
+		this.inverse.inc(value, key, retainKey);		
+	},
+		
 	put: function(key, value) {
 		//console.log("MultiMap [add] " + key + " " + value);
 		this.forward.put(key, value);

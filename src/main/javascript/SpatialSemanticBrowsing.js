@@ -44,6 +44,9 @@ function SpatialSemanticBrowsing() {
 	this.nodeToPos   = new Map();
 	this.nodeToFeature = new Map();
 	
+	this.typeToCount = {};
+	
+	//this.idToTypes = new BidiMultiMap();
 	
 	/*
 	this.wayToLabel   = new Map();
@@ -64,7 +67,7 @@ function SpatialSemanticBrowsing() {
 	// Reference to the OpenLayers map
 	this.mapWidget = null;
 	this.map = null;
-	
+	this.instanceWidget = null;
 	
 	this.test = 0.0;
 	
@@ -72,6 +75,8 @@ function SpatialSemanticBrowsing() {
 	//this.propertyHierarchy = new PropertyHierarchy();
 
 	this.prefixToService = {};
+	
+	//this.refreshScheduler = new Scheduler();
 } 
 
 SpatialSemanticBrowsing.prototype = {
@@ -106,6 +111,7 @@ SpatialSemanticBrowsing.prototype = {
 			instanceToType: this.nodeToTypes,
 			schemaIcons: this.schemaIcons
 		});
+		this.instanceWidget = $("#instances").data("ssb_instances");
 		
 		$("#facets").ssb_facets({
 			schemaIcons: this.schemaIcons,
@@ -132,8 +138,7 @@ SpatialSemanticBrowsing.prototype = {
 			//var sel = $("#facets").data;
 			console.log("Selection is:");
 			console.log(self.selection);
-			
-			self.queryFactory.setClassFilter(self.selection);
+			//self.queryFactory.setClassFilter(self.selection);
 			
 			
 			self.mapEvent();
@@ -156,8 +161,15 @@ SpatialSemanticBrowsing.prototype = {
 		});
 	},
 	
-	refresh: function(bounds) {
+	refresh: function(bounds, delay) {
 		var self = this;
+
+		/*
+		if(delay) {
+			this.refreshScheduler.schedule(function() { self.refresh(bounds); });
+			return;
+		}*/
+		
 
 		// First: check the global cache of whether it can provide data for the selected filter criteria
 		
@@ -199,7 +211,7 @@ SpatialSemanticBrowsing.prototype = {
 			return;
 		}*/
 		
-		this.refresh(bounds);
+		this.refresh(bounds, true);
 	},
 	
 	addFactSources: function(prefixToService) {
@@ -221,44 +233,135 @@ SpatialSemanticBrowsing.prototype = {
 		this.queryFactory = queryFactory;
 	},
 	
+	
 	setBackend: function(backend) {
 		var self = this;
 		
+		if(this.quadTreeModel) {
+			$(this.quadTreeModel).unbind("changed");
+		}
+		
 		this.backend = backend;
+
 		this.quadTreeModel = new QuadTreeModel(backend);
+		
+		
 		
 		$(this.quadTreeModel).bind("changed", function(event, change) {
 			
-			$.each(change.removed, function(i, node) {
-				if(node.data.idToPos) {
-					self.mapWidget.removeItems(getKeys(node.data.idToPos));
+			// Relative method for determining visibility changes in the items 
+			/*
+			for(var i in change.involvedNodes) {
+				var node = change.involvedNodes[i];
+				
+				var removedItems = change.removedItemsPerNode[i];
+				var addedItems = change.addedItemsPerNode[i];
+
+				for(var id in removedItems) {
+					self.nodeToLabel.remove(id);
+
+					var types = node.data.idToTypes[id];
+					mergeDec(self.typeToCount, types);
+				}
+				
+				for(var id in addedItems) {
+					self.nodeToLabel.put(id, node.data.idToLabels[id]);
+					
+					var types = node.data.idToTypes[id];
+					mergeInc(self.typeToCount, types);
+				}				
+			}*/
+			
+			
+			// Absolute approach
+			self.nodeToLabel.clear();
+			self.typeToCount = {};
+			for(var i in change.newNodes) {
+				var node = change.newNodes[i];
+				
+				for(var id in node.idToPos) {
+					var pos = node.idToPos[id];
+					
+					if(!change.newBounds.containsPoint(pos)) {
+						continue;
+					}
+					
+					//self.nodeToLabel.put(id, node.data.idToLabels[id]);
+					
+					var types = node.data.idToTypes[id];
+					
+					mergeInc(self.typeToCount, types);
+				}
+			}
+			
+			
+			
+			
+			//console.log(self.typeToCount);
+			self.updateClasses(self.typeToCount);
+			
+			//console.log(classUris);
+			console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
+						
+						
+			// Remove markers of removed nodes
+			for(var i in change.removedNodes) {
+				var node = change.removedNodes[i];
+				
+				if(node.isLoaded) {
+					var ids = _.keys(node.idToPos);					
+					self.mapWidget.removeItems(ids);
 				} else {
 					self.mapWidget.removeBox(node.getBounds().toString());
 				}
-			});
+			}
 
-			//console.log("here");
 
-			$.each(change.added, function(i, node) {
-				if(node.data.idToTypes) {
-					self.updateNodeTypes(node.data.idToTypes);
-				}
-			});
-			
-			$.each(change.added, function(i, node) {
-				if(node.data.idToLabels) {
-					self.updateNodeTypes(node.data.idToTypes);
-				}
-			});			
-			
-			$.each(change.added, function(i, node) {
-				if(node.data.idToPos) {
-					self.mapWidget.addItems(node.data.idToPos);
+			// Add markers of new nodes
+			for(var i in change.addedNodes) {
+				var node = change.addedNodes[i];
+				
+				//if(node.infMinItemCount && node.idToPos.length != 0) {
+				if(node.isLoaded) {
+					for(var id in node.idToPos) {
+						var pos = node.idToPos[id];
+						var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
+						self.mapWidget.addItem(id, lonlat);
+					}
 				} else {
 					self.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 				}
-			});
-		});
+			}
+			
+			
+			
+			var classFilter = _.keys(self.selection.entries);
+			
+			// Perform the filtering
+			for(var i in change.newNodes) {
+				var node = change.newNodes[i];
+				
+				for(var id in node.idToPos) {
+					var pos = node.idToPos[id];
+					
+					if(!change.newBounds.containsPoint(pos)) {
+						continue;
+					}
+										
+					var types = _.keys(node.data.idToTypes[id]);
+					
+					
+					if(classFilter.length === 0 || _.intersection(classFilter, types).length !== 0) {
+						self.mapWidget.setVisible(id, true);						
+						self.nodeToLabel.put(id, node.data.idToLabels[id]);
+					} else {
+						self.mapWidget.setVisible(id, false);
+					}
+				}
+			}
+			
+			self.instanceWidget.refresh();	
+		});		
 	},
 
 	setSparqlService: function(sparqlService) {

@@ -59,7 +59,7 @@
 
 
     <!-- The actual spatial semantic browsing widgets -->
-    <script type="text/javascript" src="src/main/javascript/MyQuadTree.js"></script>
+    <script type="text/javascript" src="src/main/javascript/QuadTree.js"></script>
     <script type="text/javascript" src="src/main/javascript/backend/ssb.backend.quadtree.js"></script>
 
     <script type="text/javascript" src="src/main/javascript/ssb.utils.js"></script>
@@ -80,6 +80,7 @@
 
     <script type="text/javascript" src="src/main/javascript/query-factory/ssb.query-factory.linkedgeodata.js"></script>
 
+    <script type="text/javascript" src="src/main/javascript/backend/ssb.sparql-service.virtuoso.js"></script>
 
     <script type="text/javascript" src="src/main/javascript/backend/ssb.backend.delay.js"></script>
     <script type="text/javascript" src="src/main/javascript/backend/ssb.backend.virtuoso.js"></script>
@@ -87,16 +88,19 @@
     <script type="text/javascript" src="src/main/javascript/query-factory/ssb.query-factory.wgs84.js"></script>
     <script type="text/javascript" src="src/main/javascript/backend/ssb.backend.wgs84.js"></script>
 
+    <script type="text/javascript" src="src/main/javascript/QuadTreeModel.js"></script>
+
     <script type="text/javascript" src="src/main/javascript/SpatialSemanticBrowsing.js"></script>
 
     <script type="text/javascript">
         var ssbconf = {};
         ssbconf.endpoint = '/sparql'; // begins with http -> absolute, else relative
-        ssbconf.models = ['http://climbing.org'];
+        //ssbconf.models = ['http://climbing.org'];
+	ssbconf.models = ['http://linkedgeodata.org/2011-04-27/Aerodrome'];
     </script>
 
     <!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
-    <script type="text/javascript" src="src/main/javascript/main.quadtree.js"></script>
+    <script type="text/javascript" src="src/main/javascript/main.js"></script>
 
 
   </head>

@@ -1,4 +1,6 @@
 
+
+// TODO Use underscores _.keys({}) instead.
 function getKeys(obj){
    var keys = [];
    for(var key in obj){
@@ -58,7 +60,7 @@ Set.fromArray = function(list) {
 
 Set.prototype = {
 	add: function(key) {
-		this.entries[key] = value;
+		this.entries[key] = 1; //;value;
 		
 		$(this).trigger("changed", {added:[key], removed:[] });
 	},
@@ -104,6 +106,10 @@ Set.prototype = {
 			
 			$(this).trigger("changed", {added:[], removed:[key] });
 		}
+	},
+	
+	isEmpty: function() {
+		return _.isEmpty(this.entries);
 	},
 	
 	clone: function() {
@@ -189,20 +195,74 @@ Map.prototype = {
 };
 
 
-
+/**
+ * TODO Toggle between different semantics:
+ * Map<Primitive, Set<Primitive>>
+ * Map<Primivite, MultiSet<Primitive, Count>
+ * 
+ * 
+ * @returns {MultiMap}
+ */
 function MultiMap() {
 	
 	this.entries = {};
 }
 
+
 MultiMap.prototype = {
-	put: function(key, value) {
+    addKey: function(key) {
+		if(!(key in this.entries)) {
+			this.entries[key] = {};
+		}
+    },
+		
+	inc: function(key, value) {
         
 		var set = (key in this.entries) ? this.entries[key] : this.entries[key] = {};
 
 		set[value] = (value in set) ? set[value] + 1 : 1;
 	},
 	
+	dec: function(key, value, retainKey) {
+		if(!(key in this.entries)) {
+			return;
+		}
+
+		var set = this.entries[key];
+		
+		if(!(value in set)) {
+			return;
+		}
+		
+		var count = set[value];
+		--count;
+
+		if(count <= 0) {
+			delete set[value];
+		} else {
+			set[value] = count;
+		}
+		
+		if(!retainKey) {
+			if(_.isEmpty(set)) {
+				delete this.entries[key];
+			}
+		}
+	},
+	
+	count: function(key, value) {
+		return this.entries[key][value];
+	},
+
+	put: function(key, value) {
+		this.inc(key, value);
+	},
+	
+	/**
+	 * 
+	 * @param key
+	 * @param values An array of values, e.g. [1, 2, 3]
+	 */
 	putAll: function(key, values) {
 		for(var i in values) {
 			this.put(key,  values[i]);

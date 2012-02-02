@@ -27,7 +27,7 @@ $.widget("ui.ssb_instances", {
 
 		this.domElement = this.element.get(0);
 		
-		this.repaintScheduler = new Scheduler();
+		//this.repaintScheduler = new Scheduler();
 		
 		this.instanceToLabel = this.options.instanceToLabel;
 		this.instanceToType  = this.options.instanceToType;
@@ -36,22 +36,30 @@ $.widget("ui.ssb_instances", {
 		
 		var self = this;
 		
+		/*
 		$(this.instanceToLabel).bind("changed", function(event, change) {
 			self.repaintScheduler.schedule(function() { self.onDataChange(change); });
-		});
+		});*/
 	},
 
 	onDataChange: function(change) {
+		this.refresh();
+	},
+	
+	
+	refresh: function() {
 		//notify("data", "changed");
 		//var map = jsonRdfResultSetToMap(JSON.parse(response), "s", "o");
 		
 		var text = "<ul class='ssb-container'>";
 		var map = this.instanceToLabel.entries;
 		
+		var order = _.keys(map).sort(function(a, b) { return alphabetical(map[a], map[b]); } );
+
 		var self = this;
-		var i = 0;
-		for(var key in map) {
-			++i;
+
+		for(var i in order) {
+			var key = order[i];
 			
 			var value = map[key];
 			
@@ -91,3 +99,16 @@ $.widget("ui.ssb_instances", {
 
 })(jQuery);
 
+
+function alphabetical(a, b)
+{
+     var A = a === undefined ? a : a.toLowerCase();
+     var B = b === undefined ? b : b.toLowerCase();
+     if (A < B){
+        return -1;
+     }else if (A > B){
+       return  1;
+     }else{
+       return 0;
+     }
+}

@@ -9,53 +9,41 @@
 <html>
 
   <head>
-    <title>LinkedGeoData Browser Widgets Tests</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Spatial Semantic Browser</title>
 
 
     <script type="text/javascript" src="lib/jquery/1.6.2/jquery-1.6.2.js"></script>
 
     <script type="text/javascript" src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
+    <script type="text/javascript" src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script>
 
-
-
-	<!-- <script type="text/javascript" src="../../../lib/dynatree/1.2.0_rc1/jquery/jquery.ui.core.js"></script>  -->
-
-	<script type="text/javascript" src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script>
-
-    <script src='lib/dynatree/1.2.0_rc1/jquery/jquery.ui.core.js' type="text/javascript"></script>
-    <script src='lib/dynatree/1.2.0_rc1/jquery/jquery.cookie.js' type="text/javascript"></script>
+    <script type="text/javascript" src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script>
 
     <link rel='stylesheet' type='text/css' href='lib/dynatree/1.2.0_rc1/src/skin/ui.dynatree.css'>
-
-	<!--
-		<link rel="stylesheet" type="text/css" href="src/main/javascript/style.css" />
-  	-->
-	<link rel="stylesheet" type="text/css" href="src/main/javascript/style.css" />
+    <link rel="stylesheet" type="text/css" href="src/main/javascript/style.css" />
 
     <script type="text/javascript" src="lib/underscore/1.1.7/underscore.js"></script>
-    <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
+    <!-- <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script> -->
 
-	<!-- Gritter notifications -->
-	<link rel="stylesheet" type="text/css" href="lib/gritter/e6e8b03/css/jquery.gritter.css" />
-	<script type="text/javascript" src="lib/gritter/e6e8b03/js/jquery.gritter.js"></script>
-
-
-
-	<!-- Open Layers 2.11-rc2 -->
-    <script type="text/javascript" src="lib/open-layers/2.10/OpenLayers.js"></script -->
-
-    <!-- <script type="text/javascript" src="lib/webr3-rdf/cbfabc9/rdf.js"></script -->
+    <!-- Gritter notifications
+    <link rel="stylesheet" type="text/css" href="lib/gritter/e6e8b03/css/jquery.gritter.css" />
+    <script type="text/javascript" src="lib/gritter/e6e8b03/js/jquery.gritter.js"></script>
+    -->
 
 
 
-	<!-- script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script -->
-	<script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
-	<script type="text/javascript" src="lib/sparql/unknown/sparql.js"></script>
+    <!-- Open Layers 2.11-rc2 -->
+    <script type="text/javascript" src="lib/open-layers/2.10/OpenLayers.js"></script> -->
+
+    <!-- <script type="text/javascript" src="lib/webr3-rdf/cbfabc9/rdf.js"></script> -->
+
+    <script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
 
 
-	<!-- Configuration files -->
-	<script type="text/javascript" src="src/main/javascript/ssb.namespacePrefixes.js"></script>
+    <!-- Configuration files -->
+    <script type="text/javascript" src="src/main/javascript/ssb.namespacePrefixes.js"></script>
 
 
     <!-- The actual spatial semantic browsing widgets -->

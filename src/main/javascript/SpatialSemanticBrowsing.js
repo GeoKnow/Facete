@@ -136,8 +136,8 @@ SpatialSemanticBrowsing.prototype = {
 		
 		$("#facets").bind("ssb_facetschanged", function(event, ui) {
 			//var sel = $("#facets").data;
-			console.log("Selection is:");
-			console.log(self.selection);
+			//console.log("Selection is:");
+			//console.log(self.selection);
 			//self.queryFactory.setClassFilter(self.selection);
 			
 			
@@ -301,7 +301,7 @@ SpatialSemanticBrowsing.prototype = {
 			self.updateClasses(self.typeToCount);
 			
 			//console.log(classUris);
-			console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
+			//console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
 						
 						
 			// Remove markers of removed nodes

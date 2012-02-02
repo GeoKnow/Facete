@@ -58,8 +58,11 @@ $.widget("ui.ssb_instances", {
 
 		var self = this;
 
-		for(var i in order) {
-			var key = order[i];
+		var i = 0;
+		for(var index in order) {
+			++i;
+
+			var key = order[index];
 			
 			var value = map[key];
 			
@@ -72,7 +75,6 @@ $.widget("ui.ssb_instances", {
 			
 			var id = "inst" + i;
 			
-			//TODO fire event when clicked
 			text += "<li><span class=''><a id='" + id + "' class='' href='#'>" + i + ": " + img + value + "</a><span></li>";
 		}
 		

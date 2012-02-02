@@ -175,7 +175,7 @@ $.widget("ui.ssb_map", {
 	removeItems : function(ids) {
 		var self = this;
 		
-		console.log("Items removal");
+		//console.log("Items removal");
 		
 		$.each(ids, function(i, id) {
 			var feature = self.nodeToFeature.entries[id];

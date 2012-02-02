@@ -54,7 +54,7 @@ BidiMultiMap.prototype = {
 	getFirst: function(key) {
 		var a = this.get(key);
 		if(a) {
-			console.log(a);
+			//console.log(a);
 			
 			var keys = getKeys(a);			
 			if(keys.length > 0) {

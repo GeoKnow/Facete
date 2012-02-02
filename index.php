@@ -94,9 +94,14 @@
 
     <script type="text/javascript">
         var ssbconf = {};
-        ssbconf.endpoint = '/sparql'; // begins with http -> absolute, else relative
-        //ssbconf.models = ['http://climbing.org'];
-	ssbconf.models = ['http://linkedgeodata.org/2011-04-27/Aerodrome'];
+<?php
+    // begins with http -> absolute, else relative
+    $endpoint = isset($_REQUEST['endpoint']) ? $_REQUEST['endpoint'] : '/sparql';
+    // empty means use it all
+    $graph    = isset($_REQUEST['default-graph-uri']) ? $_REQUEST['default-graph-uri'] : '';
+?>
+        ssbconf.endpoint = '<?php echo $endpoint ?>';
+        ssbconf.models = ['<?php echo $graph ?>'];
     </script>
 
     <!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->

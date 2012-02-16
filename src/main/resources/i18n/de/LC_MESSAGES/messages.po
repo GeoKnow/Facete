@@ -1,0 +1,3 @@
+#:
+msgid ssb.ui.facets
+msgstr "Facetten"

@@ -33,7 +33,7 @@ function SpatialSemanticBrowsing() {
 
 	
 	// The active language
-	this.activeLanguage = "en";
+	this.activeLanguage = "fr";
 
 	
 	// Model classes for the instances

@@ -130,6 +130,7 @@ $.widget("ui.ssb_facts", {
 		});*/
 	},
 
+	
 	setData: function(subject, jsonRdfs) {
 		//notify("data", "changed");
 		//var map = jsonRdfResultSetToMap(JSON.parse(response), "s", "o");

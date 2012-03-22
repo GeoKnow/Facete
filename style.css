@@ -262,3 +262,62 @@ div#footer {
 	text-align: center;
 	border: 1px solid #000000;
 }
+
+
+
+/* Style taken from: http://net.tutsplus.com/tutorials/javascript-ajax/create-a-tabbed-interface-using-jquery/ */
+.widget {  
+width: 310px;  
+margin: 20px;  
+padding: 10px;  
+background: #f3f1eb;  
+border: 1px solid #dedbd1;  
+margin-bottom: 15px;  
+}  
+  
+.widget a {  
+color: #222;  
+text-decoration: none;  
+}  
+  
+.widget a:hover {  
+color: #009;  
+text-decoration: underline;  
+}  
+
+.tabnav li {  
+display: inline;  
+list-style: none;  
+padding-right: 5px;  
+}  
+  
+.tabnav li a {  
+text-decoration: none;  
+text-transform: uppercase;  
+color: #222;  
+font-weight: bold;  
+padding: 4px 6px;  
+outline: none;  
+}  
+  
+.tabnav li a:hover, .tabnav li a:active, .tabnav li.ui-tabs-selected a {  
+background: #dedbd1;  
+color: #222;  
+text-decoration: none;  
+}  
+  
+.tabdiv {  
+margin-top: 2px;  
+background: #fff;  
+border: 1px solid #dedbd1;  
+padding: 5px;  
+}  
+  
+.tabdiv li {  
+list-style-image: url("star.png");  
+margin-left: 20px;  
+}  
+  
+.ui-tabs-hide {  
+display: none;  
+}

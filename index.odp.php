@@ -13,12 +13,15 @@
 
 
 
+
+
 	<?php
 	$locale = "en";
 	if(isSet($_GET["lang"]))$locale = $_GET["lang"];
 	?>
 
-	<link id="active_lang" rel="gettext" type="application/x-po" href="src/main/resources/i18n/<?php echo $locale ?>/LC_MESSAGES/messages.po" />
+	<link id="active_lang" rel="gettext" type="application/x-po"
+		href="src/main/resources/i18n/<?php echo $locale ?>/LC_MESSAGES/messages.po" />
 
 
 
@@ -39,7 +42,10 @@
 
 		<script type="text/javascript"
 			src="lib/underscore/1.1.7/underscore.js"></script>
-		<!-- <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script> -->
+
+		<script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
+
+		<script type="text/javascript" src="lib/agility/0.1.2/agility.min.js" charset="utf-8"></script>
 
 		<!-- Gritter notifications
     <link rel="stylesheet" type="text/css" href="lib/gritter/e6e8b03/css/jquery.gritter.css" />
@@ -76,8 +82,6 @@
 		<script type="text/javascript"
 			src="src/main/javascript/jsonrdf-extraction-utils.js"></script>
 
-		<script type="text/javascript" src="src/main/javascript/view/view.js"></script>
-
 
 		<script type="text/javascript"
 			src="src/main/javascript/facet-controller.js"></script>
@@ -93,6 +97,8 @@
 			src="src/main/javascript/jquery.ssb.search.js"></script>
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.facts.js"></script>
+		<script type="text/javascript"
+			src="src/main/javascript/jquery.ssb.browsebox.js"></script>
 
 		<script type="text/javascript"
 			src="src/main/javascript/query-factory/ssb.query-factory.linkedgeodata.js"></script>
@@ -104,6 +110,11 @@
 			src="src/main/javascript/backend/ssb.backend.delay.js"></script>
 		<script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.virtuoso.js"></script>
+
+		<script type="text/javascript" src="src/main/javascript/jena/sparql-syntax.js"></script>
+		<script type="text/javascript" src="src/main/javascript/facets/facets-old.js"></script>
+		<script type="text/javascript" src="src/main/javascript/facets/facets.sparql.js"></script>
+
 
 		<script type="text/javascript"
 			src="src/main/javascript/query-factory/ssb.query-factory.wgs84.js"></script>
@@ -174,6 +185,7 @@
          * (and we require javascript anyway)
          */
          $(document).ready(function() {
+        	 
              $(window).resize(function() {
 				var windowHeight = $(window).height();
 				var headerHeight = $("#header_div").height();
@@ -198,6 +210,9 @@
     			//insertParam("lang", lang);
     		});
 
+	       	 //$( "#tabs" ).tabs({ fx: { height: 'toggle', opacity: 'toggle' } });
+     		//$( "#tabs" ).tabs({ fx: { opacity: 'toggle' } });
+     		$( "#tabs" ).tabs({});
          });
 
     </script>
@@ -222,7 +237,7 @@
 					<a href="#">European Commission</a>
 				</div>
 				<div id="banner-subtitle">
-					<span>Spatial Open Data Explorer</span>
+					<span>Open Geo-Data Explorer</span>
 				</div>
 				<div id="services">
 					<ul>
@@ -305,6 +320,11 @@
 				<div id="map"
 					style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
 
+				<div id="test" style="position: absolute; top: 24px; left: 200px;">
+					<ul></ul>
+				</div>
+
+
 				<div id="searchDiv" class="mybg"
 					style="position: absolute; top: 0; left: 200px; right: 200px; height: 24px; overflow: auto">
 					<form style='float: left' action='javascript: doSearch();'>
@@ -321,6 +341,7 @@
 					style="position: absolute; top: 24px; left: 200px; right: 200px; overflow: auto;"></div>
 
 
+
 				<div class="mybg"
 					style="position: absolute; top: 0px; left: 0px; height: 24px; width: 200px;">Instances</div>
 
@@ -329,13 +350,35 @@
 
 				<div id="facets-title" class="mybg"
 					style="position: absolute; top: 0px; right: 0px; height: 24px; width: 200px;">Facets</div>
-					
+
 				<div id="facets" class="mybg"
 					style="position: absolute; top: 24px; right: 0px; width: 200px; overflow: auto;"></div>
+
+
+				<div id="tabs" class="widget"
+					style="position: absolute; top: 24px; left: 50px; width: 250px;">
+					<ul class="tabnav">
+						<li><a href="#tabs-2">Instances</a></li>
+						<li><a href="#facets2">Facets</a></li>
+						<li><a href="#tabs-3">Types</a></li>
+					</ul>
+					<div class="tabdiv" id="facets2"></div>
+					<div class="tabdiv" id="tabs-2">
+						<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+					</div>
+					<div class="tabdiv" id="tabs-3">
+						<p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
+						<p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
+					</div>
+				</div>
+
+
 
 				<div id="facts" class="mybg"
 					style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>
 
+				<div id="browsebox" class="mybg"
+					style="position: absolute; top: 50px; left: 300px; width: 600px; hight: 600px; overflow: auto;"></div>
 			</div>
 
 		</div>

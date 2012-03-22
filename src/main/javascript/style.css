@@ -183,3 +183,29 @@ a:hover
 	background: #888888; /* light blue */
 	border-color: #B8D6FB; /* darker light blue */
 }
+
+
+#nice-rouned-box {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.1);
+    border-radius: 12px 12px 12px 12px;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+    color: #555555;
+    display: block;
+    font-size: 11px;
+    line-height: 20px;
+    margin-top: 8px;
+    padding: 0 10px 1px;
+    text-decoration: none;
+}
+
+#nice-destroy-button {
+    background: url("/images/destroy.png") no-repeat scroll center center transparent;
+    cursor: pointer;
+    display: none;
+    height: 20px;
+    position: absolute;
+    right: 0;
+    top: 16px;
+    width: 20px;
+}
+

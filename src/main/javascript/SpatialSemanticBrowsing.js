@@ -11,6 +11,15 @@ function getMostSpecificClasses(classHierarchy, types) {
 
 
 
+function SelectionHighlighterController() {
+
+}
+
+SelectionHighlighterController.prototype.x = function() {
+	
+};
+
+
 /**
  * The main class for the Spatial Semantic Browsing Widgets.
  * Holds references to model classes, and can initialize the controller.
@@ -79,6 +88,9 @@ function SpatialSemanticBrowsing() {
 	//this.refreshScheduler = new Scheduler();
 } 
 
+
+
+
 SpatialSemanticBrowsing.prototype = {
 	init: function() {
 		var self = this;
@@ -122,6 +134,7 @@ SpatialSemanticBrowsing.prototype = {
 
 		$("#facts").ssb_facts({});
 
+		$("#browsebox").ssb_browsebox({});
 		
 		this.mapWidget = $("#map").data("ssb_map");
 		this.map = this.mapWidget.map;
@@ -159,6 +172,50 @@ SpatialSemanticBrowsing.prototype = {
 			// If everytihng is done, fire an event updateView
 			// Refresh the view whenever it is sent
 		});
+		
+		
+		Dispatcher.register("selection", null, function(ev, uri) {
+			// Fetch 
+		});
+		
+		Dispatcher.register("selection", null, function(ev, uri) {
+			
+			// TODO FFS Why did I use select rather than construct here?
+			fetchStatementsBySubject(self.sparqlService, [uri], {				
+				failure: function() { Console.err("Error executing Sparql query"); },
+				success: function(jsonRdf) {
+				
+					self.facts.setData(uri, [jsonRdf]);
+					$("#facts").slideDown("slow");
+					
+					
+					
+					// If there are any same as links, try to fetch something from
+					// additional sources (e.g. DBpedia)
+					console.log(jsonRdf);
+					//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
+					var tags = extractTags(jsonRdf);
+					
+					objects = "owl:sameAs" in tags ? tags["owl:sameAs"] : [];
+					
+					for(prefix in self.prefixToService) {
+						var service = self.prefixToService[prefix];
+					
+						for(var i = 0; i < objects.length; ++i) {
+							
+							var object = objects[i]; //.value;
+							if(object.startsWith(prefix)) {
+								fetchStatementsBySubject(service, [object], function(jsonRdf2) {
+									self.facts.setData(uri, [jsonRdf, jsonRdf2]);
+								});
+							}
+							
+						}
+					}
+				}
+			});
+		});
+
 	},
 	
 	refresh: function(bounds, delay) {
@@ -192,6 +249,9 @@ SpatialSemanticBrowsing.prototype = {
 	},
 	
 	mapEvent: function() {
+		
+		return;
+		
 		this.test += 0.0005;
 		//this.mapWidget.setNodeToPos({"http://test.org":  new OpenLayers.LonLat(-1.0 + this.test, 53.0)});
 
@@ -536,74 +596,44 @@ SpatialSemanticBrowsing.prototype = {
 		}
 	},
 	
-	onInstanceClicked: function(uri) {
-		console.log("Clicked: " + uri)
-		var self = this;
+	enableHighlight: function(feature) {
+		var icon = feature.marker.icon;
 		
-		if(this.selectedFeature) {
-			var icon = this.selectedFeature.marker.icon;
-			var size = new OpenLayers.Size(icon.size.w - 15, icon.size.h - 15);
-			icon.setSize(size);
-			icon.setUrl("http://www.openlayers.org/dev/img/marker.png");
+		// FIXME Update the position when changing the size
+		// FIXME Make the handling of the icons nicer
+		if(icon.url === "src/main/resources/icons/markers/marker.png") {
+			icon.setUrl("src/main/resources/icons/markers/marker-gold.png");
 		}
 		
+		var size = new OpenLayers.Size(icon.size.w + 15, icon.size.h + 15);
+        icon.setSize(size);  
+	},
+	
+	disableHighlight: function(feature) {
+		var icon = feature.marker.icon;
+		var size = new OpenLayers.Size(icon.size.w - 15, icon.size.h - 15);
+		icon.setSize(size);
+		icon.setUrl("src/main/resources/icons/markers/marker.png");		
+	},
+	
+	
+	onInstanceClicked: function(uri) {
+		Dispatcher.fireEvent("selection", uri);
+		
+		console.log("Clicked: " + uri);
+		var self = this;
+
+		if(this.selectedFeature) {
+			this.disableHighlight(this.selectedFeature);
+		}
 		
 		var feature = self.nodeToFeature.get(uri);
+		
 
 		this.selectedFeature = feature;
 
 		if(feature) {
-			// TODO FFS Why did I use select rather than construct here?
-			fetchStatementsBySubject(self.sparqlService, [uri], function(jsonRdf) {
-				
-				var point = feature.lonlat.clone().transform(self.map.projection, self.map.displayProjection);
-				
-				var icon = feature.marker.icon;
-				
-				// FIXME Update the position when changing the size
-				// FIXME Make the handling of the icons nicer
-				var size = new OpenLayers.Size(icon.size.w + 15, icon.size.h + 15);
-				if(icon.url == "http://www.openlayers.org/dev/img/marker.png") {
-					icon.setUrl("http://www.openlayers.org/dev/img/marker-gold.png");
-				}
-				
-	            icon.setSize(size);  
-				
-				//console.log(point);
-				
-				
-				//console.log(feature);
-				//console.log(jsonRdf);
-				//var tags = extractTags(jsonRdf);			
-				
-				self.facts.setData(uri, [jsonRdf]);
-				$("#facts").slideDown("slow");
-				
-				
-				
-				// If there are any same as links, try to fetch something from
-				// additional sources (e.g. DBpedia)
-				console.log(jsonRdf);
-				//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
-				var tags = extractTags(jsonRdf);
-				
-				objects = "owl:sameAs" in tags ? tags["owl:sameAs"] : [];
-				
-				for(prefix in self.prefixToService) {
-					var service = self.prefixToService[prefix];
-				
-					for(var i = 0; i < objects.length; ++i) {
-						
-						var object = objects[i]; //.value;
-						if(object.startsWith(prefix)) {
-							fetchStatementsBySubject(service, [object], function(jsonRdf2) {
-								self.facts.setData(uri, [jsonRdf, jsonRdf2]);
-							});
-						}
-						
-					}
-				}
-			});
+			this.enableHighlight(feature);
 		}
 	}
 };

@@ -1,12 +1,17 @@
 var Dispatcher = {
     register: function(event, context, functionName) {
-        $(this).bind(event, $.proxy(context, functionName));
+    	if(context) {
+    		$(this).bind(event, $.proxy(context, functionName));
+    	} else {
+    		$(this).bind(event, functionName);
+    	}
     },
 
     /*
-    register2: function(event, fn) {
+    registerFn: function(event, fn) {
         $(this).bind(event, fn);
-    },*/
+    },
+    */
 
     /**
      * Fires the given event, any additional parameters are passed on

@@ -31,6 +31,8 @@ $.widget("ui.ssb_map", {
 		this.idToBox = {};
 		
 		this.domElement = this.element.get(0);
+
+
 		
 		//this.nodeToPos = this.options.nodeToPos;
 		this.nodeToFeature = this.options.nodeToFeature;
@@ -66,25 +68,32 @@ $.widget("ui.ssb_map", {
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
-//	    					new OpenLayers.Control.PanZoomBar(),
+	    					new OpenLayers.Control.PanZoomBar(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
 	    					new OpenLayers.Control.ScaleLine(),
 	    		],
 	    };
-		
+
+
 		this.map = new OpenLayers.Map(this.domElement, options); 
 
+		//this.map.
 		
-		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
 		//this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
 		this.boxLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
 		
 		this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
 	    this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
 	    
-	    
+	    // uncomment	    
+		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
 		this.map.addLayers([mapnikLayer, this.boxLayer, this.vectorLayer, this.markerLayer]);
+		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
+		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
+	    
+	    
+	    //this.map.addLayers([this.markerLayer]);
 
 		
 		/*
@@ -103,6 +112,7 @@ $.widget("ui.ssb_map", {
 		//console.log(center);
 		this.map.setCenter(tCenter, 3);
 		
+
 		
 //new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
 //new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator Projection
@@ -117,8 +127,6 @@ $.widget("ui.ssb_map", {
 		//this.map.events.register("zoomend", this, function(event) { this.onMapEvent(event); });
 
 		//console.log(self);
-		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
-		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 		
 		this._doBind();
 	},

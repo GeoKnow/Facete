@@ -239,17 +239,30 @@ function fetchStatementsBySubject(service, uris, callback) {
 	console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
 	var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uris.join(">,<") + ">)) . }";
 
-	//var self = this;
-	//alert(queryString);
 	service.executeSelect(queryString, {
-		failure: function() { notify("Error", "Sparql Query Failed"); },
-		success: function(response) {
-
-			
-			callback(response);
-		}	
+		failure: callback.failure,
+		success: callback.success	
 	});	
 };
+
+function fetchStatementsByObject(service, uris, callback) {		
+	
+	uris = filterUrisValidate(uris);
+	
+	if(uris.length == 0) {
+		return;
+	}
+	
+	console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
+	var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?o In (<" + uris.join(">,<") + ">)) . }";
+
+	service.executeSelect(queryString, {
+		failure: callback.failure,
+		success: callback.success	
+	});	
+};
+
+
 
 /**
  * Source: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/

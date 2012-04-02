@@ -128,7 +128,6 @@ QuadTreeModel.prototype._setNodes = function(newNodes, newBounds) {
 		
 		involvedNodeStatus[i] = status;
 		
-		//console.log("Status: ", status, " for " + node);
 
 		/*
 		if(status === RETAINED) {
@@ -225,10 +224,6 @@ QuadTreeModel.prototype._setNodes = function(newNodes, newBounds) {
 	});
 	//}
 	
-	//console.log("added: " + added);
-	//console.log("removed: " + removed);
-	//console.log(added);
-	//console.log(removed);
 };
 
 
@@ -244,7 +239,6 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 	self.isLocked = true;
 
 	
-	console.log("Aquiring nodes for " + bounds);
 	var nodes = this.quadTree.aquireNodes(bounds, 2);
 	
 	
@@ -252,9 +246,7 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 	
 	// Uncomment for output of aquired nodes
 	/*
-	console.log("Found some nodes: " + nodes.length);
 	$.each(nodes, function(index, node) {
-		console.log(index + ": " + node.getBounds());
 	});
 	*/
 	
@@ -267,7 +259,6 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 
 		// Check if the minimumItemCount is available
 		if(node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < maxItemCount)) {
-			//console.log("" + node.getBounds());
 			
 			countTasks.push(
 				self.backend.fetchNodeCount(node.getBounds()).pipe(function(value) {
@@ -294,7 +285,6 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 		
 		$.each(nodes, function(index, node) {		
 			
-			//console.log("Inferred minimum item count: %d", node.infMinItemCount);
 			
 			if(node.infMinItemCount < maxItemCount) {
 
@@ -376,7 +366,6 @@ QuadTreeModel.prototype.setBounds = function(bounds) {
 			});
 			*/
 			
-			//console.log("All done");
 			self._setNodes(nodes, bounds);
 			self.isLocked = false;
 		});
@@ -395,10 +384,6 @@ QuadTreeModel.prototype.clear = function() {
 	this.currentNodes = [];
 
 	
-	//console.log("added: " + added);
-	//console.log("removed: " + removed);
-	//console.log(added);
-	//console.log(removed);
 	
 	if(removed.length != 0) {
 		$(this).trigger("changed", {added:[], removed:removed });
@@ -452,7 +437,6 @@ function tryMergeNode(parent) {
 	// Unlink children
 	parent.children = null;
 	
-	console.log("Merged a node");
 	
 	return true;
 }

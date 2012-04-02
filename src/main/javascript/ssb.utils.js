@@ -157,7 +157,6 @@ function extractTagsCore(result, json)
 {
 	for(var i = 0; i < json.results.bindings.length; ++i) {
 		var item = json.results.bindings[i];
-		//console.log(item);
 		var key = item.p.value;
 		
 		// Check if the key is prefixed with a known namespace
@@ -237,7 +236,6 @@ function fetchStatementsBySubject(service, uris, callback) {
 		return;
 	}
 	
-	console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
 	var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uris.join(">,<") + ">)) . }";
 
 	service.executeSelect(queryString, {
@@ -254,7 +252,6 @@ function fetchStatementsByObject(service, uris, callback) {
 		return;
 	}
 	
-	console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
 	var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?o In (<" + uris.join(">,<") + ">)) . }";
 
 	service.executeSelect(queryString, {

@@ -82,7 +82,6 @@ Bounds.prototype.rangeY = function() {
 
 Bounds.prototype.overlap = function(bounds) {
 	if(!bounds.rangeX) {
-		console.log("test");
 	}
 	
 	var ox = this.rangeX().getOverlap(bounds.rangeX());
@@ -229,7 +228,6 @@ Node.prototype.subdivide = function()
 	
 	var c = this.getCenter();
 
-	//console.log("k is " + this._k);
 	
 	// expansions
 	var ew = this._k * 0.5 * this._bounds.getWidth();
@@ -272,10 +270,8 @@ Node.prototype.subdivide = function()
 	
 	// Uncomment for debug output
 	/*
-	console.log("Subdivided " + this._bounds + " into ");
 	for(var i in this.children) {
 		var child = this.children[i];
-		console.log("    " + child._bounds);
 	}
 	*/
 };
@@ -373,8 +369,6 @@ Node.prototype.queryRec = function(bounds, result) {
  */
 Node.prototype.splitFor = function(bounds, depth, result) {
 	/*
-	console.log("Depth = " + depth);
-	console.log(this.getBounds());
 	*/
 	
 	
@@ -407,7 +401,6 @@ Node.prototype.splitFor = function(bounds, depth, result) {
 	if(r >= depth || this._depth >= this._maxDepth) {
 		if(result) {
 			result.push(this);
-			//console.log("Added a node");
 		}
 		return;
 	}
@@ -419,7 +412,6 @@ Node.prototype.splitFor = function(bounds, depth, result) {
 	for(var i in this.children) {
 		var child = this.children[i];
 		
-		//console.log(child);
 		child.splitFor(bounds, depth, result);
 	}	
 };

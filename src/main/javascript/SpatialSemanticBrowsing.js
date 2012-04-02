@@ -152,8 +152,6 @@ SpatialSemanticBrowsing.prototype = {
 		/*
 		$("#facets").bind("ssb_facetschanged", function(event, ui) {
 			//var sel = $("#facets").data;
-			//console.log("Selection is:");
-			//console.log(self.selection);
 			//self.queryFactory.setClassFilter(self.selection);
 			
 			
@@ -195,7 +193,6 @@ SpatialSemanticBrowsing.prototype = {
 					
 					// If there are any same as links, try to fetch something from
 					// additional sources (e.g. DBpedia)
-					console.log(jsonRdf);
 					//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
 					var tags = extractTags(jsonRdf);
 					
@@ -260,8 +257,6 @@ SpatialSemanticBrowsing.prototype = {
 
 		var map = this.map;
 		//var map = ui.map;
-		//console.log(event);
-		//console.log(ui);
 		
 		//var zoom = map.getZoom();
 		var bounds = map.getExtent().transform(map.projection, map.displayProjection);
@@ -360,11 +355,8 @@ SpatialSemanticBrowsing.prototype = {
 			
 			
 			
-			//console.log(self.typeToCount);
 			self.updateClasses(self.typeToCount);
 			
-			//console.log(classUris);
-			//console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
 						
 						
 			// Remove markers of removed nodes
@@ -481,7 +473,6 @@ SpatialSemanticBrowsing.prototype = {
 			
 			self.schemaLabels.put(uri, self.activeLanguage, label);
 		}
-		//console.log(self.schemaLabels);
 	},
 		
 	updateIcons: function(uris, map) {
@@ -528,7 +519,6 @@ SpatialSemanticBrowsing.prototype = {
 	},
 	
 	updateNodePositions: function(nodeToPoint) {
-		console.log("updateNodes");
 		var self = this;
 
 		//self.markerLayer.clearMarkers();
@@ -578,7 +568,6 @@ SpatialSemanticBrowsing.prototype = {
 			 	points.push(point.transform(map.displayProjection, map.projection));
 			}
 		
-			//console.log(map);
 			
 		    // create a polygon feature from a list of points
 		    var linearRing = new OpenLayers.Geometry.LinearRing(points);
@@ -623,7 +612,6 @@ SpatialSemanticBrowsing.prototype = {
 	onInstanceClicked: function(uri) {
 		Dispatcher.fireEvent("selection", uri);
 		
-		console.log("Clicked: " + uri);
 		var self = this;
 
 		if(this.selectedFeature) {
@@ -681,7 +669,6 @@ function doSearch() {
 	var searchValue = encodeURI($('#search-field').val());
 
 	var url = "src/main/php/search_proxy.php?query=" + searchValue;
-	//console.log(url);
 	$.ajax(url, {
 		failure: function() {notify("Something went wrong"); },
 		success: function(response) {

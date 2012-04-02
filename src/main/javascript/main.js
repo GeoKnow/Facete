@@ -70,7 +70,6 @@ SelectionBox.prototype.update = function() {
 function init(sparqlService, caps) {
 	// Destroy the old resources
 	
-	//console.log(caps);
 	
 	var queryFactory = null;
 	var backend = null;
@@ -103,7 +102,6 @@ function init(sparqlService, caps) {
 	
 	ssb.init();
 	ssb.setBackend(backend);
-	console.log("Initialization in progress");
 }
 
 
@@ -143,14 +141,10 @@ $(document).ready(function() {
 	
 	
 	//var vars = myns.extractSparqlVars();
-	//console.log(vars);
 	var sparqlService = new VirtuosoSparqlService(ssbconf.endpoint, ssbconf.models);
 
 	rp = new $.ssb.ResourceProvider("s", "?s geo:lat ?lat ; geo:long ?long .", sparqlService);
 	
-	//rp.fetch(function(arg) { console.log(arg); });
-	rp.count({ success: function(arg) { console.log("count", arg); } });
-	rp.isCountGreater(1000, { success: function(arg) { console.log("threshold exceeded? ", arg); } });
 	
 	rp.list({ success: function(arg) {}}, 10, 20);
 	
@@ -168,7 +162,6 @@ $(document).ready(function() {
 	projectRp.prefixes["addr"] = "http://publicdata.eu/eu-transparency/properties/address/";
 	
 	//projectRp.list({ success: function(arg) {}}, 10, 20);
-	projectRp.count({ success: function(arg) { console.log("Count", arg); }});
 	
 	/**
 	 * For a city, fetch all related projects

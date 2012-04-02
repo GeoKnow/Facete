@@ -73,7 +73,7 @@ ns.LabelFetcher.prototype.fetch = function(uris, includeAllUris, callback) {
 		return result;
 	}
 	
-	console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
+	//console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
 
 	var filterStr = "";	
 	if(!this.fetchAllLangs) {
@@ -115,14 +115,14 @@ ns.LabelFetcher.prototype.fetch = function(uris, includeAllUris, callback) {
 					lang = "";
 				}
 				
-				console.log("Label", uri, lang, labelNode.value);
+				//console.log("Label", uri, lang, labelNode.value);
 				
 				self.cache.put(uri, lang, labelNode.value);
 			}
 			
 			var lr = self.cacheLookup(lookups, includeAllUris);
 			var map = lr.entries;
-			console.log("LabelCache", self.cache);
+			//console.log("LabelCache", self.cache);
 			//mergeMapsInPlace(result, map);
 			_.extend(result, map);
 			callback(result);
@@ -147,7 +147,7 @@ function fetchLabels(uris, languages, callback) {
 			return;
 		}
 		
-		console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
+		//console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
 
 		
 		var queryString = "Select ?u ?l { ?u rdfs:label ?l . Filter(langMatches(lang(?l), '" + language + "')) . Filter(?u In (<" + uris.join(">,<") + ">)) . }";

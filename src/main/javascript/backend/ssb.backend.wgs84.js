@@ -164,7 +164,7 @@ BackendWgs84.prototype = {
 			return;
 		}
 		
-		console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
+		//console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
 
 		var queryString = "Select ?u ?l { ?u rdfs:label ?l . Filter(langMatches(lang(?l), '" + language + "')) . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
 

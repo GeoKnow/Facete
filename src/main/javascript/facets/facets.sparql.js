@@ -443,7 +443,7 @@
 		// TODO Order by ?o ?p
 		result.order.push(new ssb.Order(new ssb.ExprVar(c), ssb.OrderDir.Desc));
 		
-		console.log("Created query: " + result);
+		//console.log("Created query: " + result);
 		return result;
 	};
 		
@@ -462,7 +462,7 @@
 			callback = ns.DummyCallback;
 		}
 		
-		console.log("Fetching facets: " + q);
+		//console.log("Fetching facets: " + q);
 		
 		sparqlService.executeSelect(q.toString(), {
 			failue: function() { callback.failure(); },
@@ -519,7 +519,7 @@
 
 		var element = facet.getElement();
 		var outputVars = _.difference(facet.getElement().getVarsMentioned(), [facet.getInputVar()]);
-		console.log("Outputvars=", facet.getElement().getVarsMentioned(), facet.getInputVar());
+		//console.log("Outputvars=", facet.getElement().getVarsMentioned(), facet.getInputVar());
 
 		var result = new ssb.Query();
 		for(var i in outputVars) {
@@ -579,7 +579,7 @@
 		}
 
 		
-		console.log("Created query: " + result);
+		//console.log("Created query: " + result);
 		return {query: result, outputVars: outputVars };
 		
 	};
@@ -592,7 +592,7 @@
 		var knownFacets = config.getRoot().getSubFacets().asArray();
 		
 		if(!knownFacets) {
-			console.log("No facets to load");
+			//console.log("No facets to load");
 			return;
 		}
 		
@@ -664,7 +664,7 @@
 		batchQuery.projection[count.value] = null;
 		batchQuery.elements.push(new ssb.ElementUnion(unionElements));
 
-		console.log("Facet query: " + batchQuery);
+		//console.log("Facet query: " + batchQuery);
 		
 		return batchQuery;
 	};
@@ -819,7 +819,7 @@
 						var query = queryData.query;
 						query.limit = 10;
 						
-						console.log("Values query:", queryData);
+						//console.log("Values query:", queryData);
 						
 						// Test query
 						//query.elements.push(new ssb.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
@@ -840,12 +840,12 @@
 									}
 								}
 								
-								console.log("Value URIs", uris, map);
+								//console.log("Value URIs", uris, map);
 								
 								var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
 								labelFetcher.fetch(uris, true, function(idToLabel) {
 
-									console.log("Facet value uris", idToLabel);
+									//console.log("Facet value uris", idToLabel);
 
 								
 									for(var propertyName in map) {
@@ -922,7 +922,7 @@
 				
 				var query = ns.FacetUtils.createStatusQuery(config);
 				
-				console.log("Status query:", query.toString(), config);
+				//console.log("Status query:", query.toString(), config);
 				
 				sparqlService.executeSelect(query.toString(), {
 					success: function(jsonRs) {
@@ -948,7 +948,7 @@
 								
 								var facet = config.getFacet([propertyName]);
 								if(!facet) {
-									console.log("Getting facet from config: ", config, propertyName);								
+									//console.log("Getting facet from config: ", config, propertyName);								
 								}
 								
 								facet.setCount(count);
@@ -981,11 +981,11 @@
 				
 				/*
 				var facets = config.getRoot().getSubFacets().asArray();
-				console.log("facetsx", facets);
+				//console.log("facetsx", facets);
 				for(var i in facets) {
 					var facet = facets[i];
 			  
-					console.log("facetx", facet);
+					//console.log("facetx", facet);
 			  
 			  
 					var newItem = $$(facetItem, {content: facet.getId() });

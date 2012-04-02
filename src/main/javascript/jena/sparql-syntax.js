@@ -509,7 +509,7 @@
 	
 	ns.fetch = function() {
 		
-		console.log("Aquiring nodes for " + this.bounds);
+		//console.log("Aquiring nodes for " + this.bounds);
 		var nodes = this.quadTree.aquireNodes(this.bounds, 2);
 		
 		
@@ -557,7 +557,7 @@
 	
 	
 	$.ssb.test = function() {
-		console.log("test");
+		//console.log("test");
 		
 		var q = new ssb.Query();
 		
@@ -570,7 +570,7 @@
 		q.elements.push(new ssb.ElementFilter(new ssb.E_Equals(p, p)));
 		
 
-		console.log("Query = " + q);
+		//console.log("Query = " + q);
 		
 		
 	};

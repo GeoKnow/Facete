@@ -106,7 +106,7 @@ $.widget("ui.ssb_browsebox", {
 		//q.elements.push(ts);
 		
 		
-		console.log("My built query is: " + q);
+		//console.log("My built query is: " + q);
 		
 		q = fm.createQueryLoadDefaults();
 		
@@ -115,7 +115,7 @@ $.widget("ui.ssb_browsebox", {
 		
 		var sparqlService = new VirtuosoSparqlService(ssbconf.endpoint, ssbconf.models);
 		sparqlService.executeSelect(q.toString(), {
-			success: function(json) { console.log("test", json); }
+			success: function(json) { /*console.log("test", json);*/ }
 		}
 		);
 		

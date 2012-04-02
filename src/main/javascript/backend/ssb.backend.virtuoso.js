@@ -21,7 +21,7 @@ VirtuosoBackend.prototype = {
 	
 	fetchNodes: function(bounds, callback) {
 		var queryString = this.queryFactory.createNodesQuery(bounds);
-		console.log("NodesQuery: " + queryString);
+		//console.log("NodesQuery: " + queryString);
 		if(!queryString) {
 			return;
 		}
@@ -71,7 +71,7 @@ VirtuosoBackend.prototype = {
 	// TODO Filter configuration as attribute or parameter? -> Would go for first option
 	fetchWayGeometries: function(bounds, callback) {
 		var queryString = this.queryFactory.createWayGeometriesQuery(bounds);
-		console.log(queryString);
+		//console.log(queryString);
 		if(!queryString) {
 			return;
 		}
@@ -146,7 +146,7 @@ VirtuosoBackend.prototype = {
 			return;
 		}
 		
-		console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
+		//console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
 
 		
 		var queryString = "Select ?u ?l { ?u rdfs:label ?l . Filter(langMatches(lang(?l), '" + language + "')) . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
@@ -173,7 +173,7 @@ VirtuosoBackend.prototype = {
 			return;
 		}
 		
-		console.log("Fetching icons for (<" + uris.join('> , <') + ">)");	
+		//console.log("Fetching icons for (<" + uris.join('> , <') + ">)");	
 		var queryString = "Select ?u ?i { ?u <http://linkedgeodata.org/ontology/schemaIcon> ?i . Filter(?u In (<" + uris.join(">,<") + ">)) . }";
 
 		
@@ -199,7 +199,7 @@ VirtuosoBackend.prototype = {
 			return;
 		}
 		
-		console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
+		//console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
 		var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uris.join(">,<") + ">)) . }";
 
 		//var self = this;

@@ -68,12 +68,19 @@ $.widget("ui.ssb_search", {
 	 */
 	setItems: function(items) {
 
-		var html = "<div>"; // style:'width: 50%'>";
+		var html = "<ul>"; // style:'width: 50%'>";
 
 		for(var i = 0; i < items.length; ++i) {
 			var item = items[i];
 				
-			console.log(item);
+			//console.log(item);
+
+			
+			var str = "<li id='sr" + i + "'><b>" + escapeHTML(item.name) + "</b><br /><div style='margin-left:20px;'>" + escapeHTML(item.description) + "</li>";
+				
+			
+			
+			/*
 			
 			var clazz = "mybg ssb-container myborder";
 			
@@ -85,6 +92,9 @@ $.widget("ui.ssb_search", {
 			
 			str += "</div>";
 				
+			*/
+			
+			
 			html += str;
 				/*
 				onmouseout=\"
@@ -102,9 +112,9 @@ $.widget("ui.ssb_search", {
 			*/
 		}
 		
-		html += "<a id='searchResultsToggle' href='#'>hide</a>";
+		//html += "<a id='searchResultsToggle' href='#'>hide</a>";
 
-		html += "</div>";
+		html += "</ul>";
 		
 		$(this.domElement).html(html);
 		

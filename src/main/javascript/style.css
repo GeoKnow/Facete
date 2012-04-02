@@ -29,7 +29,7 @@ span.dynatree-active a
 ul.dynatree-container a
 /*, ul.dynatree-container a:visited*/
 {
-	color: white; /* inherit doesn't work on IE */
+	color: black; /* inherit doesn't work on IE */
 	font-weight:bold;
 }
 
@@ -145,7 +145,7 @@ ul.ssb-container img
 ul.ssb-container a
 /*, ul.dynatree-container a:visited*/
 {
-	color: white; /* inherit doesn't work on IE */
+	color: black; /* inherit doesn't work on IE */
 	font-weight:bold;
 	text-decoration: none;
 	vertical-align: top;

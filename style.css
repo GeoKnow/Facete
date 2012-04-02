@@ -267,12 +267,12 @@ div#footer {
 
 /* Style taken from: http://net.tutsplus.com/tutorials/javascript-ajax/create-a-tabbed-interface-using-jquery/ */
 .widget {  
-width: 310px;  
-margin: 20px;  
-padding: 10px;  
+/*width: 300px; */  
+margin: 0px;  
+padding: 10px;
 background: #f3f1eb;  
-border: 1px solid #dedbd1;  
-margin-bottom: 15px;  
+border: 0px solid #dedbd1;  
+/*margin-bottom: 15px; */  
 }  
   
 .widget a {  
@@ -315,7 +315,7 @@ padding: 5px;
   
 .tabdiv li {  
 list-style-image: url("star.png");  
-margin-left: 20px;  
+margin-left: 5px;  
 }  
   
 .ui-tabs-hide {  

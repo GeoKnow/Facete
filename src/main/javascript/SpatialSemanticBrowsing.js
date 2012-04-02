@@ -125,16 +125,18 @@ SpatialSemanticBrowsing.prototype = {
 		});
 		this.instanceWidget = $("#instances").data("ssb_instances");
 		
+		/*
 		$("#facets").ssb_facets({
 			schemaIcons: this.schemaIcons,
 			schemaLabels: this.schemaLabels,
 			classHierarchy: this.classHierarchy,
 			selection: this.selection
 		});
+		*/
 
 		$("#facts").ssb_facts({});
 
-		$("#browsebox").ssb_browsebox({});
+		//$("#browsebox").ssb_browsebox({});
 		
 		this.mapWidget = $("#map").data("ssb_map");
 		this.map = this.mapWidget.map;
@@ -147,6 +149,7 @@ SpatialSemanticBrowsing.prototype = {
 	initEvents: function() {
 		var self = this;
 		
+		/*
 		$("#facets").bind("ssb_facetschanged", function(event, ui) {
 			//var sel = $("#facets").data;
 			//console.log("Selection is:");
@@ -155,7 +158,7 @@ SpatialSemanticBrowsing.prototype = {
 			
 			
 			self.mapEvent();
-		});
+		});*/
 		
 		$("#instances").bind("ssb_instancesclick", function(event, ui) {
 			self.onInstanceClicked(ui.key);		
@@ -250,7 +253,7 @@ SpatialSemanticBrowsing.prototype = {
 	
 	mapEvent: function() {
 		
-		return;
+		//return;
 		
 		this.test += 0.0005;
 		//this.mapWidget.setNodeToPos({"http://test.org":  new OpenLayers.LonLat(-1.0 + this.test, 53.0)});
@@ -463,7 +466,7 @@ SpatialSemanticBrowsing.prototype = {
 		fetchTransitiveSuperClasses(self.sparqlService, superClassesToFetch, self.classHierarchy);
 		removeReflexivity(self.classHierarchy);
 		
-		$("#facets").data("ssb_facets").setFacets(uris);
+		//$("#facets").data("ssb_facets").setFacets(uris);
 	},
 		
 	

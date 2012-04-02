@@ -181,7 +181,8 @@ function extractTagsCore(result, json)
 
 
 function isValidUri(str) {
-	return !str.contains('+');
+	//return !str.contains('+');
+	return str.startsWith("http://");
 }
 
 

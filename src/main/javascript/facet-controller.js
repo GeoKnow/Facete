@@ -242,14 +242,14 @@ function LabelCollection() {
 	
 	this.put = function(uri, lang, label) {
 		//console.log(uri + " x " + lang + " x " + label);
-		if(!(lang in this.uriToLangToLabel)) {
+		if(!(uri in this.uriToLangToLabel)) {
 			this.uriToLangToLabel[uri] = {};
 		}
 		
 		var old = this.uriToLangToLabel[uri][lang];
 		
 		//if(!old || !)
-		if(!old || !old.equals(label)) {
+		if(!old || !old === label) {
 			this.uriToLangToLabel[uri][lang] = label;
 			Dispatcher.fireEvent("labelChanged", {u: uri, l: lang, o: old, n:label});
 		}

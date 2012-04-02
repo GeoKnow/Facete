@@ -16,7 +16,10 @@
 	
 	var ns = {};
 	
-	$.ssb = ns;
+	if($.ssb) {
+		//$.ssb = ns;
+		ns = $.ssb;
+	}
 	
 	
 	ns.varPattern = /\?(\w+)/g;

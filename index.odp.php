@@ -100,6 +100,7 @@
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.browsebox.js"></script>
 
+
 		<script type="text/javascript"
 			src="src/main/javascript/query-factory/ssb.query-factory.linkedgeodata.js"></script>
 
@@ -111,9 +112,14 @@
 		<script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.virtuoso.js"></script>
 
+
+		<script type="text/javascript"
+			src="src/main/javascript/backend/utils.sparql.js"></script>
+
 		<script type="text/javascript" src="src/main/javascript/jena/sparql-syntax.js"></script>
 		<script type="text/javascript" src="src/main/javascript/facets/facets-old.js"></script>
 		<script type="text/javascript" src="src/main/javascript/facets/facets.sparql.js"></script>
+
 
 
 		<script type="text/javascript"
@@ -192,8 +198,9 @@
 				var contentHeight = windowHeight - headerHeight;
 				
                	$("#main").css('height', contentHeight + "px");
-            	$("#instances").css('max-height', (contentHeight - 75) + "px");
-            	$("#facets").css('max-height', (contentHeight - 75) + "px");
+               	$("#tabs").css('height', contentHeight + "px");
+            	//$("#instances").css('max-height', (contentHeight - 75) + "px");
+            	//$("#facets").css('max-height', (contentHeight - 75) + "px");
              });
 
              $(window).resize();
@@ -296,6 +303,7 @@
 			</div>
 			<div id="path">EUROPEAN COMMISSION &gt; OPEN DATA PORTAL &gt; Viewer</div>
 
+<!--
 			<div id="navigation">
 				<ul>
 
@@ -311,20 +319,54 @@
 				</ul>
 			</div>
 		</div>
-
+-->
 
 		<div id="main" style="position: relative; height: 100%">
 
+
 			<div
 				style="position: relative; top: 0px; left: 0px; height: 100%; width: 100%;">
-				<div id="map"
-					style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
 
-				<div id="test" style="position: absolute; top: 24px; left: 200px;">
-					<ul></ul>
+
+				<div id="map"
+					style="position: absolute; top: 0px; left: 300px; width: 100%; height: 100%;"></div>
+
+				<div id="tabs" class="widget"
+					style="position: absolute; top: 0px; width: 280px; float: left; overflow: visible;">
+					<ul class="tabnav">
+						<li><a href="#tabs-2">Instances</a></li>
+						<li><a href="#facets2">Facets</a></li>
+						<li><a href="#tabs-3">Types</a></li>
+						<li><a href="#tabs-places">Places</a></li>
+					</ul>
+					<div class="tabdiv" id="tabs-2">
+						<div id="instances"></div>
+					</div>
+					<div class="tabdiv" id="facets2"></div>
+					<div class="tabdiv" id="tabs-3">
+						<p>Types control which kind of things can be browsed. Selecting a type affects the shown facets and instances.</p>
+						<form>
+							<input type="radio" name="type" value="http://ssb.org/facet/project" />Projects<br />
+							<input type="radio" name="type" value="http://ssb.org/facet/subvention" />Subventions
+						</form> 
+					</div>
+					<div class="tabdiv" id="tabs-places">
+						<form style='float: left' action='javascript: doSearch();'>
+							<label for="search"><b>Search:</b> </label> <input type="text"
+								id="search-field" name="search-field" value="" autocomplete="off"
+								onchange="this.form.submit();" />
+						</form>
+						<br />
+						<p>
+						powered by <a class='link'
+							href='http://nominatim.openstreetmap.org' target="_blank"><img
+							class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>					
+						<div id="searchResults"></div>
+						</p>
+					</div>
 				</div>
 
-
+<!--
 				<div id="searchDiv" class="mybg"
 					style="position: absolute; top: 0; left: 200px; right: 200px; height: 24px; overflow: auto">
 					<form style='float: left' action='javascript: doSearch();'>
@@ -336,49 +378,39 @@
 						href='http://nominatim.openstreetmap.org' target="_blank"><img
 						class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>
 				</div>
+-->
 
+<!--
 				<div id="searchResults" class="mybg"
 					style="position: absolute; top: 24px; left: 200px; right: 200px; overflow: auto;"></div>
+-->
 
 
-
+<!--
 				<div class="mybg"
 					style="position: absolute; top: 0px; left: 0px; height: 24px; width: 200px;">Instances</div>
 
 				<div id="instances" class="mybg"
 					style="position: absolute; top: 24px; left: 0px; width: 200px; overflow: auto;"></div>
-
+  
 				<div id="facets-title" class="mybg"
 					style="position: absolute; top: 0px; right: 0px; height: 24px; width: 200px;">Facets</div>
 
+-->
+<!--
 				<div id="facets" class="mybg"
 					style="position: absolute; top: 24px; right: 0px; width: 200px; overflow: auto;"></div>
-
-
-				<div id="tabs" class="widget"
-					style="position: absolute; top: 24px; left: 50px; width: 250px;">
-					<ul class="tabnav">
-						<li><a href="#tabs-2">Instances</a></li>
-						<li><a href="#facets2">Facets</a></li>
-						<li><a href="#tabs-3">Types</a></li>
-					</ul>
-					<div class="tabdiv" id="facets2"></div>
-					<div class="tabdiv" id="tabs-2">
-						<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
-					</div>
-					<div class="tabdiv" id="tabs-3">
-						<p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
-						<p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
-					</div>
-				</div>
+  -->
 
 
 
 				<div id="facts" class="mybg"
 					style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>
 
+<!--
 				<div id="browsebox" class="mybg"
 					style="position: absolute; top: 50px; left: 300px; width: 600px; hight: 600px; overflow: auto;"></div>
+  -->
 			</div>
 
 		</div>

@@ -345,6 +345,8 @@
 		
 		this.root = new ns.Facet(); // The root facet only has subFacets set
 		this.contstraints = [];
+		
+		this.facetCountThreshold = 1000;
 	};
 
 	/**
@@ -731,6 +733,12 @@
 
 		
 		var facetItem = $$({}, '<li><form action=""><input type="checkbox" /><span data-bind="name"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
+
+			'click input': function() {
+				alert("click" + this.model.get("id"));
+				
+			},
+			
 			'click span:first': function() {
 
 
@@ -763,7 +771,7 @@
 
 		var facetSwitcher = $$(
 				{},
-				'<li><span data-bind="name"/> (<span data-bind="count"/>)<div style="display:none;" class="widget"><ul class="tabnav"><li><a href="#t1">Values</a></li><li><a href="#t2">Sub-Facets</a></li></ul><div class="tabdiv" id="t1"><ol></ol>Values not loaded</div><div class="tabdiv" id="t2">Facets not loaded</div></div>', '& span { cursor:pointer; }',
+				'<li><span data-bind="name"/> (<span data-bind="countStr"/>)<div style="display:none;" class="widget"><ul class="tabnav"><li><a href="#t1">Values</a></li><li><a href="#t2">Sub-Facets</a></li></ul><div class="tabdiv" id="t1"><ol></ol></div><div class="tabdiv" id="t2">Facets not loaded</div></div>', '& span { cursor:pointer; }',
 				{
 					create: function() {
 						this.view.$().tabs();
@@ -792,6 +800,8 @@
 							return;
 						}
 						
+						//this.view.$("ol").html("");
+						
 						this.model.set({isLoaded: true});
 
 						var facet = this.model.get('facet');
@@ -817,31 +827,55 @@
 						sparqlService.executeSelect(query.toString(), {
 							success: function(jsonRs) {
 								
+									
 								//var vars = jsonRs.head.vars;
 								
 								// TODO We need a discriminator column so we know which facet the values correspond to
 								var map = jsonRdfResultSetToMap(jsonRs, "var1", "__c");
 						
-								for(var propertyName in map) {
-									var count = map[propertyName];
-								
-									//var facetValue = facet.getValue();
-
-									//var facet = config.getFacet([propertyName]);
-									
-									//facet.setCount(count);
-
-									
-								
-									//var facetItem = new FacetItem({id: propertyName, name: propertyName, count: count});
-								
-								
-								//self.facetCollection.add(new FacetItem({id: propertyName, name: propertyName, count: count}));
-									var newItem = $$(facetItem, {id: propertyName, name: propertyName, count: count});
-								
-									//self.append(newItem, "ul.eq(1)");
-									self.append(newItem, "ol");
+								var uris = [];
+								for(var key in map) {
+									if(key.toString().startsWith("http://")) {
+										uris.push(key);
+									}
 								}
+								
+								console.log("Value URIs", uris, map);
+								
+								var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
+								labelFetcher.fetch(uris, true, function(idToLabel) {
+
+									console.log("Facet value uris", idToLabel);
+
+								
+									for(var propertyName in map) {
+										
+										var label = propertyName;
+										if(propertyName in idToLabel) {
+											label = idToLabel[propertyName].value;
+										}
+
+										
+										var count = map[propertyName];
+									
+										//var facetValue = facet.getValue();
+	
+										//var facet = config.getFacet([propertyName]);
+										
+										//facet.setCount(count);
+	
+										
+									
+										//var facetItem = new FacetItem({id: propertyName, name: propertyName, count: count});
+									
+									
+									//self.facetCollection.add(new FacetItem({id: propertyName, name: propertyName, count: count}));
+										var newItem = $$(facetItem, {id: propertyName, name: label, count: count});
+									
+										//self.append(newItem, "ul.eq(1)");
+										self.append(newItem, "ol");
+									}
+								});
 							}
 						});
 					},
@@ -880,14 +914,11 @@
 			init: function() {
 				var self = this;
 				
-				var count = 1001;
-				var countThreshold = 1000;
-	
-				var countStr = (count > countThreshold) ? ">" + countThreshold : "" + count; 
-				
-				
 				var config = this.model.get('config');
 				var sparqlService = this.model.get('sparqlService');
+
+					
+				
 				
 				var query = ns.FacetUtils.createStatusQuery(config);
 				
@@ -896,29 +927,44 @@
 				sparqlService.executeSelect(query.toString(), {
 					success: function(jsonRs) {
 						var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
-	
-						for(var propertyName in map) {
-							var count = map[propertyName];
-	
-							
-							var facet = config.getFacet([propertyName]);
-							if(!facet) {
-								console.log("Getting facet from config: ", config, propertyName);								
-							}
-							
-							facet.setCount(count);
-							
-							
-							//console.log("Got facet by path:", facet);
 
-							//var facetItem = new FacetItem({id: propertyName, name: propertyName, count: count});
+						//console.log("labelFetcher", $.ssb);
+						var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
+						labelFetcher.fetch(_.keys(map), true, function(idToLabel) {
 							
 							
-							//self.facetCollection.add(new FacetItem({id: propertyName, name: propertyName, count: count}));
-							var newItem = $$(facetSwitcher, {config: config, facet: facet, id: propertyName, name: propertyName, count: count});
-							
-							self.append(newItem, "ul:first");
-						}
+							//console.log("uriToLabel", idToLabel);
+							for(var propertyName in map) {
+								
+								var label = propertyName;
+								if(propertyName in idToLabel) {
+									label = idToLabel[propertyName].value;
+								}
+																
+								var count = map[propertyName];
+	
+								var countStr = (count > config.facetCountThreshold) ? ">" + config.facetCountThreshold : "" + count; 
+	
+								
+								var facet = config.getFacet([propertyName]);
+								if(!facet) {
+									console.log("Getting facet from config: ", config, propertyName);								
+								}
+								
+								facet.setCount(count);
+								
+								
+								//console.log("Got facet by path:", facet);
+	
+								//var facetItem = new FacetItem({id: propertyName, name: propertyName, count: count});
+								
+								
+								//self.facetCollection.add(new FacetItem({id: propertyName, name: propertyName, count: count}));
+								var newItem = $$(facetSwitcher, {config: config, facet: facet, id: propertyName, name: label, count: count, countStr: countStr});
+								
+								self.append(newItem, "ul:first");
+							}
+						});
 					}
 				});
 				
@@ -955,7 +1001,13 @@
 			  }
 			  */
 		});
-	
+
+		$("#facets2").append('<form action=""><input id="constrainToVisibleArea" type="checkbox" />Constrain to visible area</form>');
+		
+		
+		// TODO: Implement behaviour
+		$("#constrainToVisibleArea").click(function() { alert("cilkc"); });
+		
 		$$.document.append(facetList, "#facets2");
 		
 		//console.log("Agility test", $$.document);

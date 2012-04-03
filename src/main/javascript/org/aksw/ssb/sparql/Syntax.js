@@ -13,14 +13,11 @@
 
 (function($) {
 
+	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 	
-	var ns = {};
+	//console.log("The namespace is: ", ns);
 	
-	if($.ssb) {
-		//$.ssb = ns;
-		ns = $.ssb;
-	}
-	
+	//var ns = {};
 	
 	ns.varPattern = /\?(\w+)/g;
 	ns.prefixPattern =/\s+(\w+):\w+\s+/g;
@@ -81,7 +78,17 @@
 	ns.Node.typedLit = function(value, datatype) {
 		return new ns.Node(3, value, null, datatype);
 	};
-	
+
+	ns.Node.forValue = function(value) {
+		var dt = typeof value;		
+		if(dt === "number") {
+			return ns.Node.typedLit(value, "http://www.w3.org/2001/XMLSchema#double");
+		} else {
+			console.error("No handling for datatype ", td);
+		}
+		
+		//alert(dt);		
+	};
 	
 	ns.Node.prototype.toString = function() {
 		switch(this.type) {
@@ -89,13 +96,13 @@
 		case 0: return "_:" + this.value;
 		case 1: return "<" + this.value + ">";
 		case 2: return "\"" + this.value + "\"" + (this.language ? "@" + this.language : "");
-		case 3: return "\"" + this.value + "\"" + (this.language ? "^^" + this.datatype : "");
+		case 3: return "\"" + this.value + "\"" + (this.datatype ? "^^" + this.datatype : "");
 		}
 	};
 	
 	
 	ns.Node.prototype.isVar = function() {
-		return this.type = -1;
+		return this.type === -1;
 	};
 	
 	ns.Triple = function(s, p, o) {
@@ -109,8 +116,14 @@
 		return this.s + " " + this.p + " " + this.o;
 	};
 	
+	ns.fnNodeMapWrapper = function(node, fnNodeMap) {
+		var sub = fnNodeMap(node);		 
+		var result = (sub == undefined || sub == null) ? node : sub;
+		return result;
+	};
+	
 	ns.Triple.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.Triple(fnNodeMap(s), fnNodeMap(p), fnNodeMap(o));
+		return new ns.Triple(ns.fnNodeMapWrapper(this.s, fnNodeMap), ns.fnNodeMapWrapper(this.p, fnNodeMap), ns.fnNodeMapWrapper(this.o, fnNodeMap));
 	};
 	
 	ns.Triple.prototype.getSubject = function() {
@@ -222,6 +235,10 @@
 	ns.ElementTriplesBlock = function(triples) {
 		this.triples = triples ? triples : [];
 	};
+
+	ns.ElementTriplesBlock.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementTriplesBlock(this.triples.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+	};
 	
 	ns.ElementTriplesBlock.prototype.getVarsMentioned = function() {
 		var result = [];
@@ -233,6 +250,26 @@
 
 	ns.ElementTriplesBlock.prototype.toString = function() {
 		return this.triples.join(" . ");
+	};
+	
+	ns.ElementGroup = function(elements) {
+		this.elements = elements ? elements : [];
+	};
+
+	ns.ElementGroup.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementGroup(this.elements.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+	};
+	
+	ns.ElementGroup.prototype.getVarsMentioned = function() {
+		var result = [];
+		for(var i in this.elements) {
+			result = _.union(result, this.elements[i].getVarsMentioned());
+		}
+		return result;
+	};
+
+	ns.ElementGroup.prototype.toString = function() {
+		return this.elements.join(" . ");
 	};
 	
 	
@@ -257,6 +294,33 @@
 	
 	ns.E_Equals.prototype.eval = function(binding) {
 		// TODO Evaluate the expression
+	};
+
+	ns.E_GreaterThan = function(left, right) {
+		this.left = left;
+		this.right = right;
+	};
+	
+	ns.E_GreaterThan.prototype.toString = function() {
+		return "(" + this.left + " > " + this.right + ")";
+	};
+
+	ns.E_LessThan = function(left, right) {
+		this.left = left;
+		this.right = right;
+	};
+	
+	ns.E_LessThan.prototype.toString = function() {
+		return "(" + this.left + " < " + this.right + ")";
+	};
+	
+	ns.E_LogicalAnd = function(left, right) {
+		this.left = left;
+		this.right = right;
+	};
+	
+	ns.E_LogicalAnd.prototype.toString = function() {
+		return "(" + this.left + " && " + this.right + ")";
 	};
 	
 	
@@ -294,8 +358,18 @@
 		this.node = node;
 	};
 	
+	// Jena-style compatibility
+	ns.NodeValue.makeNode = function(node) {
+		return new ns.NodeValue(node);
+	};
+	
 	ns.NodeValue.prototype.toString = function() {
-		return "" + this.node;
+		if(this.node.type === 1) {
+			return this.node.toString();
+		} else {
+			console.warn("[Hack] Using node value directly - should check for escaping");
+			return "" + this.node.value;
+		}
 	};
 	
 	
@@ -574,6 +648,17 @@
 		
 		
 	};
+
+
+	// TODO Move the vocabularies to their own files
+	ns.vocab = {};
 	
+	ns.vocab.wgs84 = {};
+	ns.vocab.wgs84.long = ns.Node.uri("http://www.w3.org/2003/01/geo/wgs84_pos#long");
+	ns.vocab.wgs84.lat = ns.Node.uri("http://www.w3.org/2003/01/geo/wgs84_pos#lat");
+
+	ns.vocab.rdfs = {};
+	ns.vocab.rdfs.label = ns.Node.uri("http://www.w3.org/2000/01/rdf-schema#label");
+
 })(jQuery);
 		

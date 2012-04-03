@@ -1,5 +1,9 @@
 (function($) {
 	
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	
+	var ns = Namespace("org.aksw.ssb.facets");
+	
 	// TODO Find some mvc framework for managing the states of facets
 	// http://agilityjs.com/
 	
@@ -8,8 +12,8 @@
 	//var ns = {};
 
 	//ssb.facets = ns;
-	var ns = ssb.facets;
 
+	
 	ns.PartArray = function() {
 		this.values = [];
 		this.isComplete = false;
@@ -145,6 +149,37 @@
 		// config.getCo
 	};
 
+		
+	ns.FacetWgs = function(id, element, inputVar, latVar, longVar) {
+		this.id = id;
+		this.element = element;
+		
+		this.inputVar = inputVar;
+		this.latVar = latVar;
+		this.longVar = longVar;
+	};
+
+	// Convenience factory function 
+	ns.FacetWgs.create = function(id, inputVar, longVar, latVar) {
+		var wgs84 = sparql.vocab.wgs84;
+		
+		var element = new sparql.ElementTriplesBlock([
+		       new sparql.Triple(inputVar, wgs84.lat, latVar),
+               new sparql.Triple(inputVar, wgs84.long, longVar)
+               ]); 
+		
+		return new ns.FacetWgs(id, element, inputVar, latVar, longVar);
+	};
+	
+	/**
+	 * Creates a constraint that limits the facet to a rectangular area
+	 * 
+	 */
+	ns.FacetWgs.prototype.constrainBBox = function(id, bounds) {
+		return new sparql.facets.ConstraintWgs(id, this, bounds);
+	};
+
+	
 	/**
 	 * A facet corresponds to a SPARQL query element.
 	 * 
@@ -302,7 +337,7 @@
 	ns.Facet.addValue = function(nodeValue) {
 		
 	};
-
+	
 	/**
 	 * outputVar: The variable of this facet which should connect to the
 	 * inputVar of the subFacet.
@@ -332,6 +367,263 @@
 
 	};*/
 
+	
+	
+	ns.PathManager = function(variable) {
+		this.nextVariableId = 1;
+		this.root = new ns.PathNode(this, variable);
+	};
+	
+	ns.PathManager.prototype.getRoot = function() {
+		return this.root;
+	};
+	
+	
+	ns.PathManager.prototype.nextVariable = function() {
+		return "v_" + (this.nextVariableId++); 
+	};
+	
+	/**
+	 * Converts a path string to a list of path elements
+	 * 
+	 * Variables will be created as needed.
+	 * 
+	 * e.g.
+	 * "fts:beneficiary fts:city owl:sameAs geo:long" 
+	 * "fts:beneficiary fts:city owl:sameAs geo:lat"
+	 * 
+	 * { ?s fts:beneficiary ?v1 . ?v1 fts:city ?v2 . ?v3 owl:sameAs ?v4 . 
+	 * Operators:
+	 * 
+	 * <: Inverse <fts:beneficiary
+	 * ^: To property
+	 * 
+	 * 
+	 * @param pathStr
+	 */
+	ns.PathManager.prototype.toTriples = function(pathStr) {
+		var items = pathStr.split(" ");
+		
+		var result = this.toTriplesRec(this.root, items);
+		
+		return result;
+	};
+	
+	ns.PathManager.prototype.getNode = function(pathStr) {
+		var items = pathStr.split(" ");
+		
+		var result = this.getNodeRec(this.root, items);
+		
+		return result;
+	};
+
+	ns.PathManager.prototype.getNodeRec = function(pathStr, items) {
+		var result = this.root;
+		
+		for(var i = 0; i < items.length; ++i) {
+			var propertyName = items[i];
+			
+			var result = result.getOrCreate(propertyName);
+		}
+		
+		return result;		
+	};
+	
+	ns.PathManager.prototype.toTriplesRec = function(node, items) {
+		var result = [];
+		
+		for(var i = 0; i < items.length; ++i) {
+			var propertyName = items[i];
+			
+			var nextNode = node.getOrCreate(propertyName);
+			var s = sparql.Node.v(node.variable);
+			var p = sparql.Node.uri(propertyName);
+			var o = sparql.Node.v(nextNode.variable);
+			
+			var triple = new sparql.Triple(s, p, o);
+			result.push(triple);
+
+			node = nextNode;
+		}
+		
+		return result;
+	};
+	
+	
+	/**
+	 * 
+	 * Variable is a string
+	 * 
+	 * @param variable
+	 * @returns {ns.PathNode}
+	 */
+	ns.PathNode = function(pathManager, variable) {
+		this.pathManager = pathManager;
+		if(!variable) {
+			variable = pathManager.nextVariable();
+		}
+		this.variable = variable;
+		
+		// A map from property name to another path node
+		this.outgoing = {};
+
+		this.incoming = {};
+	};
+	
+
+	/*
+	ns.PathNode.prototype.toTriple = function(propertyName) {
+		//var propertyName = items[offset];
+		
+		var nextNode = this.getOrCreate(propertyName);
+		
+		var s = sparql.Node.v(this.variable);
+		var p = sparql.Node.uri(propertyName);
+		var o = sparql.Node.v(nextNode.variable);
+		
+		return new sparql.Triple(s, p, o);
+	};
+	*/
+	
+	/**
+	 * Gets or create a new outgoing node.
+	 * 
+	 */
+	ns.PathNode.prototype.getOrCreate = function(propertyName) {
+		var node = this.outgoing[propertyName];
+		if(!node) {
+			//var this.pathManager.nextVariable()
+			node = new ns.PathNode(this.pathManager);
+
+			this.outgoing[propertyName] = node;
+			node.incoming[propertyName] = this;
+		} else {
+			// Nothing to do
+		}
+		
+		return node;
+	};
+	
+	
+	ns.PathElement = function(element, inputVar) {
+		this.element = element;
+		this.inputVar = inputVar;
+	};
+
+
+	ns.FacetValuePm = function(pathManager, pathStr) {
+		this.pathManager = pathManager;
+		this.pathStr = pathStr;		
+	};
+	
+	ns.FacetValuePm.prototype.getElement = function() {
+		var result = new sparql.ElementTriplesBlock(this.pathManager.toTriples(this.pathStr));
+		return result;
+	};
+	
+	ns.FacetValuePm.prototype.createFilter = function(constraint) {
+		constraint.createFilter();
+	};
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 */
+	ns.FacetWgsPm = function(pathManager, pathStr) {
+		this.pathManager = pathManager;
+		this.pathStr = pathStr;
+		
+		this.long = "http://www.w3.org/2003/01/geo/wgs84_pos#long";
+		this.lat = "http://www.w3.org/2003/01/geo/wgs84_pos#lat";
+	};
+	
+	ns.FacetWgsPm.prototype.getPathManager = function() {
+		return this.pathManager;
+	};
+	
+	
+	ns.FacetWgsPm.prototype.getElement = function() {
+		var pathStrX = this.pathStr + " " + this.long;
+		var pathStrY = this.pathStr + " " + this.lat;
+		
+		var triplesX = this.pathManager.toTriples(pathStrX);		
+		var triplesY = this.pathManager.toTriples(pathStrY);
+		
+		var combined = triplesX.concat(triplesY);
+		
+		var resultTriples = _.uniq(combined, false, function(x) { return x.toString(); });
+		
+		var result = new sparql.ElementTriplesBlock(resultTriples);
+		
+		//console.log("Triples: ", result);
+		return result;
+		
+	};
+	
+	ns.FacetWgsPm.prototype.createFilter = function(bounds) {
+		var node = this.pathManager.getNode(this.pathStr);
+		
+		var nodeX = node.getOrCreate(this.long);
+		var nodeY = node.getOrCreate(this.lat);
+		
+		var vX = sparql.Node.v(nodeX.variable);
+		var vY = sparql.Node.v(nodeY.variable);
+		
+		var result = sparql.facets.createWgsFilter(vX, vY, bounds);
+		
+		return result;
+	};
+	
+	
+	
+	
+	ns.FacetConfig2 = function(pathManager) {
+		this.pathManager = pathManager;
+		
+		// A list of facet constraints
+		this.constraints = [];
+		
+		// The path config yields the facet field type (e.g. value or histogram)
+		// for the given path
+		this.facetFieldConfig = null;
+	};
+	
+	/**
+	 * Returns a query element reflecting the current constraints
+	 * 
+	 * 
+	 */
+	ns.FacetConfig2.prototype.toElement = function() {
+		
+	};
+	
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 * @param pathStr
+	 */
+	ns.FacetConfig2.prototype.getFacet = function(pathStr) {
+		
+	};
+	
+	ns.Facet2 = function(facetConfig) {
+		this.facetConfig = facetConfig;
+	};
+	
+	/**
+	 * Create a query that counts the number of instances of this facet,
+	 * taking any set constraints into account 
+	 * 
+	 */
+	ns.Facet2.prototype.createCountQuery = function() {
+		
+	};
+	
+
 	/**
 	 * Maintains a list of facets, their states (i.e. labels and counts), and
 	 * active constraints.
@@ -344,11 +636,13 @@
 		this.driver = driver;
 		
 		this.root = new ns.Facet(); // The root facet only has subFacets set
-		this.contstraints = [];
+		this.constraints = [];
 		
 		this.facetCountThreshold = 1000;
 	};
 
+	
+	
 	/**
 	 * Path is a sequence of facet ids. Hm, maybe we can manage facets using a
 	 * dom? The advantage would be, that we could do XPath on them.
@@ -390,7 +684,7 @@
 		}*/
 		
 		// TODO Get rid of this dependency		
-		//this.facetManager = new ssb.facets.FacetManager();
+		//this.facetManager = new sparql.facets.FacetManager();
 	};
 	
 
@@ -401,30 +695,30 @@
 		var instanceScanCount = 10001;
 		
 		
-		var result = new ssb.Query();
+		var result = new sparql.Query();
 		
 		result.distinct = true;
 		
-		var p = ssb.Node.v("__p");
-		var o = ssb.Node.v("__o");
-		var c = ssb.Node.v("__c");
+		var p = sparql.Node.v("__p");
+		var o = sparql.Node.v("__o");
+		var c = sparql.Node.v("__c");
 		
 		result.projection[p.value] = null;
-		result.projection[c.value] = new ssb.E_Count(new ssb.ExprVar(p));
+		result.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
 
 
 		var subQuery = result;
 		if(instanceScanCount) { // limit instances to check for properties
-		    subQuery = new ssb.Query();
+		    subQuery = new sparql.Query();
 		    subQuery.isResultStar = true;
 		    subQuery.limit = instanceScanCount;
-		    result.elements.push(new ssb.ElementSubQuery(subQuery));
+		    result.elements.push(new sparql.ElementSubQuery(subQuery));
 		    
 		    tmp = subQuery;
 		}
 		
 		subQuery.elements.push(config.driver);
-		result.elements.push(new ssb.ElementTriplesBlock([new ssb.Triple(config.driverVar, p, o)]));
+		result.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(config.driverVar, p, o)]));
 		
 		
 		// TODO We could reduce the number of requests if we fetched labels here
@@ -435,13 +729,13 @@
 		var result;
 		var lang
 		if(true) { // Fetch the labels of the properties
-			result = new ssb.Query();
+			result = new sparql.Query();
 			result.projection[]
 		}
 		*/
 		
 		// TODO Order by ?o ?p
-		result.order.push(new ssb.Order(new ssb.ExprVar(c), ssb.OrderDir.Desc));
+		result.order.push(new sparql.Order(new sparql.ExprVar(c), sparql.OrderDir.Desc));
 		
 		console.log("Created query: " + result);
 		return result;
@@ -472,20 +766,20 @@
 
 				for(var propertyName in map) {
 					//var count = map[propertyName];
-					var propertyNode = ssb.Node.uri(propertyName);
-					var objectNode = ssb.Node.v("var" + autoFacetVar);
+					var propertyNode = sparql.Node.uri(propertyName);
+					var objectNode = sparql.Node.v("var" + autoFacetVar);
 					
 					
 					/*
-					var facetDesc = new ssb.facets.FacetDesc
+					var facetDesc = new sparql.facets.FacetDesc
 					(
 							propertyName,
 							propertyNode,
-							new ssb.ElementTriplesBlock([new ssb.Triple(self.config.driverVar, propertyNode, objectNode)])
+							new sparql.ElementTriplesBlock([new sparql.Triple(self.config.driverVar, propertyNode, objectNode)])
 					);
 					*/
 					
-					var element = new ssb.ElementTriplesBlock([new ssb.Triple(s, propertyNode, objectNode)]);
+					var element = new sparql.ElementTriplesBlock([new sparql.Triple(s, propertyNode, objectNode)]);
 					
 					var newFacet = new ns.Facet(config.getRoot(), propertyNode.value, element, s.value);
 					
@@ -521,31 +815,31 @@
 		var outputVars = _.difference(facet.getElement().getVarsMentioned(), [facet.getInputVar()]);
 		console.log("Outputvars=", facet.getElement().getVarsMentioned(), facet.getInputVar());
 
-		var result = new ssb.Query();
+		var result = new sparql.Query();
 		for(var i in outputVars) {
 			var outputVar = outputVars[i];
 			
-			//var varNode = ssb.Node.v(outputVar);
+			//var varNode = sparql.Node.v(outputVar);
 			result.projection[outputVar] = null; //varNode;
 		}
 		
 		
 		result.distinct = true;
 		
-		//var p = ssb.Node.v("__p");
-		//var o = ssb.Node.v("__o");
-		var c = ssb.Node.v("__c");
+		//var p = sparql.Node.v("__p");
+		//var o = sparql.Node.v("__o");
+		var c = sparql.Node.v("__c");
 		
 		//result.projection[p] = null;
-		result.projection[c.value] = new ssb.E_Count();
+		result.projection[c.value] = new sparql.E_Count();
 
 
 		var subQuery = result;
 		if(instanceScanCount) { // limit instances to check for properties
-		    subQuery = new ssb.Query();
+		    subQuery = new sparql.Query();
 		    subQuery.isResultStar = true;
 		    subQuery.limit = instanceScanCount;
-		    result.elements.push(new ssb.ElementSubQuery(subQuery));
+		    result.elements.push(new sparql.ElementSubQuery(subQuery));
 		    
 		    tmp = subQuery;
 		}
@@ -565,17 +859,17 @@
 		var result;
 		var lang
 		if(true) { // Fetch the labels of the properties
-			result = new ssb.Query();
+			result = new sparql.Query();
 			result.projection[]
 		}
 		*/
 		
 		// TODO Order by ?o ?p
-		result.order.push(new ssb.Order(new ssb.ExprVar(c), ssb.OrderDir.Desc));
+		result.order.push(new sparql.Order(new sparql.ExprVar(c), sparql.OrderDir.Desc));
 		
 		for(var i in outputVars) {
 			var outputVar = outputVars[i];			
-			result.order.push(new ssb.Order(new ssb.ExprVar(ssb.Node.v(outputVar)), ssb.OrderDir.Asc));
+			result.order.push(new sparql.Order(new sparql.ExprVar(sparql.Node.v(outputVar)), sparql.OrderDir.Asc));
 		}
 
 		
@@ -607,41 +901,41 @@
 
 		
 		var unionElements = [];
-		var p = ssb.Node.v("__p");
-		var count = ssb.Node.v("__c");
+		var p = sparql.Node.v("__p");
+		var count = sparql.Node.v("__c");
 		for(var i in knownFacets) {
 			
 			var facet = knownFacets[i];
 			
 			//console.log("Known facet: ", facet);
 			
-			var q = new ssb.Query();
+			var q = new sparql.Query();
 
 			var s = config.driverVar;
 			q.projection[p.value] = null;
-			q.projection[count.value] = new ssb.E_Count(s);
+			q.projection[count.value] = new sparql.E_Count(s);
 
 
-			var subQuery = new ssb.Query();
+			var subQuery = new sparql.Query();
 			subQuery.limit = maxCount;
 			subQuery.elements.push(config.driver);
 			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.driverVar);
 			subQuery.distinct = true;
-			subQuery.projection[p.value] = new ssb.NodeValue(ssb.Node.uri(facet.id));
+			subQuery.projection[p.value] = new sparql.NodeValue(sparql.Node.uri(facet.id));
 			subQuery.projection[s.value] = null;
-			//subQuery.projection[count] = new ssb.E_Count(subExpr);
-			//subQuery.projection[count] = new ssb.E_Count(new ssb.ExprVar(s));
-			//q.elements.push(new ssb.ElementSubQuery(subQuery));
+			//subQuery.projection[count] = new sparql.E_Count(subExpr);
+			//subQuery.projection[count] = new sparql.E_Count(new sparql.ExprVar(s));
+			//q.elements.push(new sparql.ElementSubQuery(subQuery));
 
 			
-			var countWrapper = new ssb.Query();
+			var countWrapper = new sparql.Query();
 			countWrapper.projection[p.value] = null;
-			countWrapper.projection[count.value] = new ssb.E_Count(new ssb.ExprVar(s));
+			countWrapper.projection[count.value] = new sparql.E_Count(new sparql.ExprVar(s));
 			
-			countWrapper.elements.push(new ssb.ElementSubQuery(subQuery));
+			countWrapper.elements.push(new sparql.ElementSubQuery(subQuery));
 			
 
-			unionElements.push(new ssb.ElementSubQuery(countWrapper));
+			unionElements.push(new sparql.ElementSubQuery(countWrapper));
 			//batchQuery.
 			//this.facetManager. somehow get the configuration as a query
 			
@@ -658,11 +952,11 @@
 		//var union = FacetController.balance(ssb.ElementUnion, unionElements);
 		
 
-		var batchQuery = new ssb.Query();
+		var batchQuery = new sparql.Query();
 		//batchQuery.isResultStar = true;
 		batchQuery.projection[p.value] = null;
 		batchQuery.projection[count.value] = null;
-		batchQuery.elements.push(new ssb.ElementUnion(unionElements));
+		batchQuery.elements.push(new sparql.ElementUnion(unionElements));
 
 		console.log("Facet query: " + batchQuery);
 		
@@ -673,31 +967,38 @@
 	
 	ns.test = function() {
 		
-		var facets = ssb.facets;
-		
-		var sparqlService = new VirtuosoSparqlService("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
+		var facets = sparql.facets;
 
+		var sparqlService = new VirtuosoSparqlService("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
 		/*
-		var s = ssb.Node.v("s");
-		var p = ssb.Node.v("p");
-		var o = ssb.Node.v("o");
+		*/
+		
+		/*
+		var s = sparql.Node.v("s");
+		var p = sparql.Node.v("p");
+		var o = sparql.Node.v("o");
 		*/
 
-		var s = ssb.Node.v("s");
-		var a = ssb.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		var subvention = ssb.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+		var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		
 		
-		var driver = new ssb.ElementTriplesBlock([new ssb.Triple(s, a, subvention)]);
+		var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+		var beneficiary = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary");
+		var city = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/city");
+		var sameAs = sparql.Node.uri("http://www.w3.org/2002/07/owl#sameAs");
+		
+		var s = sparql.Node.v("s");
+		var driver = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
 
 		
-		//var element = new ssb.ElementTriplesBlock([new ssb.Triple(s, p, o)]);
+		//var element = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
 		
-		var config = new facets.FacetConfig(s, driver);		
-				
+		var config = new ns.FacetConfig(s, driver);		
 
-		var s = ssb.Node.v("s");
-		//var p = ssb.Node.uri("http://test.org");
-		//var o = ssb.Node.v("o");
+		//config.addFacet()
+		
+		var s = sparql.Node.v("s");
+		//var p = sparql.Node.uri("http://test.org");
+		//var o = sparql.Node.v("o");
 
 		
 		/**
@@ -750,7 +1051,7 @@
 				  
 				  
 				  /*
-					var element = new ssb.ElementTriplesBlock([new ssb.Triple(s, propertyNode, objectNode)]);
+					var element = new sparql.ElementTriplesBlock([new sparql.Triple(s, propertyNode, objectNode)]);
 					
 					var newFacet = new ns.Facet(config.getRoot(), propertyNode.value, element, s);
 					
@@ -774,6 +1075,8 @@
 				'<li><span data-bind="name"/> (<span data-bind="countStr"/>)<div style="display:none;" class="widget"><ul class="tabnav"><li><a href="#t1">Values</a></li><li><a href="#t2">Sub-Facets</a></li></ul><div class="tabdiv" id="t1"><ol></ol></div><div class="tabdiv" id="t2">Facets not loaded</div></div>', '& span { cursor:pointer; }',
 				{
 					create: function() {
+						// Turn the Html-view-string into tabs
+						// TODO Should be an accordion
 						this.view.$().tabs();
 						//this.controller.loadValues();
 					}, 
@@ -822,7 +1125,7 @@
 						console.log("Values query:", queryData);
 						
 						// Test query
-						//query.elements.push(new ssb.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
+						//query.elements.push(new sparql.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
 						
 						sparqlService.executeSelect(query.toString(), {
 							success: function(jsonRs) {

@@ -81,6 +81,9 @@ function SpatialSemanticBrowsing() {
 	this.test = 0.0;
 	
 	
+	this.facetConfig = null;		
+
+	
 	//this.propertyHierarchy = new PropertyHierarchy();
 
 	this.prefixToService = {};
@@ -145,7 +148,7 @@ SpatialSemanticBrowsing.prototype = {
 		// TODO: Do not depend directly on map, but on a "visible area"
 		$("#searchResults").ssb_search({map: this.map});		
 	},
-	
+
 	initEvents: function() {
 		var self = this;
 		
@@ -224,6 +227,11 @@ SpatialSemanticBrowsing.prototype = {
 	refresh: function(bounds, delay) {
 		var self = this;
 
+		
+		// 
+		//if()
+		
+		
 		/*
 		if(delay) {
 			this.refreshScheduler.schedule(function() { self.refresh(bounds); });
@@ -294,6 +302,10 @@ SpatialSemanticBrowsing.prototype = {
 	
 	setQueryFactory: function(queryFactory) {
 		this.queryFactory = queryFactory;
+	},
+	
+	setFacetConfig: function(facetConfig) {
+		this.facetConfig = facetConfig;
 	},
 	
 	

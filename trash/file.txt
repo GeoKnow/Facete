@@ -1,0 +1,110 @@
+	
+
+	//alert("Creating facet config for FTS");
+	
+	//var sparqlService = new VirtuosoSparqlService("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
+/*
+	var s = ssb.Node.v("s");
+	var b = ssb.Node.v("b");
+	var c = ssb.Node.v("c");
+	var d = ssb.Node.v("d");
+	var x = ssb.Node.v("x");
+	var y = ssb.Node.v("y");
+	
+	
+	//var p = ssb.Node.v("p");
+	//var o = ssb.Node.v("o");
+
+	var a = ssb.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		
+	
+	var subvention = ssb.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+	var beneficiary = ssb.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary");
+	var city = ssb.Node.uri("http://fintrans.publicdata.eu/ec/ontology/city");
+	var sameAs = ssb.Node.uri("http://www.w3.org/2002/07/owl#sameAs");
+
+	var long = ssb.Node.uri("http://www.w3.org/2003/01/geo/wgs84_pos#long");
+	var lat = ssb.Node.uri("http://www.w3.org/2003/01/geo/wgs84_pos#lat");
+
+	var rdfsLabel = ssb.Node.uri("http://www.w3.org/2000/01/rdf-schema#label");
+
+
+
+	var config = new facets.FacetConfig(s, driver);		
+
+	
+	var l = ssb.Node.v("l");
+	var varToLabelElement = new ssb.ElementTriplesBlock([new ssb.Triple(s, rdfsLabel, l)]); 
+*/
+	/*
+	var triplesX = pathManager.toTriples("http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2003/01/geo/wgs84_pos#long");
+	console.log("Triples: ", triplesX.toString());
+	
+	var triplesY = pathManager.toTriples("http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2003/01/geo/wgs84_pos#lat");
+	console.log("Triples: ", triplesY.toString());
+	*/
+	
+	//var test = varToLabelElement.copySubstitute(function(node) { if(node.isVar()) { return ssb.Node.v("blubb"); }});
+	//alert("Test substitution of a variable: " + test.toString());
+
+	//var fa = config.getOrCreate(beneficiary.toString(), )
+	
+	//var fa = new facets.Facet(config.getRoot(), "beneficiary", new ssb.ElementTriplesBlock([new ssb.Triple(s, beneficiary, b)]), s, varToLabelElement); 
+	//var fb = new facets.Facet(fa, "city", new ssb.ElementTriplesBlock([new ssb.Triple(b, city, c)], s, varToLabelElement)); 
+	//var fc = new facets.Facet(fb, "sameCityAs", new ssb.ElementTriplesBlock([new ssb.Triple(c, sameAs, d)], s, varToLabelElement)); 
+	//var fd = new facets.Facet(fc, "geoLoc", new ssb.ElementTriplesBlock([new ssb.Triple(d, long, x), new ssb.Triple(d, lat, y)], s, varToLabelElement)); 
+
+	/*
+	var fd = new facets.FacetWgs.create("geoFacet", d, x, y); 
+
+	var c = fd.constrainBBox("foo", new Bounds(0, 1, 2, 4));
+	console.log("Constraint", c);
+	var element = c.toElement();
+	var str = element.toString();
+	console.log("element str", str);
+	*/
+	
+	
+	//config.getRoot().addSubFacet("beneficiary", s, new ssb.ElementTriplesBlock([new ssb.Triple(s, beneficiary, b)]))
+	
+/*
+ * [
+ *   ?s bene ?b .
+ *   ?b city ?c .
+ *   ?c sameas ?d .
+ *   {?d lat ?x; long ?y}
+ * ]
+ * 
+ * */
+	
+
+	
+	
+	
+	// Design Issues:
+	
+	// "The nature of facets"
+	// A facet corresponds to a static SPARQL query element. Static means, that a facet is not intended to be instanciated
+	// (instanciate could mean: creating a copy of the query fragment with variables renamed (except for the driverVar).
+	// The variables of the query element can be constrained.
+	// A facet can be "enforced" i.e. the query element must be part of the final query, even if it is not constrained.
+
+	// Selection order within the geo-facet path:
+	// Is it a path or a tree?
+	
+	// How to deal with histograms??? -> Maybe use the facet value concept again? No, because a value may fall into the range of a facet group.
+	
+	// Should every element of the path contain its whole sequence of predecessors?
+
+	// Issue [Multiple constraints on the same facets]
+	// This should usually result in a logical or between all the constraints - but is that reasonable in all cases?
+	
+	// Issue [Constraints on connected/dependent facets]
+	
+	
+	
+	// eventually, we end up with a geofacet --- maybe a shallow triple pattern parser would help us?
+	
+	
+	
+	//var element = new ssb.ElementTriplesBlock([new ssb.Triple(s, p, o)]);
+	

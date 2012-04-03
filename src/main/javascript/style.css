@@ -164,8 +164,7 @@ ul.ssb-container a:hover
 
 
 
-a
-/*, ul.dynatree-container a:visited*/
+ul.dynatree-container a:visited
 {
 	color: white; /* inherit doesn't work on IE */
 	font-weight:bold;
@@ -177,13 +176,14 @@ a
 }
 
 
+/*
 a:hover
 {
-/*	text-decoration: underline; */
-	background: #888888; /* light blue */
-	border-color: #B8D6FB; /* darker light blue */
+/ *	text-decoration: underline; * /
+	background: #888888; / * light blue * /
+	border-color: #B8D6FB; / * darker light blue * /
 }
-
+*/
 
 #nice-rouned-box {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0.1);

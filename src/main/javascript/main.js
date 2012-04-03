@@ -65,6 +65,108 @@ SelectionBox.prototype.update = function() {
 };
 
 
+/**
+ * Currently hard wired configuration of the facets for the financial transparency system
+ * 
+ */
+function createFacetConfigFts() {
+
+	var facets = Namespace("org.aksw.ssb.facets");
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+
+	
+	console.log("Facets namespace is", facets);
+	console.log("Syntax namespace is", sparql);
+
+	var s = sparql.Node.v("s");
+	var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		
+	var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+	
+	var driver = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
+	
+	var pathManager = new facets.PathManager("s");
+
+	/**
+	 * facetConfig = new RangeFacet("property or maybe even path");
+	 * var field = facetConfig.addField(new Range(0, 100))
+	 * 
+	 *
+	 *
+	 * facetManager.addFacetConfig(facetConfig)
+	 * 
+	 * facetManager.enable(field)
+	 * 
+	 * Select * {
+	 *   {
+	 *     Select (<facetField1> As ?p), (Count(?s) As ?c) {
+	 *         ?s a Subvention .
+	 *         ?s amount ?v . Filter(?v1 >= 0 && ?v1 < 100) .
+	 *     }
+	 *   } 
+	 * Union {
+	 * ...
+	 *     ?s amount ?v2 . Filter(?a >= 100 && ?a < 200) .
+	 *     ...
+	 * }
+	 * }
+	 */
+	
+	var breadcrumb = new facets.Breadcrumb.fromString(pathManager, "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs");
+	
+	var e = breadcrumb.toTriples();
+	console.log("Breadcrumb:", breadcrumb);
+	console.log("XXXXX:", e.toString());
+	
+	
+	var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue.makeNode(sparql.Node.uri("http://test.org")));
+	
+	console.log("Constraint:", constraint.toExpr());
+	
+	//var geoFacet = new facets.FacetWgsPm(pathManager, "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs");
+	
+	//var typeConfig = {driver: driver, geoFacet: geoFacet};
+	
+	//var element = geoFacet.getElement();
+	//var filter = geoFacet.createFilter(new Bounds(0, 1, 2, 4));
+	
+	//var valueFacet = new facets.FacetValuePm(pathManager, "http://amount");
+	//valueFacet.createFilter()
+
+	
+	// Now what I need is a way to represent constraints
+	
+	// Possible solution: "pathStr" to facettype={geoFacet, valueFacet,histogramFacet}
+	// 
+	
+	
+	//console.log("Element", element);
+	//console.log("Filter", filter);
+
+	var config = "";
+	return config;
+}
+
+
+/**
+ * Creates a query for incoming/outgoing properies
+ * 
+ * Select ?in ?out {
+ *   {
+ *       element
+ *   }
+ *   
+ *   { ?s ?out ?o1 }
+ *   Union
+ *   { ?o2 ?in ?s }
+ * }
+ * 
+ * @param variable
+ * @param element
+ * @param direction -1: incoming, 1: outgoing, 0: both (default)
+ */
+function createFacetQuery(variable, element, direction) {
+	
+}
 
 
 function init(sparqlService, caps) {
@@ -101,8 +203,12 @@ function init(sparqlService, caps) {
 	
 	ssb.addFactSources(prefixToService);
 	
+	var facetConfig = createFacetConfigFts();
+	
 	ssb.init();
 	ssb.setBackend(backend);
+	//ssb.setFacetConfig(facetConfig);
+	
 	console.log("Initialization in progress");
 }
 
@@ -117,11 +223,13 @@ $(document).ready(function() {
 
 
 
-
+// TODO Remove this test function
 $(document).ready(function() {
 
+	var facets = Namespace("org.aksw.ssb.facets");
 	
-	ssb.facets.test();
+	facets.test();
+	return;
 	
 	
 	

@@ -73,11 +73,16 @@ function createFacetConfigFts() {
 
 	var facets = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	
+	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
+	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
+	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+	
+	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
+
+	var app = Namespace("org.aksw.ssb.app.controllers");
 
 	
-	console.log("Facets namespace is", facets);
-	console.log("Syntax namespace is", sparql);
-
 	var s = sparql.Node.v("s");
 	var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		
 	var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
@@ -110,17 +115,46 @@ function createFacetConfigFts() {
 	 * }
 	 * }
 	 */
+	var baseStr = "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs";	
+	var pathStrX = baseStr + " " + geo.long.value;
+	var pathStrY = baseStr + " " + geo.lat.value;
+
 	
-	var breadcrumb = new facets.Breadcrumb.fromString(pathManager, "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs");
+	var labelBc = new facets.Breadcrumb.fromString(pathManager, rdfs.label.value);
+	var typeBc = new facets.Breadcrumb.fromString(pathManager, rdf.type.value);
 	
-	var e = breadcrumb.toTriples();
+	var breadcrumb = new facets.Breadcrumb.fromString(pathManager, baseStr);
+	var breadcrumbX = new facets.Breadcrumb.fromString(pathManager, pathStrX);
+	var breadcrumbY = new facets.Breadcrumb.fromString(pathManager, pathStrY);
+	
+	
+	var e = breadcrumb.getTriples();
 	console.log("Breadcrumb:", breadcrumb);
 	console.log("XXXXX:", e.toString());
-	
+
 	
 	var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue.makeNode(sparql.Node.uri("http://test.org")));
 	
-	console.log("Constraint:", constraint.toExpr());
+	console.log("Constraint:", constraint.getExpr());
+	
+	var factory = new facets.ConstraintWgs84.Factory(breadcrumb);//breadcrumbX, breadcrumbY);
+	
+	var bounds = new qt.Bounds(0, 1, 2, 4);
+	var c2 = factory.create(bounds);
+	console.log("C2:", c2.getExpr().toString());
+	console.log("C2:", c2.getElement().toString());
+
+	
+	
+	var options = {
+			driver: driver,
+			driverVar: s,
+			pathManager: pathManager,
+			geoConstraintFactory: factory
+			};
+	var appController = new app.AppController(options);
+	appController.createQuery(bounds);
+	
 	
 	//var geoFacet = new facets.FacetWgsPm(pathManager, "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs");
 	
@@ -142,7 +176,7 @@ function createFacetConfigFts() {
 	//console.log("Element", element);
 	//console.log("Filter", filter);
 
-	var config = "";
+	var config = {driver: driver, driverVar: s, geoConstraintFactory: factory};
 	return config;
 }
 

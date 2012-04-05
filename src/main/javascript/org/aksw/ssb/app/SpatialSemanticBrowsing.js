@@ -263,7 +263,6 @@ SpatialSemanticBrowsing.prototype = {
 	},
 	
 	mapEvent: function() {
-		
 		//return;
 		
 		this.test += 0.0005;

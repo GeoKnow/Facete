@@ -24,7 +24,7 @@
 	
 	
 	ns.PathManager.prototype.nextVariable = function() {
-		return "v_" + (this.nextVariableId++); 
+		return "v_" + (this.nextVariableId++);
 	};
 	
 	/**
@@ -152,10 +152,9 @@
 	 * TODO Design this class:
 	 *     I think it should contain information about
 	 *     "Starting from (sourceNode) go (backward/forward) via (property) to reach (targetNode) 
-	ns.Step = function(direction, left, right) {
+	ns.Step = function(direction, resource) {
 		this.direction;
-		this.left = left;
-		this.right = right;
+		this.resource = resource;
 	};
 	*/
 	
@@ -211,7 +210,7 @@
 	 * 
 	 * @returns {Array}
 	 */
-	ns.Breadcrumb.prototype.toTriples = function() {
+	ns.Breadcrumb.prototype.getTriples = function() {
 		var result = [];
 		
 		var node = this.pathManager.root;
@@ -232,6 +231,18 @@
 		
 		return result;		
 	};
+	
+	/*
+	ns.Breadcrumb.prototype.addStep = function(step) {
+		
+	}
+	*/
+	
+	ns.Breadcrumb.prototype.toString = function() {
+		return this.items.join(" ");
+	};
+	
+	
 
 //		var step = ns.Step.fromString(pathManager, pathStr);
 	

@@ -14,6 +14,22 @@
 (function($) {
 
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
+
+	ns.uniqTriples = function(triples) {
+		var result =  _.uniq(triples, false, function(x) { return x.toString(); });
+		return result;
+	};
+	
+	/**
+	 * Combine two arrays of triples into a singe one with duplicates removed
+	 * 
+	 */
+	ns.mergeTriples = function(a, b) {
+		var combined = a.concat(b);		
+		var result = ns.uniqTriples(combined);
+		return result;		
+	};
+	
 	
 	//console.log("The namespace is: ", ns);
 	
@@ -236,6 +252,15 @@
 		this.triples = triples ? triples : [];
 	};
 
+	ns.ElementTriplesBlock.prototype.addTriples = function(otherTriples) {
+		this.triples = this.triples.concat(otherTriples);
+	};
+	
+	ns.ElementTriplesBlock.prototype.uniq = function() {
+		this.triples = ns.uniqTriples(this.triples);
+		//this.triples = _.uniq(this.triples, false, function(x) { return x.toString(); });
+	};
+	
 	ns.ElementTriplesBlock.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.ElementTriplesBlock(this.triples.map(function(x) { return x.copySubstitute(fnNodeMap); }));
 	};
@@ -648,17 +673,6 @@
 		
 		
 	};
-
-
-	// TODO Move the vocabularies to their own files
-	ns.vocab = {};
-	
-	ns.vocab.wgs84 = {};
-	ns.vocab.wgs84.long = ns.Node.uri("http://www.w3.org/2003/01/geo/wgs84_pos#long");
-	ns.vocab.wgs84.lat = ns.Node.uri("http://www.w3.org/2003/01/geo/wgs84_pos#lat");
-
-	ns.vocab.rdfs = {};
-	ns.vocab.rdfs.label = ns.Node.uri("http://www.w3.org/2000/01/rdf-schema#label");
 
 })(jQuery);
 		

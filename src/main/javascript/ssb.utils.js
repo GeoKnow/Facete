@@ -32,8 +32,10 @@ function toOpenLayersBounds(bounds) {
 	return new OpenLayers.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 }
 
-function toQuadTreeBounds(bounds) {
-	return new Bounds(bounds.left, bounds.right, bounds.bottom, bounds.top);
+var qt = Namespace("org.aksw.ssb.collections.QuadTree");
+
+function toQuadTreeBounds(bounds) {	
+	return new qt.Bounds(bounds.left, bounds.right, bounds.bottom, bounds.top);
 }
 
 

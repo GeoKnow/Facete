@@ -1305,7 +1305,7 @@
 			  */
 		});
 
-		$("#facets2").append('<form action=""><input id="constrainToVisibleArea" type="checkbox" />Constrain to visible area</form>');
+		$("#facets2").append('<form action=""><input id="constrainToVisibleArea" type="checkbox" />Unlink from visible area</form>');
 		
 		
 		// TODO: Implement behaviour

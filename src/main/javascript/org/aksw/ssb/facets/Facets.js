@@ -12,10 +12,49 @@
 	var ns = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 
+	/**
+	 * Object holding a query element and a variable (of the query element).
+	 * 
+	 * @param variable
+	 * @param element
+	 * @returns {ns.Driver}
+	 */
+	ns.Driver = function(variable, element) {
+		this.variable = variable;
+		this.element = element;
+	};
+	
+	ns.PathNodeFactoryDefault = function() {
+	};
+	
+	ns.PathNodeFactoryDefault.prototype.create = function(pathManager, variable) {
+		return new ns.PathNode(pathManager, variable);
+	};
 
-	ns.PathManager = function(variable) {
+	/**
+	 * 
+	 * @param variable A variable name (string)
+	 * @param nodeFactory
+	 * @returns {ns.PathManager}
+	 */
+	ns.PathManager = function(variable, nodeFactory) {
 		this.nextVariableId = 1;
-		this.root = new ns.PathNode(this, variable);
+		
+		if(!nodeFactory) {
+			nodeFactory = new ns.PathNodeFactoryDefault();
+		}
+		
+		this.nodeFactory = nodeFactory;
+		
+		this.root = nodeFactory.create(this, variable); //
+	};
+	
+	ns.PathManager.prototype.newNode = function(variable) {
+		if(!variable) {
+			variable = this.nextVariable();
+		}
+		
+		return this.nodeFactory.create(this, variable);
 	};
 	
 	ns.PathManager.prototype.getRoot = function() {
@@ -136,8 +175,7 @@
 	ns.PathNode.prototype.getOrCreate = function(propertyName) {
 		var node = this.outgoing[propertyName];
 		if(!node) {
-			//var this.pathManager.nextVariable()
-			node = new ns.PathNode(this.pathManager);
+			node = this.pathManager.newNode(); //new ns.PathNode(this.pathManager);
 
 			this.outgoing[propertyName] = node;
 			node.incoming[propertyName] = this;

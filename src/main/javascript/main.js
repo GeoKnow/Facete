@@ -87,7 +87,9 @@ function createFacetConfigFts() {
 	var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		
 	var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
 	
-	var driver = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
+	var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
+	
+	var driver = new facets.Driver(driverElement, s);
 	
 	var pathManager = new facets.PathManager("s");
 
@@ -148,13 +150,24 @@ function createFacetConfigFts() {
 	
 	var options = {
 			driver: driver,
-			driverVar: s,
+			//driverVar: s,
 			pathManager: pathManager,
 			geoConstraintFactory: factory
 			};
 	var appController = new app.AppController(options);
 	appController.createQuery(bounds);
+
+
+	var sparqlService = new VirtuosoSparqlService("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
+
+	var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
 	
+	var config = new facetbox.FacetConfig(driver);
+	
+	facetbox.createFacetBox(sparqlService, config);
+
+	
+	//appController.initFacets();
 	
 	//var geoFacet = new facets.FacetWgsPm(pathManager, "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs");
 	
@@ -260,9 +273,13 @@ $(document).ready(function() {
 // TODO Remove this test function
 $(document).ready(function() {
 
+	
+
+	/*
 	var facets = Namespace("org.aksw.ssb.facets");
 	
 	facets.test();
+	*/
 	return;
 	
 	

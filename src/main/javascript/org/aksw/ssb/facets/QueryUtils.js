@@ -9,6 +9,84 @@
 
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+
+	
+	/**
+	 * Creates a query that fetches plain facets (i.e. no counts)
+	 * Select Distinct ?p {
+	 *     [driver]
+	 *     ?driverVar ?p ?o .
+	 * }
+	 */
+	ns.createFacetQueryPlain = function(driver, driverVar) {
+		var result = new sparql.Query();
+		
+		result.elements.push(driver);
+		
+ 
+		var p = sparql.Node.v("__p");
+		var triple = new sparql.Triple(driver, p, sparql.Node.v("__o"));		
+		result.elements.push(new sparql.ElementTriplesBlock(triple));
+		
+		result.projection[p.value] = null;
+		
+		return result;
+	};
+
+	
+	ns.createFacetQueryCount = function(driverVar, driver) {
+		// The maximum number of instances to scan for collecting properties
+		var instanceScanCount = 10001;
+		
+		
+		var q = new sparql.Query();
+		
+		q.distinct = true;
+		
+		var p = sparql.Node.v("__p");
+		var o = sparql.Node.v("__o");
+		var c = sparql.Node.v("__c");
+		
+		q.projection[p.value] = null;
+		q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
+		
+		var tmp = q;
+		if(true) { // limit instances to check for properties
+		    var subQuery = new sparql.Query();
+		    subQuery.isResultStar = true;
+		    subQuery.limit = instanceScanCount;
+		    q.elements.push(new sparql.ElementSubQuery(subQuery));
+		    
+		    tmp = subQuery;
+		}
+		
+		
+		console.log("Driver", driver);
+		
+		tmp.elements.push(driver);
+		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, p, o)]));
+		
+		
+		// TODO We could reduce the number of requests if we fetched labels here
+		// The problem (as usual) is how to deal with alternative lang tags:
+		// primary lang (de), secondary lang (en), fallback (no lang tag)
+		// ?x label ?l1 , ?l2 , ?l3 . Filter(?(  
+		/*
+		var result;
+		var lang
+		if(true) { // Fetch the labels of the properties
+			result = new sparql.Query();
+			result.projection[]
+		}
+		*/
+		
+		// TODO Order by ?o ?p
+		q.order.push(new sparql.Order(new sparql.ExprVar(c), sparql.OrderDir.Desc));
+		
+		console.log("Created query: " + q);
+		return q;
+	};
+
 	
 	/**
 	 * 
@@ -75,14 +153,19 @@
 	 * @param config
 	 * @param facet
 	 */
-	ns.createValuesQuery = function(config, facet) {
+	ns.createValuesQuery = function(baseElement, breadcrumb) {
 		// The maximum number of instances to scan for collecting properties
 		//var config = facet.getConfig();
 		var instanceScanCount = 10001;
 
+		var element = breadcrumb.getTriples();
+		//var inputVar = sparql.Node.v(breadcrumb.sourceNode.variable);
+		var inputVar = breadcrumb.sourceNode.variable;
+		var outputVars = [breadcrumb.targetNode.variable];
+		
 		var element = facet.getElement();
-		var outputVars = _.difference(facet.getElement().getVarsMentioned(), [facet.getInputVar()]);
-		console.log("Outputvars=", facet.getElement().getVarsMentioned(), facet.getInputVar());
+		//var outputVars = _.difference(facet.getElement().getVarsMentioned(), [inputVar]);
+		//console.log("Outputvars=", facet.getElement().getVarsMentioned(), inputVar);
 
 		var result = new sparql.Query();
 		for(var i in outputVars) {
@@ -112,8 +195,9 @@
 		    
 		    tmp = subQuery;
 		}
-		
-		subQuery.elements.push(config.driver);
+
+		//subQuery.elements.push(config.driver);
+		subQuery.elements.push(baseElement);
 		subQuery.elements.push(element);
 
 		result.elements.push(element);
@@ -231,59 +315,6 @@
 		console.log("Facet query: " + batchQuery);
 		
 		return batchQuery;
-	};
-	
-	ns.createQueryLoadDefaults = function(driverVar, driver) {
-		// The maximum number of instances to scan for collecting properties
-		var instanceScanCount = 10001;
-		
-		
-		var q = new ssb.Query();
-		
-		q.distinct = true;
-		
-		var p = ssb.Node.v("__p");
-		var o = ssb.Node.v("__o");
-		var c = ssb.Node.v("__c");
-		
-		q.projection[p.value] = null;
-		q.projection[c.value] = new ssb.E_Count(new ssb.ExprVar(p));
-		
-		var tmp = q;
-		if(true) { // limit instances to check for properties
-		    var subQuery = new ssb.Query();
-		    subQuery.isResultStar = true;
-		    subQuery.limit = instanceScanCount;
-		    q.elements.push(new ssb.ElementSubQuery(subQuery));
-		    
-		    tmp = subQuery;
-		}
-		
-		
-		console.log("Driver", driver);
-		
-		tmp.elements.push(driver);
-		tmp.elements.push(new ssb.ElementTriplesBlock([new ssb.Triple(driverVar, p, o)]));
-		
-		
-		// TODO We could reduce the number of requests if we fetched labels here
-		// The problem (as usual) is how to deal with alternative lang tags:
-		// primary lang (de), secondary lang (en), fallback (no lang tag)
-		// ?x label ?l1 , ?l2 , ?l3 . Filter(?(  
-		/*
-		var result;
-		var lang
-		if(true) { // Fetch the labels of the properties
-			result = new ssb.Query();
-			result.projection[]
-		}
-		*/
-		
-		// TODO Order by ?o ?p
-		q.order.push(new ssb.Order(new ssb.ExprVar(c), ssb.OrderDir.Desc));
-		
-		console.log("Created query: " + q);
-		return q;
 	};
 
 })(jQuery);

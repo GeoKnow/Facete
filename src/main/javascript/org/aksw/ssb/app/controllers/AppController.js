@@ -1,12 +1,13 @@
 (function() {
 	
-	var ns = Namespace("org.aksw.ssb.app.controllers");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
-	
+
+	var ns = Namespace("org.aksw.ssb.app.controllers");
+
 	/**
 	 * 
 	 * 
@@ -22,7 +23,7 @@
 		// (e.g. ?s a Subvention)
 		// The driverVar is a variable of the driver element (e.g. ?s) 
 		this.driver = options.driver;
-		this.driverVar = options.driverVar;
+		//this.driverVar = options.driverVar;
 		
 		// The path manager can create query elements for property paths
 		// such as (knows label) -> ?x knows ?y . ?y label ?z.
@@ -42,6 +43,12 @@
 		// TODO Not sure how components should declare that
 	};
 
+	/*
+	ns.AppController.prototype.initFacets = function() {
+		
+	};
+	*/
+	
 	/**
 	 * Creates a SPARQL query for fetching resources, geo-coordinates, labels (and possibly more)
 	 * based on all available constraints.
@@ -54,7 +61,7 @@
 		
 		var query = new sparql.Query();
 		
-		query.elements.push(this.driver);
+		query.elements.push(this.driver.element);
 		
 		for(var i = 0; i < this.constraints.length; ++i) {
 			// Create query element and filter expression
@@ -93,10 +100,11 @@
 		query.projection[yVar] = null;
 		query.projection[labelBc.targetNode.variable] = null;
 		
-		var bindings = {geom: geomVar, x: xVar, y: yVar, subject: this.driverVar.value};
+		var bindings = {geom: geomVar, x: xVar, y: yVar, subject: this.driver.variable.value};
 		var result = {query: query, bindings: bindings};
 		
 		console.log("Created query and bindings:", result);
+		console.log("Query string:", query.toString());
 		
 		return result;
 		

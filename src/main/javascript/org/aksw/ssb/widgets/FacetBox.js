@@ -7,10 +7,12 @@
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var facets = Namespace("org.aksw.ssb.facets");
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	
 	//var labelUtils = Namespace("org.aksw.ssb.utils");
 	
 	var ns = Namespace("org.aksw.ssb.widgets.facetbox");
+
 
 	/**
 	 * This method fetches the initial facets for a given driver.
@@ -21,6 +23,8 @@
 
 		var query = queryUtils.createFacetQueryCount(config.driver.element, config.driver.variable);
 
+		//console.log("Loading facets with", query.toString());
+		
 		var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
 
 		// The result will be handed over to the callback 
@@ -28,6 +32,9 @@
 			
 		sparqlService.executeSelect(query.toString(), {
 			success: function(jsonRs) {
+				
+				console.log("Facet result set", jsonRs);
+				
 				var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
 			
 				//console.log("labelFetcher", $.ssb);
@@ -41,14 +48,8 @@
 						}
 															
 						var count = map[propertyName];
-	
-						var countStr = (count > config.facetCountThreshold) ? ">" + config.facetCountThreshold : "" + count; 
-	
 						
-						var node = result.pathManager.getRoot().getOrCreate(propertyName); //config.getFacet([propertyName]);
-						if(!node) {
-							console.log("Getting facet from config: ", config, propertyName);								
-						}
+						var node = result.pathManager.getRoot().getOrCreate(propertyName);
 	
 						node.data = {count: count, label: label};
 					}
@@ -59,6 +60,89 @@
 		});
 	};
 	
+	
+	ns.loadFacetValues = function(sparqlService, state, breadcrumb, callback) {
+		var self = this;
+
+		var baseElement = state.config.driver.element;
+		
+		var queryData = queryUtils.createFacetValuesQuery(baseElement, breadcrumb);
+
+		var query = queryData.query;
+		query.limit = 10;
+		
+		console.log("Values query:", queryData);
+		
+		// Test query
+		//query.elements.push(new sparql.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
+		
+		// The result is a list of facet values:
+		// (valueNode, label, count)
+		var result = [];
+		
+		sparqlService.executeSelect(query.toString(), {
+			success: function(jsonRs) {
+				console.log("Binding", jsonRs);
+				
+				var outputVar = breadcrumb.targetNode.variable;
+				
+				var bindings = jsonRs.results.bindings;
+				
+				for(var i = 0; i < bindings.length; ++i) {
+					var binding = bindings[i];
+					var val = binding[outputVar];
+					
+					var valueNode = sparql.Node.fromJson(val);
+					var count = binding["__c"].value;// TODO Maybe parse as int
+					
+					result.push(new ns.FacetValue(valueNode, count));
+				}
+					
+				
+				//console.log("Raw facet values:", result);
+				//var vars = jsonRs.head.vars;
+				
+				// TODO We need a discriminator column so we know which facet the values correspond to
+				//var map = jsonRdfResultSetToMap(jsonRs, "var1", "__c");
+		
+				var uris = [];
+				for(var i = 0; i < result.length; ++i) {
+					var val = result[i].node.value.toString();
+
+					if(val.startsWith("http://")) {
+						uris.push(val);
+					}
+				}
+				
+				//console.log("Value URIs", uris, map);
+				
+				var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
+				labelFetcher.fetch(uris, true, function(idToLabel) {
+
+					console.log("Facet value uris", idToLabel);
+
+					for(var i = 0; i < result.length; ++i) {						
+						var val = result[i].node.value;
+						
+						var label = idToLabel[val];
+						if(!label) {
+							label = val;
+						}
+						
+						result[i].label = label;						
+					}
+
+					callback.success(result, idToLabel);
+				});
+			}
+		});
+	},
+	
+	
+	ns.FacetValue = function(node, count) {
+		this.node = node;
+		this.count = count;
+	};
 	
 	/**
 	 * A facet configuration maps breadcrumb strings to basic information:
@@ -102,7 +186,7 @@
 		ns.loadFacets(sparqlService, state, {
 			success: function(state) {
 				// Remove the loading image, and show the facets
-				console.log(state);
+				console.log("Loaded state: ", state);
 				facetList.controller.refresh();
 			}
 		});
@@ -118,7 +202,7 @@
 	
 	ns.FacetItem = $$(
 		{},
-		'<li><form action=""><input type="checkbox" /><span data-bind="name"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
+		'<li><form action=""><input type="checkbox" /><span data-bind="label"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
 
 		'click input': function() {
 			alert("click" + this.model.get("id"));
@@ -159,7 +243,7 @@
 				$(facetElement).toggle();
 
 				
-				
+				var sparqlService = this.model.get('sparqlService');
 				var isLoaded = this.model.get('isLoaded');
 				
 				if(isLoaded) {
@@ -170,16 +254,34 @@
 				
 				this.model.set({isLoaded: true});
 
-				var facet = this.model.get('facet');
-				var config = this.model.get('config');
+				var breadcrumb = this.model.get('breadcrumb');
+				var state = this.model.get('state');
 
 			
-				this.controller.loadValuesCore(facet, config);
+				this.controller.loadFacetValues(sparqlService, state, breadcrumb);
 			},
 			
-			loadValuesCore: function(baseElement, facet) {
+			loadFacetValues: function(sparqlService, state, breadcrumb) {
 				var self = this;
 
+				console.warn("Loading facet values for breadcrumb: ", breadcrumb);
+				
+				ns.loadFacetValues(sparqlService, state, breadcrumb, {
+					success: function(facetValues) {
+						for(var i = 0; i < facetValues.length; ++i) {
+							var facetValue = facetValues[i];
+							
+							console.log("FacetValue:", facetValue);
+							
+							var newItem = $$(ns.FacetItem, {value: facetValue, label: facetValue.label.value, count: facetValue.count});
+							
+							//self.append(newItem, "ul.eq(1)");
+							self.append(newItem, "ol");
+						}
+					}
+				});
+				
+				/*
 				var queryData = queryUtils.createValuesQuery(baseElement, facet);
 
 				var query = queryData.query;
@@ -244,6 +346,7 @@
 						});
 					}
 				});
+				*/
 			},
 			
 			'click span:first': function() {
@@ -283,7 +386,9 @@
 						var count = data.count;
 						var countStr = (count > config.facetCountThreshold) ? ">" + config.facetCountThreshold : "" + count; 
 
-						var newItem = $$(ns.FacetSwitcher, {sparqlService: sparqlService, state: state, id: propertyName, name: data.label, count: count, countStr: countStr});
+						var breadcrumb = facets.Breadcrumb.fromString(state.pathManager, propertyName);
+						
+						var newItem = $$(ns.FacetSwitcher, {sparqlService: sparqlService, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr});
 						
 						self.append(newItem, "ul:first");						
 					}

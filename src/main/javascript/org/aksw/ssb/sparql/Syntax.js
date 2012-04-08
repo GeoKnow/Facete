@@ -75,6 +75,30 @@
 		this.datatype = datatype;
 	};
 	
+	ns.Node.fromJson = function(talisJson) {
+		var result = new ns.Node();
+		
+		var type;
+		switch(talisJson.type) {
+		case 'uri': type = 1; break;
+		case 'typed-literal': type = 3; break;
+		case 'plain-literal': type = 2; break;
+		default: console.error("Unknown type: '" + talisJson.type + "'");
+		}
+		
+		result.type = type;
+		result.value = talisJson.value;
+		result.language = talisJson.language;
+		result.datatype = talisJson.datatype;
+		
+		return result;
+		/*
+		var type = -2;
+		if(node.type == "uri") {
+			
+		}*/
+	};
+	
 	ns.Node.uri = function(str) {
 		return new ns.Node(1, str, null, null);
 	};

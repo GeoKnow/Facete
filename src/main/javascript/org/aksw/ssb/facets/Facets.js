@@ -19,9 +19,9 @@
 	 * @param element
 	 * @returns {ns.Driver}
 	 */
-	ns.Driver = function(variable, element) {
-		this.variable = variable;
+	ns.Driver = function(element, variable) {
 		this.element = element;
+		this.variable = variable;
 	};
 	
 	ns.PathNodeFactoryDefault = function() {

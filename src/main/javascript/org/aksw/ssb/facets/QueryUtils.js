@@ -34,7 +34,7 @@
 	};
 
 	
-	ns.createFacetQueryCount = function(driverVar, driver) {
+	ns.createFacetQueryCount = function(driver, driverVar) {
 		// The maximum number of instances to scan for collecting properties
 		var instanceScanCount = 10001;
 		
@@ -153,17 +153,21 @@
 	 * @param config
 	 * @param facet
 	 */
-	ns.createValuesQuery = function(baseElement, breadcrumb) {
+	ns.createFacetValuesQuery = function(baseElement, breadcrumb) {
 		// The maximum number of instances to scan for collecting properties
 		//var config = facet.getConfig();
 		var instanceScanCount = 10001;
 
-		var element = breadcrumb.getTriples();
+		var element = new sparql.ElementTriplesBlock(breadcrumb.getTriples());
+		
+		console.warn("baseElement/breadcrumb", baseElement, breadcrumb);
+		
+		//var element = baseElement; //breadcrumb.getTriples();
 		//var inputVar = sparql.Node.v(breadcrumb.sourceNode.variable);
 		var inputVar = breadcrumb.sourceNode.variable;
 		var outputVars = [breadcrumb.targetNode.variable];
 		
-		var element = facet.getElement();
+		//var element = facet.getElement();
 		//var outputVars = _.difference(facet.getElement().getVarsMentioned(), [inputVar]);
 		//console.log("Outputvars=", facet.getElement().getVarsMentioned(), inputVar);
 
@@ -222,7 +226,7 @@
 		
 		for(var i in outputVars) {
 			var outputVar = outputVars[i];			
-			result.order.push(new sparql.Order(new sparql.ExprVar(ssb.Node.v(outputVar)), sparql.OrderDir.Asc));
+			result.order.push(new sparql.Order(new sparql.ExprVar(sparql.Node.v(outputVar)), sparql.OrderDir.Asc));
 		}
 
 		
@@ -275,7 +279,7 @@
 			subQuery.elements.push(config.driver);
 			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.driverVar);
 			subQuery.distinct = true;
-			subQuery.projection[p.value] = new sparql.NodeValue(ssb.Node.uri(facet.id));
+			subQuery.projection[p.value] = new sparql.NodeValue(sparql.Node.uri(facet.id));
 			subQuery.projection[s.value] = null;
 			//subQuery.projection[count] = new sparql.E_Count(subExpr);
 			//subQuery.projection[count] = new sparql.E_Count(new sparql.ExprVar(s));
@@ -303,7 +307,7 @@
 			//this.sparqlService.
 		}
 		
-		//var union = FacetController.balance(ssb.ElementUnion, unionElements);
+		//var union = FacetController.balance(sparql.ElementUnion, unionElements);
 		
 
 		var batchQuery = new sparql.Query();

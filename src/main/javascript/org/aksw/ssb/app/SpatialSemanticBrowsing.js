@@ -22,6 +22,7 @@ SelectionHighlighterController.prototype.x = function() {
 	
 };
 
+var collections = Namespace("org.aksw.ssb.collections");
 
 /**
  * The main class for the Spatial Semantic Browsing Widgets.
@@ -36,7 +37,7 @@ function SpatialSemanticBrowsing() {
 	this.queryFactory = null;
 
 	// TODO Actually multi selection would be cool
-	this.selection = new Set();
+	this.selection = new collections.Set();
 
 	// The currently selected feature
 	// FIXME Change to something like "selectedResource", so we can track
@@ -51,10 +52,10 @@ function SpatialSemanticBrowsing() {
 	// Model classes for the instances
 	// TODO Consider combining these maps into a single one...
 	// TODO I think I reinvented a bit of backbone here, so I should use backbone directly
-	this.nodeToLabel = new Map();
-	this.nodeToTypes  = new MultiMap();
-	this.nodeToPos   = new Map();
-	this.nodeToFeature = new Map();
+	this.nodeToLabel = new collections.Map();
+	this.nodeToTypes  = new collections.MultiMap();
+	this.nodeToPos   = new collections.Map();
+	this.nodeToFeature = new collections.Map();
 	
 	this.typeToCount = {};
 	
@@ -65,13 +66,13 @@ function SpatialSemanticBrowsing() {
 	this.wayToType    = new Map();
 	this.wayToGeo     = new Map();
 	*/
-	this.wayToFeature = new Map();
+	this.wayToFeature = new collections.Map();
 
 	
 	// Model classes for the facets
 	this.schemaIcons = new MapCollection();	
 	this.schemaLabels = new LabelCollection();
-	this.classHierarchy = new BidiMultiMap();
+	this.classHierarchy = new collections.BidiMultiMap();
 
 	this.quadTreeModel = null;
 

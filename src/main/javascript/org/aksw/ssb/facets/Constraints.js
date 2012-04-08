@@ -12,6 +12,108 @@
 
 	var ns = Namespace("org.aksw.ssb.facets");
 
+	ns.MultiMap = function() {
+		this.entries = {};
+	};
+	
+	ns.MultiMap.prototype.put = function(key, value) {
+		var values;
+		
+		if(key in this.entries) {
+			values = this.entries[key];
+		} else {
+			values = [];
+			this.entries[key] = values;
+		}
+		
+		values.push(value);
+	};
+	
+	ns.MultiMap.prototype.removeKey = function(key) {
+		delete this.entries[key];
+	};
+	
+	ns.ConstraintCollection = function() {
+		this.idToConstraints = new ns.MultiMap(); 
+	};
+	
+	ns.ConstraintCollection.prototype.put = function(id, constraint) {
+		this.idToConstraints.put(id, constraint);
+	};
+	
+	ns.ConstraintCollection.prototype.remove = function(id) {
+		this.idToConstraints.removeKey(id);
+	};
+
+	
+	ns.ConstraintCollection.prototype.getSparqlElement = function() {
+		var triplesElement = new sparql.ElementTriplesBlock();
+
+		var idToGroups = new ns.MultiMap();
+
+		var entries = this.idToConstraints.entries;
+		
+		for(var key in entries) {
+			var cs = entries[key];
+			
+			for(var i = 0; i < cs.length; ++i) {
+				var c = cs[i];
+				
+				// TODO 
+				var groupId = c.breadcrumb.toString();
+				
+				
+				idToGroups.put(groupId, c);
+			}
+		}
+		
+		var ands = [];
+		for(var id in idToGroups.entries) {
+			var groups = idToGroups.entries[id];
+		
+			var ors = [];
+			for(var i = 0; i < groups.length; ++i) {
+				var c = groups[i];
+				
+				triplesElement.addTriples(c.getTriples());
+				
+				var expr = c.getExpr();
+				if(expr) {
+					ors.push(expr);
+				}
+			}
+			
+			if(ors.length > 0) {
+				var expr = sparql.opify(ors, sparql.E_LogicalOr);
+				ands.push(expr);
+			}			
+		}
+
+		if(triplesElement.triples.length == 0) {
+			return null;
+		}
+		
+		var finalFilter = null;
+		var filterElement = null;
+		if(ands.length > 0) {
+			finalFilter = sparql.opify(ands, sparql.E_LogicalAnd);
+			
+			filterElement = new sparql.ElementFilter(finalFilter);
+		}
+		 
+		
+		var result = new sparql.ElementGroup();
+		result.elements.push(triplesElement);
+		
+		if(filterElement) {
+			result.elements.push(filterElement);
+		}
+		
+		return result;
+		//console.warn("Triples:", triplesElement.triples);
+		//console.warn("Final filter:", finalFilter);
+	}; 
+	
 	/*
 	 * Equals 
 	 */
@@ -29,10 +131,13 @@
 		return result;
 	};
 	
-	ns.ConstraintEquals.prototype.getElement = function() {
-		var result = new sparql.ElementTriplesBlock(breadcrumb.getTriples());
+	ns.ConstraintEquals.prototype.getTriples = function() {
+		var result = this.breadcrumb.getTriples();
+		
+		return result;
+		//var result = new sparql.ElementTriplesBlock(breadcrumb.getTriples());
 	};
-	
+
 	/*
 	 * Wgs84 
 	 */

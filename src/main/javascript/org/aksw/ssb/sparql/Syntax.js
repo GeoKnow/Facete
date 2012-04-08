@@ -372,6 +372,15 @@
 		return "(" + this.left + " && " + this.right + ")";
 	};
 	
+	ns.E_LogicalOr = function(left, right) {
+		this.left = left;
+		this.right = right;
+	};
+	
+	ns.E_LogicalOr.prototype.toString = function() {
+		return "(" + this.left + " || " + this.right + ")";
+	};
+
 	
 	/**
 	 * If null, '*' will be used
@@ -697,6 +706,46 @@
 		
 		
 	};
+	
+	/**
+	 * Creates a new (compound) expressions from an array
+	 * of individual exrpessions.
+	 * [a, b, c, d] with ctor set to "E_LogicalAnd" (abbr. And) will become
+	 * And(And(a, b), And(c, d))
+	 * 
+	 */
+	ns.opifyBalanced = function(exprs, ctor) {
+		console.warn("Constructor", ctor);
 
+		if(exprs.length == 0) {
+			return null;
+		}
+
+		var open = exprs;
+		
+		while(open.length > 1) {
+			var next = [];
+
+			for(var i = 0; i < open.length; i+=2) {
+				var hasSecond = i + 1 < open.length;
+				
+				var a = open[i];
+				
+				if(hasSecond) {
+					b = open[i + 1];
+					next.push(new ctor(a, b));
+				} else {
+					next.push(a);
+				}
+			}
+			
+			open = next;
+		}
+		
+		return open[0];
+	}; 
+
+	ns.opify = ns.opifyBalanced; 
+	
 })(jQuery);
 		

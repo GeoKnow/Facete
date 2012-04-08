@@ -148,14 +148,6 @@ function createFacetConfigFts() {
 
 	
 	
-	var options = {
-			driver: driver,
-			//driverVar: s,
-			pathManager: pathManager,
-			geoConstraintFactory: factory
-			};
-	var appController = new app.AppController(options);
-	appController.createQuery(bounds);
 
 
 	var sparqlService = new VirtuosoSparqlService("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
@@ -164,7 +156,20 @@ function createFacetConfigFts() {
 	
 	var config = new facetbox.FacetConfig(driver);
 	
-	facetbox.createFacetBox(sparqlService, config);
+	var constraints = new facets.ConstraintCollection();
+	
+	facetbox.createFacetBox(sparqlService, config, constraints);
+
+	var options = {
+			driver: driver,
+			//driverVar: s,
+			pathManager: pathManager,
+			geoConstraintFactory: factory,
+			constraints: constraints
+		};
+	
+	var appController = new app.AppController(options);
+	//appController.createQuery(bounds);
 
 	
 	//appController.initFacets();
@@ -189,8 +194,8 @@ function createFacetConfigFts() {
 	//console.log("Element", element);
 	//console.log("Filter", filter);
 
-	var config = {driver: driver, driverVar: s, geoConstraintFactory: factory};
-	return config;
+	//var config = {driver: driver, driverVar: s, geoConstraintFactory: factory};
+	//return config;
 }
 
 

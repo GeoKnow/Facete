@@ -4,10 +4,14 @@
  */
 (function($) {
 	
+	
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var facets = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	
+	var collections = Namespace("org.aksw.ssb.collections");	
+
 	
 	//var labelUtils = Namespace("org.aksw.ssb.utils");
 	
@@ -173,14 +177,14 @@
 	};
 	
 	
-	ns.createFacetBox = function(sparqlService, config) {
+	ns.createFacetBox = function(sparqlService, config, constraints) {
 
 		//$("#facets2").append('<form action=""><input id="constrainToVisibleArea" type="checkbox" />Unlink from visible area</form>');
 
 
 		var state = new ns.FacetState(config);
 
-		var facetList = ns.createFacetList(sparqlService, state);
+		var facetList = ns.createFacetList(sparqlService, state, constraints);
 		$$.document.append(facetList, "#facets2");
 
 		ns.loadFacets(sparqlService, state, {
@@ -201,12 +205,31 @@
 	};
 	
 	ns.FacetItem = $$(
-		{},
-		'<li><form action=""><input type="checkbox" /><span data-bind="label"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
+		{isEnabled: false},
+		'<li><form action=""><input type="checkbox" data-bind="isEnabled" /><span data-bind="label"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
 
 		'click input': function() {
-			alert("click" + this.model.get("id"));
+			var facetValue = this.model.get("value");
+			var constraints = this.model.get("constraints");
+			var breadcrumb = this.model.get("breadcrumb");
 			
+			var variable = breadcrumb.targetNode.variable;
+			var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue(facetValue.node));
+			
+			var id = breadcrumb.toString() + " @" + facetValue.node.toString();
+			
+			var isEnabled = !this.model.get("isEnabled");
+			console.log("Enabled:", isEnabled, id);
+			if(isEnabled) {			
+				constraints.put(id, constraint);
+			} else {
+				constraints.remove(id);
+			}
+			
+			//console.log("Boom", facetValue, constraints, breadcrumb);
+			console.log("constraint", constraints);
+			
+			console.log("Sparql element", constraints.getSparqlElement());
 		},
 		
 		'click span:first': function() {
@@ -256,15 +279,15 @@
 
 				var breadcrumb = this.model.get('breadcrumb');
 				var state = this.model.get('state');
-
+				var constraints = this.model.get('constraints');
 			
-				this.controller.loadFacetValues(sparqlService, state, breadcrumb);
+				this.controller.loadFacetValues(sparqlService, state, breadcrumb, constraints);
 			},
 			
-			loadFacetValues: function(sparqlService, state, breadcrumb) {
+			loadFacetValues: function(sparqlService, state, breadcrumb, constraints) {
 				var self = this;
 
-				console.warn("Loading facet values for breadcrumb: ", breadcrumb);
+				console.warn("Loading facet values for breadcrumb: ", breadcrumb, constraints);
 				
 				ns.loadFacetValues(sparqlService, state, breadcrumb, {
 					success: function(facetValues) {
@@ -273,7 +296,7 @@
 							
 							console.log("FacetValue:", facetValue);
 							
-							var newItem = $$(ns.FacetItem, {value: facetValue, label: facetValue.label.value, count: facetValue.count});
+							var newItem = $$(ns.FacetItem, {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints});
 							
 							//self.append(newItem, "ul.eq(1)");
 							self.append(newItem, "ol");
@@ -362,9 +385,9 @@
 	 * @param sparqlService
 	 * @param config An object mapping facets to their states
 	 */
-	ns.createFacetList = function(sparqlService, state) {
+	ns.createFacetList = function(sparqlService, state, constraints) {
 		var result = $$(
-			{sparqlService: sparqlService, state: state},
+			{sparqlService: sparqlService, state: state, constraints: constraints},
 			'<div><form action=""><input type="text"/><input type="button" value="Search"/></form><ul></ul> </div>',
 			{
 				create: function() {
@@ -376,6 +399,7 @@
 					var state = this.model.get('state');
 					var config = state.config;
 					var sparqlService = this.model.get('sparqlService');
+					var contraints = this.model.get('constraints');
 					
 					var propertyToNode = state.pathManager.getRoot().outgoing;
 					
@@ -388,7 +412,7 @@
 
 						var breadcrumb = facets.Breadcrumb.fromString(state.pathManager, propertyName);
 						
-						var newItem = $$(ns.FacetSwitcher, {sparqlService: sparqlService, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr});
+						var newItem = $$(ns.FacetSwitcher, {sparqlService: sparqlService, constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr});
 						
 						self.append(newItem, "ul:first");						
 					}

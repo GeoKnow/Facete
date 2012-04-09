@@ -8,6 +8,31 @@
 
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
+	
+	ns.QueryFactoryGeo = function(baseQuery, bindings, geoConstraintFactory) {
+		this.baseQuery = baseQuery;
+		this.bindings = bindings;
+		this.geoConstraintFactory = geoConstraintFactory;
+	};
+	
+	ns.QueryFactoryGeo.prototype.create = function(bounds) {
+		// Create a deep copy of the query (substitute with identity mappinp)
+		var copy = this.baseQuery.copySubstitute(function(x) { return x; });
+		
+		var geoConstraint = this.geoConstraintFactory.create(bounds);
+		
+		//var geoConstraint = this.geoConstraintFactory.create(bounds);
+		var filter = new sparql.ElementFilter(geoConstraint.getExpr());
+		copy.elements.push(filter);
+		
+		return copy;
+	};
+
+	ns.QueryFactoryGeo.prototype.toString = function() {
+		return this.baseQuery.toString();
+	};
+	
+	
 	/**
 	 * The query generator creates a SPARQL query
 	 * for resources based on selected 
@@ -46,7 +71,7 @@
 		// A list of paths for which to fetch data
 		// TODO Not sure how components should declare that
 	};
-
+	
 	/*
 	ns.QueryGenerator.prototype.initFacets = function() {
 		
@@ -60,8 +85,9 @@
 	 * Returns an object with the query object, and a set of semantic mappings of the queryies
 	 * variable (e.g. {label: v_1}
 	 * 
+	 * @returns A QueryFactoryGeo object that contains the base query and supports adding bbox constraints
 	 */
-	ns.QueryGenerator.prototype.createQuery = function(bounds) {
+	ns.QueryGenerator.prototype.createQueryFactory = function() {
 		
 		var query = new sparql.Query();
 		
@@ -71,7 +97,6 @@
 			// Create query element and filter expression
 		}
 		
-		var geoConstraint = this.geoConstraintFactory.create(bounds);
 		
 		var triplesBlock = new sparql.ElementTriplesBlock();
 		
@@ -79,7 +104,8 @@
 		triplesBlock.addTriples(this.geoConstraintFactory.getTriples());
 		
 	
-		query.elements.push(new sparql.ElementFilter(geoConstraint.getExpr()));
+		//var geoConstraint = this.geoConstraintFactory.create(bounds);
+		//query.elements.push(new sparql.ElementFilter(geoConstraint.getExpr()));
 				
 		
 
@@ -113,10 +139,13 @@
 		
 		// TODO: Maybe use Construct query instead
 		var bindings = {geom: geomVar, x: xVar, y: yVar, subject: this.driver.variable.value};
-		var result = {query: query, bindings: bindings};
+		//var boundQuery = {query: query, bindings: bindings};
 		
-		console.log("Created query and bindings:", result);
-		console.log("Query string:", query.toString());
+		//console.log("Created query and bindings:", result);
+		//console.log("Query string:", query.toString());
+
+		
+		var result = new ns.QueryFactoryGeo(query, bindings, this.geoConstraintFactory);
 		
 		return result;
 		

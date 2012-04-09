@@ -2,13 +2,15 @@
 <html class="js" lang="en" dir="ltr" xml:lang="en"
 	xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 	<title>European Commission | Opening up European Commission</title>
 	<style media="all" type="text/css">
-		@import "style.css";
-	</style>
+@import "style.css";
+</style>
 
 	<script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
+
+
 
 
 
@@ -77,14 +79,16 @@
 
 
 		<!-- The actual spatial semantic browsing widgets -->
-		<script type="text/javascript" src="src/main/javascript/org/aksw/ssb/collections/QuadTree.js"></script>
+		<script type="text/javascript"
+			src="src/main/javascript/org/aksw/ssb/collections/QuadTree.js"></script>
 		<script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.quadtree.js"></script>
 
 		<script type="text/javascript" src="src/main/javascript/ssb.utils.js"></script>
 
 		<script type="text/javascript" src="src/main/javascript/Dispatcher.js"></script>
-		<script type="text/javascript" src="src/main/javascript/org/aksw/ssb/collections/MultiMap.js"></script>
+		<script type="text/javascript"
+			src="src/main/javascript/org/aksw/ssb/collections/MultiMap.js"></script>
 		<script type="text/javascript"
 			src="src/main/javascript/jsonrdf-extraction-utils.js"></script>
 
@@ -168,6 +172,12 @@
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/app/SpatialSemanticBrowsing.js"></script>
 
+
+		<!-- Layouting for this (p)HTML file-->
+		<script type="text/javascript"
+			src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
+
+
 		<script type="text/javascript">
         var ssbconf = {};
 <?php
@@ -205,58 +215,7 @@
             document.location.search = kvp.join('&'); 
         }
 
-		function updateLang() {
-        	var gt = new Gettext({ 'domain' : 'messages' });
-        	$("#facets-title").html(gt.gettext('ssb.ui.facets'));
-		}
         
-        /**
-         * I18n of the user interface
-         *
-         */
-        window.onload = function init() {
-			updateLang();
-        	
-        	$("#language-switcher").val(lang);
-       	};
-        
-        /**
-         * This is a bit hacky, as we resize the instance list to 100% minus some pixel,
-         * but its less hacky than hiding divs on mouse over and such
-         * (and we require javascript anyway)
-         */
-         $(document).ready(function() {
-        	 
-             $(window).resize(function() {
-				var windowHeight = $(window).height();
-				var headerHeight = $("#header_div").height();
-				var contentHeight = windowHeight - headerHeight;
-				
-               	$("#main").css('height', contentHeight + "px");
-               	$("#tabs").css('height', contentHeight + "px");
-            	//$("#instances").css('max-height', (contentHeight - 75) + "px");
-            	//$("#facets").css('max-height', (contentHeight - 75) + "px");
-             });
-
-             $(window).resize();
-            
-     		$("#language-switcher").change(function() {
-    			var lang = $("#language-switcher").val();
-
-    			var href = "src/main/resources/i18n/" + lang + "/LC_MESSAGES/messages.po";
-
-    			$("#active_lang").attr('href', href);
-
-    			updateLang();
-
-    			//insertParam("lang", lang);
-    		});
-
-	       	 //$( "#tabs" ).tabs({ fx: { height: 'toggle', opacity: 'toggle' } });
-     		//$( "#tabs" ).tabs({ fx: { opacity: 'toggle' } });
-     		$( "#tabs" ).tabs({});
-         });
-
     </script>
 
 		<!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
@@ -303,62 +262,61 @@
 				</div>
 			</div>
 
-			<div id="main" style="position: relative; height: 100%">
+		</div>
+		<div id="main" style="position: relative; height: 100%; width: 100%">
 
 
-				<div
-					style="position: relative; top: 0px; left: 0px; height: 100%; width: 100%;">
+			<div
+				style="position: relative; top: 0px; left: 0px; height: 100%; width: 100%;">
 
+				<div id="map"
+					style="position: absolute; top: 0px; left: 300px; right: 0px; height: 100%;"></div>
 
-					<div id="map"
-						style="position: absolute; top: 0px; left: 300px; width: 100%; height: 100%;"></div>
-
-					<div id="tabs" class="widget"
-						style="position: absolute; top: 0px; width: 280px; float: left; overflow: visible;">
-						<ul class="tabnav">
-							<li><a href="#tabs-2">Instances</a></li>
-							<li><a href="#facets2">Facets</a></li>
-							<li><a href="#tabs-3">Types</a></li>
-							<li><a href="#tabs-places">Places</a></li>
-						</ul>
-						<div class="tabdiv" id="tabs-2">
-							<div id="instances"></div>
-						</div>
-						<div class="tabdiv" id="facets2"></div>
-						<div class="tabdiv" id="tabs-3">
-							<p>Types control which kind of things can be browsed. Selecting a
-								type affects the shown facets and instances.</p>
-							<form>
-								<input type="radio" name="type"
-									value="http://ssb.org/facet/project" />Projects<br /> <input
-									type="radio" name="type"
-									value="http://ssb.org/facet/subvention" />Subventions
-							</form>
-						</div>
-						<div class="tabdiv" id="tabs-places">
-							<form style='float: left' action='javascript: doSearch();'>
-								<label for="search"><b>Search:</b> </label> <input type="text"
-									id="search-field" name="search-field" value=""
-									autocomplete="off" onchange="this.form.submit();" />
-							</form>
-							<br />
-							<p>
-								powered by <a class='link'
-									href='http://nominatim.openstreetmap.org' target="_blank"><img
-									class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>
-								<div id="searchResults"></div>
-							</p>
-						</div>
+				<div id="tabs" class="widget"
+					style="position: absolute; top: 0px; width: 280px; float: left; height: 100%; max-height: 100%; overflow-y: scroll; overflow-x: visible;">
+					<ul class="tabnav">
+						<li><a href="#tabs-2">Instances</a></li>
+						<li><a href="#facets2">Facets</a></li>
+						<li><a href="#tabs-3">Types</a></li>
+						<li><a href="#tabs-places">Places</a></li>
+					</ul>
+					<div class="tabdiv" id="tabs-2">
+						<div id="instances"></div>
 					</div>
-
-					<div id="facts" class="mybg"
-						style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>
-
+					<div class="tabdiv" id="facets2"
+						style="position: absolute; max-height: 100%; overflow-y: scroll; overflow-x: visible;"></div>
+					<div class="tabdiv" id="tabs-3">
+						<p>Types control which kind of things can be browsed. Selecting a
+							type affects the shown facets and instances.</p>
+						<form>
+							<input type="radio" name="type"
+								value="http://ssb.org/facet/project" />Projects<br /> <input
+								type="radio" name="type" value="http://ssb.org/facet/subvention" />Subventions
+						</form>
+					</div>
+					<div class="tabdiv" id="tabs-places">
+						<form style='float: left' action='javascript: doSearch();'>
+							<label for="search"><b>Search:</b> </label> <input type="text"
+								id="search-field" name="search-field" value=""
+								autocomplete="off" onchange="this.form.submit();" />
+						</form>
+						<br />
+						<p>
+							powered by <a class='link'
+								href='http://nominatim.openstreetmap.org' target="_blank"><img
+								class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>
+							<div id="searchResults"></div>
+						</p>
+					</div>
 				</div>
 
+				<div id="facts" class="mybg"
+					style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>
+
 			</div>
-			<!-- <div id="footer">$FOOTER</div>  -->
+
 		</div>
+		<!-- <div id="footer">$FOOTER</div>  -->
 
 </body>
 </html>

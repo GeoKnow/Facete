@@ -113,12 +113,16 @@
 		facetbox.createFacetBox(sparqlService, config, constraints);
 	
 		var options = {
-				driver: driver,
-				//driverVar: s,
-				pathManager: pathManager,
-				geoConstraintFactory: factory,
-				constraints: constraints
+				queryGenerator: {
+					driver: driver,
+					//driverVar: s,
+					pathManager: pathManager,
+					geoConstraintFactory: factory,
+					constraints: constraints
+				}
 			};
+		
+		//var queryGenerator = new app.QueryGenerator(options);
 		
 		var appController = new app.AppController(options);
 		return appController;

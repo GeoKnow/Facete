@@ -124,9 +124,11 @@
 	};
 	
 	ns.ConstraintEquals.prototype.getExpr = function() {
-		var sparqlVar = this.breadcrumb.targetNode.variable;
+		var varName = this.breadcrumb.targetNode.variable;
+	
+		var varExpr = new sparql.ExprVar(sparql.Node.v(varName)); 
 		
-		var result = new sparql.E_Equals(sparqlVar, this.nodeValue);
+		var result = new sparql.E_Equals(varExpr, this.nodeValue);
 		
 		return result;
 	};

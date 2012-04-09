@@ -1,10 +1,10 @@
+// The old app controller, don't use it, its just for spare code
 (function($) {
 	var qtm = Namespace("org.aksw.ssb.collections.QuadTreeModel");
 	var collections = Namespace("org.aksw.ssb.collections");
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
-	
 	
 	/**
 	 * The main class for the Spatial Semantic Browsing Widgets.
@@ -13,24 +13,53 @@
 	 * 
 	 * @returns {AppController}
 	 */
-	ns.AppController = function(options) {
+	ns.AppController = function() {
+		this.backend = null;
 		this.sparqlService = null;
-		this.queryGenerator = new ns.QueryGenerator(options.queryGenerator);
-		
 		this.queryFactory = null;
 	
+		
+		//this.queryGenerator
+		
+		// TODO Enhance to multi selection
 		this.selection = new collections.Set();
 	
 		// The currently selected feature
 		// FIXME Change to something like "selectedResource", so we can track
 		// the active feature between mapEvents (features get destroyed on map events)
 		//this.selectedFeature = undefined;
-			
+	
+		
 		// The active language
 		this.activeLanguage = "fr";
 	
-
-		//this.quadTreeModel = null;
+		
+		// Model classes for the instances
+		// TODO Consider combining these maps into a single one...
+		// TODO I think I reinvented a bit of backbone here, so I should use backbone directly
+		this.nodeToLabel = new collections.Map();
+		this.nodeToTypes  = new collections.MultiMap();
+		this.nodeToPos   = new collections.Map();
+		this.nodeToFeature = new collections.Map();
+		
+		this.typeToCount = {};
+		
+		//this.idToTypes = new BidiMultiMap();
+		
+		/*
+		this.wayToLabel   = new Map();
+		this.wayToType    = new Map();
+		this.wayToGeo     = new Map();
+		*/
+		this.wayToFeature = new collections.Map();
+	
+		
+		// Model classes for the facets
+		this.schemaIcons = new MapCollection();	
+		this.schemaLabels = new LabelCollection();
+		this.classHierarchy = new collections.BidiMultiMap();
+	
+		this.quadTreeModel = null;
 	
 		
 		// Reference to the OpenLayers map
@@ -38,9 +67,17 @@
 		this.map = null;
 		this.instanceWidget = null;
 		
-		// Maps prefixes to DescribeService's that provide additional information about
-		// resources
+		this.test = 0.0;
+		
+		
+		this.facetConfig = null;		
+	
+		
+		//this.propertyHierarchy = new PropertyHierarchy();
+	
 		this.prefixToService = {};
+		
+		//this.refreshScheduler = new Scheduler();
 	};
 	
 	
@@ -50,11 +87,18 @@
 		var self = this;
 		
 		this.initWidgets();
-		this.initEvents();		
+		this.initEvents();
+		
+		// Hacky: classes, labels and icons are fetched in separate requests. The rendering renders as much as what's there.
+		// Do proper events so that we can guarantee that all information is available
+		setTimeout(function() { self.mapEvent(); }, 1000);
+		setTimeout(function() { self.mapEvent(); }, 4000);		
 	};
 	
 		
 	ns.AppController.prototype.initWidgets = function() {
+		
+		this.notificationScheduler = new Scheduler();
 		
 		// Initialize the widgets
 		$("#map").ssb_map({
@@ -173,17 +217,9 @@
 	ns.AppController.prototype.refresh = function(bounds, delay) {
 		var self = this;
 
-		// TODO Check if another refresh request is running.
-		// If so, make this request wait for the other running one, thereby
-		// replacing any other already pending request
-
-		var queryFactory = this.queryGenerator.createQueryFactory();
 		
-		
-		var query = queryFactory.baseQuery; //queryFactory.create(bounds);
-		
-		console.warn("QueryFactory", query.toString());
-		
+		// 
+		//if()
 		
 		
 		/*
@@ -214,8 +250,17 @@
 	};
 		
 	ns.AppController.prototype.mapEvent = function() {
+		//return;
+		
+		this.test += 0.0005;
+		//this.mapWidget.setNodeToPos({"http://test.org":  new OpenLayers.LonLat(-1.0 + this.test, 53.0)});
 
 		var map = this.map;
+		//var map = ui.map;
+		//console.log(event);
+		//console.log(ui);
+		
+		//var zoom = map.getZoom();
 		var bounds = map.getExtent().transform(map.projection, map.displayProjection);
 
 		/*
@@ -237,6 +282,13 @@
 		}
 	};
 		
+	/*
+	autoconfigureSparqlEndpoint: function(serviceUrl, defaultGraphs) {
+		var service = new VirtuosoSparqlService(serviceUrl, defaultGraphs); //"src/main/php/sparql-proxy-dbpedia.php", ["http://dbpedia.org"]);
+		
+		setSparqlEndpoint(service);
+	},*/
+	
 	ns.AppController.prototype.setQueryFactory = function(queryFactory) {
 		this.queryFactory = queryFactory;
 	};

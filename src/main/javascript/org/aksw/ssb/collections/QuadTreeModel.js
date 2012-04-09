@@ -9,6 +9,8 @@
 	 * A class that wraps a QuadTree and fires events about the state-change when
 	 * setting the visible bounds
 	 * 
+	 * Based on: backend.fetchNodeCount, backend.fetchBasicData
+	 * 
 	 * @param backend
 	 * @returns {QuadTreeModel}
 	 */

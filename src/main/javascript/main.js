@@ -19,6 +19,9 @@
 	var app = Namespace("org.aksw.ssb.app.controllers");
 	var backend = Namespace("org.aksw.ssb.backend"); 
 	
+	var facebox = Namespace("org.aksw.ssb.widgets.facetbox");
+
+	
 	var ns = Namespace("org.aksw.ssb.main");
 	
 	
@@ -107,10 +110,11 @@
 		var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
 		
 		var config = new facetbox.FacetConfig(driver);
+		var state = new facetbox.FacetState(config, pathManager);
 		
 		var constraints = new facets.ConstraintCollection();
 		
-		facetbox.createFacetBox(sparqlService, config, constraints);
+		facetbox.createFacetBox(sparqlService, state, constraints);
 	
 		var options = {
 				queryGenerator: {

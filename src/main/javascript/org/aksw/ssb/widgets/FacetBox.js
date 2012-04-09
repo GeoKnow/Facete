@@ -150,7 +150,10 @@
 	
 	/**
 	 * A facet configuration maps breadcrumb strings to basic information:
-	 * counts, a set of values and for each value count.
+	 * counts, a set of values and for each value its count.
+	 * 
+	 * TODO Not sure if the pathManager should be part of the config, but I guess it makes sense.
+	 * If so, we can get rid of FacetState
 	 * 
 	 */
 	ns.FacetConfig = function(driver, facetCountThreshold, instanceScanCount) {
@@ -171,18 +174,19 @@
 		
 	};
 	
-	ns.FacetState = function(config) {
+	ns.FacetState = function(config, pathManager) {
 		this.config = config;
-		this.pathManager = new facets.PathManager(config.driver.variable.value);
+		//this.pathManager = new facets.PathManager(config.driver.variable.value);
+		//this.pathManager = pathManager;
+		this.pathManager = pathManager;
 	};
 	
 	
-	ns.createFacetBox = function(sparqlService, config, constraints) {
+	ns.createFacetBox = function(sparqlService, state, constraints) {
 
 		//$("#facets2").append('<form action=""><input id="constrainToVisibleArea" type="checkbox" />Unlink from visible area</form>');
 
 
-		var state = new ns.FacetState(config);
 
 		var facetList = ns.createFacetList(sparqlService, state, constraints);
 		$$.document.append(facetList, "#facets2");

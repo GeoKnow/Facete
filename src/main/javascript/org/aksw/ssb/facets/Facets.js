@@ -217,7 +217,6 @@
 		this.targetNode = targetNode;
 	};
 	
-	
 	ns.Breadcrumb.fromString = function(pathManager, pathStr) {
 		var items = pathStr.split(" ");
 

@@ -1,9 +1,24 @@
 (function($) {
+	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 	var qtm = Namespace("org.aksw.ssb.collections.QuadTreeModel");
 	var collections = Namespace("org.aksw.ssb.collections");
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
+	
+	/*
+	ns.QueryCacheGeo = function(sparqlService, baseQuery, geoConstraint) {
+		this.sparqlService = sparqlService;
+		this.baseQuery = baseQuery;
+		this.geoConstraint = geoConstraint;
+		
+		this.quadTreeModel = new collections.QuadTreeModel();
+	};
+	
+	ns.QueryCacheGeo.prototype.execute = function(bounds, callback) {
+		
+	};
+	*/
 	
 	
 	/**
@@ -179,8 +194,24 @@
 
 		var queryFactory = this.queryGenerator.createQueryFactory();
 		
+		var query = queryFactory.create(bounds);
 		
-		var query = queryFactory.baseQuery; //queryFactory.create(bounds);
+		//console.warn("BaseQuery", queryFactory.baseQuery.toString());
+		console.warn("BBoxQuery", query.toString());
+		
+		
+		var baseQuery = queryFactory.baseQuery; //queryFactory.create(bounds);
+		 
+		var hash = baseQuery.toString();
+		
+		var cacheEntry = hashToCache[hash];
+		if(!cacheEntry) {
+			cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
+			hashToCache[hash] = cacheEntry;
+		}
+		
+		
+		// Check if there is a cache for the given baseQuery
 		
 		console.warn("QueryFactory", query.toString());
 		

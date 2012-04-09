@@ -5,9 +5,13 @@
 
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 
+	var geovocab = Namespace("org.aksw.ssb.vocabs.geovocab");
+	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
+	
 	
 	ns.QueryFactoryGeo = function(baseQuery, bindings, geoConstraintFactory) {
 		this.baseQuery = baseQuery;
@@ -17,7 +21,10 @@
 	
 	ns.QueryFactoryGeo.prototype.create = function(bounds) {
 		// Create a deep copy of the query (substitute with identity mappinp)
+		
+		//console.warn("[Query] Original", this.baseQuery.toString());
 		var copy = this.baseQuery.copySubstitute(function(x) { return x; });
+		//console.warn("[Query] Copy", copy.toString());		
 		
 		var geoConstraint = this.geoConstraintFactory.create(bounds);
 		
@@ -111,9 +118,12 @@
 
 		//this.geoConstraintFactory
 
-		var geomVar = this.geoConstraintFactory.breadcrumb.targetNode.variable;
-		var xVar = this.geoConstraintFactory.breadcrumbX.targetNode.variable;
-		var yVar = this.geoConstraintFactory.breadcrumbY.targetNode.variable;
+		var driverVar = this.driver.variable;
+		
+		// TODO breadcrumbs should also use Node objects for variables
+		var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+		var xVar = sparql.Node.v(this.geoConstraintFactory.breadcrumbX.targetNode.variable);
+		var yVar = sparql.Node.v(this.geoConstraintFactory.breadcrumbY.targetNode.variable);
 
 
 		// Add facet constraints
@@ -130,15 +140,42 @@
 		triplesBlock.addTriples(labelBc.getTriples());
 		triplesBlock.addTriples(typeBc.getTriples());
 		
+		
+		var labelVar = sparql.Node.v(labelBc.targetNode.variable);
+		
 		triplesBlock.uniq();
 		
-		query.projection[geomVar] = null;
-		query.projection[xVar] = null;
-		query.projection[yVar] = null;
-		query.projection[labelBc.targetNode.variable] = null;
+		// TODO I think construct is a better choice than select
+		// So eventually remove the select part.
+		// Bindings also are not required anymore (replaced by the predicates of the construct template)
+		var useConstruct = true;
+		if(!useConstruct) {
+			query.projection[geomVar] = null;
+			query.projection[xVar] = null;
+			query.projection[yVar] = null;
+			query.projection[labelBc.targetNode.variable] = null;
+			
+			// TODO: Maybe use Construct query instead
+			var bindings = {geom: geomVar, x: xVar, y: yVar, subject: this.driver.variable.value};
+		}
 		
-		// TODO: Maybe use Construct query instead
-		var bindings = {geom: geomVar, x: xVar, y: yVar, subject: this.driver.variable.value};
+		
+		if(useConstruct) {
+			query.type = sparql.QueryType.Construct;
+			
+			var triples = [];
+			
+			triples.push(new sparql.Triple(driverVar, rdfs.label, labelVar));
+			triples.push(new sparql.Triple(driverVar, geovocab.geometry, geomVar));
+			triples.push(new sparql.Triple(geomVar, geo.long, xVar));
+			triples.push(new sparql.Triple(geomVar, geo.lat, yVar));
+			
+			var bgp = new sparql.BasicPattern(triples);
+			query.constructTemplate = new sparql.Template(bgp);			
+		}
+		
+		
+		
 		//var boundQuery = {query: query, bindings: bindings};
 		
 		//console.log("Created query and bindings:", result);

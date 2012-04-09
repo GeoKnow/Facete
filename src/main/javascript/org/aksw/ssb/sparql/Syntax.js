@@ -194,7 +194,11 @@
 	
 	
 	ns.BasicPattern = function(triples) {
-		this.triples = triples;
+		this.triples = triples ? triples : [];
+	};
+	
+	ns.BasicPattern.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.BasicPattern(this.triples.map(function(x) { return x.copySubstitute(fnNodeMap); }));
 	};
 	
 	ns.BasicPattern.prototype.toString = function() {
@@ -211,6 +215,10 @@
 		this.bgp = bgp;
 	};
 
+	ns.Template.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.Template(this.bgp.copySubstitute(fnNodeMap));
+	};
+	
 	ns.Template.prototype.toString = function() {
 		return "{ " + this.bgp + " }";
 	};
@@ -328,6 +336,11 @@
 		this.varsMentioned = ns.extractSparqlVars(str); 
 	};
 	
+	ns.E_Str.prototype.copySubstitute = function(fnNodeMap) {
+		console.error("Not implemented");
+		return this.str;
+	};
+
 	ns.E_Str.prototype.getVarsMentioned = function() {
 		return this.varsMentioned;
 	};
@@ -335,6 +348,10 @@
 	ns.E_Equals = function(left, right) {
 		this.left = left;
 		this.right = right;
+	};
+	
+	ns.E_Equals.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_Equals(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
 	
 	ns.E_Equals.prototype.toString = function() {
@@ -349,6 +366,10 @@
 		this.left = left;
 		this.right = right;
 	};
+
+	ns.E_GreaterThan.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_GreaterThan(fnNodeMap(this.left), fnNodeMap(this.right));
+	};
 	
 	ns.E_GreaterThan.prototype.toString = function() {
 		return "(" + this.left + " > " + this.right + ")";
@@ -357,6 +378,10 @@
 	ns.E_LessThan = function(left, right) {
 		this.left = left;
 		this.right = right;
+	};
+
+	ns.E_LessThan.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_LessThan(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
 	
 	ns.E_LessThan.prototype.toString = function() {
@@ -367,6 +392,10 @@
 		this.left = left;
 		this.right = right;
 	};
+
+	ns.E_LogicalAnd.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_LogicalAnd(fnNodeMap(this.left), fnNodeMap(this.right));
+	};
 	
 	ns.E_LogicalAnd.prototype.toString = function() {
 		return "(" + this.left + " && " + this.right + ")";
@@ -375,6 +404,10 @@
 	ns.E_LogicalOr = function(left, right) {
 		this.left = left;
 		this.right = right;
+	};
+
+	ns.E_LogicalOr.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_LogicalOr(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
 	
 	ns.E_LogicalOr.prototype.toString = function() {
@@ -478,6 +511,39 @@
 		
 		this.limit = null;
 		this.offset = null;
+	};
+	
+	ns.Query.prototype.copySubstitute = function(fnNodeMap) {
+		result = new ns.Query();
+		result.type = this.type;
+		result.distinct = this.distinct;
+		result.reduced = this.reduced;
+		result.isResultStar = this.isResultStar;
+		result.limit = this.limit;
+		result.offset = this.offset;
+ 
+		for(key in this.projection) {
+			var value = this.projection[key]; 
+
+			var k = fnNodeMap(ns.Node.v(key));
+			var v = value ? ns.fnNodeMapWrapper(value, fnNodeMap) : null;
+			
+			result.projection[k] = v;
+		}
+		
+		if(this.constructTemplate) {
+			result.constructTemplate = this.constructTemplate.copySubstitute(fnNodeMap);
+		}
+		
+		for(var i = 0; i < this.order.length; ++i) {
+			result.order.push(this.order[i].copySubstitute(fnNodeMap));
+		}
+
+		for(var i = 0; i < this.elements.length; ++i) {
+			result.elements.push(this.elements[i].copySubstitute(fnNodeMap));
+		}
+
+		return result;
 	};
 	
 	ns.Query.prototype.toString = function() {

@@ -5,6 +5,95 @@
 
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeModel");
 	
+	ns.XyExtractor = function() {
+		
+	};
+	
+	ns.XyExtractor.prototype.extract = function(talisJson) {
+		
+	};
+		
+	ns.Backend = function(sparqlService, geoQueryFactory, variable) {
+		this.sparqlService = sparqsService;
+		this.geoQueryFactory = geoQueryFactory;
+		this.limit = 1000; // max count
+		this.variable = variable;
+
+		this.xyExtractor;
+		// TODO Some method that extracts the geo locations from the query
+		
+		// Alternatively: The app controller can for a query result add those entries to the quad tree, from
+		// which it knows that they carry geo-coordinates -
+		// In this case they QuadTree would be more like an index (position->resource)
+	};
+	
+	/**
+	 * Creates a query that - based on another query - counts the number of
+	 * distinct values for a given variable.
+	 * 
+	 * TODO Move to some utils package
+	 * 
+	 * @param baseQuery
+	 * @param limit
+	 * @param variable
+	 * @returns {sparql.Query}
+	 */
+	ns.createCountQuery = function(baseQuery, limit, variable) {
+		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
+
+		
+		// Create a new query with its elemets set to copies of that of the baseQuery
+		var subQuery = new sparql.Query();
+		
+		for(var i = 0; i < baseQuery.elements.length; ++i) {
+			var element = baseQuery.elements[i];
+			var copy = element.copySubstitute(function(x) { return x; });
+			
+			subQuery.elements.push(copy);
+		}
+		
+		subQuery.projection[variable.value] = null;
+		subQuery.distinct = true;
+		
+		if(limit) {
+			subQuery.limit = limit;
+		}
+		
+		var result = new sparql.Query();
+		result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
+		result.elements.push(new sparql.ElementSubQuery(subQuery));
+
+		return result;
+	};
+	
+	ns.Backend.prototype.fetchNodeCount = function(bounds) {
+		var baseQuery = this.geoQueryFactory.create(bounds);
+		
+		var query = ns.createCountQuery(baseQuery, this.limit, this.variable);
+		var result = this.sparqlService.executeSelect(query.toString()).pipe(function(data) {
+			var count = parseInt(data.results.bindings[0].c.value);
+			
+			if(callback) {
+				callback(count);
+			}
+			
+			return count;
+		});
+		
+		return result;		
+	};
+
+	/*
+	ns.Backend.prototype.fetchData = function(bounds) {
+		var query = this.geoQueryFactory.create(bounds);
+		
+		this.sparqlService.executeAny(query.toString(), )
+		
+	};
+	*/
+	
+	
+
 	/**
 	 * A class that wraps a QuadTree and fires events about the state-change when
 	 * setting the visible bounds
@@ -270,9 +359,10 @@
 		
 		// Retrieve the minimum number of items per node
 		var countTasks = [];
-		$.each(nodes, function(index, node) {
+		for(var i = 0; i < nodes.length; ++i) {
+		//$.each(nodes, function(index, node) {
 			
-			var node = nodes[index];
+			var node = nodes[i];
 	
 			// Check if the minimumItemCount is available
 			if(node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < ns.maxItemCount)) {
@@ -288,7 +378,7 @@
 					})
 				);
 			}
-		});
+		}
 	
 	
 		// Once all counts have been computed, request the data for applicable nodes
@@ -301,8 +391,9 @@
 			var loadTasks = [];
 			
 			
-			$.each(nodes, function(index, node) {		
-				
+			//$.each(nodes, function(index, node) {
+			for(var i = 0; i < nodes.length; ++i) {
+				var node = nodes[i];
 				//console.log("Inferred minimum item count: %d", node.infMinItemCount);
 				
 				if(node.infMinItemCount < ns.maxItemCount) {
@@ -329,7 +420,7 @@
 						})
 					);
 				}
-			});
+			}
 		
 	
 			$.when.apply(window, loadTasks).then(function() {

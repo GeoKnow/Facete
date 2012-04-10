@@ -134,7 +134,7 @@ $.widget("ui.ssb_map", {
 
 	/**
 	 * Creates a feature for the given id.
-	 * By default they are not added to the map.
+	 * By default they are not added to the map (i.e. invisible).
 	 * 
 	 * 
 	 * @param id
@@ -199,6 +199,11 @@ $.widget("ui.ssb_map", {
 	},
 	
 	addBox : function(id, bounds) {
+		
+		var existingBox = this.idToBox[id];
+		if(existingBox) {
+			this.removeBox(id);
+		}
 		
 		//console.log("Adding box: " + bounds);
 
@@ -371,7 +376,7 @@ $.widget("ui.ssb_map", {
 		var iconUrl = type ? this.schemaIcons.get(type) : null;
 		
 		if(!iconUrl || iconUrl == "(missing icon)") {
-			iconUrl = "http://www.openlayers.org/dev/img/marker.png";
+			iconUrl = "src/main/resources/icons/markers/marker.png";//"http://www.openlayers.org/dev/img/marker.png";
 		}
 		
 		//point = new OpenLayers.LonLat(-1, 52);

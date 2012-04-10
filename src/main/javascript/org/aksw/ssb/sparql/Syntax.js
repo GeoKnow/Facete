@@ -846,7 +846,7 @@
 	 * 
 	 */
 	ns.opifyBalanced = function(exprs, ctor) {
-		console.warn("Constructor", ctor);
+		//console.warn("Constructor", ctor);
 
 		if(exprs.length == 0) {
 			return null;

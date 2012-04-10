@@ -74,6 +74,8 @@
 		this.nodeToLabel = new collections.Map();
 		this.nodeToTypes  = new collections.MultiMap();
 		this.nodeToFeature = new collections.Map();
+		this.schemaIcons = new MapCollection();	
+
 		
 		// Reference to the OpenLayers map
 		this.mapWidget = null;
@@ -240,6 +242,8 @@
 		var baseQuery = geoQueryFactory.baseQuery; //queryFactory.create(bounds);
 		 
 		var hash = baseQuery.toString();
+		console.debug("Query hash (including facets): ", hash);
+		
 		
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
@@ -313,8 +317,10 @@
 		
 
 		var idToGeom = new facets.MultiMap();
+		var geomToId = new facets.MultiMap();
+
 		var geomToPoint = {};
-		var idToLabel = new collections.Map();
+		var idToLabel = {}; new collections.Map();
 		var visible = {};
 		for(var i = 0; i < change.nodes.length; ++i) {
 			var node = change.nodes[i];
@@ -326,7 +332,7 @@
 
 			
 			var graph = node.data.graph;
-			console.log("Graph size: ", graph);
+			//console.debug("Graph size: ", graph);
 			var rdf = $.rdf({databank: graph});
 			
 			var geomToX = {};
@@ -345,25 +351,26 @@
 			var nodeGeomToPoint = {};
 			for(var geom in geomToX) {
 				if(geom in geomToY) {
-					var point = new OpenLayers.LonLat(geomToX[geom], geomToY[geom]);
+					var point = new qt.Point(geomToX[geom], geomToY[geom]);
+					//var ll = new OpenLayers.LonLat(point.x, point.y);
 					nodeGeomToPoint[geom] = point;
-					
-					if(newState.bounds.containsPoint(point)) {
-						visible[geom] = true;
-					}
 				}
 			}
-			
-			node.idToPos = nodeGeomToPoint;
+
 			_.extend(geomToPoint, nodeGeomToPoint);
 			
 
+			var nodeIdToGeom = {};
 			rdf.where("?id " + geovocab.geometry + " ?geom").each(function() {
+				nodeIdToGeom[this.id] = this.geom;
+				
 				idToGeom.put(this.id, this.geom);
+				geomToId.put(this.geom, this.id);
 			});
 			
 			rdf.where("?id " + rdfs.label + " ?label").each(function() {
-				idToLabel.put(this.id, this.label);
+				idToLabel[this.id] = this.label.value;
+				//idToLabel.put(this.id, this.label);
 			});
 			
 			
@@ -381,18 +388,45 @@
 				console.error("Should not happen.");
 				break;				
 			}
+
+			var idToP = {};
+			for(var id in nodeIdToGeom) {//idToGeom.entries) {
+				//console.log("nodeIdToGeom", nodeIdToGeom);
+				var geoms = [nodeIdToGeom[id]];
+				//var geoms = idToGeom.entries[id];
+				for(var j = 0; j < geoms.length; ++j) {
+					var geom = geoms[j];
+					
+					if(geom && geom in nodeGeomToPoint) {
+						var point = nodeGeomToPoint[geom];
+						
+						idToP[id] = point;
 			
+						if(newState.bounds.containsPoint(point)) {
+							visible[id] = true;
+						}
+
+					}
+				}
+			}
+
+			node.idToPos = idToP;
+			//console.log("idToP", idToP);			
 		}
+		
 		
 		//continue;		
 		// Absolute approach
 		this.nodeToLabel.clear();
 
-		for(var k in visible) {
-			var label = k in idToLabel ? idToLabel[k] : "(no label)";
+		for(var id in visible) {
+			var label = id in idToLabel ? idToLabel[id] : "(no label)";
 			
 			this.nodeToLabel.put(id, label);
 		}
+		//console.log("NodeToLabel", this.nodeToLabel);
+		//console.log("IdToLabel", idToLabel);
+		//console.log("visible", visible);
 			
 					
 		// Remove markers of removed nodes
@@ -417,14 +451,14 @@
 				for(var id in node.idToPos) {
 					var pos = node.idToPos[id];
 					var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
-					this.mapWidget.addItem(id, lonlat);
+					//console.debug("Adding marker", id, pos, lonlat);
+					
+					this.mapWidget.addItem(id, lonlat, true);
 				}
 			} else {
 				this.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 			}
 		}
-			
-		
 		
 		this.instanceWidget.refresh();		
 	};

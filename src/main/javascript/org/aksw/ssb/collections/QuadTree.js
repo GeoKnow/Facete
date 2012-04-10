@@ -242,7 +242,7 @@
 		
 		this.children = [];
 		
-		this.children[Node.TOP_LEFT] = new this._classConstructor(this, new ns.Bounds(
+		this.children[ns.Node.TOP_LEFT] = new this._classConstructor(this, new ns.Bounds(
 			this._bounds.left, 
 			c.x + ew, 
 			c.y - eh,
@@ -250,7 +250,7 @@
 		), 
 		this._maxDepth, depth, this._k);
 		
-		this.children[Node.TOP_RIGHT] = new this._classConstructor(this, new ns.Bounds(
+		this.children[ns.Node.TOP_RIGHT] = new this._classConstructor(this, new ns.Bounds(
 			c.x - ew, 
 			this._bounds.right, 
 			c.y - eh,
@@ -258,7 +258,7 @@
 		),
 		this._maxDepth, depth, this._k);
 		
-		this.children[Node.BOTTOM_LEFT] = new this._classConstructor(this, new ns.Bounds(
+		this.children[ns.Node.BOTTOM_LEFT] = new this._classConstructor(this, new ns.Bounds(
 			this._bounds.left, 
 			c.x + ew, 
 			this._bounds.bottom,
@@ -266,7 +266,7 @@
 		),
 		this._maxDepth, depth, this._k);
 	
-		this.children[Node.BOTTOM_RIGHT] = new this._classConstructor(this, new ns.Bounds(
+		this.children[ns.Node.BOTTOM_RIGHT] = new this._classConstructor(this, new ns.Bounds(
 			c.x - ew, 
 			this._bounds.right, 
 			this._bounds.bottom,

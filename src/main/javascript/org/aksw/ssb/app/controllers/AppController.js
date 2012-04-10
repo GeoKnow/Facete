@@ -1,6 +1,12 @@
 (function($) {
+	
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 	var qtm = Namespace("org.aksw.ssb.collections.QuadTreeModel");
+	var qtc = Namespace("org.aksw.ssb.collections.QuadTreeCache");
+	
+	
 	var collections = Namespace("org.aksw.ssb.collections");
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
@@ -56,6 +62,10 @@
 		// Maps prefixes to DescribeService's that provide additional information about
 		// resources
 		this.prefixToService = {};
+		
+		
+		// query cache; maps a base query to a quad tree model
+		this.hashToCache = {};
 	};
 	
 	
@@ -184,32 +194,45 @@
 		});
 
 	};
-		
-	ns.AppController.prototype.refresh = function(bounds, delay) {
+
+
+	ns.AppController.prototype.refresh = function(olBounds, delay) {
 		var self = this;
+		
+		// We are dealing with quad-tree-bounds here
+		var bounds = toQuadTreeBounds(olBounds);
 
 		// TODO Check if another refresh request is running.
 		// If so, make this request wait for the other running one, thereby
 		// replacing any other already pending request
 
-		var queryFactory = this.queryGenerator.createQueryFactory();
+		var geoQueryFactory = this.queryGenerator.createQueryFactory();
 		
-		var query = queryFactory.create(bounds);
+		var query = geoQueryFactory.create(bounds);
 		
 		//console.warn("BaseQuery", queryFactory.baseQuery.toString());
 		console.warn("BBoxQuery", query.toString());
 		
 		
-		var baseQuery = queryFactory.baseQuery; //queryFactory.create(bounds);
+		var baseQuery = geoQueryFactory.baseQuery; //queryFactory.create(bounds);
 		 
 		var hash = baseQuery.toString();
 		
-		var cacheEntry = hashToCache[hash];
+		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
-			cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
-			hashToCache[hash] = cacheEntry;
+			// FIXME Maybe the driver variable should be part of the geoQueryFactory?
+			var backend = new qtc.Backend(this.sparqlService, geoQueryFactory, this.queryGenerator.driver.variable);
+			
+			cacheEntry = new qtc.QuadTreeCache(backend);
+			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
+			this.hashToCache[hash] = cacheEntry;
 		}
 		
+		cacheEntry.load(bounds, {
+			success: function(nodes, bounds) {
+				console.log("Loaded " + nodes.length + " nodes");
+			}
+		});
 		
 		// Check if there is a cache for the given baseQuery
 		

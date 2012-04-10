@@ -102,7 +102,7 @@
 	ns.Node.uri = function(str) {
 		return new ns.Node(1, str, null, null);
 	};
-	
+		
 	ns.Node.v = function(name) {
 		return new ns.Node(-1, name, null, null);
 	};
@@ -130,13 +130,26 @@
 		//alert(dt);		
 	};
 	
+	/**
+	 * Warning: If fnNodeMap does not return a copy, the node will not be copied.
+	 * In general, Node should be considered immutable!
+	 * 
+	 * @param fnNodeMap
+	 * @returns
+	 */
+	ns.Node.prototype.copySubstitute = function(fnNodeMap) {
+		var sub = fnNodeMap(this);		 
+		var result = (sub == undefined || sub == null) ? this : sub;
+		return result;
+	};
+	
 	ns.Node.prototype.toString = function() {
 		switch(this.type) {
 		case -1: return "?" + this.value;
 		case 0: return "_:" + this.value;
 		case 1: return "<" + this.value + ">";
 		case 2: return "\"" + this.value + "\"" + (this.language ? "@" + this.language : "");
-		case 3: return "\"" + this.value + "\"" + (this.datatype ? "^^" + this.datatype : "");
+		case 3: return "\"" + this.value + "\"" + (this.datatype ? "^^<" + this.datatype + ">" : "");
 		}
 	};
 	
@@ -156,14 +169,16 @@
 		return this.s + " " + this.p + " " + this.o;
 	};
 	
+	/*
 	ns.fnNodeMapWrapper = function(node, fnNodeMap) {
 		var sub = fnNodeMap(node);		 
 		var result = (sub == undefined || sub == null) ? node : sub;
 		return result;
 	};
+	*/
 	
 	ns.Triple.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.Triple(ns.fnNodeMapWrapper(this.s, fnNodeMap), ns.fnNodeMapWrapper(this.p, fnNodeMap), ns.fnNodeMapWrapper(this.o, fnNodeMap));
+		return new ns.Triple(this.s.copySubstitute(fnNodeMap), this.p.copySubstitute(fnNodeMap), this.o.copySubstitute(fnNodeMap));
 	};
 	
 	ns.Triple.prototype.getSubject = function() {
@@ -241,6 +256,10 @@
 
 	ns.ElementFilter = function(expr) {
 		this.expr = expr;
+	};
+	
+	ns.ElementFilter.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementFilter(this.expr.copySubstitute(fnNodeMap));
 	};
 
 	ns.ElementFilter.prototype.getVarsMentioned = function() {
@@ -425,12 +444,20 @@
 		this.subExpr = subExpr;
 	};
 
+	ns.E_Count.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_Count(this.subExpr.copySubstitute(fnNodeMap));
+	};
+	
 	ns.E_Count.prototype.toString = function() {		
 		return "Count(" + (this.subExpr ? this.subExpr : "*") +")";
 	};
 	
 	ns.E_Distinct = function(subExpr) {
 		this.subExpr = subExpr;
+	};
+
+	ns.E_Distinct.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_Distinct(this.subExpr.copySubstitute(fnNodeMap));
 	};
 	
 	ns.E_Distinct.prototype.toString = function() {
@@ -440,6 +467,11 @@
 	ns.ExprVar = function(v) {
 		this.v = v;
 	};
+	
+	ns.ExprVar.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ExprVar(this.v.copySubstitute(fnNodeMap));
+	};
+
 	
 	ns.ExprVar.prototype.toString = function() {
 		return "" + this.v;
@@ -453,16 +485,46 @@
 	ns.NodeValue.makeNode = function(node) {
 		return new ns.NodeValue(node);
 	};
-	
-	ns.NodeValue.prototype.toString = function() {
-		if(this.node.type === 1) {
-			return this.node.toString();
-		} else {
-			console.warn("[Hack] Using node value directly - should check for escaping");
-			return "" + this.node.value;
-		}
+
+	ns.NodeValue.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.NodeValue(this.node.copySubstitute(fnNodeMap));
 	};
 	
+	ns.NodeValue.prototype.toString = function() {
+		// TODO Numeric values do not need the full rdf term representation
+		// e.g. "50"^^xsd:double - this method should output "natural/casual"
+		// representations
+		return this.node.toString();
+
+		/*
+		var node = this.node;
+		var type = node.type;
+		
+		switch(type) {
+		case 1: return this.node.toString();
+		case 2: return ns.valueFragment(node) + ns.languageFragment(node);
+		case 3: return ns.valueFragment(node) + ns.datatypeFragment(node);
+		default: {
+				console.warn("Should not happen; type = " + node.type);
+				break;
+		}		
+		}
+		*/
+	};
+	
+	ns.valueFragment = function(node) {
+		return '"' + node.value.toString().replace('"', '\\"') + '"';
+	};
+	
+	ns.languageFragment = function(node) {
+		return node.language ? "@" + node.language : "";
+	};
+	
+	ns.datatypeFragment = function(node) {
+		return node.datatype ? '^^<' + node.datatype + '>' : "";
+	};
+	
+
 	
 	ns.QueryType = {};
 	ns.QueryType.Unknown = -1;
@@ -526,7 +588,7 @@
 			var value = this.projection[key]; 
 
 			var k = fnNodeMap(ns.Node.v(key));
-			var v = value ? ns.fnNodeMapWrapper(value, fnNodeMap) : null;
+			var v = value ? value.copySubstitute(fnNodeMap) : null;
 			
 			result.projection[k] = v;
 		}

@@ -5,95 +5,8 @@
 
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeModel");
 	
-	ns.XyExtractor = function() {
-		
-	};
-	
-	ns.XyExtractor.prototype.extract = function(talisJson) {
-		
-	};
-		
-	ns.Backend = function(sparqlService, geoQueryFactory, variable) {
-		this.sparqlService = sparqsService;
-		this.geoQueryFactory = geoQueryFactory;
-		this.limit = 1000; // max count
-		this.variable = variable;
-
-		this.xyExtractor;
-		// TODO Some method that extracts the geo locations from the query
-		
-		// Alternatively: The app controller can for a query result add those entries to the quad tree, from
-		// which it knows that they carry geo-coordinates -
-		// In this case they QuadTree would be more like an index (position->resource)
-	};
-	
-	/**
-	 * Creates a query that - based on another query - counts the number of
-	 * distinct values for a given variable.
-	 * 
-	 * TODO Move to some utils package
-	 * 
-	 * @param baseQuery
-	 * @param limit
-	 * @param variable
-	 * @returns {sparql.Query}
-	 */
-	ns.createCountQuery = function(baseQuery, limit, variable) {
-		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
-
-		
-		// Create a new query with its elemets set to copies of that of the baseQuery
-		var subQuery = new sparql.Query();
-		
-		for(var i = 0; i < baseQuery.elements.length; ++i) {
-			var element = baseQuery.elements[i];
-			var copy = element.copySubstitute(function(x) { return x; });
-			
-			subQuery.elements.push(copy);
-		}
-		
-		subQuery.projection[variable.value] = null;
-		subQuery.distinct = true;
-		
-		if(limit) {
-			subQuery.limit = limit;
-		}
-		
-		var result = new sparql.Query();
-		result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
-		result.elements.push(new sparql.ElementSubQuery(subQuery));
-
-		return result;
-	};
-	
-	ns.Backend.prototype.fetchNodeCount = function(bounds) {
-		var baseQuery = this.geoQueryFactory.create(bounds);
-		
-		var query = ns.createCountQuery(baseQuery, this.limit, this.variable);
-		var result = this.sparqlService.executeSelect(query.toString()).pipe(function(data) {
-			var count = parseInt(data.results.bindings[0].c.value);
-			
-			if(callback) {
-				callback(count);
-			}
-			
-			return count;
-		});
-		
-		return result;		
-	};
-
-	/*
-	ns.Backend.prototype.fetchData = function(bounds) {
-		var query = this.geoQueryFactory.create(bounds);
-		
-		this.sparqlService.executeAny(query.toString(), )
-		
-	};
-	*/
 	
 	
-
 	/**
 	 * A class that wraps a QuadTree and fires events about the state-change when
 	 * setting the visible bounds
@@ -113,12 +26,14 @@
 		this.quadTree = new qt.QuadTree(maxBounds, 18, 0);
 	
 		this.backend = backend;
+
+		this.maxItemCount = 300;
 	};
 	
 	
 	// TODO We can differ between the limit used in the count query, and the
 	// acceptable limit for displaying
-	ns.maxItemCount = 300;
+	//ns.maxItemCount = 300;
 	
 	/**
 	 * Sets the (visible) nodes of the quad tree.
@@ -149,184 +64,15 @@
 	
 	ns.QuadTreeModel.prototype._setNodes = function(newNodes, newBounds) {
 	
-		var oldNodes = this.currentNodes; 
-		
-		var involvedNodes = _.union(oldNodes, newNodes);
-	
-		var addedNodes    = _.difference(newNodes, this.currentNodes);
-		var removedNodes  = _.difference(this.currentNodes, newNodes);
-		var retainedNodes = _.intersection(newNodes, oldNodes);
-			
+		var oldNodes = this.currentNodes; 			
 		var oldBounds = this.currentBounds;
-		this.currentBounds = newBounds;
-		
+		this.currentBounds = newBounds;		
 		this.currentNodes = newNodes;
 	
-		// The changes for each of the newNodes that occured to partially covers
-		// Does not contain changes 
-		var removedItemsPerNode = [];
-		var addedItemsPerNode = [];
-	
-		
-		var isLocked = false;
-		
-		/*
-	
-		var addedNodes = [];
-		var removedNodes = [];
-		var retainedNodes = [];
-		
-		
-		for(var i in involvedNodes) {
-			
-		}
-	*/
-		
-		/*
-		
-		// If a node went out of sight, then all items can be removed
-		/*
-		for(var i in removedNodes) {
-			var removedNode = removedNodes[i];
-			mergeMapsInPlace(removedItems, removedNode.idToPos);
-		}*/
-	
-		var RETAINED = 0;
-		var ADDED = 1;
-		var REMOVED = 2;
-		
-		var involvedNodeStatus = [];
-		
-		// Filter existing markers by the new bounds
-		//$.each(this.currentNodes, function(i, node) {
-		for(var i in involvedNodes) {
-			var node = involvedNodes[i];
-			
-			var addedItems = {};
-			var removedItems = {};
-			
-			addedItemsPerNode[i] = addedItems;
-			removedItemsPerNode[i] = removedItems;
-	
-	
-			if(!node.idToPos) {
-				return true;
-			}
-			
-			var status = -1;
-			if(_.contains(retainedNodes, node)) {
-				status = RETAINED;
-			} else if(_.contains(addedNodes, node)) {
-				status = ADDED;
-			} else if(_.contains(removedNodes, node)) {
-				status = REMOVED;
-			} else {
-				console.error("Should not happen");
-			}
-			
-			involvedNodeStatus[i] = status;
-			
-			//console.log("Status: ", status, " for " + node);
-	
-			/*
-			if(status === RETAINED) {
-				if(newBounds.contains(node.getBounds()) && oldBounds && oldBounds.contains(node.getBounds())) {			
-					continue;
-				}
-			}*/
-			
-			// If the node was - and still is fully contained in the view rect - , we can skip a check
-			// as all items must be within the new bounds
-			// TODO For some reason the commented out code below is not working as expected, determine why
-			if(status === RETAINED) {
-				if(newBounds.contains(node.getBounds()) && oldBounds && oldBounds.contains(node.getBounds())) {			
-					continue;
-				}
-	
-				if(!node.idToPos) {
-					continue;
-				}
-				
-				for(id in node.idToPos) {
-					var pos = node.idToPos[id];
-	
-					if((!oldBounds || !QuadTreeModel._isVisible(id, pos, oldBounds, oldNodes)) && newBounds.containsPoint(pos)) {
-						addedItems[id] = pos;
-					} else if(oldBounds && QuadTreeModel._isVisible(id, pos, oldBounds, oldNodes) && !newBounds.containsPoint(pos)) {
-						removedItems[id] = pos;
-					}
-					/*
-					if((!oldBounds || !oldBounds.containsPoint(pos)) && newBounds.containsPoint(pos)) {
-						addedItems[id] = pos;
-					} else if(oldBounds && oldBounds.containsPoint(pos) && !newBounds.containsPoint(pos)) {
-						removedItems[id] = pos;
-					}
-					*/
-				}
-			} else if(status === ADDED) {
-				for(id in node.idToPos) {
-					var pos = node.idToPos[id];
-					// Check if the id was visible before (due to some other node)
-					if((!oldBounds || !QuadTreeModel._isVisible(id, pos, oldBounds, oldNodes)) && newBounds.containsPoint(pos)) {
-						addedItems[id] = pos;
-					}			
-				}
-			} else if(status === REMOVED) {
-				for(id in node.idToPos) {
-					var pos = node.idToPos[id];
-					if(oldBounds && QuadTreeModel._isVisible(id, pos, oldBounds, oldNodes)) {
-						removedItems[id] = pos;
-					}
-				}
-			}
-			
-	
-			/*
-			for(id in node.idToPos) {
-				var pos = node.idToPos[id];
-	
-				// TODO This does not work when zooming in: a point the becomes visible may
-				// have been within the old bounds, but due to too many items it was not loaded
-				if(!oldBounds || !oldBounds.containsPoint(pos) && newBounds.containsPoint(pos)) {
-					addedItems[id] = pos;
-				} else if(oldBounds && oldBounds.containsPoint(pos) && !newBounds.containsPoint(pos)) {
-					removedItems[id] = pos;
-				}
-			}*/
-	
-			
-			/*
-			for(id in node.idToPos) {
-				var pos = node.idToPos[id];
-	
-				if((!oldBounds || !QuadTreeModel._isVisible(id, pos, oldBounds, oldNodes)) && newBounds.containsPoint(pos)) {
-					addedItems[id] = pos;
-				} else if(oldBounds && QuadTreeModel._isVisible(id, pos, oldBounds, oldNodes) && !newBounds.containsPoint(pos)) {
-					removedItems[id] = pos;
-				}
-			}*/
-		}
+		var diffResult = ns.diff(oldNodes, newNodes, oldBounds, newBounds);
 	
 		//if(!(added.length == 0 && removed.length == 0)) {
-		$(this).trigger("changed", {
-			oldBounds    : oldBounds,
-			newBounds    : newBounds,
-			oldNodes     : oldNodes,
-			newNodes     : newNodes,
-			addedNodes   : addedNodes,
-			removedNodes : removedNodes,
-			
-			involvedNodes: involvedNodes,
-			involvedNodeStatus: involvedNodeStatus,
-			addedItemsPerNode   : addedItemsPerNode,
-			removedItemsPerNode : removedItemsPerNode
-		});
-		//}
-		
-		//console.log("added: " + added);
-		//console.log("removed: " + removed);
-		//console.log(added);
-		//console.log(removed);
+		$(this).trigger("changed", diffResult);
 	};
 	
 	
@@ -365,14 +111,14 @@
 			var node = nodes[i];
 	
 			// Check if the minimumItemCount is available
-			if(node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < ns.maxItemCount)) {
+			if(node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < self.maxItemCount)) {
 				//console.log("" + node.getBounds());
 				
 				countTasks.push(
 					self.backend.fetchNodeCount(node.getBounds()).pipe(function(value) {
 	
 						node.setMinItemCount(value); 
-						if(value < ns.maxItemCount) {
+						if(value < self.maxItemCount) {
 							node.data.itemCount = value;
 						}				
 					})
@@ -396,7 +142,7 @@
 				var node = nodes[i];
 				//console.log("Inferred minimum item count: %d", node.infMinItemCount);
 				
-				if(node.infMinItemCount < ns.maxItemCount) {
+				if(node.infMinItemCount < self.maxItemCount) {
 	
 					if(node.isLoaded) {
 						return true;
@@ -530,7 +276,7 @@
 			itemCount += child.itemCount;
 		}
 		
-		if(itemCount >= ns.maxItemCount) {
+		if(itemCount >= self.maxItemCount) {
 			return false;
 		}
 		

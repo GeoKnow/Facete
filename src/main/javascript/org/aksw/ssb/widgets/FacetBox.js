@@ -126,9 +126,9 @@
 					console.log("Facet value uris", idToLabel);
 
 					for(var i = 0; i < result.length; ++i) {						
-						var val = result[i].node.value;
+						var val = result[i].node;
 						
-						var label = idToLabel[val];
+						var label = idToLabel[val.value];
 						if(!label) {
 							label = val;
 						}

@@ -109,7 +109,7 @@
 	
 		var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
 		
-		var config = new facetbox.FacetConfig(driver);
+		var config = new facetbox.FacetConfig(driver, 1001, 10001);
 		var state = new facetbox.FacetState(config, pathManager);
 		
 		var constraints = new facets.ConstraintCollection();

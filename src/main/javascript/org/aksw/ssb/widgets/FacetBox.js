@@ -25,7 +25,7 @@
 	ns.loadFacets = function(sparqlService, state, callback) {
 		var config = state.config;
 
-		var query = queryUtils.createFacetQueryCount(config.driver.element, config.driver.variable);
+		var query = queryUtils.createFacetQueryCount(config.driver.element, config.driver.variable, config.sampleSize);
 
 		//console.log("Loading facets with", query.toString());
 		
@@ -70,7 +70,7 @@
 
 		var baseElement = state.config.driver.element;
 		
-		var queryData = queryUtils.createFacetValuesQuery(baseElement, breadcrumb);
+		var queryData = queryUtils.createFacetValuesQuery(baseElement, breadcrumb, state.config.sampleSize);
 
 		var query = queryData.query;
 		query.limit = 10;
@@ -155,25 +155,25 @@
 	 * TODO Not sure if the pathManager should be part of the config, but I guess it makes sense.
 	 * If so, we can get rid of FacetState
 	 * 
+	 * facetCountThreshold: If the threshold is reached, the user is indicated that a count is greater than the threshold. 
+	 * sampleSize: Number of resources (usually instances) to consider (e.g. for counting properties)
+	 * 
 	 */
-	ns.FacetConfig = function(driver, facetCountThreshold, instanceScanCount) {
+	ns.FacetConfig = function(driver, facetCountThreshold, sampleSize) {
 		// TODO Maybe combine driver/var into a single object
-		this.driver = driver;
-		
-		if(!facetCountThreshold) {
-			this.facetCountThreshold = 1000;
-		}
-		
-		if(!instanceScanCount) {
-			this.instanceScanCount = 10000;
-		}
-		
-		//this.pathManager = new facets.PathManager(driverVar);
-		//crumb
-		//this.crumbTo
-		
+		this.driver = driver;		
+		this.facetCountThreshold = facetCountThreshold;
+		this.sampleSize = sampleSize;
 	};
 	
+	/**
+	 * TODO The pathManager of the FacetState should actually be a copy of the
+	 * pathManager of the config whenever there is an overlap.
+	 * The idea is to separate the orginal pathManager from the
+	 * counts, however the variables should be the same.
+	 * 
+	 * 
+	 */
 	ns.FacetState = function(config, pathManager) {
 		this.config = config;
 		//this.pathManager = new facets.PathManager(config.driver.variable.value);

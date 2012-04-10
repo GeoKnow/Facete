@@ -288,7 +288,7 @@
 	};
 	
 	ns.ElementUnion = function(elements) {
-		this.elements = elements;
+		this.elements = elements ? elements : [];
 	};
 
 	ns.ElementUnion.prototype.getVarsMentioned = function() {

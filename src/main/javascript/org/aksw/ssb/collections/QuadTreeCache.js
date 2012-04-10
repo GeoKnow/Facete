@@ -121,6 +121,9 @@
 		result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
 		result.elements.push(new sparql.ElementSubQuery(subQuery));
 
+		//console.error(limit);
+		//console.error(result.toString());
+		
 		return result;
 	};
 	
@@ -422,12 +425,14 @@
 				//console.log("" + node.getBounds());
 				
 				countTasks.push(
-					self.backend.fetchNodeCount(node.getBounds(), this.maxItemCount).pipe(function(value) {
+					self.backend.fetchNodeCount(node.getBounds(), self.maxItemCount).pipe(function(value) {
 	
 						node.setMinItemCount(value); 
 						if(value < self.maxItemCount) {
 							node.data.itemCount = value;
-						}				
+						} else {
+							node.data.tooManyItems = true;
+						}
 					})
 				);
 			}

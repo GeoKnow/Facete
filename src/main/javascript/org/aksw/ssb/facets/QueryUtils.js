@@ -14,14 +14,16 @@
 	/**
 	 * Creates a query that fetches plain facets (i.e. no counts)
 	 * Select Distinct ?p {
-	 *     [driver]
+	 *     [driver] (optional)
 	 *     ?driverVar ?p ?o .
 	 * }
 	 */
 	ns.createFacetQueryPlain = function(driver, driverVar) {
 		var result = new sparql.Query();
 		
-		result.elements.push(driver);
+		if(driver) {
+			result.elements.push(driver);
+		}
 		
  
 		var p = sparql.Node.v("__p");
@@ -34,10 +36,19 @@
 	};
 
 	
-	ns.createFacetQueryCount = function(driver, driverVar) {
-		// The maximum number of instances to scan for collecting properties
-		var instanceScanCount = 10001;
-		
+	/**
+	 * Counts the number of unique subjects per property.
+	 * 
+	 * The generated query has the form:
+	 * Select Distinct ?p (Count(?p) As ?c) {
+	 *   { Select Distinct ?s ?p { driver . ?s ?p ?o . } }
+	 * }
+	 * 
+	 * NOTE Variables are __s, __p, __o. Beware of name clashes.
+	 * 
+	 */
+	ns.createFacetQueryCount = function(driver, driverVar, sampleSize) {
+		// The maximum number of instances to scan for collecting properties		
 		
 		var q = new sparql.Query();
 		
@@ -49,19 +60,30 @@
 		
 		q.projection[p.value] = null;
 		q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
+		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(driverVar));
 		
 		var tmp = q;
 		if(true) { // limit instances to check for properties
 		    var subQuery = new sparql.Query();
-		    subQuery.isResultStar = true;
-		    subQuery.limit = instanceScanCount;
+		    
+		    if(false) {
+		    	subQuery.isResultStar = true;
+		    } else {
+		    	//console.error(driverVar);
+		    	subQuery.projection[driverVar.value] = null;
+		    	subQuery.projection[p.value] = null;
+		    	subQuery.distinct = true;
+		    }
+		    
+		    
+		    subQuery.limit = sampleSize;
 		    q.elements.push(new sparql.ElementSubQuery(subQuery));
 		    
 		    tmp = subQuery;
 		}
 		
 		
-		console.log("Driver", driver);
+		//console.log("Driver", driver);
 		
 		tmp.elements.push(driver);
 		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, p, o)]));
@@ -83,7 +105,7 @@
 		// TODO Order by ?o ?p
 		q.order.push(new sparql.Order(new sparql.ExprVar(c), sparql.OrderDir.Desc));
 		
-		console.log("Created query: " + q);
+		//console.log("Created query: " + q);
 		return q;
 	};
 
@@ -152,11 +174,11 @@
 	 * 
 	 * @param config
 	 * @param facet
+	 * @param sampleSize Puts a limit on the number of resources to consider
 	 */
-	ns.createFacetValuesQuery = function(baseElement, breadcrumb) {
+	ns.createFacetValuesQuery = function(baseElement, breadcrumb, sampleSize) {
 		// The maximum number of instances to scan for collecting properties
 		//var config = facet.getConfig();
-		var instanceScanCount = 10001;
 
 		var element = new sparql.ElementTriplesBlock(breadcrumb.getTriples());
 		
@@ -191,10 +213,10 @@
 
 
 		var subQuery = result;
-		if(instanceScanCount) { // limit instances to check for properties
+		if(sampleSize) { // limit instances to check for properties
 		    subQuery = new sparql.Query();
 		    subQuery.isResultStar = true;
-		    subQuery.limit = instanceScanCount;
+		    subQuery.limit = sampleSize;
 		    result.elements.push(new sparql.ElementSubQuery(subQuery));
 		    
 		    tmp = subQuery;

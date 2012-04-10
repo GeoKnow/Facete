@@ -10,6 +10,7 @@
 	var geovocab = Namespace("org.aksw.ssb.vocabs.geovocab");
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
 	
 	var collections = Namespace("org.aksw.ssb.collections");
@@ -354,10 +355,104 @@
 		
 		return result;		
 	};
+
 	
+	ns.AppController.prototype.updateFacetCounts = function(bounds, nodes) {
+		
+	};
+	
+	
+	/**
+	 * Creates a query that counts the facets for the given visible area:
+	 * Nodes that contain too many items are excluded.
+	 * 
+	 * The structure is:
+	 * 
+	 * Select Distinct ?p (Count(?p) As ?c) {
+	 *   Select Distinct ?s ?p {
+	 *       { fragment . Filter(area1) . ?s ?p ?o }
+	 *     Union
+	 *       { fragment . Filter(area2) . ?s ?p ?o }
+	 *     Union
+	 *       { ... }
+	 *   }
+	 * }
+	 * 
+	 * 
+	 * @param bounds
+	 * @param nodes
+	 * @returns
+	 */
+	ns.AppController.createFacetQueryCountVisible = function(bounds, nodes) {
+		
+		var geoQueryFactory = this.queryGenerator.createQueryFactory();
+		
+		// We can either create multiple queries with different bounds ...
+		// var query = geoQueryFactory.create(bounds);
+		
+		// .. or we use the geoConstraintFactory to create multiple geo-constraints
+		// and 'or' them together
+		//var baseQuery = geoQueryFactory.baseQuery.copySubstitute(function(x) { return x; });
+		//baseQuery.type = sparql.QueryType.Select;
+		var baseQuery = geoQueryFactory.baseQuery;
+		//var baseElement = new sparql.ElementGroup(baseQuery.elements.slice(0)); // create a copy of the original elements
+		var baseElements = baseQuery.elements;
+		
+		var unionElement = new sparql.ElementUnion();
+		
+		//console.error(baseElement.toString());
+		
+		var geoConstraintFactory = geoQueryFactory.geoConstraintFactory;
+
+		///var constraintExprs = [];
+		
+		
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+			
+			if(node.data.tooManyItems) {
+				// We are not going to fetch facets for nodes that contain too many items
+				// Is this solved now: TODO Here we must not rely on isLoaded, but on the instance count
+				continue;
+			}
+
+			var nodeBounds = node.getBounds();
+			var intersectBounds = nodeBounds.overlap(bounds);
+			if(intersectBounds) {
+				var geoConstraint = geoConstraintFactory.create(intersectBounds);
+				///constraintExprs.push(geoConstraint.getExpr());
+				
+				var elements = baseElements.slice(0);
+				elements.push(new sparql.ElementFilter(geoConstraint.getExpr()));
+				
+				var unionMember = new sparql.ElementGroup(elements);
+				
+				
+				unionElement.elements.push(unionMember);
+			}
+		}
+		
+
+		// One large filter expression does not work efficiently
+		// We create a union instead
+		/*
+		var expr = sparql.opify(constraintExprs, sparql.E_LogicalOr);
+		var filterElement = new sparql.ElementFilter(expr);
+		baseElement.elements.push(filterElement);
+		var result = queryUtils.createFacetQueryCount(baseElement, this.queryGenerator.driver.variable);
+		*/
+		
+		var result = queryUtils.createFacetQueryCount(unionElement, this.queryGenerator.driver.variable);
+		
+		console.error("FacetCounts", result.toString());
+		return result;
+	};
 
 	ns.AppController.prototype.updateViews = function(newState) {
 
+		this.updateFacetCounts(newState.bounds, newState.nodes);
+		
+		
 		// node       1      2
 		// change  
 		// instances (only applicable for partially visible nodes)

@@ -1,6 +1,8 @@
 
 (function() {
 
+	var collections = Namespace("org.aksw.ssb.collections");
+
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeModel");
@@ -20,7 +22,7 @@
 		this.currentNodes = [];
 		this.currentBounds = null;
 		
-		this.idToPosition = new Map();
+		this.idToPosition = new collections.Map();
 	
 		var maxBounds = new qt.Bounds(-180.0, 180.0, -90.0, 90.0);
 		this.quadTree = new qt.QuadTree(maxBounds, 18, 0);

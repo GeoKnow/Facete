@@ -73,6 +73,12 @@
 	};
 	
 	
+	/**
+	 * Checks for full containment (mere overlap does not yield true)
+	 * 
+	 * @param bounds
+	 * @returns {Boolean}
+	 */
 	ns.Bounds.prototype.contains = function(bounds) {
 		return bounds.left >= this.left && bounds.right < this.right && bounds.bottom >= this.bottom && bounds.top < this.top;
 	};

@@ -81,15 +81,18 @@
 		var type;
 		switch(talisJson.type) {
 		case 'uri': type = 1; break;
-		case 'typed-literal': type = 3; break;
-		case 'plain-literal': type = 2; break;
+		case 'literal': type = 2; break;
 		default: console.error("Unknown type: '" + talisJson.type + "'");
 		}
 		
 		result.type = type;
 		result.value = talisJson.value;
-		result.language = talisJson.language;
-		result.datatype = talisJson.datatype;
+		result.language = talisJson.language ? talisJson.language : "";
+		result.datatype = talisJson.datatype ? talisJson.datatype : "";
+
+		if(result.datatype) {
+			result.type = 3;
+		}
 		
 		return result;
 		/*

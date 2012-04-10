@@ -1,16 +1,34 @@
 (function($) {
 	
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
-
+	var facets = Namespace("org.aksw.ssb.facets");
+		
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 	var qtm = Namespace("org.aksw.ssb.collections.QuadTreeModel");
 	var qtc = Namespace("org.aksw.ssb.collections.QuadTreeCache");
-	
+	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
+	var geovocab = Namespace("org.aksw.ssb.vocabs.geovocab");
+	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
+	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+
 	
 	var collections = Namespace("org.aksw.ssb.collections");
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
+
+	/**
+	 * A view state consists of the visible bounds, the corresponding
+	 * (quad tree) nodes TODO: and the cache?
+	 * 
+	 * @param cache
+	 * @returns {ns.ViewState}
+	 */
+	ns.ViewState = function(nodes, bounds) {
+		this.nodes = nodes;
+		this.bounds = bounds; //null; //new qt.Bounds(-9999, -9998, -9999, -9998);
+	};
+	
 	
 	/*
 	ns.QueryCacheGeo = function(sparqlService, baseQuery, geoConstraint) {
@@ -53,6 +71,9 @@
 
 		//this.quadTreeModel = null;
 	
+		this.nodeToLabel = new collections.Map();
+		this.nodeToTypes  = new collections.MultiMap();
+		this.nodeToFeature = new collections.Map();
 		
 		// Reference to the OpenLayers map
 		this.mapWidget = null;
@@ -66,6 +87,8 @@
 		
 		// query cache; maps a base query to a quad tree model
 		this.hashToCache = {};
+		
+		this.viewState = new ns.ViewState();
 	};
 	
 	
@@ -211,7 +234,7 @@
 		var query = geoQueryFactory.create(bounds);
 		
 		//console.warn("BaseQuery", queryFactory.baseQuery.toString());
-		console.warn("BBoxQuery", query.toString());
+		//console.warn("BBoxQuery", query.toString());
 		
 		
 		var baseQuery = geoQueryFactory.baseQuery; //queryFactory.create(bounds);
@@ -220,7 +243,8 @@
 		
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
-			// FIXME Maybe the driver variable should be part of the geoQueryFactory?
+			// TODO (Maybe) this should not be the driver variable, but the geometry variable
+			// (As each geometry will get its own marker on the map)
 			var backend = new qtc.Backend(this.sparqlService, geoQueryFactory, this.queryGenerator.driver.variable);
 			
 			cacheEntry = new qtc.QuadTreeCache(backend);
@@ -231,40 +255,12 @@
 		cacheEntry.load(bounds, {
 			success: function(nodes, bounds) {
 				console.log("Loaded " + nodes.length + " nodes");
+
+				// TODO Fix qtc.diff so we can use it here to optimize the update
+				
+				self.updateViews(new ns.ViewState(nodes, bounds));
 			}
 		});
-		
-		// Check if there is a cache for the given baseQuery
-		
-		console.warn("QueryFactory", query.toString());
-		
-		
-		
-		/*
-		if(delay) {
-			this.refreshScheduler.schedule(function() { self.refresh(bounds); });
-			return;
-		}*/
-		
-
-		// First: check the global cache of whether it can provide data for the selected filter criteria
-		
-		
-		// Second: If that fails, use the location cache
-		
-		
-		//this.quadTreeModel.setBounds(toQuadTreeBounds(bounds));
-		
-		//this.backend.fetchClasses(bounds, function(uris) { self.updateClasses(uris); });
-		
-		//this.backend.fetchNodes(bounds, function(nodeToPos) { self.updateNodePositions(nodeToPos); });
-		
-		// NOTE OpenLayers bounds to QuadTree.Bounds
-		
-		//this.backend.fetchNodeTypes(bounds, function(nodeToTypes) { self.updateNodeTypes(nodeToTypes); });
-		//this.backend.fetchNodeLabels(bounds, function(nodeToLabel) { self.updateNodeLabels(nodeToLabel); });
-		
-		//this.backend.fetchWayGeometries(bounds, function(data) {self.updateGeometries(data); });
 	};
 		
 	ns.AppController.prototype.mapEvent = function() {
@@ -300,134 +296,137 @@
 	};
 	
 	
-	ns.AppController.prototype.setBackend = function(backend) {
-		var self = this;
+	ns.AppController.extract = function(jsonRdf) {
+		//for(var i = 0; i < jsonRdfs.result.bindings)
+	};
+	
+	ns.AppController.prototype.updateViews = function(newState) {
+
+		console.log("Updating views");
 		
-		if(this.quadTreeModel) {
-			$(this.quadTreeModel).unbind("changed");
+		var o = this.viewState;
+		var n = newState;
+		
+		var change = qtc.diff(o.nodes, n.nodes, o.bounds, n.bounds);
+		console.log("Change: ", change, newState);
+		
+		
+
+		var idToGeom = new facets.MultiMap();
+		var geomToPoint = {};
+		var idToLabel = new collections.Map();
+		var visible = {};
+		for(var i = 0; i < change.nodes.length; ++i) {
+			var node = change.nodes[i];
+			var state = change.states[i];
+
+			if(!node.isLoaded) {
+				continue;
+			}
+
+			
+			var graph = node.data.graph;
+			console.log("Graph size: ", graph);
+			var rdf = $.rdf({databank: graph});
+			
+			var geomToX = {};
+			var geomToY = {};
+
+			console.log(rdf);
+			
+			rdf.where("?geom " + geo.long + " ?x .").each(function() {
+				geomToX[this.geom] = this.x.value;
+			});
+			
+			rdf.where("?geom " + geo.lat + " ?y").each(function() {
+				geomToY[this.geom] = this.y.value;
+			});
+
+			var nodeGeomToPoint = {};
+			for(var geom in geomToX) {
+				if(geom in geomToY) {
+					var point = new OpenLayers.LonLat(geomToX[geom], geomToY[geom]);
+					nodeGeomToPoint[geom] = point;
+					
+					if(newState.bounds.containsPoint(point)) {
+						visible[geom] = true;
+					}
+				}
+			}
+			
+			node.idToPos = nodeGeomToPoint;
+			_.extend(geomToPoint, nodeGeomToPoint);
+			
+
+			rdf.where("?id " + geovocab.geometry + " ?geom").each(function() {
+				idToGeom.put(this.id, this.geom);
+			});
+			
+			rdf.where("?id " + rdfs.label + " ?label").each(function() {
+				idToLabel.put(this.id, this.label);
+			});
+			
+			
+			switch(state) {
+			case qtc.NOTHING: break;
+			case qtc.ADDED:
+				
+				break;
+			case qtc.REMOVED:
+				
+				break;
+			case qtc.SHIFTED:
+				break;
+			default:
+				console.error("Should not happen.");
+				break;				
+			}
+			
 		}
 		
-		this.backend = backend;
+		//continue;		
+		// Absolute approach
+		this.nodeToLabel.clear();
 
-		this.quadTreeModel = new qtm.QuadTreeModel(backend);
-		
-		
-		
-		$(this.quadTreeModel).bind("changed", function(event, change) {
+		for(var k in visible) {
+			var label = k in idToLabel ? idToLabel[k] : "(no label)";
 			
-			// Relative method for determining visibility changes in the items 
-			/*
-			for(var i in change.involvedNodes) {
-				var node = change.involvedNodes[i];
-				
-				var removedItems = change.removedItemsPerNode[i];
-				var addedItems = change.addedItemsPerNode[i];
-
-				for(var id in removedItems) {
-					self.nodeToLabel.remove(id);
-
-					var types = node.data.idToTypes[id];
-					mergeDec(self.typeToCount, types);
-				}
-				
-				for(var id in addedItems) {
-					self.nodeToLabel.put(id, node.data.idToLabels[id]);
+			this.nodeToLabel.put(id, label);
+		}
+			
 					
-					var types = node.data.idToTypes[id];
-					mergeInc(self.typeToCount, types);
-				}				
-			}*/
+		// Remove markers of removed nodes
+		for(var i in change.removedNodes) {
+			var node = change.removedNodes[i];
 			
+			if(node.isLoaded) {
+				var ids = _.keys(node.idToPos);					
+				this.mapWidget.removeItems(ids);
+			} else {
+				this.mapWidget.removeBox(node.getBounds().toString());
+			}
+		}
+	
+	
+		// Add markers of new nodes
+		for(var i in change.addedNodes) {
+			var node = change.addedNodes[i];
 			
-			// Absolute approach
-			self.nodeToLabel.clear();
-			self.typeToCount = {};
-			for(var i in change.newNodes) {
-				var node = change.newNodes[i];
-				
+			//if(node.infMinItemCount && node.idToPos.length != 0) {
+			if(node.isLoaded) {
 				for(var id in node.idToPos) {
 					var pos = node.idToPos[id];
-					
-					if(!change.newBounds.containsPoint(pos)) {
-						continue;
-					}
-					
-					//self.nodeToLabel.put(id, node.data.idToLabels[id]);
-					
-					var types = node.data.idToTypes[id];
-					
-					mergeInc(self.typeToCount, types);
+					var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
+					this.mapWidget.addItem(id, lonlat);
 				}
+			} else {
+				this.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 			}
+		}
 			
-			
-			
-			
-			//console.log(self.typeToCount);
-			self.updateClasses(self.typeToCount);
-			
-			//console.log(classUris);
-			//console.log("Number of visible items is " + _.keys(self.nodeToLabel.entries).length);
-						
-						
-			// Remove markers of removed nodes
-			for(var i in change.removedNodes) {
-				var node = change.removedNodes[i];
-				
-				if(node.isLoaded) {
-					var ids = _.keys(node.idToPos);					
-					self.mapWidget.removeItems(ids);
-				} else {
-					self.mapWidget.removeBox(node.getBounds().toString());
-				}
-			}
-
-
-			// Add markers of new nodes
-			for(var i in change.addedNodes) {
-				var node = change.addedNodes[i];
-				
-				//if(node.infMinItemCount && node.idToPos.length != 0) {
-				if(node.isLoaded) {
-					for(var id in node.idToPos) {
-						var pos = node.idToPos[id];
-						var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
-						self.mapWidget.addItem(id, lonlat);
-					}
-				} else {
-					self.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
-				}
-			}
-			
-			
-			
-			var classFilter = _.keys(self.selection.entries);
-			
-			// Perform the filtering
-			for(var i in change.newNodes) {
-				var node = change.newNodes[i];
-				
-				for(var id in node.idToPos) {
-					var pos = node.idToPos[id];
-					
-					if(!change.newBounds.containsPoint(pos)) {
-						continue;
-					}
-										
-					var types = _.keys(node.data.idToTypes[id]);
-					
-					
-					if(classFilter.length === 0 || _.intersection(classFilter, types).length !== 0) {
-						self.mapWidget.setVisible(id, true);						
-						self.nodeToLabel.put(id, node.data.idToLabels[id]);
-					} else {
-						self.mapWidget.setVisible(id, false);
-					}
-				}
-			}
-			
-			self.instanceWidget.refresh();	
-		});		
+		
+		
+		this.instanceWidget.refresh();		
 	};
 	
 	ns.AppController.prototype.setSparqlService = function(sparqlService) {

@@ -171,7 +171,7 @@
 		
 		
 		appController.init();
-		appController.setBackend(backend);
+		//appController.setBackend(backend);
 		//ssb.setFacetConfig(facetConfig);
 		
 		console.log("Initialization in progress");
@@ -179,6 +179,7 @@
 	
 	
 	$(document).ready(function() {
+	
 		var sparqlService = new backend.SparqlServiceVirtuoso(ssbconf.endpoint, ssbconf.models);
 		
 		

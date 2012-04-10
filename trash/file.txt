@@ -108,3 +108,49 @@
 	
 	//var element = new ssb.ElementTriplesBlock([new ssb.Triple(s, p, o)]);
 	
+	
+				/*
+			console.log(graph);
+			
+		
+			var pso = {};
+			
+			for(var j = 0; j < graph.length; ++j) {
+				var triple = graph[j];
+				
+				var p = triple.p.toString();
+				var so;
+				if(p in pso) {
+					so = pso[p];
+				} else {
+					pso[p] = so = {};
+				}
+				
+				var s = triple.s.toString();
+				var o;
+				if(s in so) {
+					o = so[s];
+				} else {
+					so[s] = o = [];
+				}
+				
+				o.push(triple.o);				
+			}
+
+			var long = pso[geo.log];
+			var lat = pso[geo.lat];
+			var geomToCoord = {};
+			
+			for(var k in long) {
+				var ys = long[k];
+				var xs = lat[k];
+				
+				if(xs && ys && ys.length == 1 && xs.length == 1) {
+					geomToCoord[k] = new OpenLayers.LonLat(xs[0], ys[0]);
+				}
+			}
+			
+			console.log(geomToCoord);
+			//var geoRelated = pso[geovocab.geometry.toString()];
+			*/
+	

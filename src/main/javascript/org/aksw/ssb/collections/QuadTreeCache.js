@@ -1,4 +1,4 @@
-(function() {
+(function($) {
 	
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 
@@ -6,6 +6,72 @@
 
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeCache");
 
+	/**
+	 * TODO Maybe use a dedicated Graph object rather than an array?
+	 * 
+	 */
+	ns.triplesFromTalisJson = function(talisJson) {
+		var triples = [];
+		
+		for(s in talisJson) {
+			// TODO Handle blank nodes here
+			var subject = sparql.Node.uri(s);
+
+			var ps = talisJson[s];
+			
+			for(p in ps) {
+				var predicate = sparql.Node.uri(p);
+				var os = ps[p];
+				
+				for(var i = 0; i < os.length; ++i) {
+					var o = os[i];
+					
+					var object = sparql.Node.fromJson(o);
+					
+					var triple = new sparql.Triple(subject, predicate, object);
+					triples.push(triple);
+				}
+			}
+		}
+
+		var result = triples;
+		
+		return result;		
+	};
+	
+	
+	ns.rdfQueryFromTalisJson = function(talisJson) {
+		var triples = [];
+		
+		for(s in talisJson) {
+			var ps = talisJson[s];
+			
+			for(p in ps) {
+				var os = ps[p];
+				
+				for(var i = 0; i < os.length; ++i) {
+					var o = os[i];
+					
+					var node = sparql.Node.fromJson(o);
+					
+					//var t = "<" + s.toString() + "> " + "<" + p.toString() + "> " + node.toString() + "";
+					//var t = "<" + s.toString() + "> " + "<" + p.toString() + "> <" + s.toString() + "> .";
+					
+					//console.log(t);
+					//var triple = $.rdf.triple(t);
+					//console.log(triple);
+					//var triple = $.rdf.triple("<" + s.toString() + ">", "<" + p.toString() + ">", "<" + s.toString() + ">");
+
+					var triple = $.rdf.triple("<" + s.toString() + ">", "<" + p.toString() + ">", node.toString());
+					triples.push(triple);
+				}
+			}
+		}
+
+		var result = $.rdf.databank(triples);
+		
+		return result;
+	};
 
 	ns.Backend = function(sparqlService, geoQueryFactory, variable) {
 		this.sparqlService = sparqlService;
@@ -81,10 +147,62 @@
 		return this.sparqlService.executeAny(query.toString());		
 	};
 
+	
+	ns.NOTHING = 0;
+	ns.ADDED = 1;
+	ns.REMOVED = 2;
+	ns.SHIFTED = 3;
+	
 	/**
-	 * Compare two states of the quad tree
+	 * Compare two states of the quad tree, and for each involved node assign one
+	 * of the following actions:
+     *
+     * 0: Nothing (no state change - node is completely visible in both states) 
+	 * 1: AddAll  (invisible in old, completely visible in new)
+	 * 2: RemoveAll (completely visible in old, invisible in new) 
+	 * 3: Shift (partial overlap in old and/or new)
+	 *
+	 * 
+	 * 
+	 * 
 	 */
 	ns.diff = function(oldNodes, newNodes, oldBounds, newBounds) {
+		var involvedNodes = oldNodes ? _.union(oldNodes, newNodes) : newNodes;
+		
+		var addedNodes    = _.difference(newNodes, oldNodes);
+		var removedNodes  = _.difference(oldNodes, newNodes);
+		var retainedNodes = _.intersection(newNodes, oldNodes);
+
+		var states = [];
+
+		// Filter existing markers by the new bounds
+		//$.each(this.currentNodes, function(i, node) {
+		for(var i in involvedNodes) {
+			var node = involvedNodes[i];			
+			var nb = node.getBounds();
+			
+			// TODO Take added/removed node sets into account
+			if(newBounds.contains(nb)) {
+				if(oldBounds && oldBounds.contains(nb) && _.contains(oldNodes, node)) {
+					states[i] = ns.NOTHING;
+				} else if(!oldBounds || !oldBounds.isOverlap(nb) || !_.contains(oldNodes, node)) {
+					states[i] = ns.ADDED;
+				} else {
+					states[i] = ns.SHIFTED;
+				}
+			} else if(oldBounds && oldBounds.contains(nb) && !newBounds.isOverlap(nb)) {
+				states[i] = ns.REMOVED;
+			} else if (newBounds.isOverlap(nb)) {
+				states[i] = ns.SHIFTED;
+			} else {
+				console.error("Should not happen");
+			}
+		}
+
+		return {nodes: involvedNodes, states: states, addedNodes: addedNodes, removedNodes: removedNodes };
+	};
+	
+	ns.diffOld = function(oldNodes, newNodes, oldBounds, newBounds) {
 		
 		var involvedNodes = _.union(oldNodes, newNodes);
 	
@@ -274,7 +392,7 @@
 		var self = this;
 		
 		// Prevent the bounds being set too frequently
-		// TODO This is probably not the best place for doing that
+		// TODO This is probably not the best place for doing that 
 		if(self.isLocked) {
 			return;
 		}
@@ -297,17 +415,14 @@
 		
 		// Retrieve the minimum number of items per node
 		var countTasks = [];
-		for(var i = 0; i < nodes.length; ++i) {
-		//$.each(nodes, function(index, node) {
-			
-			var node = nodes[i];
+		$.each(nodes, function(i, node) {
 	
 			// Check if the minimumItemCount is available
 			if(node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < self.maxItemCount)) {
 				//console.log("" + node.getBounds());
 				
 				countTasks.push(
-					self.backend.fetchNodeCount(node.getBounds()).pipe(function(value) {
+					self.backend.fetchNodeCount(node.getBounds(), this.maxItemCount).pipe(function(value) {
 	
 						node.setMinItemCount(value); 
 						if(value < self.maxItemCount) {
@@ -316,7 +431,7 @@
 					})
 				);
 			}
-		}
+		});
 	
 	
 		// Once all counts have been computed, request the data for applicable nodes
@@ -329,22 +444,29 @@
 			var loadTasks = [];
 			
 			
-			//$.each(nodes, function(index, node) {
-			for(var i = 0; i < nodes.length; ++i) {
-				var node = nodes[i];
-				//console.log("Inferred minimum item count: %d", node.infMinItemCount);
-				
+			$.each(nodes, function(index, node) {
+				console.log("Inferred minimum item count: ", node.infMinItemCount);
+
+				if(node.isLoaded) {
+					return true;
+				}
+			
 				if(node.infMinItemCount < self.maxItemCount) {
-	
-					if(node.isLoaded) {
-						return true;
-					}
-	
-					
+		
 					loadTasks.push(
-						self.backend.fetchBasicData(node.getBounds()).pipe(function(data) {
+						self.backend.fetchData(node.getBounds()).pipe(function(data) {
 							node.isLoaded = true;
 	
+							if(!node.data) {
+								node.data = {};
+							}
+							
+							// TODO Make data transformations configurable
+							// (Should this be part of the backend???)
+							node.data.graph = ns.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
+							//node.data = data;
+
+							/*
 							var idToLonlat = data.idToPos;
 							for(var id in idToLonlat) {
 								var lonlat = idToLonlat[id];
@@ -354,11 +476,12 @@
 							}
 							
 							node.data.idToTypes  = data.idToTypes;
-							node.data.idToLabels = data.idToLabels;						
+							node.data.idToLabels = data.idToLabels;
+							*/						
 						})
 					);
 				}
-			}
+			});
 		
 	
 			$.when.apply(window, loadTasks).then(function() {
@@ -416,9 +539,9 @@
 				
 				//console.log("All done");
 				//self._setNodes(nodes, bounds);
+				callback.success(nodes, bounds);
 				self.isLocked = false;
 				
-				callback.success(nodes, bounds);
 			});
 		});
 	};
@@ -477,4 +600,4 @@
 
 	
 	
-})();
+})(jQuery);

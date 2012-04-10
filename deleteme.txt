@@ -1,0 +1,2 @@
+<http://linkedgeodata.org/triplify/node52556180> <http://www.w3.org/2003/01/geo/wgs84_pos#lat> "49.05"^^<http://www.w3.org/2001/XMLSchema#double> .
+<http://linkedgeodata.org/triplify/node52556180> <http://www.w3.org/2003/01/geo/wgs84_pos#long> "-122.3"^^<http://www.w3.org/2001/XMLSchema#double> .

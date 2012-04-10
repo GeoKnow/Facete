@@ -82,6 +82,7 @@
 		switch(talisJson.type) {
 		case 'uri': type = 1; break;
 		case 'literal': type = 2; break;
+		case 'typed-literal': type = 3; break;
 		default: console.error("Unknown type: '" + talisJson.type + "'");
 		}
 		
@@ -90,6 +91,7 @@
 		result.language = talisJson.language ? talisJson.language : "";
 		result.datatype = talisJson.datatype ? talisJson.datatype : "";
 
+		// TODO I thought it happened that a literal hat a datatype set, but maybe I was imaginating things
 		if(result.datatype) {
 			result.type = 3;
 		}

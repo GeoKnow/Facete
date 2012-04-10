@@ -445,7 +445,7 @@
 			
 			
 			$.each(nodes, function(index, node) {
-				console.log("Inferred minimum item count: ", node.infMinItemCount);
+				console.debug("Inferred minimum item count: ", node.infMinItemCount);
 
 				if(node.isLoaded) {
 					return true;

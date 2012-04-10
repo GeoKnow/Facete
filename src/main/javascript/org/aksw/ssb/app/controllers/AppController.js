@@ -306,6 +306,8 @@
 	
 	ns.AppController.prototype.updateViews = function(newState) {
 
+		this.mapWidget.markerLayer.clearMarkers();
+		
 		console.log("Updating views");
 		
 		var o = this.viewState;
@@ -338,7 +340,6 @@
 			var geomToX = {};
 			var geomToY = {};
 
-			console.log(rdf);
 			
 			rdf.where("?geom " + geo.long + " ?x .").each(function() {
 				geomToX[this.geom] = this.x.value;

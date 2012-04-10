@@ -16,6 +16,22 @@
 		this.entries = {};
 	};
 	
+	ns.MultiMap.prototype.clear = function() {
+		this.entries = {};
+	};
+	
+	ns.MultiMap.prototype.addMultiMap = function(other) {
+		for(var key in other.entries) {
+			var values = other.entries[key];
+			
+			for(var i = 0; i < values.length; ++i) {
+				var value = values[i];
+				
+				this.put(key, value);
+			}			
+		}
+	};
+	
 	ns.MultiMap.prototype.put = function(key, value) {
 		var values;
 		

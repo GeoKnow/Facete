@@ -165,6 +165,32 @@
 	};
 	
 	
+	ns.inc = function(obj, key, init) {
+		if(!init) {
+			init = 1;
+		}
+		
+		val = key in obj ? obj[key] : init;
+		
+		obj[key] = val;
+		
+		return val;
+	};
+	
+	ns.dec = function(obj, key, del) {
+		val = key in obj ? obj[key] : undefined;
+		
+		if(val > 0) {
+			--val;
+		}
+		
+		if(del && (!val || val < 0)) {
+			delete obj[key];
+		}
+		
+		return val;
+	};
+	
 	ns.MultiMap.prototype = {
 	    addKey: function(key) {
 			if(!(key in this.entries)) {

@@ -24,9 +24,10 @@
 	 * @param cache
 	 * @returns {ns.ViewState}
 	 */
-	ns.ViewState = function(nodes, bounds) {
+	ns.ViewState = function(nodes, bounds, visibleGeoms) {
 		this.nodes = nodes;
 		this.bounds = bounds; //null; //new qt.Bounds(-9999, -9998, -9999, -9998);
+		this.visibleGeoms = visibleGeoms ? visibleGeoms : [];
 	};
 	
 	
@@ -82,6 +83,8 @@
 		this.map = null;
 		this.instanceWidget = null;
 		
+		this.geomToId = new facets.MultiMap(); 
+		
 		// Maps prefixes to DescribeService's that provide additional information about
 		// resources
 		this.prefixToService = {};
@@ -91,6 +94,9 @@
 		this.hashToCache = {};
 		
 		this.viewState = new ns.ViewState();
+		
+		// A wrapper for a rdfquery databank which keeps track of how often a triple was added
+		this.multiGraph = new collections.MultiGraph();
 	};
 	
 	
@@ -303,163 +309,189 @@
 	ns.AppController.extract = function(jsonRdf) {
 		//for(var i = 0; i < jsonRdfs.result.bindings)
 	};
+
+	/*
+	ns.createMap = function(databank, pattern, keyVar, valVar) {
+		var result = {};
+
+		rdf.where("?" + keyVar + " " + geo.long + " ?" + valVar).each(function() {
+			result[this[keyVar] = this..value;
+		});
+	};*/
 	
+
+	/**
+	 * Indexes geometries in the given datastore
+	 * 
+	 * NOTE Assumes that geometries only have a single lon/lat pair.
+	 * If there are multiple ones, an arbitrary pair is chosen.
+	 * If there is a lat but no long, or vice versa, the resource does not appear in the output
+	 * 
+	 * @returns
+	 */
+	ns.extractGeomsWgs84 = function(databank) {
+		var rdf = $.rdf({databank: databank});
+		
+		var result = {};
+		
+		var geomToX = {};
+		var geomToY = {};
+		
+		rdf.where("?geom " + geo.long + " ?x .").each(function() {
+			geomToX[this.geom] = this.x.value;
+		});
+		
+		rdf.where("?geom " + geo.lat + " ?y").each(function() {
+			geomToY[this.geom] = this.y.value;
+		});
+		
+		for(var geom in geomToX) {
+			if(geom in geomToY) {
+				var point = new qt.Point(geomToX[geom], geomToY[geom]);
+				result[geom] = point;
+			}
+		}
+		
+		return result;		
+	};
+	
+
 	ns.AppController.prototype.updateViews = function(newState) {
 
-		this.mapWidget.markerLayer.clearMarkers();
+		// node       1      2
+		// change  
+		// instances (only applicable for partially visible nodes)
 		
 		console.log("Updating views");
 		
-		var o = this.viewState;
-		var n = newState;
+		var oldVisibleGeoms = this.viewState.visibleGeoms;
 		
-		var change = qtc.diff(o.nodes, n.nodes, o.bounds, n.bounds);
-		console.log("Change: ", change, newState);
+		var nodes = newState.nodes; 
+		var bounds = newState.bounds;
 		
+		this.viewState = newState;
 		
+		var visibleGeoms = [];
+		var globalGeomToPoint = {};
+		
+		this.viewState.visibleGeoms = visibleGeoms;
+		
+		// Get all geometries from the databanks
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+			var nodeBounds = node.getBounds();
+			
+			var databank = node.data.graph;
+			var geomToPoint = node.data.geomToPoint ? node.data.geomToPoint : ns.extractGeomsWgs84(databank);
 
-		var idToGeom = new facets.MultiMap();
+			// Attach the info to the node, so we reuse it the next time
+			node.data.geomToPoint = geomToPoint;
+			
+			_.extend(globalGeomToPoint, geomToPoint);
+			
+			var geoms = _.keys(geomToPoint);
+			
+			
+			// If the node is completely in the bounds, we can skip the boundary check
+			if(bounds.contains(nodeBounds)) {
+				
+				visibleGeoms.concat(geoms);
+				
+			} else if(bounds.isOverlap(nodeBounds)) {
+			
+				//for(var geom in geoms) {
+				for(var j = 0; j < geoms.length; ++j) {
+					var geom = geoms[j];
+					var point = geomToPoint[geom];
+					
+					//console.log("point is: ", geomToPoint);
+					
+					if(bounds.containsPoint(point)) {
+						visibleGeoms.push(geom);
+					}
+				}
+				
+			}
+		}
+
+		// Combine the datastores
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+			
+			var databank = node.data.graph;
+
+			// TODO Rather adding the datastore directly
+			// invoke a method that activates the node in the cache
+			this.multiGraph.addDatabank(databank);
+		}		
+
+		/*
+		 * Load:
+		 * 1) relations between geometries and features
+		 * 2) labels of the features 
+		 */
 		var geomToId = new facets.MultiMap();
-
-		var geomToPoint = {};
-		var idToLabel = {}; new collections.Map();
-		var visible = {};
-		for(var i = 0; i < change.nodes.length; ++i) {
-			var node = change.nodes[i];
-			var state = change.states[i];
+		var idToLabel = {};
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
 
 			if(!node.isLoaded) {
 				continue;
 			}
 
+			var databank = node.data.graph;
+			var rdf = $.rdf(databank);
 			
-			var graph = node.data.graph;
-			//console.debug("Graph size: ", graph);
-			var rdf = $.rdf({databank: graph});
-			
-			var geomToX = {};
-			var geomToY = {};
-
-			
-			rdf.where("?geom " + geo.long + " ?x .").each(function() {
-				geomToX[this.geom] = this.x.value;
-			});
-			
-			rdf.where("?geom " + geo.lat + " ?y").each(function() {
-				geomToY[this.geom] = this.y.value;
-			});
-
-			var nodeGeomToPoint = {};
-			for(var geom in geomToX) {
-				if(geom in geomToY) {
-					var point = new qt.Point(geomToX[geom], geomToY[geom]);
-					//var ll = new OpenLayers.LonLat(point.x, point.y);
-					nodeGeomToPoint[geom] = point;
-				}
-			}
-
-			_.extend(geomToPoint, nodeGeomToPoint);
-			
-
-			var nodeIdToGeom = {};
 			rdf.where("?id " + geovocab.geometry + " ?geom").each(function() {
-				nodeIdToGeom[this.id] = this.geom;
-				
-				idToGeom.put(this.id, this.geom);
 				geomToId.put(this.geom, this.id);
 			});
 			
 			rdf.where("?id " + rdfs.label + " ?label").each(function() {
 				idToLabel[this.id] = this.label.value;
-				//idToLabel.put(this.id, this.label);
-			});
-			
-			
-			switch(state) {
-			case qtc.NOTHING: break;
-			case qtc.ADDED:
-				
-				break;
-			case qtc.REMOVED:
-				
-				break;
-			case qtc.SHIFTED:
-				break;
-			default:
-				console.error("Should not happen.");
-				break;				
-			}
-
-			var idToP = {};
-			for(var id in nodeIdToGeom) {//idToGeom.entries) {
-				//console.log("nodeIdToGeom", nodeIdToGeom);
-				var geoms = [nodeIdToGeom[id]];
-				//var geoms = idToGeom.entries[id];
-				for(var j = 0; j < geoms.length; ++j) {
-					var geom = geoms[j];
-					
-					if(geom && geom in nodeGeomToPoint) {
-						var point = nodeGeomToPoint[geom];
-						
-						idToP[id] = point;
-			
-						if(newState.bounds.containsPoint(point)) {
-							visible[id] = true;
-						}
-
-					}
-				}
-			}
-
-			node.idToPos = idToP;
-			//console.log("idToP", idToP);			
+			});			
 		}
 		
+		// TODO Separate the following part into a new method
+		// (First part does the data fetching/preparation,
+		// second part applies it)
 		
-		//continue;		
-		// Absolute approach
-		this.nodeToLabel.clear();
+		var addedGeoms    = _.difference(visibleGeoms, oldVisibleGeoms);
+		var removedGeoms  = _.difference(oldVisibleGeoms, visibleGeoms);
 
-		for(var id in visible) {
-			var label = id in idToLabel ? idToLabel[id] : "(no label)";
+		this.mapWidget.removeItems(removedGeoms);
+		/*
+		for(var i = 0; i < removedGeoms.length; ++i) {
+			//var geom = removedGeoms[i];
 			
-			this.nodeToLabel.put(id, label);
+			
+		}*/
+		
+		for(var i = 0; i < addedGeoms.length; ++i) {
+			var geom = addedGeoms[i];
+
+			var point = globalGeomToPoint[geom];
+			var lonlat = new OpenLayers.LonLat(point.x, point.y);
+			
+			this.mapWidget.addItem(geom, lonlat, true);
 		}
-		//console.log("NodeToLabel", this.nodeToLabel);
-		//console.log("IdToLabel", idToLabel);
-		//console.log("visible", visible);
-			
-					
-		// Remove markers of removed nodes
-		for(var i in change.removedNodes) {
-			var node = change.removedNodes[i];
-			
-			if(node.isLoaded) {
-				var ids = _.keys(node.idToPos);					
-				this.mapWidget.removeItems(ids);
-			} else {
-				this.mapWidget.removeBox(node.getBounds().toString());
-			}
+		
+		var boxIds = _.keys(this.mapWidget.idToBox);
+		for(var i = 0; i < boxIds.length; ++i) {
+			var boxId = boxIds[i];
+			this.mapWidget.removeBox(boxId);
 		}
-	
-	
-		// Add markers of new nodes
-		for(var i in change.addedNodes) {
-			var node = change.addedNodes[i];
+		
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
 			
-			//if(node.infMinItemCount && node.idToPos.length != 0) {
-			if(node.isLoaded) {
-				for(var id in node.idToPos) {
-					var pos = node.idToPos[id];
-					var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
-					//console.debug("Adding marker", id, pos, lonlat);
-					
-					this.mapWidget.addItem(id, lonlat, true);
-				}
-			} else {
+			if(!node.isLoaded) {
 				this.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 			}
 		}
+		
+		
+		this.geomToId.clear();
+		this.geomToId.addMultiMap(geomToId);
 		
 		this.instanceWidget.refresh();		
 	};

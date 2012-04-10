@@ -29,7 +29,7 @@ function doSearch() {
 		//var headerToggle = $(document).append('<img id="div_header_toggle" src="images/arrow_up.jpg">');
 
 		var headerDiv = $("#header_div");
-		headerDiv.slideUp("fast", function() { $(window).resize(); });
+		//headerDiv.slideUp("fast", function() { $(window).resize(); });
 
 		$(window).resize(function() {
 			var headerDiv = $("#header_div");

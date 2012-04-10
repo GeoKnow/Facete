@@ -1,4 +1,55 @@
+
+		//continue;		
+		// Absolute approach
+		//this.nodeToLabel.clear();
+
+		for(var id in visible) {
+			var label = id in idToLabel ? idToLabel[id] : "(no label)";
+			
+			this.nodeToLabel.put(id, label);
+		}
+		//console.log("NodeToLabel", this.nodeToLabel);
+		//console.log("IdToLabel", idToLabel);
+		//console.log("visible", visible);
+			
+
+		// (Clear boxes of loaded nodes just in case)
+		// TODO Get rid of that
+		
+		
+		
+		// Add boxes for those nodes that have not been loaded
+					
+		// Remove markers of removed nodes
+		for(var i in change.removedNodes) {
+			var node = change.removedNodes[i];
+			
+			if(node.isLoaded) {
+				var ids = _.keys(node.idToPos);					
+				this.mapWidget.removeItems(ids);
+			} else {
+				this.mapWidget.removeBox(node.getBounds().toString());
+			}
+		}
 	
+	
+		// Add markers of new nodes
+		for(var i in change.addedNodes) {
+			var node = change.addedNodes[i];
+			
+			//if(node.infMinItemCount && node.idToPos.length != 0) {
+			if(node.isLoaded) {
+				for(var id in node.idToPos) {
+					var pos = node.idToPos[id];
+					var lonlat = new OpenLayers.LonLat(pos.x, pos.y);
+					//console.debug("Adding marker", id, pos, lonlat);
+					
+					this.mapWidget.addItem(id, lonlat, true);
+				}
+			} else {
+				this.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
+			}
+		}	
 
 	//alert("Creating facet config for FTS");
 	

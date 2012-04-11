@@ -42,7 +42,7 @@ function doSearch() {
 			//console.log("header div", $("#headerDiv"));
 			//console.debug("windowHeigh, headerHeigh, contentHeigh", windowHeight, headerHeight, contentHeight);
 
-			$("#main").css('height', contentHeight + "px");
+			// $("#main").css('height', contentHeight + "px");
 
 			
 			// $("#tabs").css('height', contentHeight + "px");

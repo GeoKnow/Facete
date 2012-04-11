@@ -215,6 +215,18 @@
 		<!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
 		<script type="text/javascript" src="src/main/javascript/main.js"></script>
 
+        
+        <!-- 
+            Accordion stuff
+        -->
+        <script type="text/javascript">
+            $(function() {
+                jQuery("#tabs-accordion").accordion({ 
+                    autoHeight: false, 
+                    active: 1
+                });
+             });
+        </script>
 </head>
 <body>
 	<div id="wrapper">
@@ -246,52 +258,57 @@
         
 		<div id="main">
 
+            <div id="map"></div>
 
-			<div>
+            <div id="tabs" class="widget">
+                
+                <div id="tabs-accordion">
+                    <h3><a href="#tabs-2">Instances</a></h3>
+                    <div>
+                        <div class="tabdiv" id="tabs-2">
+                            <div id="instances"></div>
+                        </div>
+                    </div>
+                    
+                    <h3><a href="#facets2">Facets</a></h3>
+                    <div>
+                        <div class="tabdiv" id="facets2"></div>
+                    </div>
+                    
+                    <h3><a href="#tabs-3">Types</a></h3>
+                    <div>
+                        <div class="tabdiv" id="tabs-3">
+                            <p>Types control which kind of things can be browsed. Selecting a
+                                type affects the shown facets and instances.</p>
+                            <form>
+                                <input type="radio" name="type" value="http://ssb.org/facet/project" />Projects<br /> 
+                                <input type="radio" name="type" value="http://ssb.org/facet/subvention" />Subventions
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <h3><a href="#tabs-places">Places</a></h3>
+                    <div>
+                        <div class="tabdiv" id="tabs-places">
+                            <form style='float: left' action='javascript: doSearch();'>
+                                <label for="search"><b>Search:</b> </label> <input type="text" id="search-field" name="search-field" value="" autocomplete="off" onchange="this.form.submit();" />
+                            </form>
+                            <br />
+                            <p>
+                                powered by <a class='link'
+                                    href='http://nominatim.openstreetmap.org' target="_blank"><img
+                                    class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>
+                                <div id="searchResults"></div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
 
-				<div id="map"></div>
+            <div id="facts" class="mybg"
+                style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>
 
-				<div id="tabs" class="widget">
-					<ul class="tabnav">
-						<li><a href="#tabs-2">Instances</a></li>
-						<li><a href="#facets2">Facets</a></li>
-						<li><a href="#tabs-3">Types</a></li>
-						<li><a href="#tabs-places">Places</a></li>
-					</ul>
-					<div class="tabdiv" id="tabs-2">
-						<div id="instances"></div>
-					</div>
-					<div class="tabdiv" id="facets2"
-						style="position: absolute; max-height: 100%; overflow-y: scroll; overflow-x: visible;"></div>
-					<div class="tabdiv" id="tabs-3">
-						<p>Types control which kind of things can be browsed. Selecting a
-							type affects the shown facets and instances.</p>
-						<form>
-							<input type="radio" name="type"
-								value="http://ssb.org/facet/project" />Projects<br /> <input
-								type="radio" name="type" value="http://ssb.org/facet/subvention" />Subventions
-						</form>
-					</div>
-					<div class="tabdiv" id="tabs-places">
-						<form style='float: left' action='javascript: doSearch();'>
-							<label for="search"><b>Search:</b> </label> <input type="text"
-								id="search-field" name="search-field" value=""
-								autocomplete="off" onchange="this.form.submit();" />
-						</form>
-						<br />
-						<p>
-							powered by <a class='link'
-								href='http://nominatim.openstreetmap.org' target="_blank"><img
-								class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>
-							<div id="searchResults"></div>
-						</p>
-					</div>
-				</div>
-
-				<div id="facts" class="mybg"
-					style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;"></div>
-
-			</div>
 
 		</div>
 

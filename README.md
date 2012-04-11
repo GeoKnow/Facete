@@ -1,17 +1,57 @@
-# Spatial Semantic Browsing Widgets
-This GIT repository contains widgets for browsing spatial RDF data in SPARQL endpoints.
-The widgets are implemented as jQuery plugins.
+Installation
 
-Currently the widgets have been deployed in the [LinkedGeoData](http://linkedgeodata.org/)-project, specifically in the [browser](http://browser.linkedgeodata.org). 
- 
-The widgets located in src/main/javascript are:
+    1. sudo nano /etc/apache2/sites-available/default
+    
+        <Proxy *>
+            Order allow,deny
+            allow from all
+        </Proxy>
 
--  jquery.ssb.map.js      : Renders a map, based on [OpenLayers](http://openlayers.org/).
--  jquery.ssb.facets.js   : Displays a hierarchy of classes/properties, based on [DynaTree](http://code.google.com/p/dynatree/).
--  jquery.ssb.instances.js: Displays a list of instances.
+        ProxyPass /sparql http://localhost:8891/sparql retry=0
+        ProxyPassReverse /sparql http://localhost:8891/sparql
+        
+        
+        add to the end of the file
+        
+        
+    2. Activate apache proxy_http module:
+    
+       sudo a2enmod proxy_http
 
-The constructors take references to "model" objects, which may be shared among them.
-For instance, the map which associates uris with icons can be shared by all three.
 
-Additionally, the logic for initialization, event handling, and fetching data from SPARQL endpoints is currently located in the src/main/javascript/main.js file (which definitely needs some refactoring).
- 
+    3. sudo service apache2 restart
+    
+    
+    [ 4. install/virtuload.sh for import big example data 
+    
+        sh ~/bin/virtload.sh ~/Downloads/MyLocalGraphFinancialTransparancy.nt http://fintrans.publicdata.eu/ec/ 1112 dba dba 
+    ]
+    
+    
+    5. You need Virtuoso 6.1.5 !
+    
+        - Download: http://sourceforge.net/projects/virtuoso/files/latest/download
+       
+        - Unzip and switch to the directory
+       
+        - After downloading install neccessary build tools:
+         sudo apt-get install autoconf automake libtool flex bison gperf gawk m4 make openssl libssl-dev
+    
+        - ./configure --prefix=/opt/virtuoso/ose/6.1.5 --with-readline=/usr/lib/libreadline.so
+       
+        - make
+       
+        - sudo make install
+       
+       
+        - sudo mkdir /opt/virtuoso/ose/6.1.5/databases/ && sudo mkdir /opt/virtuoso/ose/6.1.5/databases/default_1112_8891 
+    
+        - sudo mv [your repo]/install/virtuoso.ini /opt/virtuoso/ose/6.1.5/databases/default_1112_8891 
+    
+        - sudo mv [your repo]/install/start.sh /opt/virtuoso/ose/6.1.5/databases/default_1112_8891
+    
+        - cd /opt/virtuoso/ose/6.1.5/databases/default_1112_8891 && sudo sh start.sh
+    
+    6. sudo service apache2 restart
+    
+       

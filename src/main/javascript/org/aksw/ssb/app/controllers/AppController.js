@@ -228,11 +228,12 @@
 	};
 
 
-	ns.AppController.prototype.refresh = function(olBounds, delay) {
+	ns.AppController.prototype.refresh = function(olBounds, delay) {		
 		var self = this;
 		
 		// We are dealing with quad-tree-bounds here
 		var bounds = toQuadTreeBounds(olBounds);
+		console.log("Refresh bounds", bounds);
 
 		// TODO Check if another refresh request is running.
 		// If so, make this request wait for the other running one, thereby
@@ -249,7 +250,7 @@
 		var baseQuery = geoQueryFactory.baseQuery; //queryFactory.create(bounds);
 		 
 		var hash = baseQuery.toString();
-		console.debug("Query hash (including facets): ", hash);
+		//console.debug("Query hash (including facets): ", hash);
 		
 		
 		var cacheEntry = this.hashToCache[hash];
@@ -457,7 +458,7 @@
 		// change  
 		// instances (only applicable for partially visible nodes)
 		
-		console.log("Updating views");
+		//console.log("Updating views");
 		
 		var oldVisibleGeoms = this.viewState.visibleGeoms;
 		
@@ -490,7 +491,7 @@
 			// If the node is completely in the bounds, we can skip the boundary check
 			if(bounds.contains(nodeBounds)) {
 				
-				visibleGeoms.concat(geoms);
+				visibleGeoms.push.apply(visibleGeoms, geoms);
 				
 			} else if(bounds.isOverlap(nodeBounds)) {
 			
@@ -508,6 +509,8 @@
 				
 			}
 		}
+		
+		//console.log("Number of visible geoms", visibleGeoms.length);
 
 		// Combine the datastores
 		for(var i = 0; i < nodes.length; ++i) {
@@ -550,6 +553,7 @@
 		// (First part does the data fetching/preparation,
 		// second part applies it)
 		
+		
 		var addedGeoms    = _.difference(visibleGeoms, oldVisibleGeoms);
 		var removedGeoms  = _.difference(oldVisibleGeoms, visibleGeoms);
 
@@ -576,10 +580,13 @@
 			this.mapWidget.removeBox(boxId);
 		}
 		
+		// If true, shows the box of each node
+		var alwaysShowBoxes = false;
+		
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
 			
-			if(!node.isLoaded) {
+			if(!node.isLoaded || alwaysShowBoxes) {
 				this.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 			}
 		}
@@ -587,7 +594,9 @@
 		
 		this.geomToId.clear();
 		this.geomToId.addMultiMap(geomToId);
-		
+
+		//console.debug("Number of visible geoms", visibleGeoms.length);
+
 		this.instanceWidget.refresh();		
 	};
 	

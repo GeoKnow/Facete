@@ -58,11 +58,23 @@
 	
 	
 	/**
+	 * TODO Move to some unit test suite
+	 * 
+	 */
+	function testBounds() {
+		var a = new qt.Bounds(-100, 100, -50, 50);
+		var b = new qt.Bounds(-10, 10, -5, 5);
+		
+		alert(a.isOverlap(b));
+		alert(b.isOverlap(a));
+	}
+	
+	/**
 	 * Currently hard wired configuration of the facets for the financial transparency system
 	 * 
 	 */
 	function createFacetConfigFts() {
-		
+		//testBounds();
 		
 		var s = sparql.Node.v("s");
 		var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		

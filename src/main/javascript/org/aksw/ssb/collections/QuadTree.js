@@ -92,8 +92,8 @@
 	};
 	
 	ns.Bounds.prototype.overlap = function(bounds) {
-		if(!bounds.rangeX) {
-			console.log("test");
+		if(!bounds.rangeX || !bounds.rangeY) {
+			console.error("Missing range");
 		}
 		
 		var ox = this.rangeX().getOverlap(bounds.rangeX());

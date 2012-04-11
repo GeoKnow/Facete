@@ -58,7 +58,7 @@
 			return result;
 		}
 		
-		console.log("Fetching labels for (<" + uris.join('> , <') + ">)");
+		//console.debug("Fetching labels for (<" + uris.join('> , <') + ">)");
 	
 		var filterStr = "";	
 		if(!this.fetchAllLangs) {
@@ -100,7 +100,7 @@
 						lang = "";
 					}
 					
-					console.log("Label", uri, lang, labelNode.value);
+					//console.debug("Got label", uri, lang, labelNode.value);
 					
 					self.cache.put(uri, lang, labelNode.value);
 				}

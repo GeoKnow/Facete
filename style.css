@@ -25,23 +25,32 @@ img {
 
 /** 
  * header related stuff ------------------------------------------------
- */
+ *
 #header { 
-    /*float: left; */ 
+    
     width: 100%; 
-    height: 150px;
-    /*display: block; 
-    clear: both; */ 
+    height: 120px;
     border: 0px;
     background-color: #F9F9F9;
     border-bottom: 1.5px solid #6A7DA8;
     padding-bottom: 15px;
 }
 
+#header-block {
+    position: absolute;
+    top: 93px;
+    left: 0px;
+    width: 100%;
+    background: url(images/blue_block.jpg); 
+    z-index: 1;
+}
+
 #header-logo {
     float:left;
     margin-top: 20px;
     margin-left: 45px;
+    width: 140px;
+    z-index: 5;
 }
 
 #header-headline {
@@ -81,27 +90,26 @@ img {
     background-color: #FFFFFF;
     color: #6386A4;
     margin-left: 8px;
-}
+}*/
 
 
-/** 
- * footer related stuff ------------------------------------------------
- */
-#footer { 
-    float: left; 
-    width: 100%; 
-    margin: 0px; 
-    display: block; 
-    clear: both; 
-    border: 0px;
-}
-
-
-a:link {
-}
+/* links */
 
 a {
+    text-decoration: none;
     color: #3A6EA0;
+}
+a:link {
+    color: #396EA2;
+}
+a:visited {
+    color: #396EA2;
+}
+a:hover {
+    text-decoration: none;
+}
+a:active {
+    color: #6386A4;
 }
 
 div#container {
@@ -407,10 +415,121 @@ padding: 5px;
 }  
   
 .tabdiv li {  
-list-style-image: url("star.png");  
 margin-left: 5px;  
 }  
   
 .ui-tabs-hide {  
 display: none;  
+}
+
+
+
+
+
+
+
+#wrapper { 
+    width: 100%; 
+    margin: 0px; 
+    padding: 0px;
+}
+
+/** 
+ * header related stuff ------------------------------------------------
+ */
+#header { 
+    float: left; 
+    width: 100%;
+    height: 116px; 
+    display: block; 
+    clear: both; 
+    border: 0px;
+    background-color: #F9F9F9;
+    border-bottom: 1.5px solid #6A7DA8;
+    padding-bottom: 15px;
+}
+
+#header-logo {
+    float:left;
+    margin-top: 20px;
+    margin-left: 80px;
+    position:absolute;
+    width: 160px;
+    z-index: 10;
+}
+
+#header-headline {
+    position:absolute;
+    left:310px;
+    top:65px;
+    
+    font-size: 26px;
+    font-style: normal;
+    font-weight: normal;
+    text-transform: uppercase;
+    color: #0065A2;
+    text-decoration: none;
+}
+
+#header-abstract {    
+    position:absolute;
+    left:310px;
+    top:104px;
+    z-index: 5;
+    
+    font-size: 18px;
+    font-style: normal;
+    font-weight: normal;
+    color: #FFFFFF;
+}
+
+#header-blueblock {
+    clear: both; 
+    z-index: 1; 
+    height: 32px; 
+    width: 100%; 
+    top: 100px; 
+    left: 0px; 
+    position: absolute; 
+    background-image: url(images/blue_block.jpg); 
+    vertical-align: text-bottom;
+}
+
+#header-menu-right {
+    float:right;
+    font-size:12px;
+    margin-top: 8px;
+    margin-right: 8px;
+    color: #0065A2;
+}
+
+#header-menu-right-langselector {
+    font-size:12px;
+    border: 1px solid #ccc;
+    background-color: #FFFFFF;
+    color: #6386A4;
+    margin-left: 8px;
+}
+
+
+/** */
+#map {
+    position: absolute; 
+    top: 133px; 
+    left: 300px; 
+    right: 0px; 
+    height: 100%;
+}
+
+
+/** */
+#tabs {
+    position: absolute; 
+    top: 133px; 
+    width: 280px; 
+    float: left; 
+    height: 100%; 
+    max-height: 100%; 
+    overflow-y: scroll; 
+    overflow-x: visible;
 }

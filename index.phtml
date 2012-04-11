@@ -12,6 +12,7 @@
     <head>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
+        
         <style media="all" type="text/css">@import "style.css";</style>
 
         <script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
@@ -216,57 +217,41 @@
 
 </head>
 <body>
-	<div id="container" style="position: relative;">
-
-		<div id="header_div">
-			<div id="header">
-				<img src="images/logo_european_commision.gif" id="header-logo" />
-				<div id="header-headline">Open Data Portal</div>
-				<div id="header-abstract">Browsing for http://...</div>
-				<div id="header-menu-right">
-					<a href="#">Search</a> | <a href="#">Contact</a> | <a href="#">Legal
-						Notice</a> <select name="lang_dropdown_select"
-						id="language-switcher">
-						<option value="#">Български</option>
-						<option value="#">Čeština</option>
-						<option value="#">Dansk</option>
-						<option value="de">Deutsch</option>
-						<option value="#">Ελληνικά</option>
-						<option value="en" selected="selected">English</option>
-						<option value="#">Eesti</option>
-						<option value="#">Español</option>
-						<option value="#">Français</option>
-						<option value="#">Gaeilge</option>
-						<option value="#">Italiano</option>
-						<option value="#">Latviešu</option>
-						<option value="#">Lietuvių</option>
-						<option value="#">Magyar</option>
-						<option value="#">Malti</option>
-						<option value="#">Nederlands</option>
-						<option value="#">Polski</option>
-						<option value="#">Português</option>
-						<option value="#">Română</option>
-						<option value="#">Slovenčina</option>
-						<option value="#">Slovenščina</option>
-						<option value="#">Suomi</option>
-						<option value="#">Svenska</option>
-						<!-- <option value="$LANGUAGE_VALUE" selected="selected">$LANGUAGE</option>  -->
-					</select>
-				</div>
-			</div>
-
-		</div>
-		<div id="main" style="position: relative; height: 100%; width: 100%">
+	<div id="wrapper">
+        <div id="header">
+            <img src="images/logo_european_commision.gif" id="header-logo"/>
+            <div id="header-headline">
+                <a href="">Open Data Portal</a>
+            </div>
+            <div id="header-abstract">
+                Spatial Browser
+            </div>
+            <div id="header-menu-right">
+                <a href="#">Search</a> | <a href="#">Contact</a> | <a href="#">Legal Notice</a>
+                <select name="lang" id="header-menu-right-langselector">
+                    <option value="#">Čeština</option>
+                    <option value="#">Dansk</option>
+                    <option value="de">Deutsch</option>
+                    <option value="#">Ελληνικά</option>
+                    <option value="en" selected="selected">English</option>
+                    <option value="#">Eesti</option>
+                    <option value="#">Español</option>
+                    <option value="#">Français</option>
+                    <option value="#">Gaeilge</option>
+                </select>
+            </div>
+            <div id="header-blueblock">&nbsp;</div>
+        </div>
+        
+        
+		<div id="main">
 
 
-			<div
-				style="position: relative; top: 0px; left: 0px; height: 100%; width: 100%;">
+			<div>
 
-				<div id="map"
-					style="position: absolute; top: 0px; left: 300px; right: 0px; height: 100%;"></div>
+				<div id="map"></div>
 
-				<div id="tabs" class="widget"
-					style="position: absolute; top: 0px; width: 280px; float: left; height: 100%; max-height: 100%; overflow-y: scroll; overflow-x: visible;">
+				<div id="tabs" class="widget">
 					<ul class="tabnav">
 						<li><a href="#tabs-2">Instances</a></li>
 						<li><a href="#facets2">Facets</a></li>

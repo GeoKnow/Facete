@@ -541,3 +541,18 @@ div#footer {
 #tabs-accordion h3 {
     font-size: 16px; 
 }
+
+#tabs-accordion ul {
+    
+    margin-top: 10px;
+    margin-left: -5px;
+    margin-bottom: 5px;
+    list-style-type: square;
+}
+
+#tabs-accordion ol {
+
+    margin-top: 10px;
+    margin-left: -5px;
+    margin-bottom: 5px;
+}

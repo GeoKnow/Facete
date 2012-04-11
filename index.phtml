@@ -1,121 +1,107 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html class="js" lang="en" dir="ltr" xml:lang="en"
-	xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-	<title>European Commission | Opening up European Commission</title>
-	<style media="all" type="text/css">
-@import "style.css";
-</style>
+﻿<?php
+    $locale = isset($_GET["lang"]) ? $_GET["lang"] : 'en';
+    
+    // begins with http -> absolute, else relative
+    $endpoint = isset($_REQUEST['endpoint']) ? $_REQUEST['endpoint'] : '/sparql';
+    
+    // empty means use it all
+    $graph    = isset($_REQUEST['default-graph-uri']) ? $_REQUEST['default-graph-uri'] : '';
+    
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>European Commission | Opening up European Commission</title>
+        <style media="all" type="text/css">@import "style.css";</style>
 
-	<script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
+        <script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
 
+        <link id="active_lang" rel="gettext" type="application/x-po"
+            href="src/main/resources/i18n/<?php echo $locale ?>/LC_MESSAGES/messages.po" />
 
+        <script type="text/javascript"
+            src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
+        <script type="text/javascript" src="lib/jquery/1.6.2/jquery-1.6.2.js"></script>
 
+        <script type="text/javascript"
+            src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
+        <script type="text/javascript"
+            src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script>
 
+        <script type="text/javascript"
+            src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script>
 
+        <link rel='stylesheet' type='text/css'
+            href='lib/dynatree/1.2.0_rc1/src/skin/ui.dynatree.css'>
+        
+        <link rel="stylesheet" type="text/css"
+            href="src/main/javascript/style.css" />
 
+        <script type="text/javascript"
+            src="lib/underscore/1.3.1/underscore.js"></script>
 
+        <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
 
-	<?php
-	$locale = "en";
-	if(isSet($_GET["lang"]))$locale = $_GET["lang"];
-	?>
-
-	<link id="active_lang" rel="gettext" type="application/x-po"
-		href="src/main/resources/i18n/<?php echo $locale ?>/LC_MESSAGES/messages.po" />
-
-
-	<script type="text/javascript"
-		src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
-
-	<script type="text/javascript" src="lib/jquery/1.6.2/jquery-1.6.2.js"></script>
-
-	<script type="text/javascript"
-		src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
-	<script type="text/javascript"
-		src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script>
-
-
-
-
-
-	<script type="text/javascript"
-		src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script>
-
-	<link rel='stylesheet' type='text/css'
-		href='lib/dynatree/1.2.0_rc1/src/skin/ui.dynatree.css'>
-		<link rel="stylesheet" type="text/css"
-			href="src/main/javascript/style.css" />
-
-		<script type="text/javascript"
-			src="lib/underscore/1.3.1/underscore.js"></script>
-
-		<script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
-
-		<script type="text/javascript" src="lib/agility/0.1.2/agility.min.js"
-			charset="utf-8"></script>
-
-		<!-- Gritter notifications
-    <link rel="stylesheet" type="text/css" href="lib/gritter/e6e8b03/css/jquery.gritter.css" />
-    <script type="text/javascript" src="lib/gritter/e6e8b03/js/jquery.gritter.js"></script>
-    -->
-
-
+        <script type="text/javascript" src="lib/agility/0.1.2/agility.min.js"
+            charset="utf-8"></script>
 
 		<!-- Open Layers 2.11-rc2 -->
 		<script type="text/javascript"
 			src="lib/open-layers/2.10/OpenLayers.js"></script>
-		<!-- <script type="text/javascript" src="lib/webr3-rdf/cbfabc9/rdf.js"></script> -->
 
 		<script type="text/javascript"
 			src="lib/rdfquery/1.0/jquery.rdfquery.core-1.0.js"></script>
 
-
 		<script type="text/javascript"
 			src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
-
 
 		<!-- Configuration files -->
 		<script type="text/javascript"
 			src="src/main/javascript/ssb.namespacePrefixes.js"></script>
 
-
 		<!-- The actual spatial semantic browsing widgets -->
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/collections/QuadTree.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.quadtree.js"></script>
 
-		<script type="text/javascript" src="src/main/javascript/ssb.utils.js"></script>
+		<script type="text/javascript" 
+            src="src/main/javascript/ssb.utils.js"></script>
 
-		<script type="text/javascript" src="src/main/javascript/Dispatcher.js"></script>
+		<script type="text/javascript" 
+            src="src/main/javascript/Dispatcher.js"></script>
+        
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/collections/MultiMap.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/collections/MultiGraph.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/jsonrdf-extraction-utils.js"></script>
-
 
 		<script type="text/javascript"
 			src="src/main/javascript/facet-controller.js"></script>
 
-
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.facets.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.instances.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.map.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.search.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.facts.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/jquery.ssb.browsebox.js"></script>
-
 
 		<script type="text/javascript"
 			src="src/main/javascript/query-factory/ssb.query-factory.linkedgeodata.js"></script>
@@ -125,9 +111,9 @@
 
 		<script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.delay.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.virtuoso.js"></script>
-
 
 		<script type="text/javascript"
 			src="src/main/javascript/backend/utils.sparql.js"></script>
@@ -137,33 +123,36 @@
 
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/vocabs/rdf.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/vocabs/rdfs.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/vocabs/wgs84.js"></script>
+            
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/vocabs/geovocab.js"></script>
 
-
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/facets/Facets.js"></script>
+
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/facets/Constraints.js"></script>
+
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/facets/QueryUtils.js"></script>
 
-
 		<script type="text/javascript"
 			src="src/main/javascript/facets/facets-old.js"></script>
+
 		<script type="text/javascript"
 			src="src/main/javascript/facets/constraints.js"></script>
 
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/utils/LabelFetcher.js"></script>
+
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/widgets/FacetBox.js"></script>
-
-
 
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/app/controllers/AppController.js"></script>
@@ -173,17 +162,18 @@
 
 		<script type="text/javascript"
 			src="src/main/javascript/query-factory/ssb.query-factory.wgs84.js"></script>
-		<script type="text/javascript"
+		
+        <script type="text/javascript"
 			src="src/main/javascript/backend/ssb.backend.wgs84.js"></script>
 
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/collections/QuadTreeModel.js"></script>
-		<script type="text/javascript"
+		
+        <script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/collections/QuadTreeCache.js"></script>
 
 		<script type="text/javascript"
 			src="src/main/javascript/org/aksw/ssb/app/SpatialSemanticBrowsing.js"></script>
-
 
 		<!-- Layouting for this (p)HTML file-->
 		<script type="text/javascript"
@@ -191,44 +181,38 @@
 
 
 		<script type="text/javascript">
-        var ssbconf = {};
-<?php
-    // begins with http -> absolute, else relative
-    $endpoint = isset($_REQUEST['endpoint']) ? $_REQUEST['endpoint'] : '/sparql';
-    // empty means use it all
-    $graph    = isset($_REQUEST['default-graph-uri']) ? $_REQUEST['default-graph-uri'] : '';
-?>
-        ssbconf.endpoint = '<?php echo $endpoint ?>';
-        ssbconf.models = ['<?php echo $graph ?>'];
+            var ssbconf = {};
+            
+            ssbconf.endpoint = '<?php echo $endpoint ?>';
+            ssbconf.models = ['<?php echo $graph ?>'];
 
-        var lang = '<?php echo $locale ?>';
+            var lang = '<?php echo $locale ?>';
 
-        function insertParam(key, value)
-        {
-            key = escape(key); value = encodeURIComponent(value);
-
-            var kvp = document.location.search.substr(1).split('&');
-
-            var i=kvp.length; var x; while(i--) 
+            function insertParam(key, value)
             {
-                x = kvp[i].split('=');
+                key = escape(key); value = encodeURIComponent(value);
 
-                if (x[0]==key)
+                var kvp = document.location.search.substr(1).split('&');
+
+                var i=kvp.length; var x; while(i--) 
                 {
-                        x[1] = value;
-                        kvp[i] = x.join('=');
-                        break;
+                    x = kvp[i].split('=');
+
+                    if (x[0]==key)
+                    {
+                            x[1] = value;
+                            kvp[i] = x.join('=');
+                            break;
+                    }
                 }
+
+                if(i<0) {kvp[kvp.length] = [key,value].join('=');}
+
+                //this will reload the page, it's likely better to store this until finished
+                document.location.search = kvp.join('&'); 
             }
-
-            if(i<0) {kvp[kvp.length] = [key,value].join('=');}
-
-            //this will reload the page, it's likely better to store this until finished
-            document.location.search = kvp.join('&'); 
-        }
-
         
-    </script>
+        </script>
 
 		<!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
 		<script type="text/javascript" src="src/main/javascript/main.js"></script>
@@ -328,7 +312,6 @@
 			</div>
 
 		</div>
-		<!-- <div id="footer">$FOOTER</div>  -->
 
 </body>
 </html>

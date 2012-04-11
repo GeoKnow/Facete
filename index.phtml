@@ -239,8 +239,8 @@
                 Spatial Browser
             </div>
             <div id="header-menu-right">
-                <a href="#">Search</a> | <a href="#">Contact</a> | <a href="#">Legal Notice</a>
-                <select name="lang" id="header-menu-right-langselector">
+                <a href="#"><span id="org.ec.odp.ssb.ui.label.search">Search</span></a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.contact">Contact</span></a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.legal-notice">Legal Notice</span></a>
+                <select name="lang" id="language-switcher">
                     <option value="#">Čeština</option>
                     <option value="#">Dansk</option>
                     <option value="de">Deutsch</option>
@@ -263,21 +263,21 @@
             <div id="tabs" class="widget">
                 
                 <div id="tabs-accordion">
-                    <h3><a href="#tabs-2">Instances</a></h3>
+                    <h3><a id="facets-href="#instances-tab"><span id="org.aksw.ssb.ui.label.instances-tab">Instances</span></a></h3>
                     <div>
-                        <div class="tabdiv" id="tabs-2">
+                        <div class="tabdiv" id="instances-tab">
                             <div id="instances"></div>
                         </div>
                     </div>
                     
-                    <h3><a href="#facets2">Facets</a></h3>
+                    <h3><a href="#facets-tab"><span id="org.aksw.ssb.ui.label.facets-tab">Facets</span></a></h3>
                     <div>
-                        <div class="tabdiv" id="facets2"></div>
+                        <div class="tabdiv" id="facets-tab"></div>
                     </div>
                     
-                    <h3><a href="#tabs-3">Types</a></h3>
+                    <h3><a href="#types-tab"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></h3>
                     <div>
-                        <div class="tabdiv" id="tabs-3">
+                        <div class="tabdiv" id="types-tab">
                             <p>Types control which kind of things can be browsed. Selecting a
                                 type affects the shown facets and instances.</p>
                             <form>
@@ -287,9 +287,9 @@
                         </div>
                     </div>
                     
-                    <h3><a href="#tabs-places">Places</a></h3>
+                    <h3><a href="#places-tab"><span id="org.aksw.ssb.ui.label.places-tab">Places</span></a></h3>
                     <div>
-                        <div class="tabdiv" id="tabs-places">
+                        <div class="tabdiv" id="places-tab">
                             <form style='float: left' action='javascript: doSearch();'>
                                 <label for="search"><b>Search:</b> </label> <input type="text" id="search-field" name="search-field" value="" autocomplete="off" onchange="this.form.submit();" />
                             </form>

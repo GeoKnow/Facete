@@ -59,7 +59,7 @@ function doSearch() {
 
 			$("#active_lang").attr('href', href);
 
-			updateLang();
+			ns.updateLang();
 
 			//insertParam("lang", lang);
 		});
@@ -71,14 +71,39 @@ function doSearch() {
 				
 	});
 
+	ns.updateLangById = function(gt, domElement) {
+		var id = $(domElement).attr('id');
+
+		
+		var text = gt.gettext(id);
+		//console.log("test", id, text);
+		if(id === text) {
+			return true;
+		}
+		
+		$(domElement).html(text);		
+	};
+	
+	ns.updateLangConvention = function(gt, selectorStr) {
+
+		$(selectorStr).each(function() {
+			ns.updateLangById(gt, this);
+		});		
+	};
+	
 	/**
 	 * TODO Should all I18N go into this method, or should the widgets handle
 	 * that themselves?
 	 * 
 	 */
 	ns.updateLang = function() {
-    	var gt = new Gettext({ 'domain' : 'messages' });
-    	$("#facets-title").html(gt.gettext('ssb.ui.facets'));
+		var gt = new Gettext({domain : 'messages'});
+
+		ns.updateLangConvention(gt, "[id^='org.aksw.ssb.ui.label']");
+		ns.updateLangConvention(gt, "[id^='org.ec.odp.ssb.ui.label']");
+		
+    	//var gt = new Gettext({ 'domain' : 'messages' });
+    	//$("#facets-title").html(gt.gettext('ssb.ui.facets'));
 	};
     
     /**

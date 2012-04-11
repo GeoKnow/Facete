@@ -1,3 +1,30 @@
 #:
-msgid ssb.ui.facets
+msgid org.aksw.ssb.ui.label.facets-tab
 msgstr "Facetten"
+
+#:
+msgid org.aksw.ssb.ui.label.instances-tab
+msgstr "Instanzen"
+
+#:
+msgid org.aksw.ssb.ui.label.types-tab
+msgstr "Typen"
+
+#:
+msgid org.aksw.ssb.ui.label.places-tab
+msgstr "Orte"
+
+
+
+#:
+msgid org.ec.odp.ssb.ui.label.search
+msgstr "Suche"
+
+#:
+msgid org.ec.odp.ssb.ui.label.contact
+msgstr "Kontakt"
+
+#:
+msgid org.ec.odp.ssb.ui.label.legal-notice
+msgstr "Impressum"
+

@@ -501,7 +501,9 @@ div#footer {
     color: #0065A2;
 }
 
-#header-menu-right-langselector {
+/*#header-menu-right-langselector*/
+#language-switcher
+{
     font-size:12px;
     border: 1px solid #ccc;
     background-color: #FFFFFF;

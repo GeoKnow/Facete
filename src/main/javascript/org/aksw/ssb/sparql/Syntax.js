@@ -13,8 +13,11 @@
 
 (function($) {
 
+	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
+
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 
+	
 	ns.uniqTriples = function(triples) {
 		var result =  _.uniq(triples, false, function(x) { return x.toString(); });
 		return result;
@@ -496,6 +499,10 @@
 	};
 	
 	ns.NodeValue.prototype.toString = function() {
+		if(this.node.datatype === xsd.xdouble.value) {
+			return parseFloat(this.node.value);
+		}
+		
 		// TODO Numeric values do not need the full rdf term representation
 		// e.g. "50"^^xsd:double - this method should output "natural/casual"
 		// representations

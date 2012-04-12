@@ -73,7 +73,7 @@
 	 * Currently hard wired configuration of the facets for the financial transparency system
 	 * 
 	 */
-	function createFacetConfigFts() {
+	function createFacetConfigFts(sparqlService) {
 		//testBounds();
 		
 		var s = sparql.Node.v("s");
@@ -117,7 +117,7 @@
 		console.log("C2:", c2.getElement().toString());
 	
 	
-		var sparqlService = new backend.SparqlServiceVirtuoso("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
+		//var sparqlService = new backend.SparqlServiceVirtuoso("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
 	
 		var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
 		
@@ -174,7 +174,7 @@
 	
 		
 		//var ssb = new controllers.AppController();
-		var appController = createFacetConfigFts();
+		var appController = createFacetConfigFts(sparqlService);
 		appController.setSparqlService(sparqlService);
 		appController.setQueryFactory(queryFactory);
 		

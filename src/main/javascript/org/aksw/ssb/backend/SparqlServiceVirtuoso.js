@@ -24,20 +24,23 @@
 			console.error("Empty queryString - should not happen");
 		}
 		
-		var result = ns.executeQuery(this.serviceUrl, this.defaultGraphUri, queryString, {
-				failure: function() {
-					if(callback) {
-						callback.failure();
-					}
-				},
-				success: function(json) {
-					//console.log(json);
-					//var json = $.parseJSON(jsonStr);
-					if(callback) {
-						callback.success(json);
-					}
+		var result = ns.executeQuery(this.serviceUrl, this.defaultGraphUri, queryString);
+		
+		if(callback) {
+			result.done(function(data) {
+				if(callback.success) {
+					callback.success(data);
+				} else {
+					callback(data);
 				}
 			});
+			
+			if(callback.failure) {
+				result.error(function() {
+					callback.failure();
+				});
+			}
+		}			
 			
 		return result;
 	};
@@ -102,9 +105,12 @@
 			//querypart+=k+"="+encodeURI(params[k])+"&";
 			querypart+=k+"="+encodeURIComponent(params[k])+"&";
 		}
-		var queryURL=baseURL + '?' + querypart;
+		//var queryURL=baseURL + '?' + querypart;
 		
-		return $.ajax(queryURL, callback);	
+		//return $.ajax(queryURL, callback);
+		//console.log(baseURL, querypart);
+		
+		return $.post(baseURL, querypart, callback);
 	};
 
 })(jQuery);

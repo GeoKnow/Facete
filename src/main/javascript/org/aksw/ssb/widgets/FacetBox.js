@@ -189,7 +189,7 @@
 
 
 		var facetList = ns.createFacetList(sparqlService, state, constraints);
-		$$.document.append(facetList, "#facets2");
+		$$.document.append(facetList, "#facets-tab");
 
 		ns.loadFacets(sparqlService, state, {
 			success: function(state) {

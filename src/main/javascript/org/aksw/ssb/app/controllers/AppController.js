@@ -357,8 +357,23 @@
 		return result;		
 	};
 
-	
+	/**
+	 * OPTIMIZE Actually we could cache the counts for nodes that are
+	 *     completely contained in the visible area and thereby
+	 *     avoid further queries.
+	 * 
+	 * @param bounds
+	 * @param nodes
+	 */
 	ns.AppController.prototype.updateFacetCounts = function(bounds, nodes) {
+		var query = this.createFacetQueryCountVisible(bounds, nodes);
+		
+		this.sparqlService.executeSelect(query.toString(), {
+			success: function() {
+				//alert("Wee");
+			}
+		});
+		
 		
 	};
 	
@@ -384,7 +399,16 @@
 	 * @param nodes
 	 * @returns
 	 */
-	ns.AppController.createFacetQueryCountVisible = function(bounds, nodes) {
+	ns.AppController.prototype.createFacetQueryCountVisible = function(bounds, nodes) {
+		
+		var loadedNodes = [];
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+			if(!node.data.tooManyItems || node.isLoaded) {
+				loadedNodes.push(node);
+			}
+		}
+		
 		
 		var geoQueryFactory = this.queryGenerator.createQueryFactory();
 		
@@ -408,14 +432,8 @@
 		///var constraintExprs = [];
 		
 		
-		for(var i = 0; i < nodes.length; ++i) {
-			var node = nodes[i];
-			
-			if(node.data.tooManyItems) {
-				// We are not going to fetch facets for nodes that contain too many items
-				// Is this solved now: TODO Here we must not rely on isLoaded, but on the instance count
-				continue;
-			}
+		for(var i = 0; i < loadedNodes.length; ++i) {
+			var node = loadedNodes[i];
 
 			var nodeBounds = node.getBounds();
 			var intersectBounds = nodeBounds.overlap(bounds);
@@ -445,7 +463,7 @@
 		
 		var result = queryUtils.createFacetQueryCount(unionElement, this.queryGenerator.driver.variable);
 		
-		console.error("FacetCounts", result.toString());
+		//console.debug("FacetCounts", result.toString());
 		return result;
 	};
 

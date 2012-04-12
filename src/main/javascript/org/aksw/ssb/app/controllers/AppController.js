@@ -469,7 +469,8 @@
 
 	ns.AppController.prototype.updateViews = function(newState) {
 
-		this.updateFacetCounts(newState.bounds, newState.nodes);
+		// TODO Somehow make this work (by magic is would be fine)
+		//this.updateFacetCounts(newState.bounds, newState.nodes);
 		
 		
 		// node       1      2
@@ -546,8 +547,8 @@
 		 * 1) relations between geometries and features
 		 * 2) labels of the features 
 		 */
-		var geomToId = new facets.MultiMap();
-		var idToLabel = {};
+		//var geomToId = new facets.MultiMap();
+		var idToLabel = {}; // TODO I don't think there is much point in having the labels here already; they should be fetched separately using the LabelFetcher
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
 
@@ -556,16 +557,20 @@
 			}
 
 			var databank = node.data.graph;
-			var rdf = $.rdf(databank);
+			var rdf = $.rdf({databank: databank});
 			
+			/*
 			rdf.where("?id " + geovocab.geometry + " ?geom").each(function() {
 				geomToId.put(this.geom, this.id);
 			});
+			*/
 			
 			rdf.where("?id " + rdfs.label + " ?label").each(function() {
 				idToLabel[this.id] = this.label.value;
 			});			
 		}
+		
+		console.log("idToLabel", idToLabel);
 		
 		// TODO Separate the following part into a new method
 		// (First part does the data fetching/preparation,
@@ -610,10 +615,18 @@
 		}
 		
 		
-		this.geomToId.clear();
-		this.geomToId.addMultiMap(geomToId);
+		//this.geomToId.clear();
+		//this.geomToId.addMultiMap(geomToId);
 
 		//console.debug("Number of visible geoms", visibleGeoms.length);
+
+		console.log("label:", this.nodeToLabel);
+		// HACK Find a better way to deal with the instances
+		this.nodeToLabel.clear();
+		for(id in idToLabel) {
+			var label = idToLabel[id];
+			this.nodeToLabel.put(id, label);
+		}
 
 		this.instanceWidget.refresh();		
 	};

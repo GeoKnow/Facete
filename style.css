@@ -148,15 +148,15 @@ a:active {
 /** */
 #tabs {
     position: absolute; 
-    top: 128px; 
+    top: 133px; 
     right: 0px;
-    width: 280px; 
+    width: 250px; 
+    max-width: 250px;
     float: left; 
     height: 80%; 
     overflow-y: auto;
-    padding: 5px;
+    padding: 0px;
     margin-top: 0px;
-    margin-left: 20px;
     word-wrap: break-word;
     opacity: 0.75;
     filter:alpha(opacity=75); /* for IE */
@@ -166,6 +166,8 @@ a:active {
 /** */
 #tabs-accordion {
     height: 100px; 
+    margin-left: 5px;
+    max-width: 250px;
 }
 
 #tabs-accordion h3 {
@@ -173,17 +175,13 @@ a:active {
 }
 
 #tabs-accordion ul {
-    
-    margin-top: 10px;
-    margin-left: -5px;
+    margin-left: 0px;
     margin-bottom: 5px;
     list-style-type: square;
 }
 
 #tabs-accordion ol {
-
-    margin-top: 10px;
-    margin-left: -5px;
+    margin-left: 0px;
     margin-bottom: 5px;
 }
 
@@ -198,6 +196,11 @@ a:active {
     border-radius: 7px 7px 0px 0px;
 }
 
+
+#instances-tab {
+    width: 20px;
+    word-wrap: break-word;
+}
 
 /**
  * Box on the bottom - types

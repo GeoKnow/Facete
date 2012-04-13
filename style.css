@@ -21,6 +21,11 @@ img {
     border: 0px;
 }
 
+.icon {
+    width: 13px;
+    vertical-align: middle;
+}
+
 /* links */
 a {
     text-decoration: none;
@@ -43,36 +48,8 @@ a:active {
     color: #6386A4;
 }
 
-/**
- * Div container
- */
-
-div#container {
-    margin: 0;
-    padding: 0;
-    width: 100%;
+#main {
     height: 100%;
-    
-    text-align: left;
-}
-
-div#main {
-    height: 100%;
-}
-
-div#main .content-block {
-    border: 1px solid #000000;
-    padding: 5px;
-}
-
-div#main #content-block-2, div#main #content-block-3 {
-	margin-top: 5px;
-}
-
-div#footer {
-	padding: 10px;
-	text-align: center;
-	border: 1px solid #000000;
 }
 
 #wrapper { 
@@ -163,18 +140,19 @@ div#footer {
 #map {
     position: absolute; 
     top: 133px; 
-    left: 300px; 
-    right: 0px; 
-    height: 78%;
+    left: 3px; 
+    right: 300px; 
+    height: 80%;
 }
 
 /** */
 #tabs {
     position: absolute; 
     top: 133px; 
+    right: 0px;
     width: 280px; 
     float: left; 
-    height: 78%; 
+    height: 80%; 
     overflow-y: auto;
     margin-top: 5px;
     margin-left: 20px;
@@ -203,4 +181,46 @@ div#footer {
     margin-top: 10px;
     margin-left: -5px;
     margin-bottom: 5px;
+}
+
+#facts {
+    position: absolute; 
+    left: 250px; 
+    bottom: 0px; 
+    right: 250px; 
+    max-height: 70%; 
+    overflow: auto; 
+    border: 1px solid #000000; 
+    border-radius: 7px 7px 0px 0px;
+}
+
+
+#box-types-container {
+    position: absolute; 
+    left: 0; 
+    width: 100%; 
+    bottom: 20px;
+}
+
+#box-types {
+    width: 180px;
+    margin: 0 auto; 
+    text-align: left;
+    background-color: #E5E5E5;
+    border: 1px solid #4D4D4D;
+    padding: 5px;
+}
+
+
+#box-places {
+    position: absolute; 
+    left: 65px; 
+    top: 141px;
+    height: auto;
+    width: auto; 
+    padding-left: 5px;
+    padding-top: 5px;
+    padding-right: 5px;
+    background-color: #F9F9F9;
+    border: 1px solid #4D4D4D;
 }

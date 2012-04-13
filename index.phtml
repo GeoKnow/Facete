@@ -276,41 +276,45 @@
 			    <div class="tabdiv" id="facets-tab"></div>
 			</div>
 			
-			<h3><a href="#types-tab"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></h3>
-			<div>
-			    <div class="tabdiv" id="types-tab">
-				<p>Types control which kind of things can be browsed. Selecting a
-				    type affects the shown facets and instances.</p>
-				<form>
-				    <input type="radio" name="type" value="http://ssb.org/facet/project" />Projects<br /> 
-				    <input type="radio" name="type" value="http://ssb.org/facet/subvention" />Subventions
-				</form>
-			    </div>
-			</div>
-			
-			<h3><a href="#places-tab"><span id="org.aksw.ssb.ui.label.places-tab">Places</span></a></h3>
-			<div>
-			    <div class="tabdiv" id="places-tab">
-				<div style="float: left;">
-				    <form action='javascript: doSearch();'>
-					<label for="search"><b>Search:</b> </label> <input type="text" id="search-field" name="search-field" value="" autocomplete="off" onchange="this.form.submit();" />
-				    </form>
-				</div>
-				<br/>
-				<p>
-				    powered by <a class='link'
-					href='http://nominatim.openstreetmap.org' target="_blank"><img
-					class='noborder' src='src/main/resources/osm-logo-small.png' />Nominatim</a>
-				    <div id="searchResults"></div>
-				</p>
-			    </div>
-			</div>
 		    </div>
 		    
 		</div>
 
-		<div id="facts" class="mybg" style="position: absolute; left: 250px; bottom: 0px; right: 250px; max-height: 70%; overflow: auto; border: 1px solid #000000; border-radius: 7px 7px 0px 0px;">
+		<div id="facts" class="mybg"></div>	  
+		
+	    </div>
+    
+	</div>
+	
+	<div id="box-types-container">
+	    <div id="box-types">
+		<div>
+		    <div class="tabdiv" id="types-tab">
+			<form>
+			    <input type="radio" name="type" value="http://ssb.org/facet/project"/> Projects
+			    <input type="radio" name="type" value="http://ssb.org/facet/subvention"/> Subventions
+			</form>
+		    </div>
+		</div>
+	    </div>	
+	</div>
 	    
+	<div id="box-places">
+	    <div>
+		<div class="tabdiv" id="places-tab">
+		    <div style="float: left;">
+			<form id="box-places-searchform" action="javascript: doSearch();">
+			    <input type="text" id="search-field" name="search-field" value="Leipzig" autocomplete="off"/>
+			    <img src="images/search.png" class="icon"/>
+			</form>
+		    </div>
+		    <br/>
+		    <p style="font-size:7px;">
+			powered by
+			<a href="http://nominatim.openstreetmap.org" target="_blank">Nominatim</a>
+		    </p>		    
+		    <div id="searchResults"></div>
+		</div>
 	    </div>
 	</div>
     </body>

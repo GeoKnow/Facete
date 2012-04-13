@@ -22,7 +22,7 @@ img {
 }
 
 .icon {
-    width: 13px;
+    width: 15px;
     vertical-align: middle;
 }
 
@@ -195,6 +195,9 @@ a:active {
 }
 
 
+/**
+ * Box on the bottom - types
+ */
 #box-types-container {
     position: absolute; 
     left: 0; 
@@ -211,7 +214,9 @@ a:active {
     padding: 5px;
 }
 
-
+/**
+ * Box on the top, left - search for places
+ */
 #box-places {
     position: absolute; 
     left: 65px; 
@@ -223,4 +228,32 @@ a:active {
     padding-right: 5px;
     background-color: #F9F9F9;
     border: 1px solid #4D4D4D;
+}
+
+
+/**
+ * Search results (in #box-places)
+ */
+#searchResults {
+    margin: 0px;
+}
+
+#searchResults ul {
+    padding-left: 18px;
+    list-style-type: square;
+    padding-left: 20px;
+    margin-bottom: 6px;
+}
+
+#searchResults li {
+    margin-top: 5px;
+}
+
+.searchResults-item-name {
+    font-weight: bold;
+}
+
+.searchResults-item-description {
+    font-style: italic;
+    font-size: 11px;
 }

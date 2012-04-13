@@ -68,51 +68,17 @@ $.widget("ui.ssb_search", {
 	 */
 	setItems: function(items) {
 
-		var html = "<ul>"; // style:'width: 50%'>";
+		var html = "<ul>",
+			item = 0,
+			len = items.length;
 
-		for(var i = 0; i < items.length; ++i) {
-			var item = items[i];
-				
-			//console.log(item);
-
-			
-			var str = "<li id='sr" + i + "'><b>" + escapeHTML(item.name) + "</b><br /><div style='margin-left:20px;'>" + escapeHTML(item.description) + "</li>";
-				
-			
-			
-			/*
-			
-			var clazz = "mybg ssb-container myborder";
-			
-			var str = "<div id='sr" + i + "' class='" + clazz + "' style='float:left; width:150px; height: 48px;'>";
-			
-			str += "<b>" + escapeHTML(item.name) + "</b><br /><div style='margin-left:20px;'>" + escapeHTML(item.description) + "</div></li>";
-				//str += "<li id='sr" + i + "' class='" + clazz + "'><b>" + item.name + "</b><br /><div style='margin-left:20px;'>" + item.description + "</div></li>";
-				
-			
-			str += "</div>";
-				
-			*/
-			
-			
-			html += str;
-				/*
-				onmouseout=\"
-					$(this).removeClass('highlight');
-				\"
-				onclick=\"
-					center=new OpenLayers.LonLat($lon, $lat).transform(map.displayProjection,map.projection);
-					map.setCenter(center, $zoom);
-					mapEvent(1);
-				\"
-				onmouseover=\"
-					$(this).addClass('highlight');
-				\"
-			
-			*/
+		for(var i = 0; i < len; ++i) {
+			item = items[i];
+			html += "<li id='sr" + i + "'>" + 
+						"<div class=\"searchResults-item-name\">" + escapeHTML(item.name) + "</div>" + 
+						"<div class=\"searchResults-item-description\">" + escapeHTML(item.description) + "</div>" + 
+					"</li>";
 		}
-		
-		//html += "<a id='searchResultsToggle' href='#'>hide</a>";
 
 		html += "</ul>";
 		

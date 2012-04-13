@@ -701,23 +701,24 @@ function doSearch() {
 		failure: function() {notify("Something went wrong"); },
 		success: function(response) {
 			
-			var json = response;
+			var json = response,
+				items = [],
+				len = json.length,
+				item = 0,
+				nameParts = 0,
+				tmp = 0;
 			
-			var items = [];
-			for(var i = 0; i < json.length; ++i) {
+			for(var i = 0; i < len; ++i) {
 				
-				var item = json[i];				
+				item = json[i];				
 				
-				var nameParts = item.display_name.split(",");
-								
-				var tmp = {
-						name: nameParts[0],
-						description: nameParts[1],
-						lonlat: new OpenLayers.LonLat(item.lon, item.lat)
-				};
+				nameParts = item.display_name.split(",");
 				
-				
-				items.push(tmp);
+				items.push({
+					name: nameParts[0],
+					description: nameParts[1],
+					lonlat: new OpenLayers.LonLat(item.lon, item.lat)
+				});
 			}
 			
 			$("#searchResults").data("ssb_search").setItems(items);

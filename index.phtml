@@ -291,10 +291,12 @@
 			<h3><a href="#places-tab"><span id="org.aksw.ssb.ui.label.places-tab">Places</span></a></h3>
 			<div>
 			    <div class="tabdiv" id="places-tab">
-				<form style='float: left' action='javascript: doSearch();'>
-				    <label for="search"><b>Search:</b> </label> <input type="text" id="search-field" name="search-field" value="" autocomplete="off" onchange="this.form.submit();" />
-				</form>
-				<br />
+				<div style="float: left;">
+				    <form action='javascript: doSearch();'>
+					<label for="search"><b>Search:</b> </label> <input type="text" id="search-field" name="search-field" value="" autocomplete="off" onchange="this.form.submit();" />
+				    </form>
+				</div>
+				<br/>
 				<p>
 				    powered by <a class='link'
 					href='http://nominatim.openstreetmap.org' target="_blank"><img

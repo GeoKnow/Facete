@@ -12,6 +12,8 @@
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
+	var widgets = Namespace("org.aksw.ssb.widgets"); 
+
 	
 	var collections = Namespace("org.aksw.ssb.collections");
 	
@@ -141,6 +143,15 @@
 
 		//$("#facts").ssb_facts({});
 
+		//var describer = new widgets.Describer(this.sparqlService);
+		this.factBox = widgets.createResourceWidget(this.sparqlService);
+		$$.document.append(this.factBox, "#facts");
+		
+		this.factBox.controller.setNodes([sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary")]);
+		
+		//$("#facts").append(this.factBox.view());
+		
+		
 		//$("#browsebox").ssb_browsebox({});
 		
 		this.mapWidget = $("#map").data("ssb_map");

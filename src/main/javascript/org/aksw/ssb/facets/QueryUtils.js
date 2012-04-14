@@ -7,8 +7,9 @@
  */
 (function($) {
 
-	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+
+	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
 	
 	/**
@@ -44,7 +45,7 @@
 	};
 	
 	ns.createDescribeQuery = function(driver, driverVar) {
-		var result = sparql.Query();
+		var result = new sparql.Query();
 		result.type = sparql.QueryType.Construct;
 		
 		result.elements.push(driver);

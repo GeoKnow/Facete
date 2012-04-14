@@ -54,6 +54,10 @@
 		return this.executeAny(queryString, callback);
 	};
 	
+	// TODO What to return: RdfJson vs RdfQuery
+	ns.SparqlServiceVirtuoso.prototype.executeConstruct = function(queryString, callback) {
+		return this.executeAny(queryString, callback);
+	};
 	
 	/*
 	 * SparqlServiceDelay 

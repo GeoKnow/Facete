@@ -328,3 +328,23 @@ a:active {
     font-style: italic;
     font-size: 11px;
 }
+
+
+/**
+ * Factbox / ResourceWidget (Name subject to change)
+ *    This is the element which enables one to browse the RDF facts
+ */
+#box-facts {
+    position: absolute; 
+    left: 350px; 
+    margin-right: 20px;
+    bottom: 0px;
+    height: 100px;
+    width: 300px; 
+    padding-left: 6px;
+    padding-top: 6px;
+    padding-right: 6px;
+    background-color: #F9F9F9;
+    border: 1px solid #4D4D4D;
+}
+ 

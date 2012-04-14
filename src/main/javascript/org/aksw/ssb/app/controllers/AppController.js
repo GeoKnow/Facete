@@ -145,7 +145,7 @@
 
 		//var describer = new widgets.Describer(this.sparqlService);
 		this.factBox = widgets.createResourceWidget(this.sparqlService);
-		$$.document.append(this.factBox, "#facts");
+		$$.document.append(this.factBox, "#box-facts");
 		
 		this.factBox.controller.setNodes([sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary")]);
 		

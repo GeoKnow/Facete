@@ -41,7 +41,7 @@
 		
 		var result = $$(
 				{sparqlService: sparqlService, nodes: []},
-				'<div><form action=""><input type="text"/><input type="button" value="Search"/></form><ul></ul></div>',
+				'<div style:"backgroud: #ff0000;"></div>',
 				{
 					create: function() {
 					},
@@ -50,11 +50,14 @@
 					},
 					
 					setNodes: function(nodes) {
+						var self = this;
 						console.log("setNodes called");
 						
 						var sparqlService = this.model.get('sparqlService');
-						ns.executeDescribe(sparqlService, nodes, function() {
-							console.log("Describe callback called");
+						ns.executeDescribe(sparqlService, nodes, function(jsonRdf) {
+							console.log("Describe callback called", jsonRdf);
+							
+							self.view.$().html("Facts need to go somewhere..." +  jsonRdf.toString());
 						});						
 					}
 				});

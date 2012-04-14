@@ -184,10 +184,6 @@
 	
 	ns.createFacetBox = function(sparqlService, state, constraints) {
 
-		//$("#facets2").append('<form action=""><input id="constrainToVisibleArea" type="checkbox" />Unlink from visible area</form>');
-
-
-
 		var facetList = ns.createFacetList(sparqlService, state, constraints);
 		$$.document.append(facetList, "#facets-tab");
 
@@ -198,14 +194,6 @@
 				facetList.controller.refresh();
 			}
 		});
-		
-		
-		
-		// TODO: Implement behaviour
-		//$("#constrainToVisibleArea").click(function() { alert("cilkc"); });
-		
-		
-		//var sparqlService = new VirtuosoSparqlService("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
 	};
 	
 	ns.FacetItem = $$(
@@ -257,16 +245,6 @@
 			
 			loadValues: function() {
 				var facetElement = this.view.$("div:first");
-				//var isVisible = $(facetElement).is(":visible");
-				//$(facetElement).toggle();
-
-				//console.log("Visibility: ", isVisible, facetElement, this.view);
-				
-				//var facetElement = this.view.$("ol:first");
-				//var isVisible = $(facetElement).is(":visible");
-				//$(facetElement).toggle();
-
-				//console.log("Visibility: ", isVisible, facetElement, this.view);
 				$(facetElement).toggle();
 
 				
@@ -392,7 +370,14 @@
 	ns.createFacetList = function(sparqlService, state, constraints) {
 		var result = $$(
 			{sparqlService: sparqlService, state: state, constraints: constraints},
-			'<div><form action=""><input type="text"/><input type="button" value="Search"/></form><ul></ul> </div>',
+			'<div>' +
+				'<div id="facets-tab-content-searchContainer">' + 
+					'<form action="">'+ 
+						'<input type="text" id="facets-tab-content-searchTextBox"/>' + 
+						'<input type="button" value="Search" id="facets-tab-content-searchButton"/>' + 
+					'</form>' + 
+				'</div>' + 
+			'<ul></ul></div>',
 			{
 				create: function() {
 				},
@@ -420,57 +405,6 @@
 						
 						self.append(newItem, "ul:first");						
 					}
-					
-					
-					/*
-					var query = queryUtils.createStatusQuery(config);
-					
-					console.log("Status query:", query.toString(), config);
-					
-					sparqlService.executeSelect(query.toString(), {
-						success: function(jsonRs) {
-							var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
-		
-							//console.log("labelFetcher", $.ssb);
-							var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
-							labelFetcher.fetch(_.keys(map), true, function(idToLabel) {
-								
-								
-								//console.log("uriToLabel", idToLabel);
-								for(var propertyName in map) {
-									
-									var label = propertyName;
-									if(propertyName in idToLabel) {
-										label = idToLabel[propertyName].value;
-									}
-																	
-									var count = map[propertyName];
-		
-									var countStr = (count > config.facetCountThreshold) ? ">" + config.facetCountThreshold : "" + count; 
-		
-									
-									var facet = config.getFacet([propertyName]);
-									if(!facet) {
-										console.log("Getting facet from config: ", config, propertyName);								
-									}
-									
-									facet.setCount(count);
-									
-									
-									//console.log("Got facet by path:", facet);
-		
-									//var facetItem = new FacetItem({id: propertyName, name: propertyName, count: count});
-									
-									
-									//self.facetCollection.add(new FacetItem({id: propertyName, name: propertyName, count: count}));
-									var newItem = $$(ns.FacetSwitcher, {config: config, facet: facet, id: propertyName, name: label, count: count, countStr: countStr});
-									
-									self.append(newItem, "ul:first");
-								}
-							});
-						}
-					});
-					*/
 				}
 			}
 		);

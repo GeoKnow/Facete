@@ -217,19 +217,24 @@
 
 	<!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
 	<script type="text/javascript" src="src/main/javascript/main.js"></script>
+	
+	<script type="text/javascript">
+	
+	    $(document).ready(function(){ 
+		$("#tabs-instances").click ( function () {
+		    $("#tabs-instances-content").show ();
+		    $("#tabs-facets-content").hide ();
+		});
+		$("#tabs-facets").click ( function () {
+		    $("#tabs-instances-content").hide ();
+		    $("#tabs-facets-content").show ();
+		});
+		
+		$("#tabs-instances-content").hide ();
+	    });
+	
+	</script>
 
-
-        <!-- 
-            Accordion stuff
-        -->
-        <script type="text/javascript">
-            $(function() {
-                jQuery("#tabs-accordion").accordion({ 
-                    autoHeight: false, 
-                    active: 1
-                });
-             });
-        </script>
     </head>
     <body>
 	<div id="wrapper">
@@ -263,19 +268,20 @@
 
 		<div id="tabs">
 		    
-		    <div id="tabs-accordion">
-			<h3><a href="#instances-tab"><span id="org.aksw.ssb.ui.label.instances-tab">Instances</span></a></h3>
-			<div>
-			    <div class="tabdiv" id="instances-tab">
-				<div id="instances"></div>
-			    </div>
+		    <div id="tabs-links">
+			<a id="tabs-instances">
+			    <div id="org.aksw.ssb.ui.label.instances-tab">Instances</div></a>
+			<a id="tabs-facets">
+			    <div id="org.aksw.ssb.ui.label.facets-tab">Facets</div></a>
+		    </div>
+		    
+		    <div id="tabs-instances-content">
+			<div class="tabdiv" id="instances-tab">
+			    <div id="instances"></div>
 			</div>
-			
-			<h3><a href="#facets-tab"><span id="org.aksw.ssb.ui.label.facets-tab">Facets</span></a></h3>
-			<div>
-			    <div class="tabdiv" id="facets-tab"></div>
-			</div>
-			
+		    </div>
+		    <div id="tabs-facets-content">
+			<div class="tabdiv" id="facets-tab"></div>
 		    </div>
 		    
 		</div>

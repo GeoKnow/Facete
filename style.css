@@ -161,40 +161,29 @@ a:active {
     background-color: #F9F9F9;
 }
 
-/** */
-#tabs-accordion {
-    height: 100px; 
-    margin-left: 5px;
-    max-width: 250px;
+#tabs-links {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
 }
 
-#tabs-accordion h3 {
-    font-size: 16px; 
+#tabs-instances {
+    cursor: pointer;
+    float: left;
+    margin-left: 25px;
 }
 
-#tabs-accordion ul {
-    margin-left: 0px;
-    margin-bottom: 5px;
-    list-style-type: square;
-}
-
-#tabs-accordion ol {
-    margin-left: 0px;
-    margin-bottom: 5px;
-}
-
-#facts {
-    position: absolute; 
-    left: 250px; 
-    bottom: 0px; 
-    right: 250px; 
-    max-height: 70%; 
-    overflow: auto; 
-    border: 1px solid #000000; 
-    border-radius: 7px 7px 0px 0px;
+#tabs-facets {
+    cursor: pointer;
 }
 
 
+/**
+ * Instances tab
+ */
 #instances-tab {
     width: 20px;
     word-wrap: break-word;
@@ -209,7 +198,23 @@ a:active {
 }
 
 #facets-tab ul {
-    
+    font-size: 11px;
+    font-weight: normal;
+}
+
+#facets-tab-content-searchContainer {
+    text-align: center;
+    width: 100%;
+}
+
+#facets-tab-content-searchTextBox {
+    width: 150px;
+    border: 1px solid #313575;
+}
+
+#facets-tab-content-searchButton {
+    border: 1px solid #313575;
+    background-color: #f9f9f9;
 }
 
 /**

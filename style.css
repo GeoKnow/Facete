@@ -141,7 +141,7 @@ a:active {
     position: absolute; 
     top: 133px; 
     right: 0px; 
-    left: 250px;
+    left: 270px;
     height: 80%;
 }
 
@@ -150,8 +150,8 @@ a:active {
     position: absolute; 
     top: 133px; 
     left: 0px;
-    width: 250px; 
-    max-width: 250px;
+    width: 260px; 
+    max-width: 260px;
     float: left; 
     height: 80%; 
     overflow-y: auto;
@@ -159,6 +159,13 @@ a:active {
     margin-top: 0px;
     word-wrap: break-word;
     background-color: #F9F9F9;
+    padding-right: 10px;
+}
+
+#tabs-instances-content {
+    width: 50px;
+    word-wrap: break-word;
+    margin-right: 5px;
 }
 
 #tabs-links {
@@ -200,10 +207,33 @@ a:active {
 #facets-tab ul {
     font-size: 11px;
     font-weight: normal;
+    margin-left: -6px;
+}
+
+.facets-tab-content-facetswitcher-li-nav-values {
+    margin-top: 50px;
+    margin-left: -3px;
+    font-style: bold;
+    color: #272B6E;
+}
+
+.facets-tab-content-facetswitcher-li-nav-subfacets {
+    margin-top: 50px;
+    margin-left: 10px;
+}
+
+.facets-tab-content-facetswitcher-li-entries {
+    display: none;
+    margin-bottom: 10px;
+}
+
+.facets-tab-content-facetswitcher-li-entries-nav {
+    margin: 4px;
 }
 
 #facets-tab-content-searchContainer {
     text-align: center;
+    margin-left: -6px;
     width: 100%;
 }
 
@@ -222,8 +252,17 @@ a:active {
 }
 
 .facets-tab-content-facetitem-li {
-    margin-left: -5px;
+    margin-left: -10px;
     font-style: italic;
+    list-style-type: disc;
+}
+
+.facets-tab-content-facetitem-li-ol {
+    display: none;
+}
+
+.ui-tabs-nav {
+    margin-left: -35px;
 }
 
 /**

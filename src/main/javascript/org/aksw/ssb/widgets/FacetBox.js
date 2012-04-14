@@ -198,7 +198,14 @@
 	
 	ns.FacetItem = $$(
 		{isEnabled: false},
-		'<li class="facets-tab-content-facetitem-li"><form action=""><input type="checkbox" data-bind="isEnabled" /><span data-bind="label"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
+		'<div class="facets-tab-content-facetitem-li">' + 
+			'<form action="">' + 
+				'<input type="checkbox" data-bind="isEnabled"/>' + 
+				'<span data-bind="label"/> (<span data-bind="count"/>)' + 
+			'</form>' + 
+			'<ol class="facets-tab-content-facetitem-li-ol"></ol>' + 
+		'</div>', 
+		'& span { cursor:pointer; }', {
 
 		'click input': function() {
 			var facetValue = this.model.get("value");
@@ -235,12 +242,13 @@
 	ns.FacetSwitcher = $$(
 		{},
 		'<li class="facets-tab-content-facetswitcher-li">' + 
-			'<span data-bind="name"/> (<span data-bind="countStr"/>)' + 
-			'<div style="display:none;" class="widget">' +
-				'<ul class="tabnav">' +
-					'<li><a href="#t1">Values</a></li>' + 
-					'<li><a href="#t2">Sub-Facets</a></li>' + 
-				'</ul>' + 
+			'<span data-bind="name"/> ' +
+			'(<span data-bind="countStr"/>)' + 
+			'<div class="facets-tab-content-facetswitcher-li-entries">' +
+				'<div class="facets-tab-content-facetswitcher-li-entries-nav">' + 
+					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
+					'<a href="#t2" class="facets-tab-content-facetswitcher-li-nav-subfacets">Sub-Facets</a>' + 
+				'</div>' +
 				'<div class="tabdiv" id="t1">' + 
 					'<ol></ol>' + 
 				'</div>' + 

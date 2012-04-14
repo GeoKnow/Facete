@@ -217,6 +217,15 @@ a:active {
     background-color: #f9f9f9;
 }
 
+.facets-tab-content-facetswitcher-li {
+    margin-left: -5px;
+}
+
+.facets-tab-content-facetitem-li {
+    margin-left: -5px;
+    font-style: italic;
+}
+
 /**
  * Box on the bottom - types
  */

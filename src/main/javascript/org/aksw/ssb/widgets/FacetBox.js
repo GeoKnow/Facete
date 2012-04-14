@@ -198,7 +198,7 @@
 	
 	ns.FacetItem = $$(
 		{isEnabled: false},
-		'<li><form action=""><input type="checkbox" data-bind="isEnabled" /><span data-bind="label"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
+		'<li class="facets-tab-content-facetitem-li"><form action=""><input type="checkbox" data-bind="isEnabled" /><span data-bind="label"/> (<span data-bind="count"/>)</form><ol style="display:none;"></ol></li>', '& span { cursor:pointer; }', {
 
 		'click input': function() {
 			var facetValue = this.model.get("value");
@@ -234,7 +234,19 @@
 
 	ns.FacetSwitcher = $$(
 		{},
-		'<li><span data-bind="name"/> (<span data-bind="countStr"/>)<div style="display:none;" class="widget"><ul class="tabnav"><li><a href="#t1">Values</a></li><li><a href="#t2">Sub-Facets</a></li></ul><div class="tabdiv" id="t1"><ol></ol></div><div class="tabdiv" id="t2">Facets not loaded</div></div>', '& span { cursor:pointer; }',
+		'<li class="facets-tab-content-facetswitcher-li">' + 
+			'<span data-bind="name"/> (<span data-bind="countStr"/>)' + 
+			'<div style="display:none;" class="widget">' +
+				'<ul class="tabnav">' +
+					'<li><a href="#t1">Values</a></li>' + 
+					'<li><a href="#t2">Sub-Facets</a></li>' + 
+				'</ul>' + 
+				'<div class="tabdiv" id="t1">' + 
+					'<ol></ol>' + 
+				'</div>' + 
+				'<div class="tabdiv" id="t2">Facets not loaded</div>' + 
+			'</div>', 
+		'& span { cursor:pointer; }',
 		{
 			create: function() {
 				// Turn the Html-view-string into tabs
@@ -285,73 +297,6 @@
 						}
 					}
 				});
-				
-				/*
-				var queryData = queryUtils.createValuesQuery(baseElement, facet);
-
-				var query = queryData.query;
-				query.limit = 10;
-				
-				console.log("Values query:", queryData);
-				
-				// Test query
-				//query.elements.push(new sparql.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
-				
-				sparqlService.executeSelect(query.toString(), {
-					success: function(jsonRs) {
-						
-							
-						//var vars = jsonRs.head.vars;
-						
-						// TODO We need a discriminator column so we know which facet the values correspond to
-						var map = jsonRdfResultSetToMap(jsonRs, "var1", "__c");
-				
-						var uris = [];
-						for(var key in map) {
-							if(key.toString().startsWith("http://")) {
-								uris.push(key);
-							}
-						}
-						
-						console.log("Value URIs", uris, map);
-						
-						var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
-						labelFetcher.fetch(uris, true, function(idToLabel) {
-
-							console.log("Facet value uris", idToLabel);
-
-						
-							for(var propertyName in map) {
-								
-								var label = propertyName;
-								if(propertyName in idToLabel) {
-									label = idToLabel[propertyName].value;
-								}
-
-								
-								var count = map[propertyName];
-							
-								//var facetValue = facet.getValue();
-
-								//var facet = config.getFacet([propertyName]);
-								
-								//facet.setCount(count);
-
-								
-							
-								//var facetItem = new FacetItem({id: propertyName, name: propertyName, count: count});
-							
-							
-							//self.facetCollection.add(new FacetItem({id: propertyName, name: propertyName, count: count}));
-								var newItem = $$(ns.FacetItem, {id: propertyName, name: label, count: count});
-							
-								//self.append(newItem, "ul.eq(1)");
-								self.append(newItem, "ol");
-							}
-						});
-					}
-				});
-				*/
 			},
 			
 			'click span:first': function() {
@@ -361,7 +306,6 @@
 	);
 	
 	
-	// style="position:absolute; left:500px; top:100px";
 	/**
 	 * 
 	 * @param sparqlService

@@ -35,7 +35,30 @@
 		return result;
 	};
 
+
+	ns.createDescribeQueryUris = function(driverVar, uris) {
+		
+	};
 	
+	ns.createDescribeQuery = function(driver, driverVar) {
+		var result = sparql.Query();
+		result.type = sparql.QueryType.Construct;
+		
+		result.elements.push(driver);
+		
+		var p = sparql.Node.v("__p");
+		var o = sparql.Node.v("__o");
+		
+		var triple = new sparql.Triple(driverVar, p, o);
+
+		result.constructTemplate = new sparql.Template(new sparql.BasicPattern([triple]));
+		
+		result.elements.push(new sparql.ElementTriplesBlock([triple]));
+		
+		return result;
+	};
+	
+
 	/**
 	 * Counts the number of unique subjects per property.
 	 * 

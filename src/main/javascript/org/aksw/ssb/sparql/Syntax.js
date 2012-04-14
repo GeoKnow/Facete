@@ -357,6 +357,24 @@
 	};
 	
 	
+	ns.E_In = function(variable, nodes) {
+		this.variable = variable;
+		this.nodes = nodes;
+	};
+	
+	ns.E_In.prototype.getVarsMentioned = function() {
+		return [this.variable];
+	};
+	
+	ns.E_In.prototype.copySubstitute = function(fnNodeMap) {		
+		return new ns.E_In(variable.copySubstitue(fnNodeMap), this.nodes.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+	};
+	
+	ns.E_In.prototype.toString = function() {
+		return "(" + this.variable + " In (" + this.nodes.join(", ") + "))";
+	};
+	
+	
 	// Expression
 	ns.E_Str = function(str) {
 		this.str = str;

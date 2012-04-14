@@ -139,13 +139,13 @@
 		});
 		*/
 
-		$("#facts").ssb_facts({});
+		//$("#facts").ssb_facts({});
 
 		//$("#browsebox").ssb_browsebox({});
 		
 		this.mapWidget = $("#map").data("ssb_map");
 		this.map = this.mapWidget.map;
-		this.facts = $("#facts").data("ssb_facts");
+		//this.facts = $("#facts").data("ssb_facts");
 
 		// TODO: Do not depend directly on map, but on a "visible area"
 		$("#searchResults").ssb_search({map: this.map});		
@@ -194,8 +194,8 @@
 				failure: function() { Console.err("Error executing Sparql query"); },
 				success: function(jsonRdf) {
 				
-					self.facts.setData(uri, [jsonRdf]);
-					$("#facts").slideDown("slow");
+					//self.facts.setData(uri, [jsonRdf]);
+					//$("#facts").slideDown("slow");
 					
 					
 					
@@ -215,7 +215,7 @@
 							var object = objects[i]; //.value;
 							if(object.startsWith(prefix)) {
 								fetchStatementsBySubject(service, [object], function(jsonRdf2) {
-									self.facts.setData(uri, [jsonRdf, jsonRdf2]);
+									//self.facts.setData(uri, [jsonRdf, jsonRdf2]);
 								});
 							}
 							

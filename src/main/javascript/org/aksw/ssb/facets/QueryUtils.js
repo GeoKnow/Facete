@@ -36,8 +36,11 @@
 	};
 
 
-	ns.createDescribeQueryUris = function(driverVar, uris) {
-		
+	ns.createDescribeQueryNodes = function(nodes) {		
+		var s = sparql.Node.v("__s");
+		var element = new sparql.ElementFilter(new sparql.E_In(s, nodes));
+		var result = ns.createDescribeQuery(element, s);
+		return result;
 	};
 	
 	ns.createDescribeQuery = function(driver, driverVar) {

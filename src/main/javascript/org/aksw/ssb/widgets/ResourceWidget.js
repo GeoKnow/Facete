@@ -15,23 +15,31 @@
 	};
 	
 	ns.DescriberSparql.prototype.describe = function(nodes, callback) {
-		
+		return queryUtils.createDescribeQuery(nodes, callback);
 	};
 	
-	/*
-	ns.createResourceWidget(sparqlService, resources) {
-		if(!resources) {
-			resources = [];
+
+	ns.createResourceWidget = function(sparqlService, nodes) {
+		if(!nodes) {
+			nodes = [];
 		}
+		
+		var describer = new ns.DescriberSparql(sparqlService);
 		
 		// Properties which should be displayed by default
 		var shortSummaryProperties = [];		
 		
 		var result = $$(
-				{sparqlService: sparqlService, resources: resources},
+				{describer: describer, nodes: nodes},
 				'<div><form action=""><input type="text"/><input type="button" value="Search"/></form><ul></ul></div>',
 				{
 					create: function() {
+						var describer = this.model.get('describer');
+						var nodes = this.model.get('nodes');
+						
+						describer.describe(nodes, function() {
+							alert("Describe callback called");
+						});
 					},
 				
 					refresh: function() {
@@ -43,7 +51,7 @@
 	
 	ns.ResourceItem =
 		$$(
-				{resource: resource},
+				{},
 				'<div>Title</div><ul><ul>',
 				{
 					
@@ -55,7 +63,6 @@
 				{},
 				'<div>'
 		);
-	
-	*/
+
 	
 })(jQuery);

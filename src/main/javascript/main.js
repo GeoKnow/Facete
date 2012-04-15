@@ -25,6 +25,20 @@
 	var ns = Namespace("org.aksw.ssb.main");
 	
 	
+	/**
+	 * Add an .endsWith method to the prototype of String.
+	 * 
+	 * http://stackoverflow.com/questions/280634/endswith-in-javascript
+	 * 
+	 */
+	if (!String.prototype.hasOwnProperty("endsWith")) {
+	    String.prototype.endsWith = function (suffix) {
+	        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	    };
+	}
+			
+			
+	
 	ns.AutoConfig = function(callback) {
 		this.callback = callback;
 		//this.

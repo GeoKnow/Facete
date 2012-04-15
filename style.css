@@ -336,15 +336,29 @@ a:active {
  */
 #box-facts {
     position: absolute; 
-    left: 350px; 
+    /* left: 270px; */
+    right: 0px; 
     margin-right: 20px;
     bottom: 0px;
-    height: 100px;
-    width: 300px; 
+    height: 500px;
+    width: 600px; 
     padding-left: 6px;
     padding-top: 6px;
     padding-right: 6px;
     background-color: #F9F9F9;
     border: 1px solid #4D4D4D;
+    overflow: auto;
 }
+
+table.facts {
+	border-collapse:collapse;
+}
+
+tr.odd {
+    background-color: #eeeeff;	
+}
+
+tr.even {
+}
+
  

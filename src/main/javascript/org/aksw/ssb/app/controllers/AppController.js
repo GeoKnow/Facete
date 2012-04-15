@@ -147,7 +147,7 @@
 		this.factBox = widgets.createResourceWidget(this.sparqlService);
 		$$.document.append(this.factBox, "#box-facts");
 		
-		this.factBox.controller.setNodes([sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary")]);
+		//this.factBox.controller.setNodes([sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary")]);
 		
 		//$("#facts").append(this.factBox.view());
 		
@@ -162,6 +162,9 @@
 		$("#searchResults").ssb_search({map: this.map});		
 	};
 	
+	ns.AppController.prototype.showDescription = function(nodes) {
+		this.factBox.controller.setNodes(nodes);
+	};
 	
 	ns.AppController.prototype.initEvents = function() {
 		var self = this;
@@ -599,6 +602,7 @@
 			
 		}*/
 		
+		
 		for(var i = 0; i < addedGeoms.length; ++i) {
 			var geom = addedGeoms[i];
 
@@ -835,17 +839,23 @@
 	};
 		
 		
-	ns.AppController.prototype.onInstanceClicked = function(uri) {
-		Dispatcher.fireEvent("selection", uri);
+	ns.AppController.prototype.onInstanceClicked = function(uriStr) {
+		Dispatcher.fireEvent("selection", uriStr);
 		
-		console.log("Clicked: " + uri);
+		console.log("Clicked: " + uriStr);
+
+		// NOTE The 
+		var node = sparql.Node.parse(uriStr);
+		this.showDescription([node]);
+		
+		
 		var self = this;
 
 		if(this.selectedFeature) {
 			this.disableHighlight(this.selectedFeature);
 		}
 		
-		var feature = self.nodeToFeature.get(uri);
+		var feature = self.nodeToFeature.get(uriStr);
 		
 
 		this.selectedFeature = feature;

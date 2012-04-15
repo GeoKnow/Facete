@@ -7,6 +7,10 @@
 (function($) {
 
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+	var labelUtils = Namespace("org.aksw.ssb.utils");
+	var talisJsonUtils = Namespace("org.aksw.ssb.utils.talis-json");
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	
 	
 	var ns = Namespace("org.aksw.ssb.widgets"); 
 	
@@ -27,6 +31,7 @@
 		var promise = sparqlService.executeConstruct(query.toString(), callback);
 		return promise;
 	};
+
 	
 
 	ns.createResourceWidget = function(sparqlService, nodes) {
@@ -41,7 +46,7 @@
 		
 		var result = $$(
 				{sparqlService: sparqlService, nodes: []},
-				'<div style:"backgroud: #ff0000;"></div>',
+				'<div></div>',
 				{
 					create: function() {
 					},
@@ -51,18 +56,113 @@
 					
 					setNodes: function(nodes) {
 						var self = this;
-						console.log("setNodes called");
+						//console.log("setNodes called");
 						
 						var sparqlService = this.model.get('sparqlService');
-						ns.executeDescribe(sparqlService, nodes, function(jsonRdf) {
-							console.log("Describe callback called", jsonRdf);
+						ns.executeDescribe(sparqlService, nodes, function(talisJson) {
+							//console.log("Describe callback called", talisJson);
 							
-							self.view.$().html("Facts need to go somewhere..." +  jsonRdf.toString());
+							var uris = ns.collectUris(talisJson);							
+							var uriStrs = _.keys(uris);
+							
+							var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
+							labelFetcher.fetch(uriStrs, false, function(uriToLabel) {
+								var html = ns.generateHtml(talisJson, uriToLabel);
+								self.view.$().html(html);
+								
+							});
 						});						
 					}
 				});
 				
 		return result;
+	};
+	
+	ns.collectUris =  function(talisJson) {
+		var uris = {};
+		var triples = talisJsonUtils.toTriples(talisJson);							
+		for(var i = 0; i < triples.length; ++i) {
+			var triple = triples[i];
+			
+			if(triple.s.isUri()) { uris[triple.s.value] = triple.s; }
+			if(triple.p.isUri()) { uris[triple.p.value] = triple.p; }
+			if(triple.o.isUri()) { uris[triple.o.value] = triple.o; }
+		}
+
+		return uris;
+	};
+	
+	
+	ns.getLabel = function(key, map) {
+		var result;
+		if(key in map) {
+			var item = map[key];
+			
+			result = item.value;
+			
+			if(item.lang) {
+				result += " (" + item.lang +")";
+			}			
+		} else {
+			result = key;
+		}
+		
+		return result;
+	};
+	
+	ns.generateHtml = function(talisJson, uriToLabel) {
+		
+		//console.log("uriToLabel", uriToLabel);
+		var html = "";
+		
+		html += "<table class='facts'>\n";
+
+		var rowClass = ["even", "odd"];
+		
+		for(s in talisJson) {
+			var ps = talisJson[s];
+
+			var sLabel = ns.getLabel(s, uriToLabel);
+			// Write a heading
+			// TODO Replace URIs with their labels
+			var rowId = 0;
+			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
+			
+			for(p in ps) {
+				var pLabel = ns.getLabel(p, uriToLabel);
+
+				var os = ps[p];
+				
+				
+				for(var i = 0; i < os.length; ++i) {
+					var o = os[i];
+
+					var oNode = sparql.Node.fromJson(o);
+					//console.log("oNode", o, oNode);
+					var oLabel = oNode.isUri() ? ns.getLabel(oNode.value, uriToLabel) : oNode.toString();
+
+					var pHtml = (i == 0)
+						? '<a href="' + p + '" class="rdf-predicate"><span id="label:' + p + '">' + pLabel + '</span></a>'
+						: "";
+
+					var oHtml = '<a href="' + o.value + '" class="rdf-object"><span id="label:' + o.value + '">' + oLabel + '</span></a>';
+
+					html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td>' + pHtml + '</td><td>' + oHtml + '</td></tr>\n';
+
+					
+					
+					// Write the predicate for the first row
+					// TODO Create link target
+					// TODO Make recursive template for objects (like in OntoWiki)
+					++rowId;
+				}
+			}
+		}
+		
+		
+		html += "</table>\n";
+		
+		return html;
 	};
 	
 	ns.ResourceItem =

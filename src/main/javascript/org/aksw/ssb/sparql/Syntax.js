@@ -70,13 +70,20 @@
 		return result;
 		
 	};
-	
+		
 	ns.Node = function(type, value, language, datatype) {
 		this.type = type;
 		this.value = value;
 		this.language = language;
 		this.datatype = datatype;
 	};
+	
+	ns.Node.Type = {};
+	ns.Node.Type.Variable = -1;
+	ns.Node.Type.BlankNode = 0;
+	ns.Node.Type.Uri = 1;
+	ns.Node.Type.PlainLiteral = 2;
+	ns.Node.Type.TypedLiteral = 3;
 	
 	ns.Node.fromJson = function(talisJson) {
 		var result = new ns.Node();
@@ -91,7 +98,7 @@
 		
 		result.type = type;
 		result.value = talisJson.value;
-		result.language = talisJson.language ? talisJson.language : "";
+		result.language = talisJson.lang ? talisJson.lang : "";
 		result.datatype = talisJson.datatype ? talisJson.datatype : "";
 
 		// TODO I thought it happened that a literal hat a datatype set, but maybe I was imaginating things
@@ -105,6 +112,16 @@
 		if(node.type == "uri") {
 			
 		}*/
+	};
+	
+	ns.Node.parse = function(str) {
+		var str = str.trim();
+		
+		if(str.startsWith('<') && str.endsWith('>')) {
+			return ns.Node.uri(str.substring(1, str.length - 1));
+		} else {
+			throw "Node.parse not implemented for argument: " + str;
+		}
 	};
 	
 	ns.Node.uri = function(str) {
@@ -164,6 +181,10 @@
 	
 	ns.Node.prototype.isVar = function() {
 		return this.type === -1;
+	};
+	
+	ns.Node.prototype.isUri = function() {
+		return this.type === ns.Node.Type.Uri;
 	};
 	
 	ns.Triple = function(s, p, o) {

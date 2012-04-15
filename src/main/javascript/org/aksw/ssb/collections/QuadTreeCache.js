@@ -4,74 +4,10 @@
 
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 
+	var rdfQueryUtils = Namespace("org.aksw.ssb.utils.rdfquery");
+	
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeCache");
 
-	/**
-	 * TODO Maybe use a dedicated Graph object rather than an array?
-	 * 
-	 */
-	ns.triplesFromTalisJson = function(talisJson) {
-		var triples = [];
-		
-		for(s in talisJson) {
-			// TODO Handle blank nodes here
-			var subject = sparql.Node.uri(s);
-
-			var ps = talisJson[s];
-			
-			for(p in ps) {
-				var predicate = sparql.Node.uri(p);
-				var os = ps[p];
-				
-				for(var i = 0; i < os.length; ++i) {
-					var o = os[i];
-					
-					var object = sparql.Node.fromJson(o);
-					
-					var triple = new sparql.Triple(subject, predicate, object);
-					triples.push(triple);
-				}
-			}
-		}
-
-		var result = triples;
-		
-		return result;		
-	};
-	
-	
-	ns.rdfQueryFromTalisJson = function(talisJson) {
-		var triples = [];
-		
-		for(s in talisJson) {
-			var ps = talisJson[s];
-			
-			for(p in ps) {
-				var os = ps[p];
-				
-				for(var i = 0; i < os.length; ++i) {
-					var o = os[i];
-					
-					var node = sparql.Node.fromJson(o);
-					
-					//var t = "<" + s.toString() + "> " + "<" + p.toString() + "> " + node.toString() + "";
-					//var t = "<" + s.toString() + "> " + "<" + p.toString() + "> <" + s.toString() + "> .";
-					
-					//console.log(t);
-					//var triple = $.rdf.triple(t);
-					//console.log(triple);
-					//var triple = $.rdf.triple("<" + s.toString() + ">", "<" + p.toString() + ">", "<" + s.toString() + ">");
-
-					var triple = $.rdf.triple("<" + s.toString() + ">", "<" + p.toString() + ">", node.toString());
-					triples.push(triple);
-				}
-			}
-		}
-
-		var result = $.rdf.databank(triples);
-		
-		return result;
-	};
 
 	ns.Backend = function(sparqlService, geoQueryFactory, variable) {
 		this.sparqlService = sparqlService;
@@ -468,7 +404,7 @@
 							
 							// TODO Make data transformations configurable
 							// (Should this be part of the backend???)
-							node.data.graph = ns.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
+							node.data.graph = rdfQueryUtils.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
 							//node.data = data;
 
 							/*

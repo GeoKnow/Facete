@@ -10,6 +10,12 @@
 		this.cache = new LabelCollection();		
 	};
 	
+	/**
+	 * 
+	 * 
+	 * @param uris An array of uri-strings
+	 * @param includeAllUris
+	 */
 	ns.LabelFetcher.prototype.cacheLookup = function(uris, includeAllUris) {
 		var entries = {};
 		var lookups = [];

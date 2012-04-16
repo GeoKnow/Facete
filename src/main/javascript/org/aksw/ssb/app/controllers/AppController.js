@@ -104,7 +104,6 @@
 	
 	
 	
-	
 	ns.AppController.prototype.init = function() {
 		var self = this;
 		
@@ -382,15 +381,42 @@
 	ns.AppController.prototype.updateFacetCounts = function(bounds, nodes) {
 		var query = this.createFacetQueryCountVisible(bounds, nodes);
 		
+		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
+		//console.log("Facet Query", query);
+		
 		this.sparqlService.executeSelect(query.toString(), {
 			success: function() {
 				//alert("Wee");
 			}
 		});
-		
-		
 	};
 	
+	
+	ns.AppController.prototype.updateFacetCountsGeom = function(uris) {
+		var query = this.createFacetQueryCountVisibleGeomNested(uris);
+		
+		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
+		console.log("Facet Query", query.toString());
+		
+		this.sparqlService.executeSelect(query.toString(), {
+			success: function() {
+				//alert("Wee");
+			}
+		});		
+	};
+
+	
+	ns.AppController.getLoadedNodes = function(nodes) {
+		var result = [];
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+			if(!node.data.tooManyItems || node.isLoaded) {
+				result.push(node);
+			}
+		}
+		
+		return result;
+	};
 	
 	/**
 	 * Creates a query that counts the facets for the given visible area:
@@ -414,14 +440,8 @@
 	 * @returns
 	 */
 	ns.AppController.prototype.createFacetQueryCountVisible = function(bounds, nodes) {
-		
-		var loadedNodes = [];
-		for(var i = 0; i < nodes.length; ++i) {
-			var node = nodes[i];
-			if(!node.data.tooManyItems || node.isLoaded) {
-				loadedNodes.push(node);
-			}
-		}
+
+		var loadedNodes = ns.AppController.getLoadedNodes(nodes);
 		
 		
 		var geoQueryFactory = this.queryGenerator.createQueryFactory();
@@ -481,10 +501,101 @@
 		return result;
 	};
 
+	/**
+	 * This method generates the facet query based on explicely given geometries.
+	 * 
+	 * @param uris
+	 * @returns
+	 */
+	ns.AppController.prototype.createFacetQueryCountVisibleGeomSimple = function(uris) {
+
+		var geoQueryFactory = this.queryGenerator.createQueryFactory();
+
+		var baseQuery = geoQueryFactory.baseQuery;
+		//var baseElement = new sparql.ElementGroup(baseQuery.elements.slice(0)); // create a copy of the original elements
+		var elements = baseQuery.elements.slice(0);
+
+		var geomVarStr = geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable;
+		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
+		//console.log("geomVar", geomVar);
+		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
+		var filterElement = new sparql.ElementFilter(filterExpr);
+		
+		elements.push(filterElement);
+
+		var element = new sparql.ElementGroup(elements);
+		
+		var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+
+		return result;
+	};
+
+	
+	/**
+	 * Select Distinct ?p (Count(?p) As ?c) {
+	 *   Select Distinct ?s ?p {
+	 *     driver
+	 *     {
+	 *       Select Distinct ?s { geomElement . Filter(geom In ...) } 
+	 *     }   
+	 *   }
+	 * }
+	 * 
+	 * If this does not work, I think all we can do is either drop
+	 * facet counting (sucks) or fetch all data (might suck)
+	 * 
+	 * @param uris
+	 * @returns
+	 */
+	ns.AppController.prototype.createFacetQueryCountVisibleGeomNested = function(uris) {
+
+		var driver = this.queryGenerator.driver;
+		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
+
+		
+		var queryGenerator = this.queryGenerator;
+
+		//console.log("queryFactory", queryFactory);
+
+		var subQuery = new sparql.Query();
+		var triplesBlock = new sparql.ElementTriplesBlock();
+		triplesBlock.addTriples(this.queryGenerator.geoConstraintFactory.getTriples());
+		subQuery.elements.push(triplesBlock);
+		
+		var geomVarStr = this.queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable; //geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable;
+		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
+		//console.log("geomVar", geomVar);
+		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
+		var filterElement = new sparql.ElementFilter(filterExpr);
+
+		subQuery.elements.push(filterElement);
+		subQuery.projection[driver.variable.value] = null;
+		subQuery.distinct = true;
+		
+		var elements = [driver.element, new sparql.ElementSubQuery(subQuery)];
+		
+		// Add facet constraints
+		var facetElement = queryGenerator.constraints.getSparqlElement();
+		if(facetElement) {
+			elements.push(facetElement);
+		}
+
+		
+		var element = new sparql.ElementGroup(elements);		
+		
+		var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+
+		return result;
+	};
+
+
+	
 	ns.AppController.prototype.updateViews = function(newState) {
 
 		// TODO Somehow make this work (by magic is would be fine)
+		// TODO Facet counts are updated as a reaction to fetching the new state
 		//this.updateFacetCounts(newState.bounds, newState.nodes);
+		
 		
 		
 		// node       1      2
@@ -643,7 +754,14 @@
 			this.nodeToLabel.put(id, label);
 		}
 
-		this.instanceWidget.refresh();		
+		this.instanceWidget.refresh();
+		
+		
+		
+		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
+		
+		
+		this.updateFacetCountsGeom(visibleGeomNodes);
 	};
 	
 	ns.AppController.prototype.setSparqlService = function(sparqlService) {

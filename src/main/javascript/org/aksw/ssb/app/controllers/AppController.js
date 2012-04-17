@@ -708,7 +708,7 @@
 		 * 1) relations between geometries and features
 		 * 2) labels of the features 
 		 */
-		//var geomToId = new facets.MultiMap();
+		var geomToFeatures = new facets.MultiMap();
 		var idToLabel = {}; // TODO I don't think there is much point in having the labels here already; they should be fetched separately using the LabelFetcher
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
@@ -720,11 +720,10 @@
 			var databank = node.data.graph;
 			var rdf = $.rdf({databank: databank});
 			
-			/*
 			rdf.where("?id " + geovocab.geometry + " ?geom").each(function() {
-				geomToId.put(this.geom, this.id);
+				geomToFeatures.put(this.geom, this.id);
 			});
-			*/
+
 			
 			rdf.where("?id " + rdfs.label + " ?label").each(function() {
 				idToLabel[this.id] = this.label.value;
@@ -785,10 +784,28 @@
 		console.log("label:", this.nodeToLabel);
 		// HACK Find a better way to deal with the instances
 		this.nodeToLabel.clear();
+		for(var i = 0; i < visibleGeoms.length; ++i) {
+			var geom = visibleGeoms[i];
+
+			var features = geomToFeatures.entries[geom];
+			if(!features) {
+				continue;
+			}
+			
+			for(var j = 0; j < features.length; ++j) {
+				var feature = features[j];
+				
+				var label = idToLabel[feature];
+				this.nodeToLabel.put(feature, label);				
+			}
+		}
+
+		/*
 		for(id in idToLabel) {
 			var label = idToLabel[id];
 			this.nodeToLabel.put(id, label);
 		}
+		*/
 
 		this.instanceWidget.refresh();
 		

@@ -10,8 +10,12 @@
 	var geovocab = Namespace("org.aksw.ssb.vocabs.geovocab");
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+
+	
+	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
+	var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
 	var widgets = Namespace("org.aksw.ssb.widgets"); 
 
 	
@@ -100,6 +104,9 @@
 		
 		// A wrapper for a rdfquery databank which keeps track of how often a triple was added
 		this.multiGraph = new collections.MultiGraph();
+		
+		
+		this.labelFetcher = null;		
 	};
 	
 	
@@ -113,6 +120,7 @@
 	
 		
 	ns.AppController.prototype.initWidgets = function() {
+
 		
 		// Initialize the widgets
 		$("#map").ssb_map({
@@ -158,7 +166,18 @@
 		//this.facts = $("#facts").data("ssb_facts");
 
 		// TODO: Do not depend directly on map, but on a "visible area"
-		$("#searchResults").ssb_search({map: this.map});		
+		$("#searchResults").ssb_search({map: this.map});
+		
+		
+		// Facet box
+		var queryGenerator = this.queryGenerator;
+		var constraints = queryGenerator.constraints;
+		var config = new facetbox.FacetConfig(queryGenerator.driver, 1001, 10001);
+		
+		this.facetState = new facetbox.FacetState(config, queryGenerator.pathManager);
+				
+		this.facetbox = facetbox.createFacetBox(this.sparqlService, this.facetState, constraints);
+		$$.document.append(this.facetbox, "#facets-tab");
 	};
 	
 	ns.AppController.prototype.showDescription = function(nodes) {
@@ -393,13 +412,30 @@
 	
 	
 	ns.AppController.prototype.updateFacetCountsGeom = function(uris) {
+		var self = this;
 		var query = this.createFacetQueryCountVisibleGeomNested(uris);
 		
 		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
-		console.log("Facet Query", query.toString());
+		//console.log("Facet Query", query.toString());
+
+		if(!uris.length) {
+			self.facetbox.controller.setState(null);
+			self.facetbox.controller.refresh();
+			return;
+		}
 		
 		this.sparqlService.executeSelect(query.toString(), {
-			success: function() {
+			success: function(jsonRs) {
+				
+				console.log("jsonRs for facet counts", jsonRs);
+				facetbox.processFacets(self.facetState, jsonRs, self.labelFetcher, {
+					success: function(facetState) {
+						self.facetbox.controller.setState(facetState);
+						self.facetbox.controller.refresh();
+					}
+				});
+						
+				
 				//alert("Wee");
 			}
 		});		
@@ -766,6 +802,7 @@
 	
 	ns.AppController.prototype.setSparqlService = function(sparqlService) {
 		this.sparqlService = sparqlService;
+		this.labelFetcher = new labelUtils.LabelFetcher(this.sparqlService);
 	};
 		
 	ns.AppController.prototype.updateClasses = function(uris) {

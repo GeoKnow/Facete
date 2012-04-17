@@ -32,38 +32,41 @@
 		var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
 
 		// The result will be handed over to the callback 
-		var result = state; 
 			
 		sparqlService.executeSelect(query.toString(), {
 			success: function(jsonRs) {
-				
-				console.log("Facet result set", jsonRs);
-				
-				var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
-			
-				//console.log("labelFetcher", $.ssb);
-				labelFetcher.fetch(_.keys(map), true, function(idToLabel) {
-																	
-					for(var propertyName in map) {
-						
-						var label = propertyName;
-						if(propertyName in idToLabel) {
-							label = idToLabel[propertyName].value;
-						}
-															
-						var count = map[propertyName];
-						
-						var node = result.pathManager.getRoot().getOrCreate(propertyName);
-	
-						node.data = {count: count, label: label};
-					}
-					
-					callback.success(result);
-				});
+				ns.processFacets(state, jsonRs, labelFetcher);
 			}
 		});
 	};
+
 	
+	ns.processFacets = function(state, jsonRs, labelFetcher, callback) {
+		//console.log("Facet result set", jsonRs);
+		
+		var result = state; 
+		var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
+	
+		//console.log("labelFetcher", $.ssb);
+		labelFetcher.fetch(_.keys(map), true, function(idToLabel) {
+															
+			for(var propertyName in map) {
+				
+				var label = propertyName;
+				if(propertyName in idToLabel) {
+					label = idToLabel[propertyName].value;
+				}
+													
+				var count = map[propertyName];
+				
+				var node = result.pathManager.getRoot().getOrCreate(propertyName);
+
+				node.data = {count: count, label: label};
+			}
+			
+			callback.success(result);
+		});		
+	};
 	
 	ns.loadFacetValues = function(sparqlService, state, breadcrumb, callback) {
 		var self = this;
@@ -185,8 +188,8 @@
 	ns.createFacetBox = function(sparqlService, state, constraints) {
 
 		var facetList = ns.createFacetList(sparqlService, state, constraints);
-		$$.document.append(facetList, "#facets-tab");
 
+		/*
 		ns.loadFacets(sparqlService, state, {
 			success: function(state) {
 				// Remove the loading image, and show the facets
@@ -194,6 +197,9 @@
 				facetList.controller.refresh();
 			}
 		});
+		*/
+		
+		return facetList;
 	};
 	
 	ns.FacetItem = $$(
@@ -321,7 +327,7 @@
 	 */
 	ns.createFacetList = function(sparqlService, state, constraints) {
 		var result = $$(
-			{sparqlService: sparqlService, state: state, constraints: constraints},
+			{sparqlService: sparqlService, state: state, constraints: constraints, propertyToItem: {}},
 			'<div>' +
 				'<div id="facets-tab-content-searchContainer">' + 
 					'<form action="">'+ 
@@ -334,13 +340,40 @@
 				create: function() {
 				},
 			
+				setState: function(state) {
+					this.model.set({state: state});
+				},
+				
+				clear: function() {
+					var propertyToItem = this.model.get('propertyToItem');
+
+					// Ugly code to remove all children and update the model
+					var children = _.values(propertyToItem);
+					for(var i = 0; i < children.length; ++i) {
+						var child = children[i];
+						
+						child.destroy();
+					}
+					propertyToItem = {};
+					this.model.set({propertyToItem: propertyToItem});					
+				},
+				
 				refresh: function() {
 					var self = this;
 					
+					this.controller.clear();
+					
+					var propertyToItem = this.model.get('propertyToItem');
+					
 					var state = this.model.get('state');
+					if(!state) {
+						return;
+					}
+					
 					var config = state.config;
 					var sparqlService = this.model.get('sparqlService');
-					var contraints = this.model.get('constraints');
+					var constraints = this.model.get('constraints');
+					
 					
 					var propertyToNode = state.pathManager.getRoot().outgoing;
 					
@@ -349,13 +382,24 @@
 						
 						var data = node.data;
 						var count = data.count;
+						
+						// Do not show facets with a count of 0 
+						if(!count) {
+							continue;
+						}
+						
 						var countStr = (count > config.facetCountThreshold) ? ">" + config.facetCountThreshold : "" + count; 
 
 						var breadcrumb = facets.Breadcrumb.fromString(state.pathManager, propertyName);
 						
-						var newItem = $$(ns.FacetSwitcher, {sparqlService: sparqlService, constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr});
+						var item = propertyToItem[propertyName];
 						
-						self.append(newItem, "ul:first");						
+						if(!item) {						
+							item = $$(ns.FacetSwitcher, {sparqlService: sparqlService, constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr});
+							propertyToItem[propertyName] = item;
+							self.append(item, "ul:first");						
+						}
+						
 					}
 				}
 			}

@@ -134,13 +134,16 @@
 		//var sparqlService = new backend.SparqlServiceVirtuoso("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);
 	
 		var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
-		
+
+		/*
 		var config = new facetbox.FacetConfig(driver, 1001, 10001);
 		var state = new facetbox.FacetState(config, pathManager);
 		
 		var constraints = new facets.ConstraintCollection();
 		
 		facetbox.createFacetBox(sparqlService, state, constraints);
+		*/
+		var constraints = new facets.ConstraintCollection();
 	
 		var options = {
 				queryGenerator: {

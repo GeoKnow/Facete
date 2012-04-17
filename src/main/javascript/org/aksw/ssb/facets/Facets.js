@@ -31,6 +31,7 @@
 		return new ns.PathNode(pathManager, variable);
 	};
 
+	
 	/**
 	 * 
 	 * @param variable A variable name (string)

@@ -170,8 +170,7 @@ a:active {
 
 #tabs-links {
     margin-top: 20px;
-    margin-bottom: 20px;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: bold;
     width: 100%;
     text-align: center;
@@ -180,11 +179,20 @@ a:active {
 #tabs-instances {
     cursor: pointer;
     float: left;
-    margin-left: 25px;
+    margin-left: 20px;
 }
 
 #tabs-facets {
     cursor: pointer;
+    float: left;
+    margin-left: 15px;
+}
+
+#tabs-types {
+    cursor: pointer;
+    float: left;
+    clear: right;
+    margin-left: 15px;
 }
 
 
@@ -192,6 +200,7 @@ a:active {
  * Instances tab
  */
 #instances-tab {
+    margin-top: 50px;
     width: 20px;
     word-wrap: break-word;
 }
@@ -235,6 +244,7 @@ a:active {
     text-align: center;
     margin-left: -6px;
     width: 100%;
+    padding-top: 40px;
 }
 
 #facets-tab-content-searchTextBox {
@@ -263,25 +273,6 @@ a:active {
 
 .ui-tabs-nav {
     margin-left: -35px;
-}
-
-/**
- * Box on the bottom - types
- */
-#box-types-container {
-    position: absolute; 
-    left: 0; 
-    width: 100%; 
-    bottom: 20px;
-}
-
-#box-types {
-    width: 180px;
-    margin: 0 auto; 
-    text-align: left;
-    background-color: #E5E5E5;
-    border: 1px solid #4D4D4D;
-    padding: 5px;
 }
 
 /**
@@ -338,12 +329,13 @@ a:active {
     position: absolute; 
     right: 0px; 
     top: 140px;
-    bottom: 10px;
     margin-right: 10px;
     width: 25%; 
+    height: auto;
     padding-left: 6px;
     padding-top: 6px;
     padding-right: 6px;
+    padding-bottom: 6px;
     background-color: #F9F9F9;
     border: 1px solid #4D4D4D;
     overflow: auto;

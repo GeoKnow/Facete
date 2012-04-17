@@ -4,7 +4,6 @@
  */
 (function($) {
 	
-	
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var facets = Namespace("org.aksw.ssb.facets");

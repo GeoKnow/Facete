@@ -6,6 +6,7 @@
  */
 (function($) {
 
+	var stringUtils = Namespace("org.aksw.ssb.utils.strings");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var talisJsonUtils = Namespace("org.aksw.ssb.utils.talis-json");
@@ -101,7 +102,8 @@
 			result = item.value;
 			
 			if(item.lang) {
-				result += " (" + item.lang +")";
+				// Uncomment to show the language tag
+				//result += " (" + item.lang +")";
 			}			
 		} else {
 			result = key;
@@ -124,18 +126,21 @@
 			var ps = talisJson[s];
 
 			var sLabel = ns.getLabel(s, uriToLabel);
+			var sLabelHtml = stringUtils.escapeHTML(sLabel);
+
 			// Write a heading
 			// TODO Replace URIs with their labels
 			var rowId = 0;
 			// html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
 			html += '<div class="box-facts-content-line">' + 
                         '<div class="box-facts-content-cell-both">' + 
-                            '<a href="' + s + '">' + sLabel + '</a>' +  
+                            '<a href="' + s + '">' + sLabelHtml + '</a>' +  
                         '</div>' + 
                     '</div>';
 			
 			for(p in ps) {
 				var pLabel = ns.getLabel(p, uriToLabel);
+				var pLabelHtml = stringUtils.escapeHTML(pLabel);
 
 				var os = ps[p];
 				
@@ -145,13 +150,15 @@
 
 					var oNode = sparql.Node.fromJson(o);
 					//console.log("oNode", o, oNode);
-					var oLabel = oNode.isUri() ? ns.getLabel(oNode.value, uriToLabel) : oNode.toString();
-
+					var oLabel = oNode.isUri() ? ns.getLabel(oNode.value, uriToLabel) : oNode.value.toString();
+					var oLabelHtml = stringUtils.escapeHTML(oLabel);
+					
+					
 					var pHtml = (i == 0)
-						? '<a href="' + p + '"><span id="label:' + p + '">' + pLabel + '</span></a>'
+						? '<a href="' + p + '"><span id="label:' + p + '">' + pLabelHtml + '</span></a>'
 						: "";
 
-					var oHtml = '<a href="' + o.value + '"><span id="label:' + o.value + '">' + oLabel + '</span></a>';
+					var oHtml = '<a href="' + o.value + '"><span id="label:' + o.value + '">' + oLabelHtml + '</span></a>';
 
 					html += '<div class="box-facts-content-line-' + rowClass[rowId % rowClass.length] + '">' +
                                 '<div class="box-facts-content-cell-left">' + pHtml + '&nbsp;</div>' + 

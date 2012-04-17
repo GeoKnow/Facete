@@ -209,7 +209,7 @@
 
 		var element = new sparql.ElementTriplesBlock(breadcrumb.getTriples());
 		
-		console.warn("baseElement/breadcrumb", baseElement, breadcrumb);
+		//console.warn("baseElement/breadcrumb", baseElement, breadcrumb);
 		
 		//var element = baseElement; //breadcrumb.getTriples();
 		//var inputVar = sparql.Node.v(breadcrumb.sourceNode.variable);
@@ -279,7 +279,7 @@
 		}
 
 		
-		console.log("Created query: " + result);
+		//console.debug("Created query: " + result);
 		return {query: result, outputVars: outputVars };
 		
 	};

@@ -1141,7 +1141,10 @@
 
 			return;
 		}
-		this.setInstances([uriStr], this.viewState.geomToFeatures, this.viewState.idToLabel)
+		
+		if(this.selectedFeature) {
+			this.setInstances([uriStr], this.viewState.geomToFeatures, this.viewState.idToLabel)
+		}
 		this.instanceWidget.refresh();
 
 		

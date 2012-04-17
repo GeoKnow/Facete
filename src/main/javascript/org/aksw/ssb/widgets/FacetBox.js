@@ -77,7 +77,7 @@
 		var query = queryData.query;
 		query.limit = 10;
 		
-		console.log("Values query:", queryData);
+		//console.debug("Values query:", queryData);
 		
 		// Test query
 		//query.elements.push(new sparql.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
@@ -88,7 +88,7 @@
 		
 		sparqlService.executeSelect(query.toString(), {
 			success: function(jsonRs) {
-				console.log("Binding", jsonRs);
+				//console.log("Binding", jsonRs);
 				
 				var outputVar = breadcrumb.targetNode.variable;
 				
@@ -125,7 +125,7 @@
 				var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
 				labelFetcher.fetch(uris, true, function(idToLabel) {
 
-					console.log("Facet value uris", idToLabel);
+					//console.log("Facet value uris", idToLabel);
 
 					for(var i = 0; i < result.length; ++i) {						
 						var val = result[i].node;
@@ -246,7 +246,7 @@
 
 
 	ns.FacetSwitcher = $$(
-		{},
+		{valueToItem: {}},
 		'<li class="facets-tab-content-facetswitcher-li">' + 
 			'<span data-bind="name"/> ' +
 			'(<span data-bind="countStr"/>)' + 
@@ -269,21 +269,21 @@
 				//this.controller.loadValues();
 			}, 
 			
-			loadValues: function() {
+			refresh: function() {
 				var facetElement = this.view.$("div:first");
-				$(facetElement).toggle();
+				var isVisible = $(facetElement).is(":visible");
 
-				
-				var sparqlService = this.model.get('sparqlService');
-				var isLoaded = this.model.get('isLoaded');
-				
-				if(isLoaded) {
-					return;
+				if(isVisible) {
+					//console.log("Refreshing facet value");
+					this.controller.loadValues();
 				}
+			},
+			
+			loadValues: function() {
+				var sparqlService = this.model.get('sparqlService');
 				
 				//this.view.$("ol").html("");
 				
-				this.model.set({isLoaded: true});
 
 				var breadcrumb = this.model.get('breadcrumb');
 				var state = this.model.get('state');
@@ -295,26 +295,94 @@
 			loadFacetValues: function(sparqlService, state, breadcrumb, constraints) {
 				var self = this;
 
-				console.warn("Loading facet values for breadcrumb: ", breadcrumb, constraints);
+				//console.debug("Loading facet values for breadcrumb: ", breadcrumb, constraints);
 				
 				ns.loadFacetValues(sparqlService, state, breadcrumb, {
 					success: function(facetValues) {
+						var valueToItem = self.model.get('valueToItem');
+						
+						var items = _.values(valueToItem);
+						console.log("items", items.length);
+						
+						for(var i = 0; i < items.length; ++i) {
+							var item = items[i];
+							//item.destroy();
+							item.view.$().hide();
+						}						
+						
+						
+						var visibleItems = [];
 						for(var i = 0; i < facetValues.length; ++i) {
 							var facetValue = facetValues[i];
 							
-							console.log("FacetValue:", facetValue);
+							console.log("FacetValue:", facetValue + "", facetValue);
+						
+							if(!facetValue.count) {
+								continue;
+							}
 							
-							var newItem = $$(ns.FacetItem, {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints});
+							var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints};
+
+							var key = facetValue.node.toString();
 							
+
+							var item = valueToItem[key];
+							if(!item) {							
+								item = $$(ns.FacetItem, model);
+								valueToItem[key] = item;
+								self.append(item, "ol");
+							} else {
+								item.model.set(model);
+							}
+							
+							visibleItems.push(item);
 							//self.append(newItem, "ul.eq(1)");
-							self.append(newItem, "ol");
 						}
+						console.log("visible items", visibleItems.length);
+						
+						console.debug("valueToItem", valueToItem);
+						self.model.set({valueToitem: valueToItem});
+						
+						//return;
+
+						//console.log("Visible Items", visibleItems);
+						
+						for(var i = 0; i < visibleItems.length; ++i) {
+							var item = visibleItems[i];
+							item.view.$().show();
+							//self.append(item, "ol");
+						}
+
 					}
 				});
 			},
 			
 			'click span:first': function() {
+				var facetElement = this.view.$("div:first");
+				var isVisible = $(facetElement).is(":visible");
+				
+				console.log("visible", isVisible);
+				
+				if(isVisible) {
+					$(facetElement).hide();
+				} else {
+					$(facetElement).show();
+					this.controller.loadValues();
+				}
+
+				
+				/*
+				$(facetElement).toggle();
+
+				var isLoaded = this.model.get('isLoaded');
+				
+				if(isLoaded) {
+					return;
+				}
+				this.model.set({isLoaded: true});
+
 				this.controller.loadValues();
+				*/
 			}
 		}
 	);
@@ -349,7 +417,7 @@
 					this.model.set({driver: driver}); 
 				},*/
 				
-				clear: function() {
+				hideAll: function() {
 					var propertyToItem = this.model.get('propertyToItem');
 
 					// Ugly code to remove all children and update the model
@@ -357,16 +425,16 @@
 					for(var i = 0; i < children.length; ++i) {
 						var child = children[i];
 						
-						child.destroy();
+						child.view.$().hide(); //destroy();
 					}
-					propertyToItem = {};
+					//propertyToItem = {};
 					this.model.set({propertyToItem: propertyToItem});					
 				},
 				
 				refresh: function() {
 					var self = this;
 					
-					this.controller.clear();
+					this.controller.hideAll();
 					
 					var propertyToItem = this.model.get('propertyToItem');
 					
@@ -399,11 +467,18 @@
 						
 						var item = propertyToItem[propertyName];
 						
+						var model = {sparqlService: sparqlService, constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr};
 						if(!item) {						
-							item = $$(ns.FacetSwitcher, {sparqlService: sparqlService, constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr});
+							item = $$(ns.FacetSwitcher, model);
 							propertyToItem[propertyName] = item;
 							self.append(item, "ul:first");						
+						} else {
+							item.model.set(model);
+							item.view.$().show();
+							//item.controller.refresh();
 						}
+						
+						
 						
 					}
 				}

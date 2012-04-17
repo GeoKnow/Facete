@@ -115,20 +115,20 @@
 		
 		
 		var e = breadcrumb.getTriples();
-		console.log("Breadcrumb:", breadcrumb);
-		console.log("XXXXX:", e.toString());
+		//console.log("Breadcrumb:", breadcrumb);
+		//console.log("XXXXX:", e.toString());
 	
 		
 		var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue.makeNode(sparql.Node.uri("http://test.org")));
 		
-		console.log("Constraint:", constraint.getExpr());
+		//console.log("Constraint:", constraint.getExpr());
 		
 		var factory = new facets.ConstraintWgs84.Factory(breadcrumb);//breadcrumbX, breadcrumbY);
 		
 		var bounds = new qt.Bounds(0, 1, 2, 4);
 		var c2 = factory.create(bounds);
-		console.log("C2:", c2.getExpr().toString());
-		console.log("C2:", c2.getElement().toString());
+		//console.log("C2:", c2.getExpr().toString());
+		//console.log("C2:", c2.getElement().toString());
 	
 	
 		//var sparqlService = new backend.SparqlServiceVirtuoso("http://localhost/sparql", ["http://fintrans.publicdata.eu/ec/"]);

@@ -88,12 +88,21 @@ $.widget("ui.ssb_instances", {
 			++i;
 
 			var id = "inst" + i;
+		
+			var selector = "#" + id; 
 			
-			$("#" + id).click(function(i, key) {
+			$(selector).click(function(i, key) {
 				return function (event) {
 					self._trigger("click", event, {"key": key});
 				};				
 			}(i, key));
+			
+			$(selector).mouseover(function(i, key) {
+				return function (event) {
+					self._trigger("hover", event, {"key": key});
+				};				
+			}(i, key));
+			
 		}
 
 	}

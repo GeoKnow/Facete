@@ -170,29 +170,35 @@ a:active {
 
 #tabs-links {
     margin-top: 20px;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: bold;
     width: 100%;
-    text-align: center;
 }
 
 #tabs-instances {
     cursor: pointer;
     float: left;
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 #tabs-facets {
     cursor: pointer;
     float: left;
-    margin-left: 15px;
+    margin-left: 10px;
 }
 
 #tabs-types {
     cursor: pointer;
     float: left;
     clear: right;
-    margin-left: 15px;
+    margin-left: 10px;
+}
+
+#tabs-places {
+    cursor: pointer;
+    float: left;
+    clear: right;
+    margin-left: 10px;
 }
 
 
@@ -200,11 +206,19 @@ a:active {
  * Instances tab
  */
 #instances-tab {
-    margin-top: 50px;
+    margin-top: 40px;
     width: 20px;
     word-wrap: break-word;
 }
 
+
+#tabs-places-content {
+    margin-top: 20px;
+}
+
+#places-tab {
+    margin-left: 10px;
+}
 
 /**
  * Facets tab
@@ -275,23 +289,6 @@ a:active {
     margin-left: -35px;
 }
 
-/**
- * Box on the top, left - search for places
- */
-#box-places {
-    position: absolute; 
-    right: 0px; 
-    margin-right: 20px;
-    top: 141px;
-    height: auto;
-    width: auto; 
-    padding-left: 6px;
-    padding-top: 6px;
-    padding-right: 6px;
-    background-color: #F9F9F9;
-    border: 1px solid #4D4D4D;
-}
-
 
 /**
  * Search results (in #box-places)
@@ -313,6 +310,7 @@ a:active {
 
 .searchResults-item-name {
     font-weight: bold;
+    cursor: pointer;
 }
 
 .searchResults-item-description {

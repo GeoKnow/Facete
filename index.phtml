@@ -232,6 +232,7 @@
 	    $(document).ready(function(){ 
             $("#tabs-instances").click ( function () {
                 $("#tabs-facets-content").hide ();
+                $("#tabs-places-content").hide ();
                 $("#tabs-types-content").hide ();
                 
                 $("#tabs-instances-content").show ();
@@ -239,17 +240,27 @@
             $("#tabs-facets").click ( function () {
                 $("#tabs-instances-content").hide ();
                 $("#tabs-types-content").hide ();
+                $("#tabs-places-content").hide ();
                 
                 $("#tabs-facets-content").show ();
             });
             $("#tabs-types").click ( function () {
                 $("#tabs-instances-content").hide ();
                 $("#tabs-facets-content").hide ();
+                $("#tabs-places-content").hide ();
                 
                 $("#tabs-types-content").show ();
             });
+            $("#tabs-places").click ( function () {
+                $("#tabs-instances-content").hide ();
+                $("#tabs-facets-content").hide ();
+                $("#tabs-types-content").hide ();
+                
+                $("#tabs-places-content").show ();
+            });
             
             $("#tabs-instances-content").hide ();
+            $("#tabs-places-content").hide ();
             $("#tabs-types-content").hide ();
 	    });
 	
@@ -295,6 +306,8 @@
                     <div id="org.aksw.ssb.ui.label.facets-tab">Facets</div></a>
                 <a id="tabs-types">
                     <div id="org.aksw.ssb.ui.label.types-tab">Types</div></a>
+                <a id="tabs-places">
+                    <div id="org.aksw.ssb.ui.label.places-tab">Places</div></a>
             </div>
             
             <br/>
@@ -315,6 +328,23 @@
                     </form>
                 </div>
 		    </div>
+		    <div id="tabs-places-content">
+                <div>
+                    <div class="tabdiv" id="places-tab">
+                        <div style="float: left;">
+                        <form id="box-places-searchform" action="javascript: doSearch();">
+                            <input type="text" id="search-field" name="search-field" value="Leipzig" autocomplete="off"/>
+                            <input type="image" src="images/search.png" class="icon"/>
+                        </form>
+                        </div>
+                        <p style="font-size:7px;">
+                            powered by
+                            <a href="http://nominatim.openstreetmap.org" target="_blank">Nominatim</a>
+                        </p>		    
+                        <div id="searchResults"></div>
+                    </div>
+                </div>
+		    </div>
 		    
 		</div>
 
@@ -322,25 +352,6 @@
 		
 	    </div>
     
-	</div>
-	    
-	<div id="box-places">
-	    <div>
-		<div class="tabdiv" id="places-tab">
-		    <div style="float: left;">
-			<form id="box-places-searchform" action="javascript: doSearch();">
-			    <input type="text" id="search-field" name="search-field" value="Leipzig" autocomplete="off"/>
-			    <img src="images/search.png" class="icon"/>
-			</form>
-		    </div>
-		    <br/>
-		    <p style="font-size:7px;">
-			powered by
-			<a href="http://nominatim.openstreetmap.org" target="_blank">Nominatim</a>
-		    </p>		    
-		    <div id="searchResults"></div>
-		</div>
-	    </div>
 	</div>
     </body>
 </html>

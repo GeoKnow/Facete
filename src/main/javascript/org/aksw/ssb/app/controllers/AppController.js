@@ -1035,6 +1035,9 @@
 		if(feature) {
 			this.enableHighlight(feature);
 		}
+        
+        // Show fact box
+        $("#box-facts").show ();
 	};
 	
 	

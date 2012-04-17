@@ -115,7 +115,8 @@
 		//console.log("uriToLabel", uriToLabel);
 		var html = "";
 		
-		html += "<table class='facts'>\n";
+		// html += "<table class='facts'>\n";
+        html += "<div id='box-facts-content'>\n";
 
 		var rowClass = ["even", "odd"];
 		
@@ -126,7 +127,12 @@
 			// Write a heading
 			// TODO Replace URIs with their labels
 			var rowId = 0;
-			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
+			// html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
+			html += '<div class="box-facts-content-line">' + 
+                        '<div class="box-facts-content-cell-both">' + 
+                            '<a href="' + s + '">' + sLabel + '</a>' + 
+                        '</div>' + 
+                    '</div>';
 			
 			for(p in ps) {
 				var pLabel = ns.getLabel(p, uriToLabel);
@@ -142,14 +148,16 @@
 					var oLabel = oNode.isUri() ? ns.getLabel(oNode.value, uriToLabel) : oNode.toString();
 
 					var pHtml = (i == 0)
-						? '<a href="' + p + '" class="rdf-predicate"><span id="label:' + p + '">' + pLabel + '</span></a>'
+						? '<a href="' + p + '"><span id="label:' + p + '">' + pLabel + '</span></a>'
 						: "";
 
-					var oHtml = '<a href="' + o.value + '" class="rdf-object"><span id="label:' + o.value + '">' + oLabel + '</span></a>';
+					var oHtml = '<a href="' + o.value + '"><span id="label:' + o.value + '">' + oLabel + '</span></a>';
 
-					html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td>' + pHtml + '</td><td>' + oHtml + '</td></tr>\n';
+					html += '<div class="box-facts-content-line-' + rowClass[rowId % rowClass.length] + '">' +
+                                '<div class="box-facts-content-cell-left">' + pHtml + '&nbsp;</div>' + 
+                                '<div class="box-facts-content-cell-right">' + oHtml + '&nbsp;</div>' +
+                            '</div>\n';
 
-					
 					
 					// Write the predicate for the first row
 					// TODO Create link target
@@ -160,7 +168,7 @@
 		}
 		
 		
-		html += "</table>\n";
+		html += "</div>\n";
 		
 		return html;
 	};

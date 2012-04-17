@@ -330,27 +330,48 @@ a:active {
     right: 0px; 
     top: 140px;
     margin-right: 10px;
-    width: 25%; 
-    height: auto;
+    width: 35%; 
+    max-height: 75%;
     padding-left: 6px;
     padding-top: 6px;
     padding-right: 6px;
-    padding-bottom: 6px;
+    padding-bottom: 14px;
     background-color: #F9F9F9;
     border: 1px solid #4D4D4D;
     overflow: auto;
+    overflow-y: auto;
     display: none;
 }
 
-table.facts {
-	border-collapse:collapse;
+.box-facts-content-line-odd {
+    display: table-row;
 }
 
-tr.odd {
-    background-color: #eeeeff;	
+.box-facts-content-line-even {
+    display: table-row;
+    background-color: #E7E2E2;
 }
 
-tr.even {
+.box-facts-content-cell-both {
+    font-weight: bold;
+    font-size: 17px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    clear: both;
 }
 
- 
+.box-facts-content-cell-left {
+    display:table-cell;
+    width: 40%;
+    height: auto;
+    padding: 3px;
+    font-weight: bold;
+    word-wrap: break-word;
+}
+
+.box-facts-content-cell-right {
+    display:table-cell;
+    padding: 3px;
+    height: auto;
+    word-wrap: break-word;
+}

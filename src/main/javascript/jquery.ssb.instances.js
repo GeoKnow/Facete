@@ -97,11 +97,18 @@ $.widget("ui.ssb_instances", {
 				};				
 			}(i, key));
 			
-			$(selector).mouseover(function(i, key) {
-				return function (event) {
-					self._trigger("hover", event, {"key": key});
-				};				
-			}(i, key));
+			$(selector).hover(
+					function(i, key) {
+						return function (event) {
+							self._trigger("hover", event, {"key": key});
+						};				
+					}(i, key),
+					function(i, key) {
+						return function (event) {
+							self._trigger("unhover", event, {"key": key});
+						};				
+					}(i, key)
+			);
 			
 		}
 

@@ -92,6 +92,8 @@
 		
 		//this.geomToId = new facets.MultiMap(); 
 		
+		this.hoveredItems = [];
+		
 		// Maps prefixes to DescribeService's that provide additional information about
 		// resources
 		this.prefixToService = {};
@@ -207,6 +209,11 @@
 		$("#instances").bind("ssb_instanceshover", function(event, ui) {
 			self.onInstanceHover(ui.key);
 		});
+		
+		$("#instances").bind("ssb_instancesunhover", function(event, ui) {
+			self.onInstanceUnhover(ui.key);
+		});
+
 		
 		$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
 			self.onInstanceClicked(ui.nodeId);
@@ -1034,6 +1041,7 @@
 		
 		var size = new OpenLayers.Size(icon.size.w + 15, icon.size.h + 15);
         icon.setSize(size);  
+        //console.debug("Icon", icon);
 	};
 		
 	ns.AppController.prototype.disableHighlight = function(feature) {
@@ -1043,6 +1051,25 @@
 		icon.setUrl("src/main/resources/icons/markers/marker.png");		
 	};
 		
+	ns.AppController.prototype.onInstanceUnhover = function(uriStr) {
+		this.clearHighlight();
+	};
+
+	ns.AppController.prototype.clearHighlight = function() {
+		var hoveredItems = this.hoveredItems;
+		for(var i = 0; i < hoveredItems.length; ++i) {
+			var item = hoveredItems[i];
+
+			var olFeature = this.nodeToFeature.get(item);
+
+			if(olFeature) {
+				this.disableHighlight(olFeature);
+			}
+		}
+		
+		this.hoveredItems = [];		
+	};
+	
 	ns.AppController.prototype.onInstanceHover = function(uriStr) {
 		if(!this.viewState.geomToFeatures) {
 			console.warn("No geom to feature mapping; viewState is", viewState);
@@ -1059,13 +1086,15 @@
 		var geoms = _.keys(obj);
 		//console.debug("Geometries for uri", uriStr, geoms);
 
+		this.clearHighlight();
+		
 		for(var i = 0; i < geoms.length; ++i) {
 			var geom = geoms[i];
 			
-			var olFeature = this.nodeToFeature.get(geom);
-			
 			//console.debug("Geom & olFeature", geom, olFeature);
+			this.hoveredItems.push(geom);
 			
+			var olFeature = this.nodeToFeature.get(geom);
 			if(olFeature) {
 				this.enableHighlight(olFeature);
 			}

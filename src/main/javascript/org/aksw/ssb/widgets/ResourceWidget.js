@@ -130,7 +130,7 @@
 			// html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
 			html += '<div class="box-facts-content-line">' + 
                         '<div class="box-facts-content-cell-both">' + 
-                            '<a href="' + s + '">' + sLabel + '</a>' + 
+                            '<a href="' + s + '">' + sLabel + '</a>' +  
                         '</div>' + 
                     '</div>';
 			

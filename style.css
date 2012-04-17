@@ -355,7 +355,6 @@ a:active {
     font-size: 17px;
     margin-left: 5px;
     margin-bottom: 5px;
-    clear: both;
 }
 
 .box-facts-content-cell-left {
@@ -372,4 +371,18 @@ a:active {
     padding: 3px;
     height: auto;
     word-wrap: break-word;
+}
+
+#box-facts-closebutton {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    margin-top: 3px;
+    margin-right: 5px;
+    float: left;
+}
+
+#box-facts-closebutton-img {
+    width: 14px;
+    text-align: middle;
 }

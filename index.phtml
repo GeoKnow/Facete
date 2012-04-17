@@ -262,6 +262,10 @@
             $("#tabs-instances-content").hide ();
             $("#tabs-places-content").hide ();
             $("#tabs-types-content").hide ();
+            
+            $("#box-facts-closebutton-img").click(function () {
+                $("#box-facts").fadeOut ('slow');
+            });
 	    });
 	
 	</script>
@@ -348,7 +352,11 @@
 		    
 		</div>
 
-		<div id="box-facts"></div>
+		<div id="box-facts">
+            <div id="box-facts-closebutton">
+                <img src="images/cross.svg" id="box-facts-closebutton-img"/>
+            </div>
+        </div>
 		
 	    </div>
     

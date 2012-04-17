@@ -821,9 +821,37 @@
 
 		//console.log("label:", this.nodeToLabel);
 		// HACK Find a better way to deal with the instances
+		this.viewState.geomToFeatures = geomToFeatures;
+
+		// TODO: idToLabel should be the replaced by a LabelFetcher
+		this.viewState.idToLabel = idToLabel;
+		this.setInstances(visibleGeoms, geomToFeatures, idToLabel);
+		
+		
+		
+		/*
+		for(id in idToLabel) {
+			var label = idToLabel[id];
+			this.nodeToLabel.put(id, label);
+		}
+		*/
+
+		// TODO HACK If nothing is selected, update the instance list
+		if(!this.selectedFeature) {
+			this.instanceWidget.refresh();
+		}
+		
+		
+		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
+		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.uri(x); });
+		
+		this.updateFacetCountsGeom(visibleGeomNodes);
+	};
+
+	ns.AppController.prototype.setInstances = function(geoms, geomToFeatures, idToLabel) {
 		this.nodeToLabel.clear();
-		for(var i = 0; i < visibleGeoms.length; ++i) {
-			var geom = visibleGeoms[i];
+		for(var i = 0; i < geoms.length; ++i) {
+			var geom = geoms[i];
 
 			var features = geomToFeatures.get(geom);
 			if(!features) {
@@ -836,26 +864,9 @@
 				var label = idToLabel[feature];
 				this.nodeToLabel.put(feature, label);				
 			}
-		}
-
-		this.viewState.geomToFeatures = geomToFeatures;
-		
-		/*
-		for(id in idToLabel) {
-			var label = idToLabel[id];
-			this.nodeToLabel.put(id, label);
-		}
-		*/
-
-		this.instanceWidget.refresh();
-		
-		
-		
-		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
-		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.uri(x); });
-		
-		this.updateFacetCountsGeom(visibleGeomNodes);
+		}		
 	};
+	
 	
 	ns.AppController.prototype.setSparqlService = function(sparqlService) {
 		this.sparqlService = sparqlService;
@@ -1121,7 +1132,19 @@
 		
 		var feature = self.nodeToFeature.get(uriStr);
 		
+		// If we click the same marker again, we de-select it
+		if(this.selectedFeature === feature) {
+			this.selectedFeature = null;
+			
+			this.setInstances(this.viewState.visibleGeoms, this.viewState.geomToFeatures, this.viewState.idToLabel)
+			this.instanceWidget.refresh();
 
+			return;
+		}
+		this.setInstances([uriStr], this.viewState.geomToFeatures, this.viewState.idToLabel)
+		this.instanceWidget.refresh();
+
+		
 		this.selectedFeature = feature;
 
 		if(feature) {

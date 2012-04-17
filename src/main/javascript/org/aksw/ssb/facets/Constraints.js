@@ -32,6 +32,12 @@
 		}
 	};
 	
+	ns.MultiMap.prototype.get = function(key) {
+		return (key in this.entries)
+			? this.entries[key]
+			: [];
+	};
+	
 	ns.MultiMap.prototype.put = function(key, value) {
 		var values;
 		
@@ -44,10 +50,138 @@
 		
 		values.push(value);
 	};
-	
+
 	ns.MultiMap.prototype.removeKey = function(key) {
 		delete this.entries[key];
 	};
+	
+	
+	
+	
+	
+	ns.SetMultiMap = function() {
+		this.entries = {};
+	};
+	
+	ns.SetMultiMap.prototype.clear = function() {
+		this.entries = {};
+	};
+	
+	/*
+	ns.SetMultiMap.prototype.addMultiMap = function(other) {
+		for(var key in other.entries) {
+			var values = other.entries[key];
+			
+			for(var i = 0; i < values.length; ++i) {
+				var value = values[i];
+				
+				this.put(key, value);
+			}			
+		}
+	};
+	*/
+	
+	ns.SetMultiMap.prototype.put = function(key, value) {
+		var values;
+		
+		if(key in this.entries) {
+			values = this.entries[key];
+		} else {
+			values = {};
+			this.entries[key] = values;
+		}
+		
+		values[value] = true;
+	};
+
+	ns.SetMultiMap.prototype.removeKey = function(key) {
+		delete this.entries[key];
+	};
+	
+	ns.SetMultiMap.prototype.clear = function(key) {
+		this.entries = {};
+	};
+	
+	ns.SetMultiMap.prototype.get = function(key) {
+		return (key in this.entries)
+			? _.keys(this.entries[key])
+			: [];
+	};
+	
+	
+	
+	ns.BidiMultiMap = function(forward, inverse, inverseMap) {
+		this.forward = forward; //new ns.MultiMap();
+		this.inverse = inverse; //new ns.MultiMap();
+		
+		if(!inverseMap) {
+			inverseMap = new ns.BidiMultiMap(inverse, forward, this);
+		}
+		
+		this.inverseMap = inverseMap;
+	};
+	
+	ns.BidiMultiMap.prototype.inverseMap = function() {
+		return inverseMap;
+	};
+
+	ns.BidiMultiMap.createWithSet = function(ctor) {
+		return new ns.BidiMultiMap(new ns.SetMultiMap(), new ns.SetMultiMap());
+	};
+	
+	ns.BidiMultiMap.prototype.put = function(key, value) {			
+		this.forward.put(key, value);
+		this.inverse.put(value, key);
+	};
+
+
+	ns.BidiMultiMap.prototype.remove = function(key, value) {
+		this.forward.remove(key, value);
+		this.inverse.remove(value, key);
+	};
+		
+	/**
+	 * Note: use putAllValues(someKey, {})
+	 * to make a key known.
+	 * 
+	 */
+	ns.BidiMultiMap.prototype.putAllValues = function(key, values) {
+		if(!(key in this.forward.entries)) {
+			this.forward.entries[key] = {};
+		}
+		
+		for(value in values) {
+			this.put(key, value);
+		}
+	};
+
+	ns.BidiMultiMap.prototype.putAll = function(other) {
+		for(key in other.forward.entries) {
+			this.putAllValues(key, other.forward.entries[key]);
+		}
+	};
+
+	ns.BidiMultiMap.prototype.get = function(key) {
+		return this.forward.get(key);
+	};
+		
+	ns.BidiMultiMap.prototype.getFirst = function(key) {
+		var a = this.get(key);
+		if(a) {
+			//console.log(a);
+			
+			var keys = getKeys(a);			
+			if(keys.length > 0) {
+				return keys[0];
+			}
+		}
+	};
+	
+	ns.BidiMultiMap.prototype.clear = function() {
+		this.forward.clear();
+		this.backward.clear();
+	};
+		
 	
 	ns.ConstraintCollection = function() {
 		this.idToConstraints = new ns.MultiMap(); 

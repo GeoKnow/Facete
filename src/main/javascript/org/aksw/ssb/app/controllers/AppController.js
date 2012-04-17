@@ -90,7 +90,7 @@
 		this.map = null;
 		this.instanceWidget = null;
 		
-		this.geomToId = new facets.MultiMap(); 
+		//this.geomToId = new facets.MultiMap(); 
 		
 		// Maps prefixes to DescribeService's that provide additional information about
 		// resources
@@ -172,9 +172,11 @@
 		// Facet box
 		var queryGenerator = this.queryGenerator;
 		var constraints = queryGenerator.constraints;
-		var config = new facetbox.FacetConfig(queryGenerator.driver, 1001, 10001);
 		
-		this.facetState = new facetbox.FacetState(config, queryGenerator.pathManager);
+		//var facetConfig = new facetbox.FacetConfig(1001, 10001);
+		var facetConfig = new facetbox.FacetConfig(1001, null);
+		
+		this.facetState = new facetbox.FacetState(facetConfig, queryGenerator.driver, queryGenerator.pathManager);
 				
 		this.facetbox = facetbox.createFacetBox(this.sparqlService, this.facetState, constraints);
 		$$.document.append(this.facetbox, "#facets-tab");
@@ -201,10 +203,16 @@
 		$("#instances").bind("ssb_instancesclick", function(event, ui) {
 			self.onInstanceClicked(ui.key);		
 		});
+
+		$("#instances").bind("ssb_instanceshover", function(event, ui) {
+			self.onInstanceHover(ui.key);
+		});
 		
 		$("#map").bind("ssb_maponmarkerclick", function(event, ui) {
 			self.onInstanceClicked(ui.nodeId);
 		});
+		
+		
 		
 		$("#map").bind("ssb_maponmapevent", function(event, ui) {
 		
@@ -265,7 +273,7 @@
 		
 		// We are dealing with quad-tree-bounds here
 		var bounds = toQuadTreeBounds(olBounds);
-		console.log("Refresh bounds", bounds);
+		//console.log("Refresh bounds", bounds);
 
 		// TODO Check if another refresh request is running.
 		// If so, make this request wait for the other running one, thereby
@@ -298,7 +306,7 @@
 		
 		cacheEntry.load(bounds, {
 			success: function(nodes, bounds) {
-				console.log("Loaded " + nodes.length + " nodes");
+				//console.debug("Loaded " + nodes.length + " nodes");
 
 				// TODO Fix qtc.diff so we can use it here to optimize the update
 				
@@ -372,11 +380,11 @@
 		var geomToY = {};
 		
 		rdf.where("?geom " + geo.long + " ?x .").each(function() {
-			geomToX[this.geom] = this.x.value;
+			geomToX[this.geom.value] = this.x.value;
 		});
 		
 		rdf.where("?geom " + geo.lat + " ?y").each(function() {
-			geomToY[this.geom] = this.y.value;
+			geomToY[this.geom.value] = this.y.value;
 		});
 		
 		for(var geom in geomToX) {
@@ -413,11 +421,31 @@
 	
 	ns.AppController.prototype.updateFacetCountsGeom = function(uris) {
 		var self = this;
-		var query = this.createFacetQueryCountVisibleGeomNested(uris);
+		var driver = this.createFacetQueryCountVisibleGeomNested(uris);
+		
+		var query = queryUtils.createFacetQueryCount(driver.element, driver.variable);
+		
+		
+		// Set the driver of the facet state to the new query element
+		this.facetState.driver = driver;
 		
 		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
 		//console.log("Facet Query", query.toString());
 
+		
+		// clear the pathManager
+		var propertyToNode = this.facetState.pathManager.getRoot().outgoing;
+		
+		for(var propertyName in propertyToNode) {
+			var node = propertyToNode[propertyName];
+			
+			if(node.data) {
+				node.data.count = 0;
+			}
+		}
+
+		
+		
 		if(!uris.length) {
 			self.facetbox.controller.setState(null);
 			self.facetbox.controller.refresh();
@@ -427,10 +455,11 @@
 		this.sparqlService.executeSelect(query.toString(), {
 			success: function(jsonRs) {
 				
-				console.log("jsonRs for facet counts", jsonRs);
+				//console.log("jsonRs for facet counts", jsonRs);
 				facetbox.processFacets(self.facetState, jsonRs, self.labelFetcher, {
 					success: function(facetState) {
 						self.facetbox.controller.setState(facetState);
+						//self.facetbox.controller.setDriver(driver);
 						self.facetbox.controller.refresh();
 					}
 				});
@@ -581,7 +610,7 @@
 	 * facet counting (sucks) or fetch all data (might suck)
 	 * 
 	 * @param uris
-	 * @returns
+	 * @returns A Driver object (element, var)
 	 */
 	ns.AppController.prototype.createFacetQueryCountVisibleGeomNested = function(uris) {
 
@@ -619,7 +648,8 @@
 		
 		var element = new sparql.ElementGroup(elements);		
 		
-		var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+		var result = new facets.Driver(element, this.queryGenerator.driver.variable);
 
 		return result;
 	};
@@ -708,7 +738,7 @@
 		 * 1) relations between geometries and features
 		 * 2) labels of the features 
 		 */
-		var geomToFeatures = new facets.MultiMap();
+		var geomToFeatures = facets.BidiMultiMap.createWithSet();
 		var idToLabel = {}; // TODO I don't think there is much point in having the labels here already; they should be fetched separately using the LabelFetcher
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
@@ -721,16 +751,17 @@
 			var rdf = $.rdf({databank: databank});
 			
 			rdf.where("?id " + geovocab.geometry + " ?geom").each(function() {
-				geomToFeatures.put(this.geom, this.id);
+				//console.log("entry", this.geom, this.id);
+				geomToFeatures.put(this.geom.value, this.id.value);
 			});
 
 			
 			rdf.where("?id " + rdfs.label + " ?label").each(function() {
-				idToLabel[this.id] = this.label.value;
+				idToLabel[this.id.value] = this.label.value;
 			});			
 		}
 		
-		console.log("idToLabel", idToLabel);
+		//console.log("idToLabel", idToLabel);
 		
 		// TODO Separate the following part into a new method
 		// (First part does the data fetching/preparation,
@@ -781,13 +812,13 @@
 
 		//console.debug("Number of visible geoms", visibleGeoms.length);
 
-		console.log("label:", this.nodeToLabel);
+		//console.log("label:", this.nodeToLabel);
 		// HACK Find a better way to deal with the instances
 		this.nodeToLabel.clear();
 		for(var i = 0; i < visibleGeoms.length; ++i) {
 			var geom = visibleGeoms[i];
 
-			var features = geomToFeatures.entries[geom];
+			var features = geomToFeatures.get(geom);
 			if(!features) {
 				continue;
 			}
@@ -800,6 +831,8 @@
 			}
 		}
 
+		this.viewState.geomToFeatures = geomToFeatures;
+		
 		/*
 		for(id in idToLabel) {
 			var label = idToLabel[id];
@@ -811,8 +844,8 @@
 		
 		
 		
-		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
-		
+		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
+		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.uri(x); });
 		
 		this.updateFacetCountsGeom(visibleGeomNodes);
 	};
@@ -1010,14 +1043,44 @@
 		icon.setUrl("src/main/resources/icons/markers/marker.png");		
 	};
 		
+	ns.AppController.prototype.onInstanceHover = function(uriStr) {
+		if(!this.viewState.geomToFeatures) {
+			console.warn("No geom to feature mapping; viewState is", viewState);
+			return;
+		}
+		var featureToGeoms = this.viewState.geomToFeatures.inverse.entries;
+		
+		var obj = featureToGeoms[uriStr];
+		if(!obj) {
+			console.warn("No geometries for feature", uriStr, featureToGeoms);
+			return;
+		}
+		
+		var geoms = _.keys(obj);
+		//console.debug("Geometries for uri", uriStr, geoms);
+
+		for(var i = 0; i < geoms.length; ++i) {
+			var geom = geoms[i];
+			
+			var olFeature = this.nodeToFeature.get(geom);
+			
+			//console.debug("Geom & olFeature", geom, olFeature);
+			
+			if(olFeature) {
+				this.enableHighlight(olFeature);
+			}
+
+		}		
+	};
 		
 	ns.AppController.prototype.onInstanceClicked = function(uriStr) {
 		Dispatcher.fireEvent("selection", uriStr);
 		
 		console.log("Clicked: " + uriStr);
 
-		// NOTE The 
-		var node = sparql.Node.parse(uriStr);
+ 
+		//var node = sparql.Node.parse(uriStr);
+		node = sparql.Node.uri(uriStr);
 		this.showDescription([node]);
 		
 		

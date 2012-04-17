@@ -341,7 +341,7 @@
 		//console.debug("Aquiring nodes for " + bounds);
 		var nodes = this.quadTree.aquireNodes(bounds, 2);
 		
-		console.debug("Aquired " + nodes.length + " nodes for " + bounds);
+		//console.debug("Aquired " + nodes.length + " nodes for " + bounds);
 
 		// Uncomment for output of aquired nodes
 		/*

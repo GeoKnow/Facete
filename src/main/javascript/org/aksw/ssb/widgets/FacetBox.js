@@ -25,7 +25,7 @@
 	ns.loadFacets = function(sparqlService, state, callback) {
 		var config = state.config;
 
-		var query = queryUtils.createFacetQueryCount(config.driver.element, config.driver.variable, config.sampleSize);
+		var query = queryUtils.createFacetQueryCount(state.driver.element, state.driver.variable, config.sampleSize);
 
 		//console.log("Loading facets with", query.toString());
 		
@@ -71,7 +71,7 @@
 	ns.loadFacetValues = function(sparqlService, state, breadcrumb, callback) {
 		var self = this;
 
-		var baseElement = state.config.driver.element;
+		var baseElement = state.driver.element;
 		
 		var queryData = queryUtils.createFacetValuesQuery(baseElement, breadcrumb, state.config.sampleSize);
 
@@ -162,9 +162,8 @@
 	 * sampleSize: Number of resources (usually instances) to consider (e.g. for counting properties)
 	 * 
 	 */
-	ns.FacetConfig = function(driver, facetCountThreshold, sampleSize) {
-		// TODO Maybe combine driver/var into a single object
-		this.driver = driver;		
+	ns.FacetConfig = function(facetCountThreshold, sampleSize) {
+		//this.driver = driver;		
 		this.facetCountThreshold = facetCountThreshold;
 		this.sampleSize = sampleSize;
 	};
@@ -177,8 +176,9 @@
 	 * 
 	 * 
 	 */
-	ns.FacetState = function(config, pathManager) {
+	ns.FacetState = function(config, driver, pathManager) {
 		this.config = config;
+		this.driver = driver;
 		//this.pathManager = new facets.PathManager(config.driver.variable.value);
 		//this.pathManager = pathManager;
 		this.pathManager = pathManager;
@@ -239,6 +239,7 @@
 		
 		'click span:first': function() {
 		},
+
 		'click button': function() {
 		this.destroy();
 		}
@@ -343,6 +344,11 @@
 				setState: function(state) {
 					this.model.set({state: state});
 				},
+				
+				/*
+				setDriver: function(driver) {
+					this.model.set({driver: driver}); 
+				},*/
 				
 				clear: function() {
 					var propertyToItem = this.model.get('propertyToItem');

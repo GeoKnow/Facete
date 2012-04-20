@@ -452,7 +452,7 @@
 		this.facetState.clearCounts();
 		
 		if(!uris.length) {
-			self.facetbox.controller.setState(null);
+			//self.facetbox.controller.setState(null);
 			self.facetbox.controller.refresh();
 			return;
 		}
@@ -466,9 +466,8 @@
 		$.when(this.updateFacetCountsGeomRec(this.sparqlService, state, node, propertyNameToItem)).then(function(facetState) {
 			
 			//console.log("facetstate", facetState);
-			self.facetbox.controller.setState(facetState);
+			//self.facetbox.controller.setState(state);
 			self.facetbox.controller.refresh();
-			
 		});
 		
 	}

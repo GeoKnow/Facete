@@ -209,10 +209,12 @@
 			},
 			
 			syncValues: function(state) {
-						
+		
+				
 				var constraints = this.model.get('constraints');
 				var valueToItem = this.model.get('valueToItem');
 				var breadcrumb = this.model.get('breadcrumb');
+		
 				
 				// Hide
 				var facetValues = breadcrumb.targetNode.facetValues;
@@ -222,15 +224,19 @@
 					var facetValue = facetValues[facetValueStr];
 					
 					if(!facetValue) {
+						//console.log("hide", item);
 						item.view.$().hide();
 					}
 				}
+
+				
 				
 				//state.pathManager.getNode()
-				console.log("FacetValue:", facetValues + "", facetValues);
+				//console.log("FacetValue:", facetValues + "", facetValues);
 				if(!facetValues) {
 					facetValues = {};
 				}
+				//console.log("a", _.keys(valueToItem).length, facetValues.length);
 				
 				var newItems  = [];
 				var visibleItems = [];
@@ -245,7 +251,7 @@
 					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints};
 
 					var key = facetValue.node.toString();
-					
+					//console.debug("Key", key, valueToItem);
 
 					var item = valueToItem[key];
 					if(!item) {							
@@ -260,11 +266,21 @@
 					//self.append(newItem, "ul.eq(1)");
 				}
 				
+				//console.log("newItems", newItems.length);
+
+				/*
+				if(_.keys(valueToItem).length) {
+					return;
+				}*/
+
+				
 				for(var i = 0; i < newItems.length; ++i) {
 					var item = newItems[i];
-					this.append(item, "ol");
+					this.append(item, "ol:first");
 				}
 				
+				//console.log("visibleitems", visibleItems.length);
+
 				
 				for(var i = 0; i < visibleItems.length; ++i) {
 					var item = visibleItems[i];
@@ -432,9 +448,12 @@
 						}						
 					}
 
+					//console.log("Refresh");
+
 					if(!state) {
 						return;
 					}
+					
 					
 					var config = state.config;
 					//var sparqlService = this.model.get('sparqlService');

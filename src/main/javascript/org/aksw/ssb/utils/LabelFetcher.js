@@ -2,13 +2,20 @@
 
 	var ns = Namespace("org.aksw.ssb.utils");
 
-	ns.LabelFetcher = function(sparqlService, langs, fetchAllLangs) {
+	
+	ns.LabelFetcher = function(sparqlService, langs, fetchAllLangs, cache) {
 		this.langs = langs ? langs : ['en', ''];
 		this.fetchAllLangs = fetchAllLangs ? fetchAllLangs : true;
 		this.sparqlService = sparqlService;
 		
-		this.cache = new LabelCollection();		
+		this.cache = cache ? cache : ns.LabelFetcher.defaultCache;		
 	};
+	
+	// A cache instance that is shared among label fetcher instances
+	// NOTE Data based on different LabelFetcher
+	// configurations will go into the same cache.
+	ns.LabelFetcher.defaultCache = new LabelCollection();
+
 	
 	/**
 	 * 
@@ -60,8 +67,13 @@
 		lookups = filterUrisValidate(lookups);
 	
 		if(lookups.length == 0) {
-			callback(result);
-			return result;
+			if(callback) {				
+				callback(result);
+			}
+			defer = $.Deferred();
+			defer.resolve(result);
+			//defer.promise();
+			return defer.promise();
 		}
 		
 		//console.debug("Fetching labels for (<" + uris.join('> , <') + ">)");
@@ -88,39 +100,39 @@
 	
 		//var self = this;
 		//alert(queryString);
-		var promise = this.sparqlService.executeSelect(queryString, {
-			failure: function() { notify("Error", "Sparql Query Failed"); },
-			success: function(rs) {
+		var deferred = this.sparqlService.executeSelect(queryString).pipe(function(rs) {	
+			// Add the results to the cache
+			for(var i in rs.results.bindings) {
+				var binding = rs.results.bindings[i];
 				
-	
-				// Add the results to the cache
-				for(var i in rs.results.bindings) {
-					var binding = rs.results.bindings[i];
-					
-					var uri = binding.u.value;
-					var labelNode = binding.l;
-					
-					// possible BUG Shouldn't xml:lang be lang for valid Talis Json?
-					var lang = labelNode["xml:lang"];
-					if(!lang) {
-						lang = "";
-					}
-					
-					//console.debug("Got label", uri, lang, labelNode.value);
-					
-					self.cache.put(uri, lang, labelNode.value);
+				var uri = binding.u.value;
+				var labelNode = binding.l;
+				
+				// possible BUG Shouldn't xml:lang be lang for valid Talis Json?
+				var lang = labelNode["xml:lang"];
+				if(!lang) {
+					lang = "";
 				}
 				
-				var lr = self.cacheLookup(lookups, includeAllUris);
-				var map = lr.entries;
-				console.log("LabelCache", self.cache);
-				//mergeMapsInPlace(result, map);
-				_.extend(result, map);
+				//console.debug("Got label", uri, lang, labelNode.value);
+				
+				self.cache.put(uri, lang, labelNode.value);
+			}
+			
+			var lr = self.cacheLookup(lookups, includeAllUris);
+			var map = lr.entries;
+			console.log("LabelCache", self.cache);
+			//mergeMapsInPlace(result, map);
+			_.extend(result, map);
+			
+			if(callback) {
 				callback(result);
 			}
+			
+			return result;
 		});	
 	
-		return promise;
+		return deferred.promise();
 	};
 	
 	

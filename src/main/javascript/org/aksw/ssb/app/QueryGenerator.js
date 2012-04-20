@@ -85,6 +85,7 @@
 	};
 	*/
 	
+	
 	/**
 	 * Creates a SPARQL query for fetching resources, geo-coordinates, labels (and possibly more)
 	 * based on all available constraints.
@@ -92,9 +93,13 @@
 	 * Returns an object with the query object, and a set of semantic mappings of the queryies
 	 * variable (e.g. {label: v_1}
 	 * 
+	 * Options:
+	 *     disableConstraints
+	 *
+	 * 
 	 * @returns A QueryFactoryGeo object that contains the base query and supports adding bbox constraints
 	 */
-	ns.QueryGenerator.prototype.createQueryFactory = function() {
+	ns.QueryGenerator.prototype.createQueryFactory = function(options) {
 		
 		var query = new sparql.Query();
 		
@@ -127,11 +132,12 @@
 
 
 		// Add facet constraints
-		var element = this.constraints.getSparqlElement();
-		if(element) {
-			query.elements.push(element);
+		if(options && options.disableConstraints) {
+			var element = this.constraints.getSparqlElement();
+			if(element) {
+				query.elements.push(element);
+			}
 		}
-
 		
 		// TODO We need to find out the variables which should be fetched.
 		var labelBc = new facets.Breadcrumb.fromString(this.pathManager, rdfs.label.value);
@@ -191,6 +197,44 @@
 		//BreadCrumb.getVariables()
 	};
 	
+	
+	/**
+	 * Create a query that fetches resources only based on the constraints - i.e.
+	 * not based on a bbox- constraint.
+	 * 
+	 * The idea is, if counting the result returns few instances,
+	 * it we can fetch all data without bothering about geo-constraints.
+	 * 
+	 * This can be useful for constraints such as: (label = 'foo').
+	 * In this case there query should return quickly with only at most a handful of instances.
+	 * 
+	 * 
+	 */
+	ns.QueryGenerator.prototype.createGlobalQuery = function() {
+				
+		var elements = [];
+		
+		elements.push(this.driver.element);
+		
+		var triplesBlock = new sparql.ElementTriplesBlock();
+		
+		elements.push(triplesBlock);
+		triplesBlock.addTriples(this.geoConstraintFactory.getTriples());
+
+		// Add facet constraints
+		var element = this.constraints.getSparqlElement();
+		if(element) {
+			elements.push(element);
+		}
+		
+		triplesBlock.uniq();
+		
+		var elementGroup = new sparql.ElementGroup(elements);
+
+		return new facets.Driver(elementGroup, this.driver.variable);
+	};
+	
+
 	ns.QueryGenerator.prototype.setDriver = function(driver) {
 		this.driver = driver;
 	};
@@ -199,17 +243,18 @@
 		this.geoConstraintFactory = geoConstraintFactory;
 	};
 	
+	/*
 	ns.QueryGenerator.prototype.refresh = function(bounds) {
 		var query = this.createQuery(bounds);
 		
 		console.log(query.toString());
 		
-		/*
+		/ *
 		this.sparqlService.executeSelect(query.toString(), function(jsonRdf) {
 			// TODO Process the result
 		});
-		*/
-	};
-
+		* /
+	};*/
+	
 })();
 

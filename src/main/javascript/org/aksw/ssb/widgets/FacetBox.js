@@ -20,7 +20,7 @@
 	/**
 	 * This method fetches the initial facets for a given driver.
 	 * 
-	 */
+	 * /
 	ns.loadFacets = function(sparqlService, state, callback) {
 		var config = state.config;
 
@@ -38,118 +38,9 @@
 			}
 		});
 	};
-
+*/
 	
-	ns.processFacets = function(state, jsonRs, labelFetcher, callback) {
-		//console.log("Facet result set", jsonRs);
 		
-		var result = state; 
-		var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
-	
-		//console.log("labelFetcher", $.ssb);
-		labelFetcher.fetch(_.keys(map), true, function(idToLabel) {
-															
-			for(var propertyName in map) {
-				
-				var label = propertyName;
-				if(propertyName in idToLabel) {
-					label = idToLabel[propertyName].value;
-				}
-													
-				var count = map[propertyName];
-				
-				var node = result.pathManager.getRoot().getOrCreate(propertyName);
-
-				node.data = {count: count, label: label};
-			}
-			
-			callback.success(result);
-		});		
-	};
-	
-	ns.loadFacetValues = function(sparqlService, state, breadcrumb, callback) {
-		var self = this;
-
-		var baseElement = state.driver.element;
-		
-		var queryData = queryUtils.createFacetValuesQuery(baseElement, breadcrumb, state.config.sampleSize);
-
-		var query = queryData.query;
-		query.limit = 10;
-		
-		//console.debug("Values query:", queryData);
-		
-		// Test query
-		//query.elements.push(new sparql.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
-		
-		// The result is a list of facet values:
-		// (valueNode, label, count)
-		var result = [];
-		
-		sparqlService.executeSelect(query.toString(), {
-			success: function(jsonRs) {
-				//console.log("Binding", jsonRs);
-				
-				var outputVar = breadcrumb.targetNode.variable;
-				
-				var bindings = jsonRs.results.bindings;
-				
-				for(var i = 0; i < bindings.length; ++i) {
-					var binding = bindings[i];
-					var val = binding[outputVar];
-					
-					var valueNode = sparql.Node.fromJson(val);
-					var count = binding["__c"].value;// TODO Maybe parse as int
-					
-					result.push(new ns.FacetValue(valueNode, count));
-				}
-					
-				
-				//console.log("Raw facet values:", result);
-				//var vars = jsonRs.head.vars;
-				
-				// TODO We need a discriminator column so we know which facet the values correspond to
-				//var map = jsonRdfResultSetToMap(jsonRs, "var1", "__c");
-		
-				var uris = [];
-				for(var i = 0; i < result.length; ++i) {
-					var val = result[i].node.value.toString();
-
-					if(val.startsWith("http://")) {
-						uris.push(val);
-					}
-				}
-				
-				//console.log("Value URIs", uris, map);
-				
-				var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
-				labelFetcher.fetch(uris, true, function(idToLabel) {
-
-					//console.log("Facet value uris", idToLabel);
-
-					for(var i = 0; i < result.length; ++i) {						
-						var val = result[i].node;
-						
-						var label = idToLabel[val.value];
-						if(!label) {
-							label = val;
-						}
-						
-						result[i].label = label;						
-					}
-
-					callback.success(result, idToLabel);
-				});
-			}
-		});
-	},
-	
-	
-	ns.FacetValue = function(node, count) {
-		this.node = node;
-		this.count = count;
-	};
-	
 	/**
 	 * A facet configuration maps breadcrumb strings to basic information:
 	 * counts, a set of values and for each value its count.
@@ -183,10 +74,21 @@
 		this.pathManager = pathManager;
 	};
 	
+	ns.FacetState.prototype.clearCounts = function() {
+		var propertyToNode = this.pathManager.getRoot().outgoing;
+		
+		for(var propertyName in propertyToNode) {
+			var node = propertyToNode[propertyName];
+			
+			if(node.data) {
+				node.data.count = 0;
+			}
+		}		
+	};
 	
-	ns.createFacetBox = function(sparqlService, state, constraints) {
+	ns.createFacetBox = function(state, constraints) {
 
-		var facetList = ns.createFacetList(sparqlService, state, constraints);
+		var facetList = ns.createFacetList(state, constraints);
 
 		/*
 		ns.loadFacets(sparqlService, state, {
@@ -223,7 +125,7 @@
 			var id = breadcrumb.toString() + " @" + facetValue.node.toString();
 			
 			var isEnabled = !this.model.get("isEnabled");
-			console.log("Enabled:", isEnabled, id);
+			//console.log("Enabled:", isEnabled, id);
 			if(isEnabled) {			
 				constraints.put(id, constraint);
 			} else {
@@ -231,9 +133,9 @@
 			}
 			
 			//console.log("Boom", facetValue, constraints, breadcrumb);
-			console.log("constraint", constraints);
+			//console.log("constraint", constraints);
 			
-			console.log("Sparql element", constraints.getSparqlElement());
+			//console.log("Sparql element", constraints.getSparqlElement());
 		},
 		
 		'click span:first': function() {
@@ -259,7 +161,8 @@
 					'<ol></ol>' + 
 				'</div>' + 
 				'<div class="tabdiv" id="t2">Facets not loaded</div>' + 
-			'</div>', 
+			'</div>' +
+		'</li>', 
 		'& span { cursor:pointer; }',
 		{
 			create: function() {
@@ -280,88 +183,106 @@
 			},
 			
 			loadValues: function() {
-				var sparqlService = this.model.get('sparqlService');
-				
-				//this.view.$("ol").html("");
-				
-
 				var breadcrumb = this.model.get('breadcrumb');
 				var state = this.model.get('state');
 				var constraints = this.model.get('constraints');
 			
-				this.controller.loadFacetValues(sparqlService, state, breadcrumb, constraints);
+				//this.controller.loadFacetValues(sparqlService, state, breadcrumb, constraints);
+				this.controller.syncValues(state);
 			},
 			
-			loadFacetValues: function(sparqlService, state, breadcrumb, constraints) {
-				var self = this;
-
-				//console.debug("Loading facet values for breadcrumb: ", breadcrumb, constraints);
+			getVisibleBreadcrumbsValues: function(result) {
+				if(!result) {
+					result = [];
+				}
 				
-				ns.loadFacetValues(sparqlService, state, breadcrumb, {
-					success: function(facetValues) {
-						var valueToItem = self.model.get('valueToItem');
-						
-						var items = _.values(valueToItem);
-						console.log("items", items.length);
-						
-						for(var i = 0; i < items.length; ++i) {
-							var item = items[i];
-							//item.destroy();
-							item.view.$().hide();
-						}						
-						
-						
-						var visibleItems = [];
-						for(var i = 0; i < facetValues.length; ++i) {
-							var facetValue = facetValues[i];
-							
-							console.log("FacetValue:", facetValue + "", facetValue);
-						
-							if(!facetValue.count) {
-								continue;
-							}
-							
-							var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints};
-
-							var key = facetValue.node.toString();
-							
-
-							var item = valueToItem[key];
-							if(!item) {							
-								item = $$(ns.FacetItem, model);
-								valueToItem[key] = item;
-								self.append(item, "ol");
-							} else {
-								item.model.set(model);
-							}
-							
-							visibleItems.push(item);
-							//self.append(newItem, "ul.eq(1)");
-						}
-						console.log("visible items", visibleItems.length);
-						
-						console.debug("valueToItem", valueToItem);
-						self.model.set({valueToitem: valueToItem});
-						
-						//return;
-
-						//console.log("Visible Items", visibleItems);
-						
-						for(var i = 0; i < visibleItems.length; ++i) {
-							var item = visibleItems[i];
-							item.view.$().show();
-							//self.append(item, "ol");
-						}
-
+				if(!this.controller.isVisible()) {
+					return result;
+				} else {
+					var breadcrumb = this.model.get("breadcrumb");
+					if(breadcrumb) {
+						result.push(breadcrumb);
 					}
-				});
+				}
+				
+				return result;				
+			},
+			
+			syncValues: function(state) {
+						
+				var constraints = this.model.get('constraints');
+				var valueToItem = this.model.get('valueToItem');
+				var breadcrumb = this.model.get('breadcrumb');
+				
+				// Hide
+				var facetValues = breadcrumb.targetNode.facetValues;
+
+				for(facetValueStr in valueToItem) {
+					var item = valueToItem[facetValueStr];
+					var facetValue = facetValues[facetValueStr];
+					
+					if(!facetValue) {
+						item.view.$().hide();
+					}
+				}
+				
+				//state.pathManager.getNode()
+				console.log("FacetValue:", facetValues + "", facetValues);
+				if(!facetValues) {
+					facetValues = {};
+				}
+				
+				var newItems  = [];
+				var visibleItems = [];
+				for(var i in facetValues) {
+					var facetValue = facetValues[i];
+					
+				
+					if(!facetValue.count) {
+						continue;
+					}
+					
+					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints};
+
+					var key = facetValue.node.toString();
+					
+
+					var item = valueToItem[key];
+					if(!item) {							
+						item = $$(ns.FacetItem, model);
+						newItems.push(item);
+						valueToItem[key] = item;
+					} else {
+						item.model.set(model);
+					}
+					
+					visibleItems.push(item);
+					//self.append(newItem, "ul.eq(1)");
+				}
+				
+				for(var i = 0; i < newItems.length; ++i) {
+					var item = newItems[i];
+					this.append(item, "ol");
+				}
+				
+				
+				for(var i = 0; i < visibleItems.length; ++i) {
+					var item = visibleItems[i];
+					item.view.$().show();
+					//self.append(item, "ol");
+				}
+			},
+			
+			isVisible: function() {
+				var facetElement = this.view.$("div:first");
+				var result = $(facetElement).is(":visible");
+				return result;
 			},
 			
 			'click span:first': function() {
 				var facetElement = this.view.$("div:first");
 				var isVisible = $(facetElement).is(":visible");
-				
-				console.log("visible", isVisible);
+				//console.log("visible", isVisible);
 				
 				if(isVisible) {
 					$(facetElement).hide();
@@ -393,9 +314,9 @@
 	 * @param sparqlService
 	 * @param config An object mapping facets to their states
 	 */
-	ns.createFacetList = function(sparqlService, state, constraints) {
+	ns.createFacetList = function(state, constraints) {
 		var result = $$(
-			{sparqlService: sparqlService, state: state, constraints: constraints, propertyToItem: {}},
+			{state: state, constraints: constraints, propertyToItem: {}},
 			'<div>' +
 				'<div id="facets-tab-content-searchContainer">' + 
 					'<form action="">'+ 
@@ -403,7 +324,8 @@
 						'<input type="button" value="Search" id="facets-tab-content-searchButton"/>' + 
 					'</form>' + 
 				'</div>' + 
-			'<ul></ul></div>',
+				'<ul></ul>' +
+			'</div>',
 			{
 				create: function() {
 				},
@@ -430,25 +352,98 @@
 					//propertyToItem = {};
 					this.model.set({propertyToItem: propertyToItem});					
 				},
+
+
+				getVisiblePropertiesValues: function() {
+					
+					var result = {};
+
+					//var propertyToNode = state.pathManager.getRoot().outgoing;
+					var propertyToItem = this.model.get('propertyToItem');
+					
+					
+					for(var propertyName in propertyToItem) {						
+						var item = propertyToItem[propertyName];
+						
+						if(item && item.controller.isVisible()) {
+							result[propertyName] = item;
+							//result.put(propertyName);
+							//var breadcrumb = item.model.get("breadcrumb");
+							//item.controller.getVisibleBreadcrumbsValues(result);
+							
+							//result.push(breadcrumb);
+						}
+					}
+
+					return result;
+				},
+
+
+				/**
+				 * Return an array containing breadcrumbs for which their values
+				 * are visible.
+				 * 
+				 */
+				getVisibleBreadcrumbsValues: function(result) 
+				{
+					if(!result) {
+						result = [];
+					}
+
+					var state = this.model.get('state');
+					if(!state) {
+						return;
+					}
+
+					
+					//var propertyToNode = state.pathManager.getRoot().outgoing;
+					var propertyToItem = this.model.get('propertyToItem');
+					
+					
+					for(var propertyName in propertyToItem) {						
+						var item = propertyToItem[propertyName];
+						
+						if(item) {
+							//var breadcrumb = item.model.get("breadcrumb");
+							item.controller.getVisibleBreadcrumbsValues(result);
+							
+							//result.push(breadcrumb);
+						}
+					}
+
+					return result;
+				},
 				
 				refresh: function() {
 					var self = this;
 					
-					this.controller.hideAll();
-					
-					var propertyToItem = this.model.get('propertyToItem');
-					
 					var state = this.model.get('state');
+
+					var propertyToNode = state ? state.pathManager.getRoot().outgoing : {};
+					var propertyToItem = this.model.get('propertyToItem');
+
+					// Hide elements for which no node exits or whose count is zero
+					for(var propertyName in propertyToItem) {
+						var node = propertyToNode[propertyName];
+						var item = propertyToItem[propertyName];
+						
+						if(!node || (node.data && node.data.count === 0)) {
+							item.view.$().hide();
+						}						
+					}
+
 					if(!state) {
 						return;
 					}
 					
 					var config = state.config;
-					var sparqlService = this.model.get('sparqlService');
+					//var sparqlService = this.model.get('sparqlService');
 					var constraints = this.model.get('constraints');
 					
 					
-					var propertyToNode = state.pathManager.getRoot().outgoing;
+					
+					var newItems = [];
+					var refreshableItems = [];
 					
 					for(var propertyName in propertyToNode) {
 						var node = propertyToNode[propertyName];
@@ -467,56 +462,44 @@
 						
 						var item = propertyToItem[propertyName];
 						
-						var model = {sparqlService: sparqlService, constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr};
+						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr};
 						if(!item) {						
 							item = $$(ns.FacetSwitcher, model);
-							propertyToItem[propertyName] = item;
-							self.append(item, "ul:first");						
+							propertyToItem[propertyName] = item;							
+							
+							newItems.push(item);
 						} else {
 							item.model.set(model);
-							item.view.$().show();
-							//item.controller.refresh();
 						}
 						
-						
-						
+						refreshableItems.push(item);
 					}
+
+					// Apend new elements
+					for(var i = 0; i < newItems.length; ++i) {
+						var item = newItems[i];
+						self.append(item, "ul:first");
+					}
+					
+					for(var i = 0; i < refreshableItems.length; ++i) {
+						var item = refreshableItems[i];
+						item.view.$().show();
+					}
+
+					
+					for(var i = 0; i < refreshableItems.length; ++i) {
+						var item = refreshableItems[i];
+						
+						//console.log("Refreshing item" , item);
+						item.controller.refresh();
+					}
+					
 				}
 			}
 		);
 		
 		return result;
 	};
-				
-				
-			    //var newItem = $$(facetItem, {name: 'FacetX', count: countStr});
-			    //this.append(newItem, 'ul');
-				
-				
-				//var config = this.model.get('config');
-				
-				//console.log("Create config:", config);
-				
-				
-				/*
-				var facets = config.getRoot().getSubFacets().asArray();
-				console.log("facetsx", facets);
-				for(var i in facets) {
-					var facet = facets[i];
-			  
-					console.log("facetx", facet);
-			  
-			  
-					var newItem = $$(facetItem, {content: facet.getId() });
-					this.append(newItem, 'ul');
-				}*/
-		
-	
-			/*
-				'click #new': function(){
-			    var newItem = $$(facetItem, {content:'Click to edit'});
-			    this.append(newItem, 'ul'); // add to container, appending at <ul>
-			  }
-	 	  */
+
 
 })(jQuery);

@@ -5,12 +5,16 @@
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 
 	var rdfQueryUtils = Namespace("org.aksw.ssb.utils.rdfquery");
+	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeCache");
 
 
-	ns.Backend = function(sparqlService, geoQueryFactory, variable) {
+	ns.Backend = function(sparqlService, geoQueryFactory, variable, countGeoQueryFactory) {
 		this.sparqlService = sparqlService;
+		
+		// Query factory which creates queries for counting
+		this.countGeoQueryFactory = countGeoQueryFactory ? countGeoQueryFactory : geoQueryFactory;
 		this.geoQueryFactory = geoQueryFactory;
 		this.variable = variable;
 
@@ -22,51 +26,11 @@
 		// In this case they QuadTree would be more like an index (position->resource)
 	};
 	
-	/**
-	 * Creates a query that - based on another query - counts the number of
-	 * distinct values for a given variable.
-	 * 
-	 * TODO Move to some utils package
-	 * 
-	 * @param baseQuery
-	 * @param limit
-	 * @param variable
-	 * @returns {sparql.Query}
-	 */
-	ns.createCountQuery = function(baseQuery, limit, variable) {
-		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
-		
-		// Create a new query with its elemets set to copies of that of the baseQuery
-		var subQuery = new sparql.Query();
-		
-		for(var i = 0; i < baseQuery.elements.length; ++i) {
-			var element = baseQuery.elements[i];
-			var copy = element.copySubstitute(function(x) { return x; });
-			
-			subQuery.elements.push(copy);
-		}
-		
-		subQuery.projection[variable.value] = null;
-		subQuery.distinct = true;
-		
-		if(limit) {
-			subQuery.limit = limit;
-		}
-		
-		var result = new sparql.Query();
-		result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
-		result.elements.push(new sparql.ElementSubQuery(subQuery));
-
-		//console.error(limit);
-		//console.error(result.toString());
-		
-		return result;
-	};
 	
 	ns.Backend.prototype.fetchNodeCount = function(bounds, maxCount, callback) {
-		var baseQuery = this.geoQueryFactory.create(bounds);
+		var baseQuery = this.countGeoQueryFactory.create(bounds);
 		
-		var query = ns.createCountQuery(baseQuery, maxCount, this.variable);
+		var query = queryUtils.createCountQuery(baseQuery, maxCount, this.variable);
 		var result = this.sparqlService.executeSelect(query.toString()).pipe(function(data) {
 			var count = parseInt(data.results.bindings[0].c.value);
 			
@@ -77,7 +41,7 @@
 			return count;
 		});
 		
-		return result;		
+		return result;
 	};
 
 	ns.Backend.prototype.fetchData = function(bounds) {

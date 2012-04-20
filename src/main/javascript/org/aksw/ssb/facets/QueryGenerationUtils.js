@@ -8,6 +8,7 @@
 (function($) {
 
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	var facets = Namespace("org.aksw.ssb.facets");
 
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
@@ -136,58 +137,7 @@
 		return q;
 	};
 
-	
-	/**
-	 * 
-	 * 
-	 */
-	ns.loadDefaultFacets = function(sparqlService, config, callback) {
-		var autoFacetVar = 1;
-		
-		var s = config.driverVar;
-		
-		q = ns.FacetUtils.createQueryLoadDefaults(config);
-		
-		if(!callback) {
-			callback = ns.DummyCallback;
-		}
-		
-		console.log("Fetching facets: " + q);
-		
-		sparqlService.executeSelect(q.toString(), {
-			failue: function() { callback.failure(); },
-			success: function(jsonRs) {
-				// Update the model (and thereby the view)
-				var map = jsonRdfResultSetToMap(jsonRs, "__p", "__c");
 
-				for(var propertyName in map) {
-					//var count = map[propertyName];
-					var propertyNode = sparql.Node.uri(propertyName);
-					var objectNode = sparql.Node.v("var" + autoFacetVar);
-					
-					
-					/*
-					var facetDesc = new sparql.facets.FacetDesc
-					(
-							propertyName,
-							propertyNode,
-							new sparql.ElementTriplesBlock([new sparql.Triple(self.config.driverVar, propertyNode, objectNode)])
-					);
-					*/
-					
-					var element = new sparql.ElementTriplesBlock([new sparql.Triple(s, propertyNode, objectNode)]);
-					
-					var newFacet = new ns.Facet(config.getRoot(), propertyNode.value, element, s.value);
-					
-					config.addFacet(newFacet);
-					
-					//self.knownFacets.push(facetDesc);
-					//var facets = config.getRoot().getSubFacets();					
-				}
-				callback.success();
-			}
-		});
-	};
 
 	/**
 	 * Create a query for fetching the values and their counts of a facet
@@ -370,4 +320,222 @@
 		return batchQuery;
 	};
 
+	
+	/**
+	 * Creates a query that - based on another query - counts the number of
+	 * distinct values for a given variable.
+	 * 
+	 * TODO Move to some utils package
+	 * TODO Change it so it doesn't take a query as arg, but an element
+	 * 
+	 * @param baseQuery
+	 * @param limit
+	 * @param variable
+	 * @returns {sparql.Query}
+	 */
+	ns.createCountQuery = function(baseQuery, limit, variable) {
+		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
+		
+		// Create a new query with its elemets set to copies of that of the baseQuery
+		var subQuery = new sparql.Query();
+		
+		for(var i = 0; i < baseQuery.elements.length; ++i) {
+			var element = baseQuery.elements[i];
+			var copy = element.copySubstitute(function(x) { return x; });
+			
+			subQuery.elements.push(copy);
+		}
+		
+		subQuery.projection[variable.value] = null;
+		subQuery.distinct = true;
+		
+		if(limit) {
+			subQuery.limit = limit;
+		}
+		
+		var result = new sparql.Query();
+		result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
+		result.elements.push(new sparql.ElementSubQuery(subQuery));
+
+		//console.error(limit);
+		//console.error(result.toString());
+		
+		return result;
+	};
+	
+	
+	/**
+	 * Select Distinct ?p (Count(?p) As ?c) {
+	 *   Select Distinct ?s ?p {
+	 *     driver
+	 *     {
+	 *       Select Distinct ?s { geomElement . Filter(geom In ...) } 
+	 *     }   
+	 *   }
+	 * }
+	 * 
+	 * If this does not work, I think all we can do is either drop
+	 * facet counting (sucks) or fetch all data (might suck)
+	 * 
+	 * @param uris
+	 * @returns A Driver object (element, var)
+	 */
+	ns.createFacetQueryCountVisibleGeomNested = function(queryGenerator, uris) {
+
+		var driver = queryGenerator.driver;
+		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
+
+		
+		var queryGenerator = queryGenerator;
+
+		//console.log("queryFactory", queryFactory);
+
+		var subQuery = new sparql.Query();
+		var triplesBlock = new sparql.ElementTriplesBlock();
+		triplesBlock.addTriples(queryGenerator.geoConstraintFactory.getTriples());
+		subQuery.elements.push(triplesBlock);
+		
+		var geomVarStr = queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable; //geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable;
+		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
+		//console.log("geomVar", geomVar);
+		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
+		var filterElement = new sparql.ElementFilter(filterExpr);
+
+		subQuery.elements.push(filterElement);
+		subQuery.projection[driver.variable.value] = null;
+		subQuery.distinct = true;
+		
+		var elements = [driver.element, new sparql.ElementSubQuery(subQuery)];
+		
+		// Add facet constraints
+		var facetElement = queryGenerator.constraints.getSparqlElement();
+		if(facetElement) {
+			elements.push(facetElement);
+		}
+
+		
+		var element = new sparql.ElementGroup(elements);		
+		
+		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+		var result = new facets.Driver(element, queryGenerator.driver.variable);
+
+		return result;
+	};
+	
+	
+	/**
+	 * This method generates the facet query based on explicely given geometries.
+	 * 
+	 * @param uris
+	 * @returns
+	 */
+	ns.createFacetQueryCountVisibleGeomSimple = function(queryGenerator, uris) {
+
+		var geoQueryFactory = queryGenerator.createQueryFactory();
+
+		var baseQuery = geoQueryFactory.baseQuery;
+		//var baseElement = new sparql.ElementGroup(baseQuery.elements.slice(0)); // create a copy of the original elements
+		var elements = baseQuery.elements.slice(0);
+
+		var geomVarStr = geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable;
+		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
+		//console.log("geomVar", geomVar);
+		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
+		var filterElement = new sparql.ElementFilter(filterExpr);
+		
+		elements.push(filterElement);
+
+		var element = new sparql.ElementGroup(elements);
+		
+		var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+
+		return result;
+	};
+
+	
+	/**
+	 * Creates a query that counts the facets for the given visible area:
+	 * Nodes that contain too many items are excluded.
+	 * 
+	 * The structure is:
+	 * 
+	 * Select Distinct ?p (Count(?p) As ?c) {
+	 *   Select Distinct ?s ?p {
+	 *       { fragment . Filter(area1) . ?s ?p ?o }
+	 *     Union
+	 *       { fragment . Filter(area2) . ?s ?p ?o }
+	 *     Union
+	 *       { ... }
+	 *   }
+	 * }
+	 * 
+	 * 
+	 * @param bounds
+	 * @param nodes
+	 * @returns
+	 */
+	/*
+	ns.createFacetQueryCountVisible = function(bounds, nodes) {
+
+		var loadedNodes = ns.AppController.getLoadedNodes(nodes);
+		
+		
+		var geoQueryFactory = this.queryGenerator.createQueryFactory();
+		
+		// We can either create multiple queries with different bounds ...
+		// var query = geoQueryFactory.create(bounds);
+		
+		// .. or we use the geoConstraintFactory to create multiple geo-constraints
+		// and 'or' them together
+		//var baseQuery = geoQueryFactory.baseQuery.copySubstitute(function(x) { return x; });
+		//baseQuery.type = sparql.QueryType.Select;
+		var baseQuery = geoQueryFactory.baseQuery;
+		//var baseElement = new sparql.ElementGroup(baseQuery.elements.slice(0)); // create a copy of the original elements
+		var baseElements = baseQuery.elements;
+		
+		var unionElement = new sparql.ElementUnion();
+		
+		//console.error(baseElement.toString());
+		
+		var geoConstraintFactory = geoQueryFactory.geoConstraintFactory;
+
+		///var constraintExprs = [];
+		
+		
+		for(var i = 0; i < loadedNodes.length; ++i) {
+			var node = loadedNodes[i];
+
+			var nodeBounds = node.getBounds();
+			var intersectBounds = nodeBounds.overlap(bounds);
+			if(intersectBounds) {
+				var geoConstraint = geoConstraintFactory.create(intersectBounds);
+				///constraintExprs.push(geoConstraint.getExpr());
+				
+				var elements = baseElements.slice(0);
+				elements.push(new sparql.ElementFilter(geoConstraint.getExpr()));
+				
+				var unionMember = new sparql.ElementGroup(elements);
+				
+				
+				unionElement.elements.push(unionMember);
+			}
+		}
+		
+
+		// One large filter expression does not work efficiently
+		// We create a union instead
+		/ *
+		var expr = sparql.opify(constraintExprs, sparql.E_LogicalOr);
+		var filterElement = new sparql.ElementFilter(expr);
+		baseElement.elements.push(filterElement);
+		var result = queryUtils.createFacetQueryCount(baseElement, this.queryGenerator.driver.variable);
+		* /
+		
+		var result = queryUtils.createFacetQueryCount(unionElement, this.queryGenerator.driver.variable);
+		
+		//console.debug("FacetCounts", result.toString());
+		return result;
+	};
+	*/
+	
 })(jQuery);

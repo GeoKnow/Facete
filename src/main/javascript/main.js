@@ -204,6 +204,8 @@
 		//ssb.setFacetConfig(facetConfig);
 		
 		console.log("Initialization in progress");
+		
+		//appController.refresh();
 	};
 	
 	

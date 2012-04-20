@@ -12,6 +12,11 @@
 	var ns = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 
+	ns.FacetValue = function(node, count) {
+		this.node = node;
+		this.count = count;
+	};
+
 	/**
 	 * Object holding a query element and a variable (of the query element).
 	 * 

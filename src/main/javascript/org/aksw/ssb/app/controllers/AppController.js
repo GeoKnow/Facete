@@ -223,7 +223,7 @@
 		
 		$("#map").bind("ssb_maponmapevent", function(event, ui) {
 		
-			self.mapEvent();
+			self.repaint();
 			// Bind the map-event to the updateXXXXX
 			// If everytihng is done, fire an event updateView
 			// Refresh the view whenever it is sent
@@ -286,18 +286,21 @@
 		// If so, make this request wait for the other running one, thereby
 		// replacing any other already pending request
 
-		var geoQueryFactory = this.queryGenerator.createQueryFactory();
+		var disableConstraints = true;
 		
-		var query = geoQueryFactory.create(bounds);
+		var geoQueryFactory = this.queryGenerator.createQueryFactory({disableConstraints: disableConstraints});
+		
+		//var query = geoQueryFactory.create(bounds);
 		
 		//console.warn("BaseQuery", queryFactory.baseQuery.toString());
 		//console.warn("BBoxQuery", query.toString());
 		
 		
+		console.log("Constraints", this.queryGenerator.constraints);
 		var baseQuery = geoQueryFactory.baseQuery; //queryFactory.create(bounds);
 		 
 		var hash = baseQuery.toString();
-		//console.debug("Query hash (including facets): ", hash);
+		console.debug("Query hash (including facets): ", hash);
 		
 		
 		var cacheEntry = this.hashToCache[hash];
@@ -317,14 +320,14 @@
 			success: function(nodes, bounds) {
 				//console.debug("Loaded " + nodes.length + " nodes");
 
-				// TODO Fix qtc.diff so we can use it here to optimize the update
+				// TODO Fix QuadTreeCache.diff so we can use it here to optimize the update
 				
 				self.updateViews(new ns.ViewState(nodes, bounds));
 			}
 		});
 	};
 		
-	ns.AppController.prototype.mapEvent = function() {
+	ns.AppController.prototype.repaint = function() {
 
 		var map = this.map;
 		var bounds = map.getExtent().transform(map.projection, map.displayProjection);
@@ -448,7 +451,7 @@
 
 		
 		// clear the pathManager
-		var propertyToNode = this.facetState.pathManager.getRoot().outgoing;
+		//var propertyToNode = this.facetState.pathManager.getRoot().outgoing;
 		this.facetState.clearCounts();
 		
 		if(!uris.length) {
@@ -463,6 +466,7 @@
 		//var breadcrumbs = this.facetbox.controller.getVisibleBreadcrumbsValues();
 		var propertyNameToItem = this.facetbox.controller.getVisiblePropertiesValues();
 		
+		// Once all facet counts have been obtained, update the view
 		$.when(this.updateFacetCountsGeomRec(this.sparqlService, state, node, propertyNameToItem)).then(function(facetState) {
 			
 			//console.log("facetstate", facetState);
@@ -499,7 +503,7 @@
 							
 							var breadcrumb = item.model.get("breadcrumb");
 							
-							countTasks.push(queryUtils.loadFacetValues(sparqlService, state, breadcrumb).pipe(function(data) {
+							countTasks.push(queryUtils.loadFacetValues(sparqlService, self.labelFetcher, state, breadcrumb).pipe(function(data) {
 								child.facetValues = data.facetValues;
 								//console.log("So far got", facetValues);
 							}));

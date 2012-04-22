@@ -196,7 +196,43 @@
 	};
 
 	
+	/**
+	 * 
+	 * @param excludes An array of path strings
+	 */
+	ns.ConstraintCollection.prototype.copyExclude = function(excludes) {
+		var tmp = {};
+		if(excludes) {
+			for(var i = 0; i < excludes.length; ++i) {
+				tmp[excludes[i]] = true;
+			}
+		}
+
+		var result = new ns.ConstraintCollection();
+		
+		var entries = this.idToConstraints.entries;
+		
+		for(var key in entries) {
+			var cs = entries[key];
+			
+			for(var i = 0; i < cs.length; ++i) {
+				var c = cs[i];
+ 
+				var groupId = c.breadcrumb.toString();
+
+				if(groupId in excludes) {
+					continue;
+				}
+				
+				result.put(groupId, c);
+			}
+		}
+
+		return result;
+	};
+	
 	ns.ConstraintCollection.prototype.getSparqlElement = function() {
+		
 		var triplesElement = new sparql.ElementTriplesBlock();
 
 		var idToGroups = new ns.MultiMap();
@@ -211,7 +247,6 @@
 				
 				// TODO 
 				var groupId = c.breadcrumb.toString();
-				
 				
 				idToGroups.put(groupId, c);
 			}
@@ -272,6 +307,10 @@
 		this.breadcrumb = breadcrumb;
 		this.nodeValue = nodeValue;
 	};
+	
+	ns.ConstraintEquals.prototype.toString = function() {
+		return "" + this.breadcrumb + " = " + this.nodeValue;
+	}
 	
 	ns.ConstraintEquals.prototype.getExpr = function() {
 		var varName = this.breadcrumb.targetNode.variable;

@@ -106,7 +106,7 @@
 	 * @returns A promise for the action
 	 * 
 	 */
-	ns.loadFacetValues = function(sparqlService, state, breadcrumb, callback) {
+	ns.loadFacetValues = function(sparqlService, labelFetcher, state, breadcrumb, callback) {
 		//var self = this;
 
 		var baseElement = state.driver.element;
@@ -126,7 +126,7 @@
 		var result = {}; //[];
 		
 		return sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {
-				//console.log("Binding", jsonRs);
+				//console.debug("Binding", jsonRs);
 				
 				var outputVar = breadcrumb.targetNode.variable;
 				
@@ -152,31 +152,33 @@
 				//var map = jsonRdfResultSetToMap(jsonRs, "var1", "__c");
 		
 				var uris = [];
-				for(var i = 0; i < result.length; ++i) {
-					var val = result[i].node.value.toString();
+				for(key in result) {
+					var node = result[key].node;
 
-					if(val.startsWith("http://")) {
-						uris.push(val);
+					if(node.isUri()) {						
+						uris.push(node.value);
 					}
 				}
 				
-				//console.log("Value URIs", uris, map);
+				//console.debug("Value URIs", uris, result);
 				
-				var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
-				return labelFetcher.fetch(uris, true).pipe(function(idToLabel) {
+				//var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
+				return labelFetcher.fetch(uris, true).pipe(function(uriToLabel) {
 
-					//console.log("Facet value uris", idToLabel);
+					//console.log("Facet value uris", uris, uriToLabel);
 
 					for(var i in result) {						
 						var facetValue = result[i];
 						var node = result[i].node;
 						
-						var label = idToLabel[node.value];
+						var label = uriToLabel[node.value];
 						if(!label) {
 							label = node;
 						}
 						
-						facetValue.label = node;					
+						facetValue.label = label;
+						
+						//console.debug("Using facet value label", facetValue.label);
 					}
 					
 					/*
@@ -193,10 +195,10 @@
 					*/
 
 					if(callback) {
-						callback.success(result, idToLabel);
+						callback.success(result, uriToLabel);
 					}
 					
-					return {facetValues:result, idToLabel: idToLabel};
+					return {facetValues:result, uriToLabel: uriToLabel};
 				});
 			});
 	};

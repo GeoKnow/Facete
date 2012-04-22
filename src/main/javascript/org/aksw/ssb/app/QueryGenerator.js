@@ -132,7 +132,7 @@
 
 
 		// Add facet constraints
-		if(options && options.disableConstraints) {
+		if(!(options && options.disableConstraints)) {
 			var element = this.constraints.getSparqlElement();
 			if(element) {
 				query.elements.push(element);

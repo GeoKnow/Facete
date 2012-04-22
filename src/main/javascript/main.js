@@ -205,7 +205,7 @@
 		
 		console.log("Initialization in progress");
 		
-		//appController.refresh();
+		appController.repaint();
 	};
 	
 	

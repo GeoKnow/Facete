@@ -385,8 +385,6 @@
 		var driver = queryGenerator.driver;
 		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
 
-		
-		var queryGenerator = queryGenerator;
 
 		//console.log("queryFactory", queryFactory);
 

@@ -103,6 +103,66 @@
 		return facetList;
 	};
 	
+	ns.ConstraintItem = $$(
+		{parent: null, constraints: null, constraintId: null, label: ""},
+		'<li><span data-bind="label" /></li>',
+		'& span { cursor:pointer; }', {
+		'click span:first': function() {
+			var constraintId = this.model.get("constraintId");
+			var constraints = this.model.get("constraints");
+
+			constraints.remove(constraintId);
+			//this.destroy();
+			var parent = this.model.get("parent");
+			parent.controller.removeItem(constraintId);
+		}
+	});
+	
+	ns.createConstraintList = function(constraints) {
+	
+				
+		var result = $$(
+			{idToItem: {}, constraints: constraints},
+			'<div>' +
+				'<ol></ol>' +
+			'</div>', {
+				addItem: function(constraintId, constraint) {
+					
+					var idToItem = this.model.get("idToItem");
+					var constraints = this.model.get("constraints");
+					
+					
+					var item = idToItem[constraintId];
+					var model = {constraints: constraints, constraintId: constraintId, constraint: constraint, label: constraint.toString(), parent: this};
+					if(item) {
+						item.model.set(model);
+					} else {
+						item = $$(ns.ConstraintItem, model);
+						idToItem[constraintId] = item;
+						this.append(item, "ol:first");				
+					}
+				},
+			
+				removeItem: function(constraintId) {
+					var idToItem = this.model.get("idToItem");
+
+
+					if(constraintId in idToItem) {						
+						var item = idToItem[constraintId];
+						if(item) {
+							item.destroy();							
+						}
+
+						delete idToItem[constraintId];
+					}
+				}
+			
+			}
+		);
+		
+		return result;
+	};
+	
 	ns.FacetItem = $$(
 		{isEnabled: false},
 		'<div class="facets-tab-content-facetitem-li">' + 
@@ -114,10 +174,13 @@
 		'</div>', 
 		'& span { cursor:pointer; }', {
 
-		'click input': function() {
+		'click input': function() { 
 			var facetValue = this.model.get("value");
 			var constraints = this.model.get("constraints");
 			var breadcrumb = this.model.get("breadcrumb");
+			
+			// TODO Separate this
+			var constraintWidget = this.model.get("constraintWidget");
 			
 			var variable = breadcrumb.targetNode.variable;
 			var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue(facetValue.node));
@@ -128,12 +191,15 @@
 			//console.log("Enabled:", isEnabled, id);
 			if(isEnabled) {			
 				constraints.put(id, constraint);
+				constraintWidget.controller.addItem(id, constraint);
 			} else {
 				constraints.remove(id);
+
+				constraintWidget.controller.removeItem(id);
 			}
 			
 			//console.log("Boom", facetValue, constraints, breadcrumb);
-			//console.log("constraint", constraints);
+			console.log("Constraints", constraints);
 			
 			//console.log("Sparql element", constraints.getSparqlElement());
 		},
@@ -148,19 +214,19 @@
 
 
 	ns.FacetSwitcher = $$(
-		{valueToItem: {}},
+		{valueToItem: {}, constraintWidget: null},
 		'<li class="facets-tab-content-facetswitcher-li">' + 
 			'<span data-bind="name"/> ' +
 			'(<span data-bind="countStr"/>)' + 
 			'<div class="facets-tab-content-facetswitcher-li-entries">' +
-				'<div class="facets-tab-content-facetswitcher-li-entries-nav">' + 
-					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
-					'<a href="#t2" class="facets-tab-content-facetswitcher-li-nav-subfacets">Sub-Facets</a>' + 
-				'</div>' +
+//				'<div class="facets-tab-content-facetswitcher-li-entries-nav">' + 
+//					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
+//					'<a href="#t2" class="facets-tab-content-facetswitcher-li-nav-subfacets">Sub-Facets</a>' + 
+//				'</div>' +
 				'<div class="tabdiv" id="t1">' + 
 					'<ol></ol>' + 
 				'</div>' + 
-				'<div class="tabdiv" id="t2">Facets not loaded</div>' + 
+//				'<div class="tabdiv" id="t2">Subfacets not loaded</div>' + 
 			'</div>' +
 		'</li>', 
 		'& span { cursor:pointer; }',
@@ -214,7 +280,9 @@
 				var constraints = this.model.get('constraints');
 				var valueToItem = this.model.get('valueToItem');
 				var breadcrumb = this.model.get('breadcrumb');
-		
+
+				var constraintWidget = this.model.get('constraintWidget');
+
 				
 				// Hide
 				var facetValues = breadcrumb.targetNode.facetValues;
@@ -248,7 +316,7 @@
 						continue;
 					}
 					
-					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints};
+					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints, constraintWidget: constraintWidget};
 
 					var key = facetValue.node.toString();
 					//console.debug("Key", key, valueToItem);
@@ -332,18 +400,25 @@
 	 */
 	ns.createFacetList = function(state, constraints) {
 		var result = $$(
-			{state: state, constraints: constraints, propertyToItem: {}},
+			{state: state, constraints: constraints, propertyToItem: {}, constraintWidget: null},
 			'<div>' +
 				'<div id="facets-tab-content-searchContainer">' + 
-					'<form action="">'+ 
-						'<input type="text" id="facets-tab-content-searchTextBox"/>' + 
-						'<input type="button" value="Search" id="facets-tab-content-searchButton"/>' + 
-					'</form>' + 
+//					'<form action="">'+ 
+//						'<input type="text" id="facets-tab-content-searchTextBox"/>' + 
+//						'<input type="button" value="Search" id="facets-tab-content-searchButton"/>' + 
+//					'</form>' + 
 				'</div>' + 
 				'<ul></ul>' +
 			'</div>',
 			{
 				create: function() {
+					var constraints = this.model.get("constraints");
+					
+					var constraintWidget = ns.createConstraintList(constraints);
+					
+					this.append(constraintWidget, "div:first");
+					this.model.set({constraintWidget: constraintWidget});
+					
 				},
 			
 				setState: function(state) {
@@ -431,6 +506,9 @@
 				},
 				
 				refresh: function() {
+					var constraintWidget = this.model.get("constraintWidget");
+					
+					
 					var self = this;
 					
 					var state = this.model.get('state');
@@ -481,7 +559,7 @@
 						
 						var item = propertyToItem[propertyName];
 						
-						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr};
+						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, constraintWidget: constraintWidget};
 						if(!item) {						
 							item = $$(ns.FacetSwitcher, model);
 							propertyToItem[propertyName] = item;							

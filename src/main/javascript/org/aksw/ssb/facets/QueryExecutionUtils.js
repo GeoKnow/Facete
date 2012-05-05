@@ -203,5 +203,51 @@
 			});
 	};
 
+	/**
+	 * 
+	 * 
+	 * @param node
+	 * @param item
+	 */
+	ns.fetchFacetCountsGeomRec = function(sparqlService, labelFetcher, facetState, node, propertyNameToItem) {
+		
+		//var self = this;
+		var driver = facetState.driver;
+		var query = ns.createFacetQueryCount(driver.element, driver.variable);
+
+		// Return a promise so we can react if the callback finishes
+		var result = sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {
+
+				//console.log("jsonRs for facet counts", jsonRs);
+				return ns.processFacets(facetState, jsonRs, labelFetcher).pipe(function(facetState) {
+												
+					var countTasks = [];
+
+					$.each(node.outgoing, function(propertyName, child) {
+						var item = propertyNameToItem[propertyName];
+						
+						if(item) {
+							
+							var breadcrumb = item.model.get("breadcrumb");
+							
+							countTasks.push(ns.loadFacetValues(sparqlService, labelFetcher, facetState, breadcrumb).pipe(function(data) {
+								child.facetValues = data.facetValues;
+								//console.log("So far got", facetValues);
+							}));
+
+							//console.log("Need to fetch: ", item);
+						}							
+					});
+					
+					return $.when.apply(window, countTasks).then(function() {
+						return facetState;				
+					});					
+				});
+		});
+		
+		return result;
+	};
+
+	
 
 })(jQuery);

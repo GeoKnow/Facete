@@ -180,7 +180,10 @@
 		
 		this.facetState = new facetbox.FacetState(facetConfig, queryGenerator.driver, queryGenerator.pathManager);
 				
-		this.facetbox = facetbox.createFacetBox(this.facetState, constraints);
+		
+		var facetBoxBackend = new facetbox.FacetValueBackendSparql(this.sparqlService, this.labelFetcher);
+		
+		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend);
 		$$.document.append(this.facetbox, "#facets-tab");
 	};
 	
@@ -416,7 +419,9 @@
 	 * 
 	 * @param bounds
 	 * @param nodes
+	 * 
 	 */
+	/*
 	ns.AppController.prototype.updateFacetCounts = function(bounds, nodes) {
 		var query = this.createFacetQueryCountVisible(bounds, nodes);
 		
@@ -429,7 +434,7 @@
 			}
 		});
 	};
-	
+	*/
 	
 	/**
 	 * Updates the facet counts based considering all constraints.
@@ -467,56 +472,13 @@
 		var propertyNameToItem = this.facetbox.controller.getVisiblePropertiesValues();
 		
 		// Once all facet counts have been obtained, update the view
-		$.when(this.updateFacetCountsGeomRec(this.sparqlService, state, node, propertyNameToItem)).then(function(facetState) {
+		$.when(queryUtils.fetchFacetCountsGeomRec(this.sparqlService, this.labelFetcher, state, node, propertyNameToItem)).then(function(facetState) {
 			
 			//console.log("facetstate", facetState);
 			//self.facetbox.controller.setState(state);
 			self.facetbox.controller.refresh();
 		});
 		
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param node
-	 * @param item
-	 */
-	ns.AppController.prototype.updateFacetCountsGeomRec = function(sparqlService, state, node, propertyNameToItem) {
-		
-		var self = this;
-		var driver = state.driver;
-		var query = queryUtils.createFacetQueryCount(driver.element, driver.variable);
-
-		// Return a promise so we can react if the callback finishes
-		return sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {
-
-				//console.log("jsonRs for facet counts", jsonRs);
-				return queryUtils.processFacets(self.facetState, jsonRs, self.labelFetcher).pipe(function(facetState) {
-												
-					var countTasks = [];
-
-					$.each(node.outgoing, function(propertyName, child) {
-						var item = propertyNameToItem[propertyName];
-						
-						if(item) {
-							
-							var breadcrumb = item.model.get("breadcrumb");
-							
-							countTasks.push(queryUtils.loadFacetValues(sparqlService, self.labelFetcher, state, breadcrumb).pipe(function(data) {
-								child.facetValues = data.facetValues;
-								//console.log("So far got", facetValues);
-							}));
-
-							//console.log("Need to fetch: ", item);
-						}							
-					});
-					
-					return $.when.apply(window, countTasks).then(function() {
-						return facetState;				
-					});					
-				});
-		});
 	};
 
 	

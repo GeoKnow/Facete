@@ -1,6 +1,12 @@
 /**
  * A widget for displaying facets of RDF resources.
  * 
+ * TODO On opening a facet's values, we need an event that the app controller can react to.
+ * 
+ * 
+ * TODO Synchronize the content with the constraint container:
+ * 	. If there is an equal constraint on a path, then a checkbox can be shown enabled
+ * 
  */
 (function($) {
 	
@@ -16,7 +22,26 @@
 	
 	var ns = Namespace("org.aksw.ssb.widgets.facetbox");
 
+	
+	ns.FacetValueBackendSparql = function(sparqlService, labelFetcher) {
+		this.sparqlService = sparqlService;
+		this.labelFetcher = labelFetcher;
+	};
+	
+	
+	ns.FacetValueBackendSparql.prototype.fetchFacetValues = function(breadcrumb, facetState) {
 
+		return queryUtils.loadFacetValues(this.sparqlService, this.labelFetcher, facetState, breadcrumb);
+		/*
+		.pipe(function(data) {
+			//child.facetValues = data.facetValues;
+			//console.log("So far got", facetValues);
+		}));
+		*/
+	};
+
+	
+	
 	/**
 	 * This method fetches the initial facets for a given driver.
 	 * 
@@ -86,9 +111,9 @@
 		}		
 	};
 	
-	ns.createFacetBox = function(state, constraints) {
+	ns.createFacetBox = function(state, constraints, backend) {
 
-		var facetList = ns.createFacetList(state, constraints);
+		var facetList = ns.createFacetList(state, constraints, backend);
 
 		/*
 		ns.loadFacets(sparqlService, state, {
@@ -253,8 +278,17 @@
 				var state = this.model.get('state');
 				var constraints = this.model.get('constraints');
 			
+				var backend = this.model.get('backend');
+				
+				var self = this;
+				
+				backend.fetchFacetValues(breadcrumb, state).pipe(function(data) {
+					breadcrumb.targetNode.facetValues = data.facetValues;
+					
+					self.controller.syncValues(state);
+				});
+				
 				//this.controller.loadFacetValues(sparqlService, state, breadcrumb, constraints);
-				this.controller.syncValues(state);
 			},
 			
 			getVisibleBreadcrumbsValues: function(result) {
@@ -281,6 +315,8 @@
 				var valueToItem = this.model.get('valueToItem');
 				var breadcrumb = this.model.get('breadcrumb');
 
+				var backend = this.model.get('backend');
+				
 				var constraintWidget = this.model.get('constraintWidget');
 
 				
@@ -316,7 +352,7 @@
 						continue;
 					}
 					
-					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints, constraintWidget: constraintWidget};
+					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints, constraintWidget: constraintWidget, backend: backend};
 
 					var key = facetValue.node.toString();
 					//console.debug("Key", key, valueToItem);
@@ -398,9 +434,9 @@
 	 * @param sparqlService
 	 * @param config An object mapping facets to their states
 	 */
-	ns.createFacetList = function(state, constraints) {
+	ns.createFacetList = function(state, constraints, backend) {
 		var result = $$(
-			{state: state, constraints: constraints, propertyToItem: {}, constraintWidget: null},
+			{state: state, constraints: constraints, propertyToItem: {}, constraintWidget: null, backend: backend},
 			'<div>' +
 				'<div id="facets-tab-content-searchContainer">' + 
 //					'<form action="">'+ 
@@ -508,6 +544,8 @@
 				refresh: function() {
 					var constraintWidget = this.model.get("constraintWidget");
 					
+					var backend = this.model.get("backend");
+					
 					
 					var self = this;
 					
@@ -559,7 +597,7 @@
 						
 						var item = propertyToItem[propertyName];
 						
-						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, constraintWidget: constraintWidget};
+						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, constraintWidget: constraintWidget, backend: backend};
 						if(!item) {						
 							item = $$(ns.FacetSwitcher, model);
 							propertyToItem[propertyName] = item;							

@@ -579,7 +579,7 @@
 		 * 1) relations between geometries and features
 		 * 2) labels of the features 
 		 */
-		var geomToFeatures = facets.BidiMultiMap.createWithSet();
+		var geomToFeatures = collections.BidiMultiMap.createWithSet();
 		var idToLabel = {}; // TODO I don't think there is much point in having the labels here already; they should be fetched separately using the LabelFetcher
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];

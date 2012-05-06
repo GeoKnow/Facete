@@ -9,6 +9,15 @@
 	
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeCache");
 
+	
+	/*
+	 * Some thoughts on the revised process:
+	 * First we count the number of geoms in the area.
+	 * For each tile where the count is below the threshold, count the number of features
+	 * for each geom
+	 * 
+	 */
+	
 
 	ns.Backend = function(sparqlService, geoQueryFactory, variable, countGeoQueryFactory) {
 		this.sparqlService = sparqlService;
@@ -18,7 +27,7 @@
 		this.geoQueryFactory = geoQueryFactory;
 		this.variable = variable;
 
-		this.xyExtractor;
+		//this.xyExtractor;
 		// TODO Some method that extracts the geo locations from the query
 		
 		// Alternatively: The app controller can for a query result add those entries to the quad tree, from
@@ -26,24 +35,35 @@
 		// In this case they QuadTree would be more like an index (position->resource)
 	};
 	
-	
-	ns.Backend.prototype.fetchNodeCount = function(bounds, maxCount, callback) {
+	ns.Backend.prototype.fetchGeomCount = function(bounds, maxCount) {
 		var baseQuery = this.countGeoQueryFactory.create(bounds);
-		
-		var query = queryUtils.createCountQuery(baseQuery, maxCount, this.variable);
-		var result = this.sparqlService.executeSelect(query.toString()).pipe(function(data) {
-			var count = parseInt(data.results.bindings[0].c.value);
-			
-			if(callback) {
-				callback(count);
-			}
-			
-			return count;
-		});
-		
-		return result;
-	};
+		var geomVariable = sparql.Node.v(this.geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable);
 
+		var query = queryUtils.createCountQuery(baseQuery, maxCount, geomVariable);
+		return queryUtils.fetchInt(this.sparqlService, query);		
+	};
+	
+	ns.Backend.prototype.fetchFeatureCount = function(bounds, maxCount) {
+		var baseQuery = this.countGeoQueryFactory.create(bounds);
+		var featureVariable = sparql.Node.v(this.geoQueryFactory.geoConstraintFactory.breadcrumb.sourceNode.variable);
+		
+		var query = queryUtils.createCountQuery(baseQuery, maxCount, featureVariable);
+		return queryUtils.fetchInt(this.sparqlService, query);				
+	};
+	
+
+	ns.Backend.prototype.fetchFeatureCountPerGeom = function(bounds) {
+		/*
+		var baseQuery = this.countGeoQueryFactory.create(bounds);
+		var geomVariable = sparql.Node.v(this.geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable);
+		var featureVariable = sparql.Node.v(this.geoQueryFactory.geoConstraintFactory.breadcrumb.sourceNode.variable);
+		
+		var query = queryUtils.createCountQuery(baseQuery, maxCount, featureVariable, [geomVariable]);
+		return queryUtils.fetchInt(this.sparqlService, query);
+		*/
+	};
+	
+	
 	ns.Backend.prototype.fetchData = function(bounds) {
 		var query = this.geoQueryFactory.create(bounds);
 		
@@ -171,7 +191,7 @@
 				//console.log("" + node.getBounds());
 				
 				countTasks.push(
-					self.backend.fetchNodeCount(node.getBounds(), self.maxItemCount).pipe(function(value) {
+					self.backend.fetchGeomCount(node.getBounds(), self.maxItemCount).pipe(function(value) {
 	
 						node.setMinItemCount(value); 
 						if(value < self.maxItemCount) {

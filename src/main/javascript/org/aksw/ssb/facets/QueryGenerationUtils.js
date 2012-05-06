@@ -32,7 +32,8 @@
 		var triple = new sparql.Triple(driver, p, sparql.Node.v("__o"));		
 		result.elements.push(new sparql.ElementTriplesBlock(triple));
 		
-		result.projection[p.value] = null;
+		result.projectVars.add(p);
+		///result.projection[p.value] = null;
 		
 		return result;
 	};
@@ -86,8 +87,11 @@
 		var o = sparql.Node.v("__o");
 		var c = sparql.Node.v("__c");
 		
-		q.projection[p.value] = null;
-		q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
+		q.projectVars.add(p);
+		q.projectVars.add(c, new sparql.E_Count(new sparql.ExprVar(p)));
+		///q.projection[p.value] = null;
+		///q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
+
 		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(driverVar));
 		
 		var tmp = q;
@@ -98,8 +102,10 @@
 		    	subQuery.isResultStar = true;
 		    } else {
 		    	//console.error(driverVar);
-		    	subQuery.projection[driverVar.value] = null;
-		    	subQuery.projection[p.value] = null;
+		    	subQuery.projectVars.add(driverVar);
+		    	subQuery.projectVars.add(p);
+		    	///subQuery.projection[driverVar.value] = null;
+		    	///subQuery.projection[p.value] = null;
 		    	subQuery.distinct = true;
 		    }
 		    
@@ -163,8 +169,8 @@
 		
 		//var element = baseElement; //breadcrumb.getTriples();
 		//var inputVar = sparql.Node.v(breadcrumb.sourceNode.variable);
-		var inputVar = breadcrumb.sourceNode.variable;
-		var outputVars = [breadcrumb.targetNode.variable];
+		var inputVar = sparql.Node.v(breadcrumb.sourceNode.variable);
+		var outputVars = [sparql.Node.v(breadcrumb.targetNode.variable)];
 		
 		//var element = facet.getElement();
 		//var outputVars = _.difference(facet.getElement().getVarsMentioned(), [inputVar]);
@@ -175,7 +181,8 @@
 			var outputVar = outputVars[i];
 			
 			//var varNode = sparql.Node.v(outputVar);
-			result.projection[outputVar] = null; //varNode;
+			result.projectVars.add(outputVar);
+			//result.projection[outputVar] = null; //varNode;
 		}
 		
 		
@@ -186,7 +193,8 @@
 		var c = sparql.Node.v("__c");
 		
 		//result.projection[p] = null;
-		result.projection[c.value] = new sparql.E_Count();
+		///result.projection[c.value] = new sparql.E_Count();
+		result.projectVars.add(c, new sparql.E_Count());
 
 
 		var subQuery = result;
@@ -225,7 +233,7 @@
 		
 		for(var i in outputVars) {
 			var outputVar = outputVars[i];			
-			result.order.push(new sparql.Order(new sparql.ExprVar(sparql.Node.v(outputVar)), sparql.OrderDir.Asc));
+			result.order.push(new sparql.Order(new sparql.ExprVar(outputVar), sparql.OrderDir.Asc));
 		}
 
 		
@@ -269,8 +277,10 @@
 			var q = new sparql.Query();
 
 			var s = config.driverVar;
-			q.projection[p.value] = null;
-			q.projection[count.value] = new sparql.E_Count(s);
+			q.projection.projectVars.add(p);
+			q.projection.porjectVars.add(count, new sparql.E_Count(s));
+			///q.projection[p.value] = null;
+			///q.projection[count.value] = new sparql.E_Count(s);
 
 
 			var subQuery = new sparql.Query();
@@ -278,16 +288,20 @@
 			subQuery.elements.push(config.driver);
 			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.driverVar);
 			subQuery.distinct = true;
-			subQuery.projection[p.value] = new sparql.NodeValue(sparql.Node.uri(facet.id));
-			subQuery.projection[s.value] = null;
+			subQuery.projectVars.add(p, new sparql.NodeValue(sparql.Node.uri(facet.id)));
+			subQuery.projectVars.add(s);
+			///subQuery.projection[p.value] = new sparql.NodeValue(sparql.Node.uri(facet.id));
+			///subQuery.projection[s.value] = null;
 			//subQuery.projection[count] = new sparql.E_Count(subExpr);
 			//subQuery.projection[count] = new sparql.E_Count(new sparql.ExprVar(s));
 			//q.elements.push(new sparql.ElementSubQuery(subQuery));
 
 			
 			var countWrapper = new sparql.Query();
-			countWrapper.projection[p.value] = null;
-			countWrapper.projection[count.value] = new sparql.E_Count(new sparql.ExprVar(s));
+			countWrapper.projectVars.add(p);
+			countWrapper.projectVars.add(count, new sparql.E_Count(new sparql.ExprVar(s)));
+			///countWrapper.projection[p.value] = null;
+			///countWrapper.projection[count.value] = new sparql.E_Count(new sparql.ExprVar(s));
 			
 			countWrapper.elements.push(new sparql.ElementSubQuery(subQuery));
 			
@@ -311,8 +325,10 @@
 
 		var batchQuery = new sparql.Query();
 		//batchQuery.isResultStar = true;
-		batchQuery.projection[p.value] = null;
-		batchQuery.projection[count.value] = null;
+		batchQuery.projectVars.add(p);
+		batchQuery.projectVars.add(count);
+		///batchQuery.projection[p.value] = null;
+		///batchQuery.projection[count.value] = null;
 		batchQuery.elements.push(new sparql.ElementUnion(unionElements));
 
 		console.log("Facet query: " + batchQuery);
@@ -331,9 +347,11 @@
 	 * @param baseQuery
 	 * @param limit
 	 * @param variable
+	 * @param groupVars Optional an array of variables to group by
+	 *     TODO Now I finally have to change to projection to a list rather than a map...
 	 * @returns {sparql.Query}
 	 */
-	ns.createCountQuery = function(baseQuery, limit, variable) {
+	ns.createCountQuery = function(baseQuery, limit, variable, groupVars) {
 		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
 		
 		// Create a new query with its elemets set to copies of that of the baseQuery
@@ -346,7 +364,8 @@
 			subQuery.elements.push(copy);
 		}
 		
-		subQuery.projection[variable.value] = null;
+		subQuery.projectVars.add(variable);
+		///subQuery.projection[variable.value] = null;
 		subQuery.distinct = true;
 		
 		if(limit) {
@@ -354,7 +373,8 @@
 		}
 		
 		var result = new sparql.Query();
-		result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
+		result.projectVars.add(sparql.Node.v("c"), new sparql.E_Count(new sparql.ExprVar(variable)));
+		///result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
 		result.elements.push(new sparql.ElementSubQuery(subQuery));
 
 		//console.error(limit);
@@ -400,7 +420,8 @@
 		var filterElement = new sparql.ElementFilter(filterExpr);
 
 		subQuery.elements.push(filterElement);
-		subQuery.projection[driver.variable.value] = null;
+		subQuery.projectVars.add(driver.variable);
+		///subQuery.projection[driver.variable.value] = null;
 		subQuery.distinct = true;
 		
 		var elements = [driver.element, new sparql.ElementSubQuery(subQuery)];

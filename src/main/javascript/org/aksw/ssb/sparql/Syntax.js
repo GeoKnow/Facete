@@ -605,6 +605,48 @@
 	};
 	
 	
+	ns.VarExprList = function() {
+		this.vars = [];
+		this.varToExpr = {};
+	};
+	
+	ns.VarExprList.prototype.add = function(v, expr) {
+		this.vars.push(v);
+		
+		if(expr) {
+			this.varToExpr[v.value] = expr;
+		}
+	};
+	
+	ns.VarExprList.prototype.entries = function() {
+		var result = [];
+		for(var i = 0; i < this.vars.length; ++i) {
+			var v = this.vars[i];
+			var expr = this.varToExpr[v.value];
+			
+			result.push({v:v, expr:expr});
+		}
+
+		return result;
+	};
+	
+	ns.VarExprList.prototype.copySubstitute = function(fnNodeMap) {
+		var result = new ns.VarExprList();
+		
+		var entries = this.entries();
+		for(var i = 0; i < entries.length; ++i) {
+			var entry = entries[i];
+			var newVar = fnNodeMap(entry.v);
+			var newExpr = entry.expr ? entry.expr.copySubstitute(fnNodeMap) : null;
+			
+			result.put(newVar, newExpr);
+		}
+		
+		return result;
+	};
+	
+	
+	
 	ns.Query = function() {
 		this.type = 0; // select, construct, ask, describe
 		
@@ -613,8 +655,11 @@
 		
 		this.isResultStar = false;
 		
-		// TODO: Make this a list
-		this.projection = {}; // Map from var to expr; map to null for using the var directly
+		this.projectVars = new ns.VarExprList();
+		//this.projectVars = []; // The list of variables to appear in the projection
+		//this.projectExprs = {}; // A map from variable to an expression
+		
+		//this.projection = {}; // Map from var to expr; map to null for using the var directly
 		
 		this.order = []; // A list of expressions
 		
@@ -635,6 +680,8 @@
 		result.limit = this.limit;
 		result.offset = this.offset;
  
+		result.projectVars = this.projectVars.copySubstitute(fnNodeMap);
+		/*
 		for(key in this.projection) {
 			var value = this.projection[key]; 
 
@@ -642,7 +689,7 @@
 			var v = value ? value.copySubstitute(fnNodeMap) : null;
 			
 			result.projection[k] = v;
-		}
+		}*/
 		
 		if(this.constructTemplate) {
 			result.constructTemplate = this.constructTemplate.copySubstitute(fnNodeMap);
@@ -674,13 +721,16 @@
 		}
 
 		var arr = [];
-		for(var v in this.projection) {
-			var expr = this.projection[v];
-			
+		var projEntries = this.projectVars.entries();
+		for(var i = 0; i < projEntries.length; ++i) {
+			var entry = projEntries[i];
+			var v = entry.v;
+			var expr = entry.expr;
+		
 			if(expr) {
-				arr.push("(" + expr + " As ?" + v + ")");
+				arr.push("(" + expr + " As " + v + ")");
 			} else {
-				arr.push("?" + v);				
+				arr.push("" + v);				
 			}			
 		}
 		

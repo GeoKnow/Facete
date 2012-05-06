@@ -248,6 +248,19 @@
 		return result;
 	};
 
+	/**
+	 * Fetches the first column of the first row of a result set and parses it as int.
+	 * 
+	 */
+	ns.fetchInt = function(sparqlService, query) {
+		
+		var result = sparqlService.executeSelect(query.toString()).pipe(function(data) {
+			var count = parseInt(data.results.bindings[0].c.value);
+			
+			return count;
+		});
 	
+		return result;
+	};
 
 })(jQuery);

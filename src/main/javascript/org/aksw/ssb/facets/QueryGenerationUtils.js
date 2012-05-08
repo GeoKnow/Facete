@@ -10,6 +10,8 @@
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
+	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
+	
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
 	
@@ -483,17 +485,35 @@
 		return result;
 	};
 	
+
+	ns.createQueryGeomLonLat = function(geomVar, lonVar, latVar) {
+		var element = ns.createElementGeomLonLat(geomVar, lonVar, latVar);
+		var result = ns.createQueryGeomLonLatElement(element, geomVar, lonVar, latVar);
+		return result;
+	};
+
+	ns.createElementGeomLonLat = function(geomVar, lonVar, latVar) {
+		var triples = [];
+		
+		triples.push(new sparql.Triple(geomVar, geo.long, lonVar));
+		triples.push(new sparql.Triple(geomVar, geo.lat, latVar));
+		
+		var result = new sparql.ElementTriplesBlock(triples);
+		return result;			
+
+	};
 	
+
 	/**
 	 * Select ?geomVar ?lonVar ?latVar { element . }
 	 * 
 	 * Assumes that the geo-triples (geo:{long,lat}) are present.
 	 */
-	ns.createQueryGeomLonLat = function(element, geomVar, lonVar, latVar) {
+	ns.createQueryGeomLonLatElement = function(element, geomVar, lonVar, latVar) {
 		var result = new sparql.Query();
 		result.projectVars.add(geomVar);
-		result.projectVar.add(latVar);
-		result.projectVar.add(lonVar);
+		result.projectVars.add(latVar);
+		result.projectVars.add(lonVar);
 
 		result.elements.push(element);
 

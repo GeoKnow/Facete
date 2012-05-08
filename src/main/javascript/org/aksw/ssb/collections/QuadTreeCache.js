@@ -272,7 +272,8 @@
 		var self = this;
 		var result = [];
 					
-		$.each(nodes, function(index, node) {
+		//$.each(nodes, function(index, node) {
+		_.map(nodes, function(node) {
 			//console.debug("Inferred minimum item count: ", node.infMinItemCount);
 
 			//if(node.data.absoluteGeomToFeatureCount)
@@ -301,6 +302,7 @@
 		
 		return result;
 	};
+	
 	
 	/**
 	 * This method implements the primary workflow for fetching data.
@@ -344,17 +346,26 @@
 		
 		var countTasks = this.createCountTasks(uncountedNodes);
 
-		var result = $.when.apply(window, countTasks).then(function() {
+		var countPhase = $.when.apply(window, countTasks).then(function() {
 			nonFullNodes = _.filter(uncountedNodes, ns.QuadTreeCache.isTooManyGeoms);
 			console.log("# non full nodes", nonFullNodes.length);
 
 			
-			var loadTasks = self.createLoadTasks(nonFullNodes);
-
-			// Finalize the loading
-			// TODO Make this as pipe
+			return loadTasks = self.createLoadTasks(nonFullNodes);
+		});
+		
+		var loadPhase = $.when(countPhase).then(function() {
+			var loadTasks = arguments;
+			
 			return $.when.apply(window, loadTasks).then(function() { ns.QuadTreeCache.finalizeLoading(nodes); });
 		});
+
+		var postProcessPhase = $.when(loadPhase).then(function() {
+			//console.log("Should now fetch geometry positions");
+			
+		});
+		
+		var result = postProcessPhase;
 		
 		return result;
 	};

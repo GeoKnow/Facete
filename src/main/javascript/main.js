@@ -210,7 +210,16 @@
 	
 	
 	$(document).ready(function() {
-	
+
+		/*
+		var x = $.when().pipe(function() { return 1; });
+		var y = $.when().pipe(function() { return 2; });
+		$.when(x, y).then(function() {
+			console.log(arguments, arguments.length);
+		});
+		*/
+		
+		
 		var sparqlService = new backend.SparqlServiceVirtuoso(ssbconf.endpoint, ssbconf.models);
 		
 		

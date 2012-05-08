@@ -2,6 +2,26 @@
 	
 	var ns = Namespace("org.aksw.ssb.utils");
 
+	ns.QueryCacheFactory = function(sparqlService) {
+		this.sparqlService = sparqlService;
+		this.queryToCache = {};
+	};
+	
+	ns.QueryCacheFactory.prototype.create = function(query) {
+		var queryStr = query.toString();
+		var result = this.queryToCache[queryStr];
+		
+		if(!result) {
+			result = new ns.QueryCache(this.sparqlService, query);
+			this.queryToCache[queryStr] = result;
+			
+		}
+
+		return result;
+	};
+
+	
+	
 	ns.QueryCache = function(sparqlService, query) {
 		this.sparqlService = sparqlService;
 		this.query = query;
@@ -10,7 +30,7 @@
 		
 		this.cache = varToNodeToData = {};
 	};
-
+		
 	// Note: variable must be part of the projection
 	ns.QueryCache.prototype.lookup = function(v, nodes, retain) {
 		var filter = new sparql.E_In(v, nodes);

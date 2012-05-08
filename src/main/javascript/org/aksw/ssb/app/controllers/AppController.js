@@ -108,7 +108,9 @@
 		this.multiGraph = new collections.MultiGraph();
 		
 		
-		this.labelFetcher = null;		
+		this.labelFetcher = null;
+		
+		this.queryCacheFactory = null;
 	};
 	
 	
@@ -688,6 +690,17 @@
 	ns.AppController.prototype.setSparqlService = function(sparqlService) {
 		this.sparqlService = sparqlService;
 		this.labelFetcher = new labelUtils.LabelFetcher(this.sparqlService);
+		
+		this.queryCacheFactory = new labelUtils.QueryCacheFactory(this.sparqlService);
+		
+		
+		var geomVar = sparql.Node.v("g");
+		var lonVar = sparql.Node.v("x");
+		var latVar = sparql.Node.v("y");
+		var geomPosQuery = queryUtils.createQueryGeomLonLat(geomVar, lonVar, latVar);
+		
+		
+		this.geomPosFetcher = this.queryCacheFactory.create(geomPosQuery);
 	};
 		
 	ns.AppController.prototype.updateClasses = function(uris) {

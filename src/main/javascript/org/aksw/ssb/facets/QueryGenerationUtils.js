@@ -338,11 +338,53 @@
 
 	
 	/**
+	 * Wraps an element for counting (possibly using group by)
+	 * 
+	 */
+	ns.createCountQuery = function(element, limit, variable, outputVar, groupVars) {
+		
+		
+		var subQuery = new sparql.Query();
+		
+		subQuery.elements.push(element); //element.copySubstitute(function(x) { return x; }));
+		
+		subQuery.projectVars.add(variable);
+
+		///subQuery.projection[variable.value] = null;
+		subQuery.distinct = true;
+		
+		if(limit) {
+			subQuery.limit = limit;
+		}
+		
+		var result = new sparql.Query();
+		
+		if(groupVars) {
+			for(var i = 0; i < groupVars.length; ++i) {
+				// FIXME Only works with virtuoso that way
+				result.projectVars.add(groupVars[i]);
+				subQuery.projectVars.add(groupVars[i]);
+			}
+		}
+		
+		result.projectVars.add(outputVar, new sparql.E_Count(new sparql.ExprVar(variable)));
+		///result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
+		result.elements.push(new sparql.ElementSubQuery(subQuery));
+
+		//console.error(limit);
+		//console.error(result.toString());
+		
+		return result;
+	}
+	
+	/**
+	 * @deprecated
+	 * 
 	 * Creates a query that - based on another query - counts the number of
 	 * distinct values for a given variable.
 	 * 
 	 * TODO Move to some utils package
-	 * TODO Change it so it doesn't take a query as arg, but an element
+	 * DONE Change it so it doesn't take a query as arg, but an element - 
 	 * 
 	 * @param baseQuery
 	 * @param limit
@@ -351,7 +393,7 @@
 	 *     TODO Now I finally have to change to projection to a list rather than a map...
 	 * @returns {sparql.Query}
 	 */
-	ns.createCountQuery = function(baseQuery, limit, variable, groupVars) {
+	ns.createCountQueryFromQuery = function(baseQuery, limit, variable, groupVars) {
 		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
 		
 		// Create a new query with its elemets set to copies of that of the baseQuery
@@ -441,6 +483,22 @@
 		return result;
 	};
 	
+	
+	/**
+	 * Select ?geomVar ?lonVar ?latVar { element . }
+	 * 
+	 * Assumes that the geo-triples (geo:{long,lat}) are present.
+	 */
+	ns.createQueryGeomLonLat = function(element, geomVar, lonVar, latVar) {
+		var result = new sparql.Query();
+		result.projectVars.add(geomVar);
+		result.projectVar.add(latVar);
+		result.projectVar.add(lonVar);
+
+		result.elements.push(element);
+
+		return result;		
+	};
 	
 	/**
 	 * This method generates the facet query based on explicely given geometries.

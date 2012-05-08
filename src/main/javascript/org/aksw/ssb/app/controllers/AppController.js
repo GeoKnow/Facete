@@ -290,44 +290,27 @@
 		// replacing any other already pending request
 
 		var disableConstraints = true;
-		
-		var geoQueryFactory = this.queryGenerator.createQueryFactory({disableConstraints: disableConstraints});
-		
-		//var query = geoQueryFactory.create(bounds);
-		
-		//console.warn("BaseQuery", queryFactory.baseQuery.toString());
-		//console.warn("BBoxQuery", query.toString());
-		
-		
+
+
 		console.log("Constraints", this.queryGenerator.constraints);
-		var baseQuery = geoQueryFactory.baseQuery; //queryFactory.create(bounds);
+		var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.driver.element;
 		 
-		var hash = baseQuery.toString();
+		var hash = baseElement.toString();
 		console.debug("Query hash (including facets): ", hash);
 		
 		
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
-			// TODO (Maybe) this should not be the driver variable, but the geometry variable
-			// (As each geometry will get its own marker on the map)
-			var countGeoQueryFactory = this.queryGenerator.createQueryFactory({disableConstraints: true});
-			
-			var backend = new qtc.Backend(this.sparqlService, geoQueryFactory, this.queryGenerator.driver.variable, countGeoQueryFactory);
-			
-			cacheEntry = new qtc.QuadTreeCache(backend);
+			var backendFactory = new qtc.BackendFactory(this.sparqlService, this.queryGenerator);
+			cacheEntry = new qtc.QuadTreeCache(backendFactory);
 			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
 			this.hashToCache[hash] = cacheEntry;
 		}
 		
-		cacheEntry.load(bounds, {
-			success: function(nodes, bounds) {
-				//console.debug("Loaded " + nodes.length + " nodes");
-
-				// TODO Fix QuadTreeCache.diff so we can use it here to optimize the update
-				
-				self.updateViews(new ns.ViewState(nodes, bounds));
-			}
-		});
+		$.when(cacheEntry.load(bounds), function() {
+			console.debug("Loaded " + nodes.length + " nodes");
+			self.updateViews(new ns.ViewState(nodes, bounds));		
+		});		
 	};
 		
 	ns.AppController.prototype.repaint = function() {

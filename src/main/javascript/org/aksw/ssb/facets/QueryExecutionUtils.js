@@ -252,10 +252,10 @@
 	 * Fetches the first column of the first row of a result set and parses it as int.
 	 * 
 	 */
-	ns.fetchInt = function(sparqlService, query) {
+	ns.fetchInt = function(sparqlService, query, variable) {
 		
 		var result = sparqlService.executeSelect(query.toString()).pipe(function(data) {
-			var count = parseInt(data.results.bindings[0].c.value);
+			var count = parseInt(data.results.bindings[0][variable.value].value);
 			
 			return count;
 		});

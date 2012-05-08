@@ -1,6 +1,7 @@
 (function() {
 	
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	/*
 	var facets = Namespace("org.aksw.ssb.facets");
 
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
@@ -8,36 +9,9 @@
 	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 
 	var geovocab = Namespace("org.aksw.ssb.vocabs.geovocab");
-	
+	*/
+
 	var ns = Namespace("org.aksw.ssb.app.controllers");
-
-	
-	
-	ns.QueryFactoryGeo = function(baseQuery, bindings, geoConstraintFactory) {
-		this.baseQuery = baseQuery;
-		this.bindings = bindings;
-		this.geoConstraintFactory = geoConstraintFactory;
-	};
-	
-	ns.QueryFactoryGeo.prototype.create = function(bounds) {
-		// Create a deep copy of the query (substitute with identity mappinp)
-		
-		//console.warn("[Query] Original", this.baseQuery.toString());
-		var copy = this.baseQuery.copySubstitute(function(x) { return x; });
-		//console.warn("[Query] Copy", copy.toString());		
-		
-		var geoConstraint = this.geoConstraintFactory.create(bounds);
-		
-		//var geoConstraint = this.geoConstraintFactory.create(bounds);
-		var filter = new sparql.ElementFilter(geoConstraint.getExpr());
-		copy.elements.push(filter);
-		
-		return copy;
-	};
-
-	ns.QueryFactoryGeo.prototype.toString = function() {
-		return this.baseQuery.toString();
-	};
 	
 	
 	/**
@@ -78,183 +52,118 @@
 		// A list of paths for which to fetch data
 		// TODO Not sure how components should declare that
 	};
-	
-	/*
-	ns.QueryGenerator.prototype.initFacets = function() {
+
+	/**
+	 * Returns an element without constraints on the geoms.
+	 * Note that the geo-related triples will still be there by default.
+	 * 
+	 * FIXME: Should there be an option to disable that?
+	 * 
+	 * @param options
+	 */
+	ns.QueryGenerator.prototype.forGlobal = function(options) {
+		var elements = [];
+
+		// Add driver element
+		elements.push(this.driver.element);
+
+		// Add geo triples (no filter condition)
+		this._appendGeoElement(elements, options);
 		
+		// Add facet constraints
+		this._appendConstraintElement(elements, options);
+		
+		var result = new sparql.ElementGroup(elements); 
+		
+		return result;
 	};
-	*/
+
+	ns.QueryGenerator.prototype.forBounds = function(bounds, options) {
+		var filter = this._createGeoElementBounds(bounds);
+		var result = this._forFilter(filter);
+		return result;
+	};
 	
+	ns.QueryGenerator.prototype.forGeoms = function(geomUriNodes, options) {
+		var filter = new sparql.ElementFilter(new sparql.E_In(this.geoConstraintFactory.geomVar, geomUriNodes));
+		var result = this._forFilter(filter);
+		return result;		
+	};
+
 	
 	/**
-	 * Creates a SPARQL query for fetching resources, geo-coordinates, labels (and possibly more)
-	 * based on all available constraints.
-	 *
-	 * Returns an object with the query object, and a set of semantic mappings of the queryies
-	 * variable (e.g. {label: v_1}
-	 * 
-	 * Options:
-	 *     disableConstraints
-	 *
-	 * 
-	 * @returns A QueryFactoryGeo object that contains the base query and supports adding bbox constraints
+	 * Common code for forBounds and forGeoms.
 	 */
-	ns.QueryGenerator.prototype.createQueryFactory = function(options) {
-		
-		var query = new sparql.Query();
-		
-		query.elements.push(this.driver.element);
-		
-		for(var i = 0; i < this.constraints.length; ++i) {
-			// Create query element and filter expression
+	ns.QueryGenerator.prototype._forFilter = function(filter, options) {
+		var tmpElement = new sparql.ElementGroup();
+		tmpElement.elements.push(this.driver.element);
+		tmpElement.elements.push(filter);
+				
+		var result;
+		if(options && options.geoSubQuery) {
+			var subQuery = new sparql.ElementSubQuery();
+			subQuery.projectVars.add(this.geoConstraintFactory.geomVar);
+			subQuery.elements.push(tmpElement);
+			
+			var result = new sparql.ElementGroup();
+			result.elemements.push(subQuery);
+			
+			
+		} else {
+			result = tmpElement; 
 		}
 		
-		
-		var triplesBlock = new sparql.ElementTriplesBlock();
-		
-		query.elements.push(triplesBlock);
-		triplesBlock.addTriples(this.geoConstraintFactory.getTriples());
-		
+		this._appendConstraintElement(result.elements, options);
+
+		return result;
+	};
+
 	
-		//var geoConstraint = this.geoConstraintFactory.create(bounds);
-		//query.elements.push(new sparql.ElementFilter(geoConstraint.getExpr()));
-				
+	ns.QueryGenerator.prototype._createGeoElement = function() {
+		var result = new sparql.ElementTriplesBlock();
+		result.addTriples(this.geoConstraintFactory.getTriples());
+		result.uniq();		
 		
+		return result;
+	};
+	
+	ns.QueryGenerator.prototype._createGeoElementBounds = function(bounds) {
+		var result = new sparql.ElementGroup();
 
-		//this.geoConstraintFactory
-
-		var driverVar = this.driver.variable;
+		// Add geo triples
+		this._appendGeoElement(result.elements);
 		
-		// TODO breadcrumbs should also use Node objects for variables
-		var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
-		var xVar = sparql.Node.v(this.geoConstraintFactory.breadcrumbX.targetNode.variable);
-		var yVar = sparql.Node.v(this.geoConstraintFactory.breadcrumbY.targetNode.variable);
+		// Add the filter statement
+		var geoConstraint = this.geoConstraintFactory.create(bounds);		
+		var filter = new sparql.ElementFilter(geoConstraint.getExpr());
+		result.elements.push(filter);
 
-
-		// Add facet constraints
+		return result;		
+	};
+	
+	
+	/*
+	 * Utility methods
+	 */
+	
+	ns.QueryGenerator.prototype._appendGeoElement = function(destElements) {
+		var geoElement = this._createGeoElement();
+		destElements.push(geoElement);
+	};
+	
+	ns.QueryGenerator.prototype._appendGeoElementBounds = function(destElements, bounds, options) {
+		var element = this._cerateGeoElementBounds();
+		destElements.push(element);
+	};
+	
+	ns.QueryGenerator.prototype._appendConstraintElement = function(destElements, options) {
 		if(!(options && options.disableConstraints)) {
 			var element = this.constraints.getSparqlElement();
 			if(element) {
-				query.elements.push(element);
+				destElements.push(element);
 			}
 		}
-		
-		// TODO We need to find out the variables which should be fetched.
-		var labelBc = new facets.Breadcrumb.fromString(this.pathManager, rdfs.label.value);
-		var typeBc = new facets.Breadcrumb.fromString(this.pathManager, rdf.type.value);
-		
-		triplesBlock.addTriples(labelBc.getTriples());
-		triplesBlock.addTriples(typeBc.getTriples());
-		
-		
-		var labelVar = sparql.Node.v(labelBc.targetNode.variable);
-		
-		triplesBlock.uniq();
-		
-		// TODO I think construct is a better choice than select
-		// So eventually remove the select part.
-		// Bindings also are not required anymore (replaced by the predicates of the construct template)
-		var useConstruct = true;
-		if(!useConstruct) {
-			query.projection[geomVar] = null;
-			query.projection[xVar] = null;
-			query.projection[yVar] = null;
-			query.projection[labelBc.targetNode.variable] = null;
-			
-			// TODO: Maybe use Construct query instead
-			var bindings = {geom: geomVar, x: xVar, y: yVar, subject: this.driver.variable.value};
-		}
-		
-		
-		if(useConstruct) {
-			query.type = sparql.QueryType.Construct;
-			
-			var triples = [];
-			
-			triples.push(new sparql.Triple(driverVar, rdfs.label, labelVar));
-			triples.push(new sparql.Triple(driverVar, geovocab.geometry, geomVar));
-			triples.push(new sparql.Triple(geomVar, geo.long, xVar));
-			triples.push(new sparql.Triple(geomVar, geo.lat, yVar));
-			
-			var bgp = new sparql.BasicPattern(triples);
-			query.constructTemplate = new sparql.Template(bgp);			
-		}
-		
-		
-		
-		//var boundQuery = {query: query, bindings: bindings};
-		
-		//console.log("Created query and bindings:", result);
-		//console.log("Query string:", query.toString());
-
-		
-		var result = new ns.QueryFactoryGeo(query, bindings, this.geoConstraintFactory);
-		
-		return result;
-		
-		//alert("Creating query");
-		//BreadCrumb.getTargetVariable
-		//BreadCrumb.getVariables()
 	};
-	
-	
-	/**
-	 * Create a query that fetches resources only based on the constraints - i.e.
-	 * not based on a bbox- constraint.
-	 * 
-	 * The idea is, if counting the result returns few instances,
-	 * it we can fetch all data without bothering about geo-constraints.
-	 * 
-	 * This can be useful for constraints such as: (label = 'foo').
-	 * In this case there query should return quickly with only at most a handful of instances.
-	 * 
-	 * 
-	 */
-	ns.QueryGenerator.prototype.createGlobalQuery = function() {
-				
-		var elements = [];
-		
-		elements.push(this.driver.element);
-		
-		var triplesBlock = new sparql.ElementTriplesBlock();
-		
-		elements.push(triplesBlock);
-		triplesBlock.addTriples(this.geoConstraintFactory.getTriples());
 
-		// Add facet constraints
-		var element = this.constraints.getSparqlElement();
-		if(element) {
-			elements.push(element);
-		}
-		
-		triplesBlock.uniq();
-		
-		var elementGroup = new sparql.ElementGroup(elements);
-
-		return new facets.Driver(elementGroup, this.driver.variable);
-	};
-	
-
-	ns.QueryGenerator.prototype.setDriver = function(driver) {
-		this.driver = driver;
-	};
-	
-	ns.QueryGenerator.prototype.setGeoConstraintFactory = function(geoConstraintFactory) {
-		this.geoConstraintFactory = geoConstraintFactory;
-	};
-	
-	/*
-	ns.QueryGenerator.prototype.refresh = function(bounds) {
-		var query = this.createQuery(bounds);
-		
-		console.log(query.toString());
-		
-		/ *
-		this.sparqlService.executeSelect(query.toString(), function(jsonRdf) {
-			// TODO Process the result
-		});
-		* /
-	};*/
-	
 })();
 

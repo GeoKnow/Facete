@@ -1,0 +1,9 @@
+{# This is a comment and will be removed from the output.}
+
+{.section songs}
+  {.repeated section @}
+    <li>{name} ({count-facets}/{count-max})</li>
+  {.end}
+{.or}
+    <p>(No matching instances)</p>
+{.end}

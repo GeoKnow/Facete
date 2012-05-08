@@ -187,13 +187,16 @@
 	 * @param backend
 	 * @returns {ns.QuadTreeCache}
 	 */
-	ns.QuadTreeCache = function(backendFactory) {	
+	ns.QuadTreeCache = function(backendFactory, labelFetcher, geomPosFetcher) {	
 		var maxBounds = new qt.Bounds(-180.0, 180.0, -90.0, 90.0);
 		this.quadTree = new qt.QuadTree(maxBounds, 18, 0);
 	
 		this.backendFactory = backendFactory;
 
 		this.maxItemCount = 300;
+		
+		this.labelFetcher = labelFetcher;
+		this.geomPosFetcher = geomPosFetcher;
 	};
 
 	
@@ -273,7 +276,7 @@
 		var result = [];
 					
 		//$.each(nodes, function(index, node) {
-		_.map(nodes, function(node) {
+		_.each(nodes, function(node) {
 			//console.debug("Inferred minimum item count: ", node.infMinItemCount);
 
 			//if(node.data.absoluteGeomToFeatureCount)
@@ -301,6 +304,44 @@
 		});
 		
 		return result;
+	};
+	
+	ns.QuadTreeCache.prototype.postProcess = function(nodes) {
+		var self = this;
+		
+		// Here we create an rdfQuery databank object with the information we gathered
+		_.each(nodes, function(node) {
+
+			if(!node.data || !node.data.geomToFeatureCount) {
+				return;
+			}
+			
+
+			
+			node.data.graph = $.rdf.databank();
+			
+			var uriStrs = _.keys(node.data.geomToFeatureCount);
+			var uris = _.map(uriStrs, function(uriStr) { return sparql.Node.uri(uriStr); });
+			
+			
+			//console.debug("Post processing uris", uris);
+			
+			var p1 = self.labelFetcher.fetch(uriStrs).pipe(function(data) {
+				//console.log("Labels", data);
+				node.data.uriToLabel = data;
+			});
+			
+			var p2 = self.geomPosFetcher.fetch(uris).pipe(function(data) {
+				//console.log("Positions", data);
+				node.data.uriToPos = data;
+			});
+			
+			
+			$.when(p1, p2).then(function() {
+				node.data.graph eueue 
+			});
+			
+		});
 	};
 	
 	
@@ -342,30 +383,28 @@
 
 		var uncountedNodes = _.filter(nodes, ns.QuadTreeCache.isNotCounted);
 		console.log("# uncounted nodes", uncountedNodes.length);
-		
+
+		// The deferred is only resolved once the whole workflow completed
+		var result = $.Deferred();
+
 		
 		var countTasks = this.createCountTasks(uncountedNodes);
-
-		var countPhase = $.when.apply(window, countTasks).then(function() {
+		
+		$.when.apply(window, countTasks).then(function() {
 			nonFullNodes = _.filter(uncountedNodes, ns.QuadTreeCache.isTooManyGeoms);
 			console.log("# non full nodes", nonFullNodes.length);
 
 			
-			return loadTasks = self.createLoadTasks(nonFullNodes);
+			var loadTasks = self.createLoadTasks(nonFullNodes);
+			$.when.apply(window, loadTasks).then(function() {
+				ns.QuadTreeCache.finalizeLoading(nodes);
+				
+				$.when(self.postProcess(nodes)).then(function() {
+					console.debug("Workflow completed. Resolving deferred.");
+					result.resolve(nodes);					
+				});
+			});
 		});
-		
-		var loadPhase = $.when(countPhase).then(function() {
-			var loadTasks = arguments;
-			
-			return $.when.apply(window, loadTasks).then(function() { ns.QuadTreeCache.finalizeLoading(nodes); });
-		});
-
-		var postProcessPhase = $.when(loadPhase).then(function() {
-			//console.log("Should now fetch geometry positions");
-			
-		});
-		
-		var result = postProcessPhase;
 		
 		return result;
 	};

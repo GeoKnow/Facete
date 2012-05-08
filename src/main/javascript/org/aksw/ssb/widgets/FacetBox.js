@@ -559,7 +559,7 @@
 						var node = propertyToNode[propertyName];
 						var item = propertyToItem[propertyName];
 						
-						if(!node || (node.data && node.data.count === 0)) {
+						if(!node || !node.data || node.data.count === 0) {
 							item.view.$().hide();
 						}						
 					}
@@ -584,7 +584,7 @@
 						var node = propertyToNode[propertyName];
 						
 						var data = node.data;
-						var count = data.count;
+						var count = data ? data.count : 0;
 						
 						// Do not show facets with a count of 0 
 						if(!count) {

@@ -304,12 +304,14 @@
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
 			var backendFactory = new qtc.BackendFactory(this.sparqlService, this.queryGenerator);
-			cacheEntry = new qtc.QuadTreeCache(backendFactory);
+			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPosFetcher);
 			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
 			this.hashToCache[hash] = cacheEntry;
 		}
 		
-		$.when(cacheEntry.load(bounds), function() {
+		var promise = cacheEntry.load(bounds);
+		//console.log(promise);
+		$.when(promise).then(function(nodes) {
 			console.debug("Loaded " + nodes.length + " nodes");
 			self.updateViews(new ns.ViewState(nodes, bounds));		
 		});		
@@ -692,15 +694,7 @@
 		this.labelFetcher = new labelUtils.LabelFetcher(this.sparqlService);
 		
 		this.queryCacheFactory = new labelUtils.QueryCacheFactory(this.sparqlService);
-		
-		
-		var geomVar = sparql.Node.v("g");
-		var lonVar = sparql.Node.v("x");
-		var latVar = sparql.Node.v("y");
-		var geomPosQuery = queryUtils.createQueryGeomLonLat(geomVar, lonVar, latVar);
-		
-		
-		this.geomPosFetcher = this.queryCacheFactory.create(geomPosQuery);
+		this.geomPosFetcher = new labelUtils.GeomPosFetcher(this.queryCacheFactory);
 	};
 		
 	ns.AppController.prototype.updateClasses = function(uris) {

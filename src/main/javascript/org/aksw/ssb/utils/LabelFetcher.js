@@ -1,7 +1,44 @@
 (function($) {
 
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
+	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+
+	
 	var ns = Namespace("org.aksw.ssb.utils");
 
+	
+	ns.GeomPosFetcher = function(queryCacheFactory) {
+		this.geomVar = sparql.Node.v("g");
+		this.lonVar = sparql.Node.v("x");
+		this.latVar = sparql.Node.v("y");
+		this.geomPosQuery = queryUtils.createQueryGeomLonLat(this.geomVar, this.lonVar, this.latVar);
+		
+		this.cache = queryCacheFactory.create(this.geomPosQuery);
+	};
+	
+	ns.GeomPosFetcher.prototype.fetch = function(uris) {
+		var self = this;
+		
+		return this.cache.lookup(this.geomVar, uris).pipe(function(geomToBinding) {
+			var result = {};
+			
+			var keys =_.keys(geomToBinding);
+			for(var i = 0; i < keys.length; ++i) {
+				var key = keys[i];
+				
+				var binding = geomToBinding[key];
+				
+				var x = binding[self.lonVar.value];
+				var y = binding[self.latVar.value];
+				
+				result[key] = new qt.Point(x, y);
+			}
+			
+			return result;
+		});
+	};
+	
 	
 	ns.LabelFetcher = function(sparqlService, langs, fetchAllLangs, cache) {
 		this.langs = langs ? langs : ['en', ''];
@@ -58,8 +95,11 @@
 		return {entries: entries, notFound: lookups};
 	};
 	
+	// TODO uris = String[]. Maybe this should be sparql.Node[]
 	ns.LabelFetcher.prototype.fetch = function(uris, includeAllUris, callback) {
 	
+		//var uriStrs = _.map(uris, function(uri) { return uri.value; });
+		
 		var lookupResult = this.cacheLookup(uris, includeAllUris);
 		var result = lookupResult.entries;	
 		var lookups = lookupResult.notFound;

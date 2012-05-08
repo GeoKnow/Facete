@@ -512,8 +512,8 @@
 	ns.createQueryGeomLonLatElement = function(element, geomVar, lonVar, latVar) {
 		var result = new sparql.Query();
 		result.projectVars.add(geomVar);
-		result.projectVars.add(latVar);
 		result.projectVars.add(lonVar);
+		result.projectVars.add(latVar);
 
 		result.elements.push(element);
 

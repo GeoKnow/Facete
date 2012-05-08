@@ -1,5 +1,7 @@
 (function() {
 	
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	
 	var ns = Namespace("org.aksw.ssb.utils");
 
 	ns.QueryCacheFactory = function(sparqlService) {
@@ -26,15 +28,16 @@
 		this.sparqlService = sparqlService;
 		this.query = query;
 		
-		// TODO Only select queries supported
+		// TODO Only SELECT queries supported
 		
 		this.cache = varToNodeToData = {};
 	};
 		
 	// Note: variable must be part of the projection
 	ns.QueryCache.prototype.lookup = function(v, nodes, retain) {
-		var filter = new sparql.E_In(v, nodes);
-
+		var filterExpr = new sparql.E_In(v, nodes);
+		var filterElement = new sparql.ElementFilter(filterExpr);
+		
 		var nodeToData = varToNodeToData[v.value];
 		if(!nodeToData) {
 			varToNodeToData[v.value] = nodeToData = {};
@@ -45,7 +48,7 @@
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
 			
-			var keyStr = key.toString(); 
+			var keyStr = node.toString(); 
 			if(keyStr in nodeToData) {
 				continue;
 			}
@@ -55,29 +58,34 @@
 		
 		fetchList = _.uniq(fetchList, function(node) { return node.toString(); });		
 
-		var result;
+		var promise;
 		
-		if(_.isEmpty(fetchList)) {
-			result = $.when();
+		if(_.isEmpty(fetchList)) {			
+			promise = $.when();
 		} else {
 			var copy = this.query.copySubstitute(function(x) { return x; });
-			copy.elements.push(filter);
+			copy.elements.push(filterElement);
 
-			result = this.sparqlService.executeAny(copy.toString()).pipe(function(jsonResultSet) {
-				var bindings = jsonResultSet.result.bindings;
+			promise = this.sparqlService.executeAny(copy.toString()).pipe(function(jsonResultSet) {
+
+				var bindings = jsonResultSet.results.bindings;
+				
+				//console.debug("Bindings", bindings);
+				
 				for(var i = 0; i < bindings.length; ++i) {
 					var binding = bindings[i];
 					
 					
-					var indexNode = bindings[v.value];
+					var jsonNode = binding[v.value];
+					var indexNode = sparql.Node.fromJson(jsonNode);
 					var keyStr = indexNode.toString();
 					
-					nodeToData[keyStr] = binding;				
+					nodeToData[keyStr] = binding;
 				}
 			});
 		}
-		
-		result.pipe(function() {
+
+		var result = promise.pipe(function() {
 			var data = {};
 			for(var i = 0; i < nodes.length; ++i) {
 				var node = nodes[i];

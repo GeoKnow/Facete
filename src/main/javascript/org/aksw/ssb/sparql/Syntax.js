@@ -639,7 +639,7 @@
 			var newVar = fnNodeMap(entry.v);
 			var newExpr = entry.expr ? entry.expr.copySubstitute(fnNodeMap) : null;
 			
-			result.put(newVar, newExpr);
+			result.add(newVar, newExpr);
 		}
 		
 		return result;

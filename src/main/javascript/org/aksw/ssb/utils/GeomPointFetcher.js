@@ -38,7 +38,7 @@
 				result[geomUri] = new qt.Point(x, y);
 			});
 			
-			console.debug("geomToBinding", result);
+			//console.debug("geomToBinding", result);
 			
 			return result;
 		});

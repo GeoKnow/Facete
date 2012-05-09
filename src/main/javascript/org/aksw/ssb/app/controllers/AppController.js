@@ -137,12 +137,14 @@
 			schemaIcons: this.schemaIcons
 		});
 
+		/*
 		$("#instances").ssb_instances({
 			instanceToLabel: this.nodeToLabel,
 			instanceToType: this.nodeToTypes,
 			schemaIcons: this.schemaIcons
 		});
 		this.instanceWidget = $("#instances").data("ssb_instances");
+		*/
 		
 		/*
 		$("#facets").ssb_facets({
@@ -520,7 +522,7 @@
 			var geomToPoint = node.data.geomToPoint ? node.data.geomToPoint : ns.extractGeomsWgs84(databank);
 
 			
-			console.debug("geomToPoint", geomToPoint);
+			//console.debug("geomToPoint", geomToPoint);
 			//console.debug("Databank for node ", i, databank);
 			
 			// Attach the info to the node, so we reuse it the next time
@@ -553,7 +555,7 @@
 			}
 		}
 		
-		console.debug("Number of visible geoms", visibleGeoms.length);
+		//console.debug("Number of visible geoms", visibleGeoms.length);
 
 		// Combine the datastores
 		for(var i = 0; i < nodes.length; ++i) {
@@ -603,7 +605,7 @@
 		}
 		
 		//console.debug("View refresh status", geomToFeatureCount, idToLabel);
-		console.debug("Visible geoms", visibleGeoms);
+		//console.debug("Visible geoms", visibleGeoms);
 		//console.log("idToLabel", idToLabel);
 		
 		// TODO Separate the following part into a new method
@@ -629,7 +631,7 @@
 			var point = globalGeomToPoint[geom];
 			var lonlat = new OpenLayers.LonLat(point.x, point.y);
 			
-			console.debug("Adding map item", geom, point, lonlat);
+			//console.debug("Adding map item", geom, point, lonlat);
 			this.mapWidget.addItem(geom, lonlat, true);
 		}
 		
@@ -674,9 +676,13 @@
 		*/
 
 		// TODO HACK If nothing is selected, update the instance list
+		/*
 		if(!this.selectedFeature) {
 			this.instanceWidget.refresh();
 		}
+		*/
+
+		this.updateInstanceList(geomToFeatureCount);
 		
 		
 		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
@@ -748,10 +754,40 @@
 		fetchTransitiveSuperClasses(self.sparqlService, superClassesToFetch, self.classHierarchy);
 		removeReflexivity(self.classHierarchy);
 		
-		//$("#facets").data("ssb_facets").setFacets(uris);
+		//$("#facets").data("ssb_facets").setFacets(uris);		
 	};
 			
+	
+	
+	ns.AppController.prototype.updateInstanceList = function(geomToFeatureCount) {
 		
+		var self = this;
+		var dataDictionary = {};
+		dataDictionary.items = [];
+		
+		var uriStrs = _.keys(geomToFeatureCount);
+		this.labelFetcher.fetch(uriStrs).pipe(function(uriToLabel) {
+		
+			var template = "{.section items}<ol class='ssb-container'>{.repeated section @}<li>{label} ({count})</li>{.end}</ol>{.or}<p>(No matching instances)</p>{.end}";
+			
+			_.each(geomToFeatureCount, function(count, uri) {
+
+				var label = uriToLabel[uri].value;
+				
+				dataDictionary.items.push({uri: uri, count: count, label: label});			
+
+			});
+
+			var htmlStr = jsontemplate.expand(template, dataDictionary);
+
+			
+			$("#instances-tab").html(htmlStr);
+		});
+		
+	};
+		
+	
+	
 	ns.AppController.prototype.updateLabels = function(uris, map) {					
 		var self = this;
 		//var uris = labelsToLoad;

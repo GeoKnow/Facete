@@ -201,7 +201,7 @@
 	
 		this.backendFactory = backendFactory;
 
-		this.maxItemCount = 300;
+		this.maxItemCount = 25;
 		
 		this.labelFetcher = labelFetcher;
 		this.geomPosFetcher = geomPosFetcher;
@@ -210,12 +210,17 @@
 	
 	ns.QuadTreeCache.prototype.createCountTask = function(node) {
 
+		var self = this;
+		
 		var result =
 			this.backendFactory.forBounds(node.getBounds()).fetchGeomCount(self.maxItemCount).pipe(function(value) {
 
+				//console.debug("Counted items within " + node.getBounds(), value);
+				
 				node.setMinItemCount(value); 
 				if(value < self.maxItemCount) {
 					node.data.itemCount = value;
+					node.data.tooManyItems = false;
 				} else {
 					node.data.tooManyItems = true;
 				}
@@ -234,15 +239,19 @@
 	
 	
 	ns.QuadTreeCache.isTooManyGeoms = function(node) {
+		/*
 		if(node.isLoaded) {
 			return false;
-		}
+		}*/
 	
+		/*
 		if(node.infMinItemCount < self.maxItemCount) {
 			return false;
 		}
 
-		return true;		
+		return true;
+		*/
+		return !node.data.tooManyItems;
 	};
 	
 	
@@ -295,7 +304,7 @@
 					node.data = {};
 				}
 
-				console.log("GeomToFeatureCount", geomToFeatureCount);
+				//console.log("GeomToFeatureCount", geomToFeatureCount);
 				
 				node.data.geomToFeatureCount = geomToFeatureCount;
 				
@@ -456,8 +465,9 @@
 				ns.QuadTreeCache.finalizeLoading(nodes);
 				
 				$.when(self.postProcess(nodes)).then(function() {
+					self.isLocked = false;
 					console.debug("Workflow completed. Resolving deferred.");
-					result.resolve(nodes);					
+					result.resolve(nodes);
 				});
 			});
 		});
@@ -520,8 +530,7 @@
 		
 		//console.log("All done");
 		//self._setNodes(nodes, bounds);
-		//callback.success(nodes, bounds);
-		self.isLocked = false;		
+		//callback.success(nodes, bounds);		
 	};
 
 

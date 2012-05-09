@@ -8,6 +8,7 @@
 	var qtc = Namespace("org.aksw.ssb.collections.QuadTreeCache");
 	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 	var geovocab = Namespace("org.aksw.ssb.vocabs.geovocab");
+	var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 
@@ -304,7 +305,7 @@
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
 			var backendFactory = new qtc.BackendFactory(this.sparqlService, this.queryGenerator);
-			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPosFetcher);
+			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPointFetcher);
 			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
 			this.hashToCache[hash] = cacheEntry;
 		}
@@ -496,7 +497,7 @@
 		// change  
 		// instances (only applicable for partially visible nodes)
 		
-		//console.log("Updating views");
+		console.log("Updating views");
 		
 		var oldVisibleGeoms = this.viewState.visibleGeoms;
 		
@@ -518,6 +519,10 @@
 			var databank = node.data.graph;
 			var geomToPoint = node.data.geomToPoint ? node.data.geomToPoint : ns.extractGeomsWgs84(databank);
 
+			
+			console.debug("geomToPoint", geomToPoint);
+			//console.debug("Databank for node ", i, databank);
+			
 			// Attach the info to the node, so we reuse it the next time
 			node.data.geomToPoint = geomToPoint;
 			
@@ -548,7 +553,7 @@
 			}
 		}
 		
-		//console.log("Number of visible geoms", visibleGeoms.length);
+		console.debug("Number of visible geoms", visibleGeoms.length);
 
 		// Combine the datastores
 		for(var i = 0; i < nodes.length; ++i) {
@@ -567,6 +572,8 @@
 		 * 2) labels of the features 
 		 */
 		var geomToFeatures = collections.BidiMultiMap.createWithSet();
+		var geomToFeatureCount = {};
+		
 		var idToLabel = {}; // TODO I don't think there is much point in having the labels here already; they should be fetched separately using the LabelFetcher
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
@@ -583,12 +590,20 @@
 				geomToFeatures.put(this.geom.value, this.id.value);
 			});
 
-			
+			rdf.where("?geom " + appvocab.featureCount + " ?featureCount").each(function() {
+				
+				//geomToFeatureCount.put(this.geom.value, this.featureCount.value);
+				geomToFeatureCount[this.geom.value] = this.featureCount.value;
+			});
+
+
 			rdf.where("?id " + rdfs.label + " ?label").each(function() {
 				idToLabel[this.id.value] = this.label.value;
 			});			
 		}
 		
+		//console.debug("View refresh status", geomToFeatureCount, idToLabel);
+		console.debug("Visible geoms", visibleGeoms);
 		//console.log("idToLabel", idToLabel);
 		
 		// TODO Separate the following part into a new method
@@ -614,6 +629,7 @@
 			var point = globalGeomToPoint[geom];
 			var lonlat = new OpenLayers.LonLat(point.x, point.y);
 			
+			console.debug("Adding map item", geom, point, lonlat);
 			this.mapWidget.addItem(geom, lonlat, true);
 		}
 		
@@ -694,7 +710,7 @@
 		this.labelFetcher = new labelUtils.LabelFetcher(this.sparqlService);
 		
 		this.queryCacheFactory = new labelUtils.QueryCacheFactory(this.sparqlService);
-		this.geomPosFetcher = new labelUtils.GeomPosFetcher(this.queryCacheFactory);
+		this.geomPointFetcher = new labelUtils.GeomPointFetcher(this.queryCacheFactory);
 	};
 		
 	ns.AppController.prototype.updateClasses = function(uris) {

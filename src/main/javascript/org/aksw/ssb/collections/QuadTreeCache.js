@@ -6,6 +6,14 @@
 
 	var rdfQueryUtils = Namespace("org.aksw.ssb.utils.rdfquery");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+
+	
+	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
+	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
+	var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
+
+	
 	
 	var ns = Namespace("org.aksw.ssb.collections.QuadTreeCache");
 
@@ -309,8 +317,11 @@
 	ns.QuadTreeCache.prototype.postProcess = function(nodes) {
 		var self = this;
 		
+		var deferred = $.Deferred();
+		
 		// Here we create an rdfQuery databank object with the information we gathered
-		_.each(nodes, function(node) {
+		
+		var subTasks = _.map(nodes, function(node) {
 
 			if(!node.data || !node.data.geomToFeatureCount) {
 				return;
@@ -328,20 +339,65 @@
 			
 			var p1 = self.labelFetcher.fetch(uriStrs).pipe(function(data) {
 				//console.log("Labels", data);
-				node.data.uriToLabel = data;
+				node.data.geomToLabel = data;
 			});
 			
 			var p2 = self.geomPosFetcher.fetch(uris).pipe(function(data) {
 				//console.log("Positions", data);
-				node.data.uriToPos = data;
+				node.data.geomToPoint = data;
+			});
+
+			var databank = node.data.graph;
+			_.each(node.data.geomToFeatureCount, function(count, geom) {
+				var s = sparql.Node.uri(geom);
+				var o = sparql.Node.typedLit(count, xsd.integer);
+				
+				var tripleStr = "" + s + " " + appvocab.featureCount + " " + o;
+				var triple = $.rdf.triple(tripleStr);
+				
+				databank.add(triple);					
+			});
+
+			
+			var subTask = $.when(p1, p2).then(function() {
+				
+				var data = node.data;
+				var geomToLabel = data.geomToLabel;
+				var databank = data.graph;
+				
+				_.each(geomToLabel, function(label, uri) {
+					var s = sparql.Node.uri(uri);
+					var o = sparql.Node.plainLit(label.value, label.language);
+					
+					var tripleStr = "" + s + " " + rdfs.label + " " + o;
+					var triple = $.rdf.triple(tripleStr);
+					
+					databank.add(triple);					
+				});
+
+				var geomToPoint = data.geomToPoint;
+				
+				_.each(geomToPoint, function(point, uri) {
+					var s = sparql.Node.uri(uri);
+					var oLon = sparql.Node.typedLit(point.x, xsd.double);
+					var oLat = sparql.Node.typedLit(point.x, xsd.double);
+					
+					var lonTriple = "" + s + " " + geo.long + " " + oLon; 
+					var latTriple = "" + s + " " + geo.lat + " " + oLat;
+					
+					databank.add(lonTriple);
+					databank.add(latTriple);
+				});
 			});
 			
-			
-			$.when(p1, p2).then(function() {
-				node.data.graph eueue 
-			});
-			
+			return subTask;			
 		});
+		
+		$.when.apply(window, subTasks).then(function() {
+			deferred.resolve();
+		});
+		
+		return deferred.promise();
 	};
 	
 	

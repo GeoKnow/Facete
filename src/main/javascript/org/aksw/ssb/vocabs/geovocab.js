@@ -14,4 +14,5 @@
 	var p = "http://geovocab.org/geometry#";
 
 	ns.geometry = sparql.Node.uri(p + "geometry");	
+	ns.Geometry = sparql.Node.uri(p + "Geometry");
 })();

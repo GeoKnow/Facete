@@ -685,3 +685,152 @@
 	
 })(jQuery);
 
+
+
+
+/**
+ * Load data for the specified area
+ * 
+ * @param bounds
+ */
+ns.QuadTreeCache.prototype.loadOld = function(bounds, callback) {
+	
+	var self = this;
+	
+	// Prevent the bounds being set too frequently
+	// TODO This is probably not the best place for doing that 
+	if(self.isLocked) {
+		return;
+	}
+	self.isLocked = true;
+
+	
+	//console.debug("Aquiring nodes for " + bounds);
+	var nodes = this.quadTree.aquireNodes(bounds, 2);
+	
+	//console.debug("Aquired " + nodes.length + " nodes for " + bounds);
+
+	// Uncomment for output of aquired nodes
+	/*
+	console.log("Found some nodes: " + nodes.length);
+	$.each(nodes, function(index, node) {
+		console.log(index + ": " + node.getBounds());
+	});
+	*/
+	
+	
+	/*
+	 * Retrieve the minimum number of items per node
+	 * This can happen either with or without facets being taken into account 
+	 */
+	var countTasks = this.createCountTasks(nodes);
+		
+
+	// Once all counts have been computed, request the data for applicable nodes
+	$.when.apply(window, countTasks).then(function() {
+
+		var loadTasks = [];
+		
+		
+		$.each(nodes, function(index, node) {
+			//console.debug("Inferred minimum item count: ", node.infMinItemCount);
+
+			if(node.isLoaded) {
+				return true;
+			}
+		
+			if(!node.infMinItemCount < self.maxItemCount) {
+				return true;
+			}
+	
+			loadTasks.push(
+				self.backend.fetchData(node.getBounds()).pipe(function(data) {
+					node.isLoaded = true;
+
+					if(!node.data) {
+						node.data = {};
+					}
+					
+					// TODO Make data transformations configurable
+					// (Should this be part of the backend???)
+					node.data.graph = rdfQueryUtils.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
+					//node.data = data;
+
+					/*
+					var idToLonlat = data.idToPos;
+					for(var id in idToLonlat) {
+						var lonlat = idToLonlat[id];
+						var pos = new qt.Point(lonlat.lon, lonlat.lat);
+
+						node.addItem(id, pos);
+					}
+					
+					node.data.idToTypes  = data.idToTypes;
+					node.data.idToLabels = data.idToLabels;
+					*/						
+				})
+			);
+		});
+	
+
+		$.when.apply(window, loadTasks).then(function() {
+
+			// Restructure all nodes that have been completely loaded, 
+			var parents = [];
+			
+			$.each(nodes, function(index, node) {
+				if(node.parent) {
+					parents.push(node.parent);
+				}
+			});
+
+			parents = _.uniq(parents);
+			
+			var change = false;			
+			do {
+				change = false;
+				for(var i in parents) {
+					var p = parents[i];
+
+					var children = p.children;
+	
+					var didMerge = ns.tryMergeNode(p);
+					if(!didMerge) {
+						continue;
+					}
+					
+					change = true;
+	
+					$.each(children, function(i, child) {
+						var indexOf = _.indexOf(nodes, child);
+						if(indexOf >= 0) {
+							nodes[indexOf] = undefined;
+						}
+					});
+					
+					nodes.push(p);
+					
+					if(p.parent) {
+						parents.push(p.parent);
+					}
+					
+					break;
+				}
+			} while(change == true);
+			
+			_.compact(nodes);
+			
+			/*
+			$.each(nodes, function(i, node) {
+				node.isLoaded = true;
+			});
+			*/
+			
+			//console.log("All done");
+			//self._setNodes(nodes, bounds);
+			callback.success(nodes, bounds);
+			self.isLocked = false;
+			
+		});
+	});
+};

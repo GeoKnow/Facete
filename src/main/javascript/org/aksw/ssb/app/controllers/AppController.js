@@ -315,7 +315,13 @@
 		var promise = cacheEntry.load(bounds);
 		//console.log(promise);
 		$.when(promise).then(function(nodes) {
-			console.debug("Loaded " + nodes.length + " nodes");
+			if(!nodes) {
+				console.debug("Update was in progress");
+				return;
+			}
+			
+			//console.debug("Loaded " + nodes.length + " nodes");
+			//console.debug("Nodes are:", nodes);
 			self.updateViews(new ns.ViewState(nodes, bounds));		
 		});		
 	};
@@ -648,6 +654,8 @@
 			var node = nodes[i];
 			
 			if(!node.isLoaded || alwaysShowBoxes) {
+				
+				//console.log("adding a box for", node);
 				this.mapWidget.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 			}
 		}
@@ -682,7 +690,7 @@
 		}
 		*/
 
-		this.updateInstanceList(geomToFeatureCount);
+		this.updateInstanceList(visibleGeoms, geomToFeatureCount);
 		
 		
 		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
@@ -759,22 +767,24 @@
 			
 	
 	
-	ns.AppController.prototype.updateInstanceList = function(geomToFeatureCount) {
+	ns.AppController.prototype.updateInstanceList = function(visibleGeoms, geomToFeatureCount) {
 		
-		var self = this;
+
+		//var self = this;
 		var dataDictionary = {};
 		dataDictionary.items = [];
 		
-		var uriStrs = _.keys(geomToFeatureCount);
-		this.labelFetcher.fetch(uriStrs).pipe(function(uriToLabel) {
+		//var uriStrs = _.keys(geomToFeatureCount);
+		this.labelFetcher.fetch(visibleGeoms).pipe(function(uriToLabel) {
 		
 			var template = "{.section items}<ol class='ssb-container'>{.repeated section @}<li>{label} ({count})</li>{.end}</ol>{.or}<p>(No matching instances)</p>{.end}";
 			
-			_.each(geomToFeatureCount, function(count, uri) {
+			_.each(visibleGeoms, function(geom) {
 
-				var label = uriToLabel[uri].value;
+				var label = uriToLabel[geom].value;
+				var count = geomToFeatureCount[geom];
 				
-				dataDictionary.items.push({uri: uri, count: count, label: label});			
+				dataDictionary.items.push({uri: geom, count: count, label: label});			
 
 			});
 

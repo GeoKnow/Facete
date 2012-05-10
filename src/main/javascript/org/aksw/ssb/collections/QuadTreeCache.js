@@ -218,11 +218,11 @@
 				//console.debug("Counted items within " + node.getBounds(), value);
 				
 				node.setMinItemCount(value); 
-				if(value < self.maxItemCount) {
-					node.data.itemCount = value;
-					node.data.tooManyItems = false;
-				} else {
-					node.data.tooManyItems = true;
+				
+				// If the value is 0, also mark the node as loaded
+				if(value === 0) {
+					//self.initNode(node);
+					node.isLoaded = true;
 				}
 			});
 		
@@ -230,30 +230,49 @@
 	};
 	
 	
-	
-	ns.QuadTreeCache.isNotCounted = function(node) {
-		var result = node.getMinItemCount() === null && (node.infMinItemCount === null || node.infMinItemCount < self.maxItemCount);
-		return result;
-	};
-	
-	
-	
-	ns.QuadTreeCache.isTooManyGeoms = function(node) {
-		/*
-		if(node.isLoaded) {
-			return false;
-		}*/
-	
-		/*
-		if(node.infMinItemCount < self.maxItemCount) {
-			return false;
+	/*
+	ns.QuadTreeCache.prototype.initNode = function(node) {
+		if(!node.data) {
+			node.data = {};
 		}
+	};
+	*/
+	
+	
+	/**
+	 * If either the minimum number of items in the node is above the threshold or
+	 * all children have been counted, then there is NO need for counting
+	 * 
+	 */
+	ns.QuadTreeCache.prototype.isCountingNeeded = function(node) {
+		//console.log("Node To Count:", node, node.isCountComplete());
+		
+		return !(this.isTooManyGeoms(node) || node.isCountComplete());
+	};
 
-		return true;
-		*/
-		return !node.data.tooManyItems;
+	
+
+	/*
+	 * Loading is needed if NONE of the following criteria applies:
+	 * . node was already loaded
+	 * . there are no items in the node
+	 * . there are to many items in the node
+	 * 
+	 */
+	ns.QuadTreeCache.prototype.isLoadingNeeded = function(node) {
+
+		//(node.data && node.data.isLoaded)
+		var noLoadingNeeded = node.isLoaded || (node.isCountComplete() && node.infMinItemCount === 0) || this.isTooManyGeoms(node);
+		
+		return !noLoadingNeeded;
 	};
 	
+	
+	ns.QuadTreeCache.prototype.isTooManyGeoms = function(node) {	
+		//console.log("FFS", node.infMinItemCount, node.getMinItemCount());
+		return node.infMinItemCount >= this.maxItemCount;
+	};
+		
 	
 	
 	ns.QuadTreeCache.prototype.createCountTasks = function(nodes) {
@@ -297,13 +316,9 @@
 			//console.debug("Inferred minimum item count: ", node.infMinItemCount);
 
 			//if(node.data.absoluteGeomToFeatureCount)
-
+			
 			var loadTask = self.backendFactory.forBounds(node.getBounds()).fetchGeomToFeatureCount().pipe(function(geomToFeatureCount) {
 				
-				if(!node.data) {
-					node.data = {};
-				}
-
 				//console.log("GeomToFeatureCount", geomToFeatureCount);
 				
 				node.data.geomToFeatureCount = geomToFeatureCount;
@@ -446,8 +461,24 @@
 		//console.debug("Aquiring nodes for " + bounds);
 		var nodes = this.quadTree.aquireNodes(bounds, 2);
 
-		var uncountedNodes = _.filter(nodes, ns.QuadTreeCache.isNotCounted);
-		console.log("# uncounted nodes", uncountedNodes.length);
+		// Init the data attribute if needed
+		_.each(nodes, function(node) {
+			if(!node.data) {
+				node.data = {};
+			}
+		});
+		
+
+		// Mark empty nodes as loaded
+		_.each(nodes, function(node) {
+			if(node.isCountComplete() && node.infMinItemCount === 0) {
+				node.isLoaded = true;
+			}
+		});
+
+		
+		var uncountedNodes = _.filter(nodes, function(node) { return self.isCountingNeeded(node); });
+		//console.log("# uncounted nodes", uncountedNodes.length);
 
 		// The deferred is only resolved once the whole workflow completed
 		var result = $.Deferred();
@@ -456,17 +487,16 @@
 		var countTasks = this.createCountTasks(uncountedNodes);
 		
 		$.when.apply(window, countTasks).then(function() {
-			nonFullNodes = _.filter(uncountedNodes, ns.QuadTreeCache.isTooManyGeoms);
-			console.log("# non full nodes", nonFullNodes.length);
-
+			nonLoadedNodes = _.filter(nodes, function(node) { return self.isLoadingNeeded(node); });
+			//console.log("# non loaded nodes", nonLoadedNodes.length, nonLoadedNodes);
 			
-			var loadTasks = self.createLoadTasks(nonFullNodes);
+			var loadTasks = self.createLoadTasks(nonLoadedNodes);
 			$.when.apply(window, loadTasks).then(function() {
-				ns.QuadTreeCache.finalizeLoading(nodes);
+				//ns.QuadTreeCache.finalizeLoading(nodes);
 				
 				$.when(self.postProcess(nodes)).then(function() {
 					self.isLocked = false;
-					console.debug("Workflow completed. Resolving deferred.");
+					//console.debug("Workflow completed. Resolving deferred.");
 					result.resolve(nodes);
 				});
 			});
@@ -534,154 +564,6 @@
 	};
 
 
-	
-	/**
-	 * Load data for the specified area
-	 * 
-	 * @param bounds
-	 */
-	ns.QuadTreeCache.prototype.loadOld = function(bounds, callback) {
-		
-		var self = this;
-		
-		// Prevent the bounds being set too frequently
-		// TODO This is probably not the best place for doing that 
-		if(self.isLocked) {
-			return;
-		}
-		self.isLocked = true;
-	
-		
-		//console.debug("Aquiring nodes for " + bounds);
-		var nodes = this.quadTree.aquireNodes(bounds, 2);
-		
-		//console.debug("Aquired " + nodes.length + " nodes for " + bounds);
-
-		// Uncomment for output of aquired nodes
-		/*
-		console.log("Found some nodes: " + nodes.length);
-		$.each(nodes, function(index, node) {
-			console.log(index + ": " + node.getBounds());
-		});
-		*/
-		
-		
-		/*
-		 * Retrieve the minimum number of items per node
-		 * This can happen either with or without facets being taken into account 
-		 */
-		var countTasks = this.createCountTasks(nodes);
-			
-	
-		// Once all counts have been computed, request the data for applicable nodes
-		$.when.apply(window, countTasks).then(function() {
-	
-			var loadTasks = [];
-			
-			
-			$.each(nodes, function(index, node) {
-				//console.debug("Inferred minimum item count: ", node.infMinItemCount);
-
-				if(node.isLoaded) {
-					return true;
-				}
-			
-				if(!node.infMinItemCount < self.maxItemCount) {
-					return true;
-				}
-		
-				loadTasks.push(
-					self.backend.fetchData(node.getBounds()).pipe(function(data) {
-						node.isLoaded = true;
-
-						if(!node.data) {
-							node.data = {};
-						}
-						
-						// TODO Make data transformations configurable
-						// (Should this be part of the backend???)
-						node.data.graph = rdfQueryUtils.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
-						//node.data = data;
-
-						/*
-						var idToLonlat = data.idToPos;
-						for(var id in idToLonlat) {
-							var lonlat = idToLonlat[id];
-							var pos = new qt.Point(lonlat.lon, lonlat.lat);
-
-							node.addItem(id, pos);
-						}
-						
-						node.data.idToTypes  = data.idToTypes;
-						node.data.idToLabels = data.idToLabels;
-						*/						
-					})
-				);
-			});
-		
-	
-			$.when.apply(window, loadTasks).then(function() {
-	
-				// Restructure all nodes that have been completely loaded, 
-				var parents = [];
-				
-				$.each(nodes, function(index, node) {
-					if(node.parent) {
-						parents.push(node.parent);
-					}
-				});
-	
-				parents = _.uniq(parents);
-				
-				var change = false;			
-				do {
-					change = false;
-					for(var i in parents) {
-						var p = parents[i];
-	
-						var children = p.children;
-		
-						var didMerge = ns.tryMergeNode(p);
-						if(!didMerge) {
-							continue;
-						}
-						
-						change = true;
-		
-						$.each(children, function(i, child) {
-							var indexOf = _.indexOf(nodes, child);
-							if(indexOf >= 0) {
-								nodes[indexOf] = undefined;
-							}
-						});
-						
-						nodes.push(p);
-						
-						if(p.parent) {
-							parents.push(p.parent);
-						}
-						
-						break;
-					}
-				} while(change == true);
-				
-				_.compact(nodes);
-				
-				/*
-				$.each(nodes, function(i, node) {
-					node.isLoaded = true;
-				});
-				*/
-				
-				//console.log("All done");
-				//self._setNodes(nodes, bounds);
-				callback.success(nodes, bounds);
-				self.isLocked = false;
-				
-			});
-		});
-	};
-
 	/**
 	 * 
 	 * 
@@ -689,7 +571,7 @@
 	 * @returns {Boolean} true if the node was merged, false otherwise
 	 */
 	ns.tryMergeNode = function(parent) {
-		return;
+		return false;
 		
 		if(!parent) {
 			return;

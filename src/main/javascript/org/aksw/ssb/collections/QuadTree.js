@@ -154,6 +154,9 @@
 		this._classConstructor = ns.Node;
 	};
 	
+	ns.Node.prototype.isLeaf = function() {
+		return !this.children;
+	};
 	
 	ns.Node.TOP_LEFT = 0;
 	ns.Node.TOP_RIGHT = 1;
@@ -198,6 +201,30 @@
 		return this._minItemCount;
 	};
 	
+	/**
+	 * True if either the minItemCount is set, or all children have it set 
+	 * FIXME This description is not concise - mention the transitivity
+	 * 
+	 * @returns
+	 */
+	ns.Node.prototype.isCountComplete = function() {
+		if(this.getMinItemCount() !== null) {
+			return true;
+		}
+		
+		if(this.children) {
+			var result = _.reduce(
+					this.children,
+					function(memo, child) {
+						return memo && child.isCountComplete();
+					},
+					true);
+
+			return result;
+		}
+		
+		return false;
+	};
 	
 	//Node.prototype.get
 	

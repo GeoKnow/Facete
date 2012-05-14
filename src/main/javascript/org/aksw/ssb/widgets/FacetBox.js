@@ -29,15 +29,30 @@
 	};
 	
 	
-	ns.FacetValueBackendSparql.prototype.fetchFacetValues = function(breadcrumb, facetState) {
+	ns.FacetValueBackendSparql.prototype.fetchFacetValues = function(breadcrumb, facetState, searchString) {
 
-		return queryUtils.loadFacetValues(this.sparqlService, this.labelFetcher, facetState, breadcrumb);
+		return queryUtils.loadFacetValues(this.sparqlService, this.labelFetcher, facetState, breadcrumb, searchString);
 		/*
 		.pipe(function(data) {
 			//child.facetValues = data.facetValues;
 			//console.log("So far got", facetValues);
 		}));
 		*/
+	};
+	
+	ns.FacetValueBackendSparql.prototype.fetchCountFacetValues = function(breadcrumb, facetState, searchString) {
+		
+		var countLimit = 1001;
+		var countVar = sparql.Node.v("__c");
+		var baseElement = facetState.driver.element;
+
+		var query = queryUtils.createQueryCountFacetValues(baseElement, breadcrumb, searchString, countLimit, countVar);
+
+
+	
+		return queryUtils.fetchInt(this.sparqlService, query.toString(), countVar).pipe(function(value) {
+			return {count: value, countLimit: countLimit};
+		});		
 	};
 
 	
@@ -248,8 +263,13 @@
 //					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
 //					'<a href="#t2" class="facets-tab-content-facetswitcher-li-nav-subfacets">Sub-Facets</a>' + 
 //				'</div>' +
-				'<div class="tabdiv" id="t1">' + 
-					'<ol></ol>' + 
+				'<div class="tabdiv" id="t1">' +
+					//'<form action="">'+ 
+						'<input type="text" id="facets-tab-values-searchTextBox" data-bind="searchString" />' + 
+						//'<input type="button" value="Search" id="facets-tab-values-searchButton"/>' + 
+					//'</form>' + 
+					'<ol></ol>' +
+					'<span></span>' +
 				'</div>' + 
 //				'<div class="tabdiv" id="t2">Subfacets not loaded</div>' + 
 			'</div>' +
@@ -278,14 +298,28 @@
 				var state = this.model.get('state');
 				var constraints = this.model.get('constraints');
 			
+				var searchString = this.model.get('searchString');
+				
 				var backend = this.model.get('backend');
 				
 				var self = this;
 				
-				backend.fetchFacetValues(breadcrumb, state).pipe(function(data) {
+
+				var countTask = backend.fetchCountFacetValues(breadcrumb, state, searchString);
+
+				var valuesTask = backend.fetchFacetValues(breadcrumb, state, searchString).pipe(function(data) {
 					breadcrumb.targetNode.facetValues = data.facetValues;
-					
+
+					return data;
+				});
+				
+				
+				$.when(countTask, valuesTask).then(function(count, data) {
 					self.controller.syncValues(state);
+
+					console.log(arguments);
+
+					self.view.$("ol:first~span:first").html("Count: " + count.count);
 				});
 				
 				//this.controller.loadFacetValues(sparqlService, state, breadcrumb, constraints);
@@ -397,6 +431,10 @@
 				var facetElement = this.view.$("div:first");
 				var result = $(facetElement).is(":visible");
 				return result;
+			},
+			
+			'change': function() {
+				this.controller.refresh();
 			},
 			
 			'click span:first': function() {

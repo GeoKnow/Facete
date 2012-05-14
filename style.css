@@ -341,6 +341,10 @@ a:active {
     display: none;
 }
 
+.box-facts-table {
+	border-collapse: collapse;
+}
+
 .box-facts-content-line-odd {
     display: table-row;
 }

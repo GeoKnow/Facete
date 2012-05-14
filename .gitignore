@@ -1,0 +1,10 @@
+.buildpath
+.project
+.settings/
+lib/RDFauthor
+
+# Temporary excludes:
+install-rdf-author.sh
+lib/jPages/
+lib/jscache/
+

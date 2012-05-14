@@ -10,6 +10,7 @@
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
+	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 	
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
@@ -145,8 +146,75 @@
 		return q;
 	};
 
+	ns.createQueryFacetValuesCountedFiltered = function(baseElement, breadcrumb, sampleSize, searchString) {
+		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);
+		var result = ns.createQueryFacetValuesCounted(element, breadcrumb, sampleSize);		
+		return result;
+	};
 
+	ns.createQueryCountFacetValues = function(baseElement, breadcrumb, searchString, sampleSize, outputVar) {
+		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);		
+		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
+		var result = ns.createCountQuery(element, sampleSize, facetVar, outputVar);		
+		return result;
+	};
+	
+	
+	/**
+	 * Filters an element
+	 * 
+	 * element
+	 *   Optional {
+	 *     ?facetVar label ?labelVar .
+	 *   }
+	 *   Filter(regex(str(?facetVar), ...) || Filter(regex(?labelVar, ...)))
+	 *     
+	 * 
+	 */
+	ns.createElementFiltered = function(breadcrumb, searchString) {
+		if(!searchString) {
+			return null;
+		}	
+		
+		// Get or create the variable for the label
+		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
+		var labelVar = sparql.Node.v(breadcrumb.targetNode.getOrCreate(rdfs.label.value).variable);
 
+		var filterExpr = new sparql.E_LogicalOr(
+				new sparql.E_Regex(new sparql.E_Str(new sparql.ExprVar(facetVar)), searchString, "i"),
+				new sparql.E_Regex(new sparql.ExprVar(labelVar), searchString, "i"));
+		
+		var optionalElement = new sparql.ElementTriplesBlock([new sparql.Triple(facetVar, rdfs.label, labelVar)]);
+		var optional = new sparql.ElementOptional(optionalElement);		
+
+		element = new sparql.ElementGroup();		
+		element.elements.push(optional);
+		element.elements.push(new sparql.ElementFilter(filterExpr));
+		
+		return element;
+	};
+	
+
+	ns.createElementFacetValues = function(baseElement, breadcrumb, searchString) {
+		var result = new sparql.ElementGroup();
+		
+		if(baseElement) {
+			result.elements.push(baseElement);
+		}
+		
+		var breadcrumbElement = new sparql.ElementTriplesBlock(breadcrumb.getTriples());
+		result.elements.push(breadcrumbElement);
+		
+		var searchElement = ns.createElementFiltered(breadcrumb, searchString);
+
+		if(searchElement) {
+			result.elements.push(searchElement);
+		}
+		
+		return result;
+	};
+	
+	
 	/**
 	 * Create a query for fetching the values and their counts of a facet
 	 * 
@@ -161,7 +229,7 @@
 	 * @param facet
 	 * @param sampleSize Puts a limit on the number of resources to consider
 	 */
-	ns.createFacetValuesQuery = function(baseElement, breadcrumb, sampleSize) {
+	ns.createQueryFacetValuesCounted = function(baseElement, breadcrumb, sampleSize) {
 		// The maximum number of instances to scan for collecting properties
 		//var config = facet.getConfig();
 

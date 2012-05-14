@@ -10,6 +10,12 @@
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
     <head>
+    
+		<!-- rdfAuthor config. TODO Make endpoints configurable -->
+		<link about="http://localhost/SpatialSemanticBrowsingWidgets/" rel="http://ns.aksw.org/update/queryEndpoint" href="http://localhost/sparql" />
+		<link about="http://localhost/SpatialSemanticBrowsingWidgets/" rel="http://ns.aksw.org/update/updateEndpoint" href="http://localhost/sparql/" />
+    
+    
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
         
@@ -205,10 +211,29 @@
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/utils/QueryCache.js"></script>
 
+	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/plugins/RDFauthor.js"></script>
+		
+		
 	<!-- Layouting for this (p)HTML file-->
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
 
+	<script type="text/javascript">
+
+        RDFAUTHOR_DEFAULT_GRAPH = "http://ex.org";
+		
+		RDFAUTHOR_BASE = 'lib/RDFauthor/current'; //'http://localhost/rdfauthor';
+		RDFAUTHOR_READY_CALLBACK = function() {
+			RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
+			RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'queryEndpoint', 'http://localhost/sparql');
+			RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'updateEndpoint', 'http://localhost/sparql');
+			
+
+			console.debug("[RDFauthor] Registered graphs and services", RDFauthor._graphInfo);
+		};
+	</script>
+	<script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script>
 
 	<script type="text/javascript">
             var ssbconf = {};
@@ -248,7 +273,7 @@
 	<script type="text/javascript" src="src/main/javascript/main.js"></script>
 	
 	<script type="text/javascript">
-	
+
 	    $(document).ready(function(){ 
             $("#tabs-instances").click ( function () {
                 $("#tabs-facets-content").hide ();

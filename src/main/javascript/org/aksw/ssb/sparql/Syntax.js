@@ -397,6 +397,7 @@
 	
 	
 	// Expression
+	/*
 	ns.E_Str = function(str) {
 		this.str = str;
 		this.varsMentioned = ns.extractSparqlVars(str); 
@@ -410,7 +411,45 @@
 	ns.E_Str.prototype.getVarsMentioned = function() {
 		return this.varsMentioned;
 	};
+	*/
+	ns.E_Str = function(subExpr) {
+		this.subExpr = subExpr; 
+	};
 	
+	ns.E_Str.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_Str(this.subExpr.copySubstitute(fnNodeMap));
+	};
+
+	ns.E_Str.prototype.getVarsMentioned = function() {
+		return this.subExpr.getVarsMentioned();
+	};
+	
+	ns.E_Str.prototype.toString = function() {
+		return "str(" + this.subExpr + ")";
+	};
+	
+	
+	ns.E_Regex = function(expr, pattern, flags) {
+		this.expr = expr;
+		this.pattern = pattern;
+		this.flags = flags;
+	};
+	
+	ns.E_Regex.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_Regex(this.expr.copySubstitute(fnNodeMap), this.pattern, this.flags);
+	};
+	
+	ns.E_Regex.prototype.getVarsMentioned = function() {
+		return this.expr.getVarsMentioned();
+	};
+	
+	ns.E_Regex.prototype.toString = function() {
+		var patternStr = this.pattern.replace("'", "\\'");
+		var flagsStr = this.flags.replace("'", "\\'");
+		
+		return "Regex(" + this.expr + ", '" + patternStr + "', '" + flagsStr + "')"; 
+	};
+
 	ns.E_Equals = function(left, right) {
 		this.left = left;
 		this.right = right;

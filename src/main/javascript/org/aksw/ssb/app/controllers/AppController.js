@@ -112,6 +112,10 @@
 		this.labelFetcher = null;
 		
 		this.queryCacheFactory = null;
+		
+		// Map resources to stuff like selected, or hovered, so we can
+		// style markers in corresponding colors and sizes
+		this.resourceState = {};
 	};
 	
 	
@@ -1023,7 +1027,7 @@
 			this.selectedFeature = null;
 			
 			this.setInstances(this.viewState.visibleGeoms, this.viewState.geomToFeatures, this.viewState.idToLabel)
-			this.instanceWidget.refresh();
+			//this.instanceWidget.refresh();
 
 			return;
 		}
@@ -1031,7 +1035,7 @@
 		if(this.selectedFeature) {
 			this.setInstances([uriStr], this.viewState.geomToFeatures, this.viewState.idToLabel)
 		}
-		this.instanceWidget.refresh();
+		//this.instanceWidget.refresh();
 
 		
 		this.selectedFeature = feature;

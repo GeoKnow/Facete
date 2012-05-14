@@ -11,7 +11,9 @@
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var talisJsonUtils = Namespace("org.aksw.ssb.utils.talis-json");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
-	
+
+	var rdfAuthor = Namespace("org.aksw.ssb.plugins.RDFauthor");
+
 	
 	var ns = Namespace("org.aksw.ssb.widgets"); 
 	
@@ -71,11 +73,17 @@
 								var html = ns.generateHtml(talisJson, uriToLabel);
 								self.view.$().html(html);
 								
+								rdfAuthor.populateRDFauthor(talisJson);
+								RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
+
+											RDFauthor.start();
+
 							});
 						});						
 					}
 				});
-				
+
+		
 		return result;
 	};
 	
@@ -117,8 +125,10 @@
 		//console.log("uriToLabel", uriToLabel);
 		var html = "";
 		
-		// html += "<table class='facts'>\n";
-        html += "<div id='box-facts-content'>\n";
+		var rdfa = "xmlns:u='http://ns.aksw.org/update/' u:from='http://ex.org'";
+			
+		html += "<table class='box-facts-table'" + rdfa + ">\n";
+        //html += "<div id='box-facts-content'>\n";
 
 		var rowClass = ["even", "odd"];
 		
@@ -131,12 +141,18 @@
 			// Write a heading
 			// TODO Replace URIs with their labels
 			var rowId = 0;
-			// html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
+			
+			//var rdfaAboutStr = "about='" + s + "'";
+
+			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
+
+			/*
 			html += '<div class="box-facts-content-line">' + 
                         '<div class="box-facts-content-cell-both">' + 
                             '<a href="' + s + '">' + sLabelHtml + '</a>' +  
                         '</div>' + 
                     '</div>';
+            */
 			
 			for(p in ps) {
 				var pLabel = ns.getLabel(p, uriToLabel);
@@ -158,12 +174,27 @@
 						? '<a href="' + p + '"><span id="label:' + p + '">' + pLabelHtml + '</span></a>'
 						: "";
 
-					var oHtml = '<a href="' + o.value + '"><span id="label:' + o.value + '">' + oLabelHtml + '</span></a>';
 
+					var rdfa = { about: s, property: p, datatype: o.datatype, 'xml:lang': o.lang, content: o.value };
+					//console.debug("rdfa is", rdfa);
+					
+					var attrStr = "";
+					_.each(rdfa, function(value, key) {
+						if(value !== null && value !== undefined) {
+							value = value.toString().replace("'", "\\'");
+							attrStr += " " + key + "='" + value + "'";
+						}
+					});
+
+					var oHtml = '<a href="' + o.value + '"><span id="label:' + o.value + '" ' + attrStr + '>' + oLabelHtml + '</span></a>';
+
+					html += '<tr class="box-facts-content-line-' + rowClass[rowId % rowClass.length] + '"><td>' + pHtml + '</td><td>' + oHtml + '</td></tr>\n';
+					/*
 					html += '<div class="box-facts-content-line-' + rowClass[rowId % rowClass.length] + '">' +
                                 '<div class="box-facts-content-cell-left">' + pHtml + '&nbsp;</div>' + 
                                 '<div class="box-facts-content-cell-right">' + oHtml + '&nbsp;</div>' +
                             '</div>\n';
+                   */
 
 					
 					// Write the predicate for the first row
@@ -174,8 +205,8 @@
 			}
 		}
 		
-		
-		html += "</div>\n";
+		html += "</table>\n";
+		//html += "</div>\n";
 		
 		return html;
 	};

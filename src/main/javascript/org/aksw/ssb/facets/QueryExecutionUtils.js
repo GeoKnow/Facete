@@ -106,12 +106,12 @@
 	 * @returns A promise for the action
 	 * 
 	 */
-	ns.loadFacetValues = function(sparqlService, labelFetcher, state, breadcrumb, callback) {
+	ns.loadFacetValues = function(sparqlService, labelFetcher, state, breadcrumb, searchString, callback) {
 		//var self = this;
 
 		var baseElement = state.driver.element;
 		
-		var queryData = ns.createFacetValuesQuery(baseElement, breadcrumb, state.config.sampleSize);
+		var queryData = ns.createQueryFacetValuesCountedFiltered(baseElement, breadcrumb, state.config.sampleSize, searchString);
 
 		var query = queryData.query;
 		query.limit = 10;
@@ -248,6 +248,7 @@
 		return result;
 	};
 
+	
 	/**
 	 * Fetches the first column of the first row of a result set and parses it as int.
 	 * 

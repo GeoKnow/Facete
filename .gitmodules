@@ -1,0 +1,3 @@
+[submodule "lib/RDFauthor/current"]
+	path = lib/RDFauthor/current
+	url = git@github.com:AKSW/RDFauthor.git

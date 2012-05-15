@@ -1,7 +1,6 @@
 .buildpath
 .project
 .settings/
-lib/RDFauthor
 
 # Temporary excludes:
 install-rdf-author.sh

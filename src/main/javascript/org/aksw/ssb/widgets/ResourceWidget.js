@@ -74,12 +74,35 @@
 								self.view.$().html(html);
 								
 								console.log("Status of rdfAuthor-Namespace: ", rdfAuthor);
-								
-								rdfAuthor.populateRDFauthor(talisJson);
-								RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
-
-											RDFauthor.start();
-
+								rdfAuthor.loadRDFauthor(function() {
+                  console.log(talisJson);
+                  // grab first object key
+                  for (var subjectUri in talisJson) {break;};
+                  console.log(subjectUri);
+                  rdfAuthor.populateRDFauthor(talisJson, true, subjectUri, selectedGraph.URI);
+                  RDFauthor.setOptions({
+                      viewOptions: { type: 'popover' },
+                      saveButtonTitle: 'Save Resource',
+                      useSPARQL11: true,
+                      cancelButtonTitle: 'Cancel',
+                      title: 'Edit ' + subjectUri,  
+                      autoParse: false, 
+                      showPropertyButton: true, 
+                      onSubmitSuccess: function (responseData) {
+                          var newLocation;
+                          if (responseData && responseData.changed) {
+                              newLocation = resourceURL(responseData.changed);
+                          } else {
+                              newLocation = window.location.href;
+                          }
+                          // HACK: reload whole page after 500 ms
+                          window.setTimeout(function () {
+                              window.location.href = newLocation;
+                          }, 500);
+                      }
+                 });
+                 RDFauthor.start();
+                });
 							});
 						});						
 					}

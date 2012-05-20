@@ -9,12 +9,13 @@
     
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
-    <head>
+    <head xmlns:update="http://ns.aksw.org/update/">
     
-		<!-- rdfAuthor config. TODO Make endpoints configurable -->
-		<link about="http://localhost/SpatialSemanticBrowsingWidgets/" rel="http://ns.aksw.org/update/queryEndpoint" href="http://localhost/sparql" />
-		<link about="http://localhost/SpatialSemanticBrowsingWidgets/" rel="http://ns.aksw.org/update/updateEndpoint" href="http://localhost/sparql/" />
-    
+        <!-- rdfAuthor config. TODO Make endpoints configurable -->
+        <link about="" rel="update:defaultGraph" href="http://localhost/spatial" class="Resource">
+		<link about="http://localhost/spatial" rel="update:queryEndpoint" href="http://localhost/sparql" />
+		<link about="http://localhost/spatial" rel="update:updateEndpoint" href="http://localhost/sparql" />
+        <link about="" rel="update:sourceGraph" href="http://localhost/spatial" class="Resource"> 
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
@@ -64,6 +65,9 @@
 
 	<script type="text/javascript"
 		src="lib/rdfquery/1.0/jquery.rdfquery.core-1.0.js"></script>
+
+    <!--script type="text/javascript"
+		src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script-->
 
 	<script type="text/javascript"
 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
@@ -219,20 +223,25 @@
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
 
-	<script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script>
+	<!--script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script-->
 	<script type="text/javascript">
-
-        RDFAUTHOR_DEFAULT_GRAPH = "http://ex.org";
+        
+        var selectedGraph = {
+            URI: "http://localhost/spatial",
+            title: "",
+            editable: true
+        }
+        var RDFAUTHOR_DEFAULT_GRAPH = "http://localhost/spatial";
 		
 		RDFAUTHOR_BASE = 'lib/RDFauthor/current/'; //'http://localhost/rdfauthor';
-		RDFAUTHOR_READY_CALLBACK = function() {
-			RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
-			RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'queryEndpoint', 'http://localhost/sparql');
-			RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'updateEndpoint', 'http://localhost/sparql');
+        // RDFAUTHOR_READY_CALLBACK = function() {
+            // RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
+            // RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'queryEndpoint', 'http://localhost/sparql');
+            // RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'updateEndpoint', 'http://localhost/sparql');
 			
 
-			console.debug("[RDFauthor] Registered graphs and services", RDFauthor._graphInfo);
-		};
+			// console.debug("[RDFauthor] Registered graphs and services", RDFauthor._graphInfo);
+        // };
 	</script>
 
 	<script type="text/javascript">

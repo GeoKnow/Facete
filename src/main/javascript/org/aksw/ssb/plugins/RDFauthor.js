@@ -1,4 +1,4 @@
-var RDFAUTHOR_BASE = "lib/rdfauthor/current/";
+var RDFAUTHOR_BASE = "lib/RDFauthor/current/";
 
 (function() {
 	
@@ -133,7 +133,7 @@ ns.createInstanceFromClassURI = function(type, dataCallback) {
             });
            
             RDFauthor.start();
-        })
+        });
     });
 };
 	

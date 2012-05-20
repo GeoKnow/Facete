@@ -73,6 +73,8 @@
 								var html = ns.generateHtml(talisJson, uriToLabel);
 								self.view.$().html(html);
 								
+								console.log("Status of rdfAuthor-Namespace: ", rdfAuthor);
+								
 								rdfAuthor.populateRDFauthor(talisJson);
 								RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
 

@@ -219,11 +219,12 @@
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
 
+	<script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script>
 	<script type="text/javascript">
 
         RDFAUTHOR_DEFAULT_GRAPH = "http://ex.org";
 		
-		RDFAUTHOR_BASE = 'lib/RDFauthor/current'; //'http://localhost/rdfauthor';
+		RDFAUTHOR_BASE = 'lib/RDFauthor/current/'; //'http://localhost/rdfauthor';
 		RDFAUTHOR_READY_CALLBACK = function() {
 			RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
 			RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'queryEndpoint', 'http://localhost/sparql');
@@ -233,7 +234,6 @@
 			console.debug("[RDFauthor] Registered graphs and services", RDFauthor._graphInfo);
 		};
 	</script>
-	<script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script>
 
 	<script type="text/javascript">
             var ssbconf = {};

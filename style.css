@@ -325,12 +325,13 @@ a:active {
  */
 #box-test {
     position: absolute; 
-    right: 200px; 
+    left: 350px;
+    /* right: 500px; */ 
     top: 140px;
-    height: 200px;
+    /* height: 300px; */
     margin-right: 10px;
     width: 35%; 
-    max-height: 75%;
+    max-height: 60%;
     padding-left: 6px;
     padding-top: 6px;
     padding-right: 6px;
@@ -339,7 +340,7 @@ a:active {
     border: 1px solid #4D4D4D;
     overflow: auto;
     overflow-y: auto;
-    /* display: block; */
+    display: none;
 }
 
 /**

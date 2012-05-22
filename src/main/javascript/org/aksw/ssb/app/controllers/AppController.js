@@ -822,9 +822,10 @@
 						var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
 						
 						
-						var widget = widgets.createResourceListWidget(backend);
+						var widget = widgets.createResourceListWidget(backend, {onClick: function(uri) { self.showDescription([uri]); $("#box-facts").show(); }});
 						
 						var targetElement = $("#box-test");
+						targetElement.show();
 						
 						// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
 						$(targetElement).children().remove();

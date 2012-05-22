@@ -188,7 +188,7 @@
 	 * @param fnCreateItem
 	 * @returns
 	 */
-	ns.createResourceTable = function(resources, labelFetcher, numColumns) {
+	ns.createResourceTable = function(resources, labelFetcher, numColumns, options) {
 		
 		var resourceStrs = _.map(resources, function(x) { return x.value; });
 		//var labels = labelFetcher.fetch(resourceStrs);
@@ -223,14 +223,23 @@
 			
 			var cellItems = _.map(list, function(item) {
 				
-				var model = {uri: item.uri.value, label: item.label.value};
+				var model = {uri: item.uri, label: item.label.value};
 				
 				var result = $$(
 						model,
-						"<span data-bind='label' />",
+						"<div><span data-bind='label' /></div>",
+						'& span { cursor:pointer; }',
 						{
 							'click span': function() {
-								alert("Uri: " + uri);
+
+								var uri = this.model.get("uri");
+								
+								if(options) {
+									if(options.onClick) {
+										options.onClick(uri);
+									}
+								}
+								//alert("Uri: " + uri);
 							}
 						}
 				);
@@ -311,10 +320,10 @@
 
 	
 	
-	ns.createResourceListWidget = function(backend) {
+	ns.createResourceListWidget = function(backend, options) {
 
 		var widget =
-			$$({backend: backend},
+			$$({backend: backend, options: options},
 				"<div>" +
 				"Search: <input type='text' data-bind='searchString' />" +
 				"<div />" +
@@ -326,18 +335,20 @@
 				
 					'change': function() {
 						this.controller.refresh();
-					},
-					
+					},					
 					
 					'refresh': function() {
 						var self = this;
 						
 						var backend = this.model.get("backend");
 						var searchString = this.model.get("searchString");
+						var options = this.model.get("options");
+						
+						
 						backend.fetchResources(searchString, {limit: 100}).pipe(function(list) {
 							self.each(function(i, child){ child.destroy(); });
 							
-							ns.createResourceTable(list, backend.labelFetcher, 3).pipe(function(agilityTable) {
+							ns.createResourceTable(list, backend.labelFetcher, 3, options).pipe(function(agilityTable) {
 								self.append(agilityTable);
 							});
 							

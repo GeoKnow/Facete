@@ -95,13 +95,13 @@
                           } else {
                               newLocation = window.location.href;
                           }
-                          // HACK: reload whole page after 500 ms
+                          // TODO [HACK]: reload whole page after 500 ms
                           window.setTimeout(function () {
                               window.location.href = newLocation;
                           }, 500);
                       }
                  });
-                 RDFauthor.start();
+                 //RDFauthor.start();
                 });
 							});
 						});						

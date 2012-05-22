@@ -17,6 +17,34 @@
 
 	
 	/**
+	 * Creates a Select-Query from a driver.
+	 * 
+	 * Select ?driverVar { driverElement }
+	 * 
+	 * options:
+	 *     distinct
+	 *     limit
+	 *     offset
+	 * 
+	 */
+	ns.createQuerySelect = function(driver, options) {
+		var result = new sparql.Query();
+		
+		result.projectVars.add(driver.variable);
+		result.elements.push(driver.element);
+		
+		if(options) {
+			result.distinct = options.distinct ? true : false;
+		
+			result.limit  = options.limit ? options.limit : null;
+			result.offset = options.offset ? options.offset : null;
+		}
+		
+		return result;
+	};
+	
+
+	/**
 	 * Creates a query that fetches plain facets (i.e. no counts)
 	 * Select Distinct ?p {
 	 *     [driver] (optional)
@@ -159,7 +187,27 @@
 		return result;
 	};
 	
+
 	
+	ns.createElementLabelRegex = function(driverVar, searchString, labelVar, property) {
+		property = property ? property : rdfs.label;
+		labelVar = labelVar ? labelVar : sparql.Node.v("__l");
+		
+		var filterExpr = new sparql.E_LogicalOr(
+				new sparql.E_Regex(new sparql.E_Str(new sparql.ExprVar(driverVar)), searchString, "i"),
+				new sparql.E_Regex(new sparql.ExprVar(labelVar), searchString, "i"));
+		
+		var optionalElement = new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, property, labelVar)]);
+		var optional = new sparql.ElementOptional(optionalElement);		
+
+		element = new sparql.ElementGroup();		
+		element.elements.push(optional);
+		element.elements.push(new sparql.ElementFilter(filterExpr));
+
+		return element;
+	};
+	
+
 	/**
 	 * Filters an element
 	 * 
@@ -169,9 +217,9 @@
 	 *   }
 	 *   Filter(regex(str(?facetVar), ...) || Filter(regex(?labelVar, ...)))
 	 *     
-	 * 
+	 *  
 	 */
-	ns.createElementFiltered = function(breadcrumb, searchString) {
+	ns.createElementFiltered = function(breadcrumb, searchString, property) {
 		if(!searchString) {
 			return null;
 		}	
@@ -180,6 +228,10 @@
 		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
 		var labelVar = sparql.Node.v(breadcrumb.targetNode.getOrCreate(rdfs.label.value).variable);
 
+		var result = ns.createElementLabelRegex(facetVar, searchString, labelVar, property);
+		return result;
+		
+		/*
 		var filterExpr = new sparql.E_LogicalOr(
 				new sparql.E_Regex(new sparql.E_Str(new sparql.ExprVar(facetVar)), searchString, "i"),
 				new sparql.E_Regex(new sparql.ExprVar(labelVar), searchString, "i"));
@@ -192,6 +244,7 @@
 		element.elements.push(new sparql.ElementFilter(filterExpr));
 		
 		return element;
+		*/
 	};
 	
 
@@ -445,7 +498,7 @@
 		//console.error(result.toString());
 		
 		return result;
-	}
+	};
 	
 	/**
 	 * @deprecated

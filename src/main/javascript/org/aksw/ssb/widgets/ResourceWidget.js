@@ -137,7 +137,7 @@
 			if(item.lang) {
 				// Uncomment to show the language tag
 				//result += " (" + item.lang +")";
-			}			
+			}
 		} else {
 			result = key;
 		}

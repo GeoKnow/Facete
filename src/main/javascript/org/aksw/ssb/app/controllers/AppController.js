@@ -773,29 +773,105 @@
 	
 	ns.AppController.prototype.updateInstanceList = function(visibleGeoms, geomToFeatureCount) {
 		
+		var self = this;
+		var columnCount = 3;
 
 		//var self = this;
 		var dataDictionary = {};
 		dataDictionary.items = [];
 		
+		
 		//var uriStrs = _.keys(geomToFeatureCount);
 		this.labelFetcher.fetch(visibleGeoms).pipe(function(uriToLabel) {
-		
-			var template = "{.section items}<ol class='ssb-container'>{.repeated section @}<li>{label} ({count})</li>{.end}</ol>{.or}<p>(No matching instances)</p>{.end}";
+
 			
-			_.each(visibleGeoms, function(geom) {
+			var list = $$({}, "<div><ul></ul></div>", '& span { cursor:pointer; }', {});
+			
+			//var template = "{.section items}<ol class='ssb-container'>{.repeated section @}<li>{label} ({count})</li>{.end}</ol>{.or}<p>(No matching instances)</p>{.end}";
+			
+			_.each(visibleGeoms, function(geomStr) {
 
-				var label = uriToLabel[geom].value;
-				var count = geomToFeatureCount[geom];
+				var geom = sparql.Node.uri(geomStr);
+
+				var label = uriToLabel[geomStr].value;
+				var count = geomToFeatureCount[geomStr];
 				
-				dataDictionary.items.push({uri: geom, count: count, label: label});			
+				
+				var model = {uri: geom, count: count, label: label};
+				//dataDictionary.items.push({uri: geom, count: count, label: label});			
 
+				var item = $$(model, "<li><span data-bind='label' /> (<span data-bind='count' />)</li>", {
+					'click span': function() {
+						
+						
+						// Create the resource query element
+						console.log("QueryGenerator", self.queryGenerator);
+						var element = self.queryGenerator.forGeoms([geom]);
+
+						//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
+						var featureVar = self.queryGenerator.driver.variable;
+						var driver = new facets.Driver(element, featureVar);
+						
+						//var element = this.queryGenerator.ForGeoms(geomUriNodes);
+						//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
+
+						console.log("Driver", geom, driver);
+						
+						
+						// TODO We need the query element and the geom variable
+						var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
+						
+						
+						var widget = widgets.createResourceListWidget(backend);
+						
+						var targetElement = $("#box-test");
+						
+						// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
+						$(targetElement).children().remove();
+
+						$$.document.append(widget, targetElement);
+						
+						
+						/*
+						widgets.createResourceTable([geom], self.labelFetcher, columnCount).pipe(function(ag) {
+							$$.document.append(ag, "#box-test");
+						});*/
+						
+						
+						
+						
+						//alert(this.model.get("uri"));
+					}
+				});
+				
+				list.append(item, "ul:first");
 			});
 
-			var htmlStr = jsontemplate.expand(template, dataDictionary);
+			//var htmlStr = jsontemplate.expand(template, dataDictionary);
+
+			var targetElement = $("#instances-tab");
 
 			
-			$("#instances-tab").html(htmlStr);
+			// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
+			$(targetElement).children().remove();
+
+			
+			console.log("TEST target", targetElement);
+			
+			var agility = $.data(targetElement, "agility");
+			console.log("TEST set", agility);
+			if(agility) {
+				console.log("Destroying");
+				agility.destroy();
+			}
+
+			$$.document.append(list, targetElement);
+			$.data(targetElement, "agility", list);
+			
+			var verify = $.data(targetElement, "agility");
+			console.log("TEST Verify", verify);
+			
+			//targetElement.html(htmlStr);
 		});
 		
 	};

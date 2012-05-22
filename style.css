@@ -320,6 +320,29 @@ a:active {
 
 
 /**
+ * A box for testing
+ *
+ */
+#box-test {
+    position: absolute; 
+    right: 200px; 
+    top: 140px;
+    height: 200px;
+    margin-right: 10px;
+    width: 35%; 
+    max-height: 75%;
+    padding-left: 6px;
+    padding-top: 6px;
+    padding-right: 6px;
+    padding-bottom: 14px;
+    background-color: #F9F9F9;
+    border: 1px solid #4D4D4D;
+    overflow: auto;
+    overflow-y: auto;
+    /* display: block; */
+}
+
+/**
  * Factbox / ResourceWidget (Name subject to change)
  *    This is the element which enables one to browse the RDF facts
  */

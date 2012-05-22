@@ -85,7 +85,28 @@
 	};
 	
 	ns.QueryGenerator.prototype.forGeoms = function(geomUriNodes, options) {
-		var filter = new sparql.ElementFilter(new sparql.E_In(this.geoConstraintFactory.geomVar, geomUriNodes));
+
+		
+		//var geomVar = this.geoConstraintFactory.geomVar;
+		var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+		
+		var geoElement = this._createGeoElement();
+		var filter = new sparql.ElementFilter(new sparql.E_In(geomVar, geomUriNodes));
+		
+		var element = new sparql.ElementGroup([geoElement, filter]);
+		
+		
+		var result = this._forFilter(element);
+		return result;		
+	};
+	
+	
+	// What the hack was I thinking when I wrote this? The geo-element is missing.
+	ns.QueryGenerator.prototype.forGeomsOld = function(geomUriNodes, options) {
+		//var geomVar = this.geoConstraintFactory.geomVar;
+		var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+		
+		var filter = new sparql.ElementFilter(new sparql.E_In(geomVar, geomUriNodes));
 		var result = this._forFilter(filter);
 		return result;		
 	};
@@ -102,10 +123,14 @@
 		var result;
 		if(options && options.geoSubQuery) {
 			var subQuery = new sparql.ElementSubQuery();
-			subQuery.projectVars.add(this.geoConstraintFactory.geomVar);
+			
+			//var geomVar = this.geoConstraintFactory.geomVar;
+			var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+			
+			subQuery.projectVars.add(geomVar);
 			subQuery.elements.push(tmpElement);
 			
-			var result = new sparql.ElementGroup();
+			result = new sparql.ElementGroup();
 			result.elemements.push(subQuery);
 			
 			

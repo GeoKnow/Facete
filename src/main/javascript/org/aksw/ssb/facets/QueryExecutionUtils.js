@@ -249,6 +249,22 @@
 	};
 
 	
+	ns.fetchList = function(sparqlService, query, variable) {
+		var result = sparqlService.executeSelect(query.toString()).pipe(function(data) {
+			
+			var list = _.map(data.results.bindings, function(binding) {
+				var item = binding[variable.value];
+				var node = sparql.Node.fromJson(item);
+				
+				return node;
+			});
+			
+			return list;
+		});
+	
+		return result;		
+	};
+	
 	/**
 	 * Fetches the first column of the first row of a result set and parses it as int.
 	 * 

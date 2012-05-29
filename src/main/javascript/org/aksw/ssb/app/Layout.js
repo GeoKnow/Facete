@@ -28,21 +28,22 @@ function doSearch() {
 		//$("#container").
 		//var headerToggle = $(document).append('<img id="div_header_toggle" src="images/arrow_up.jpg">');
 
-		var headerDiv = $("#header_div");
+		//var headerDiv = $("#header_div");
 		//headerDiv.slideUp("fast", function() { $(window).resize(); });
 
 		$(window).resize(function() {
-			var headerDiv = $("#header_div");
+			var header = $("#header");
 			
 			var windowHeight = $(window).height();
-			var headerHeight = headerDiv.is(":visible") ? headerDiv.height() : 0;
+			var headerHeight = header.is(":visible") ? header.height() : 0;
 			var contentHeight = windowHeight - headerHeight;
 
 			
 			//console.log("header div", $("#headerDiv"));
 			//console.debug("windowHeigh, headerHeigh, contentHeigh", windowHeight, headerHeight, contentHeight);
 
-			// $("#main").css('height', contentHeight + "px");
+			//$("#main").css('height', contentHeight + "px");
+			//$("#map").css('height', contentHeight + "px");
 
 			
 			// $("#tabs").css('height', contentHeight + "px");

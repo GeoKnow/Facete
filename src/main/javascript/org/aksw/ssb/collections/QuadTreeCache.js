@@ -43,6 +43,15 @@
 	};
 	
 	ns.QueryFactory.prototype.createQueryGeomToFeatureCount = function() {
+		
+		/*
+		var groupByVars = this.featureVar.value === this.geomVar.value
+			? []
+			: [this.geomVar];
+		*/
+		
+		//console.log("debug point");
+			
 		var result = queryUtils.createCountQuery(this.element, null, this.featureVar, this.countVar, [this.geomVar]);
 		return result;
 	};

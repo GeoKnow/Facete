@@ -174,6 +174,16 @@
 		
 		this.mapWidget = $("#map").data("ssb_map");
 		this.map = this.mapWidget.map;
+		
+		/*
+		var self = this;
+		$(window).resize(function() {
+			var container = $("#map");
+			
+			self.map.size(container.width(), container.height());
+		});
+		*/
+		
 		//this.facts = $("#facts").data("ssb_facts");
 
 		// TODO: Do not depend directly on map, but on a "visible area"
@@ -193,7 +203,7 @@
 		var facetBoxBackend = new facetbox.FacetValueBackendSparql(this.sparqlService, this.labelFetcher);
 		
 		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend);
-		$$.document.append(this.facetbox, "#facets-tab");
+		$$.document.append(this.facetbox, "#tabs-content-facets");
 	};
 	
 	ns.AppController.prototype.showDescription = function(nodes) {
@@ -793,7 +803,7 @@
 
 				var geom = sparql.Node.uri(geomStr);
 
-				var label = uriToLabel[geomStr].value;
+				var label = geomStr in uriToLabel ? uriToLabel[geomStr].value : geomStr;
 				var count = geomToFeatureCount[geomStr];
 				
 				
@@ -824,6 +834,16 @@
 						
 						var widget = widgets.createResourceListWidget(backend, {onClick: function(uri) { self.showDescription([uri]); $("#box-facts").show(); }});
 						
+						if(self.prevResWidget) {
+							self.prevResWidget.destroy();
+						}
+						
+						self.prevResWidget = widget;
+						
+						$$.document.append(widget, $("body"));
+						widget.view.$().show();
+						
+						/*
 						var targetElement = $("#box-test");
 						targetElement.show();
 						
@@ -831,7 +851,7 @@
 						$(targetElement).children().remove();
 
 						$$.document.append(widget, targetElement);
-						
+						*/
 						
 						/*
 						widgets.createResourceTable([geom], self.labelFetcher, columnCount).pipe(function(ag) {
@@ -850,7 +870,8 @@
 
 			//var htmlStr = jsontemplate.expand(template, dataDictionary);
 
-			var targetElement = $("#instances-tab");
+			//var targetElement = $("#instances-tab-content");
+			var targetElement = $("#tabs-content-instances");
 
 			
 			// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!

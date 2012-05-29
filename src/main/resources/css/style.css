@@ -73,6 +73,7 @@ a:active {
     padding-bottom: 15px;
 }
 
+/*
 #header-logo {
     float:left;
     margin-top: 20px;
@@ -81,6 +82,17 @@ a:active {
     width: 160px;
     z-index: 10;
 }
+*/
+
+#header-logo {
+    float:left;
+    margin-top: 20px;
+    margin-left: 80px;
+    position:absolute;
+    width: 120px;
+    z-index: 10;
+}
+
 
 #header-headline {
     position:absolute;
@@ -115,7 +127,7 @@ a:active {
     top: 100px; 
     left: 0px; 
     position: absolute; 
-    background-image: url(images/blue_block.jpg); 
+    background-image: url(../images/blue_block.jpg); 
     vertical-align: text-bottom;
 }
 
@@ -148,12 +160,14 @@ a:active {
 /** */
 #tabs {
     position: absolute; 
-    top: 133px; 
     left: 0px;
+	top: 133px; 
     bottom: 10px;
     width: 260px; 
     max-width: 260px;
-    float: left; 
+/*     width: 300px;  */
+/*     max-width: 300px; */
+	float: left;
     overflow-y: auto;
     padding: 0px;
     margin-top: 0px;
@@ -162,39 +176,60 @@ a:active {
     padding-right: 10px;
 }
 
-#tabs-instances-content {
-    width: 50px;
-    word-wrap: break-word;
-    margin-right: 5px;
+.tabs-header {
+    padding:0;
+	margin:0;
+    position:relative;
+    z-index: 1;
+    float:left;
+    list-style:none;
 }
 
-#tabs-links {
-    margin-top: 20px;
-    font-size: 13px;
-    font-weight: bold;
-    width: 100%;
+
+
+.tabs-content {
+	/* max-height: 100%; */ 
+    /*height: 150px; */
+    /* height: 100%; */
+    bottom: 0px;
+    /* width: 100%; */
+    overflow: auto;
 }
 
-#tabs-instances {
+
+/* #tabs-links { */
+/*     margin-top: 20px; */
+/*     font-size: 13px; */
+/*     font-weight: bold; */
+/*     width: 100%; */
+/* } */
+
+/* #tabs-content-instances { */
+/*     width: 50px; */
+/*     word-wrap: break-word; */
+/*     margin-right: 5px; */
+/* } */
+
+#tabs-content-instances {
     cursor: pointer;
     float: left;
     margin-left: 10px;
 }
 
-#tabs-facets {
+#tabs-content-facets {
     cursor: pointer;
     float: left;
     margin-left: 10px;
 }
 
-#tabs-types {
+#tabs-content-types {
     cursor: pointer;
     float: left;
     clear: right;
     margin-left: 10px;
 }
 
-#tabs-places {
+#tabs-content-places {
     cursor: pointer;
     float: left;
     clear: right;
@@ -319,11 +354,17 @@ a:active {
 }
 
 
+.ssb-size-max {
+	/* position: relative; */
+	width: 100%;
+	height: 100%
+}
+
 /**
  * A box for testing
  *
  */
-#box-test {
+.box-test {
     position: absolute; 
     left: 350px;
     /* right: 500px; */ 

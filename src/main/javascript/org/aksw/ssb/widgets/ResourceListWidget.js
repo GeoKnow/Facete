@@ -319,17 +319,29 @@
 	};
 
 	
-	
+	// TODO First create a div, then make it a dialog, then append the widget to it...
 	ns.createResourceListWidget = function(backend, options) {
 
+		
+		
 		var widget =
 			$$({backend: backend, options: options},
-				"<div>" +
-				"Search: <input type='text' data-bind='searchString' />" +
-				"<div />" +
+				"<div class='box-test'>" +
+					"<div class='resource-list-widget-wrapper'>" +
+						"Search: <input type='text' data-bind='searchString' />" +
+						"<div class='resource-list-widget-content' />" +
+					"</div>" +
 				"</div>",
 				{
 					'create': function() {
+						//this.view.$(".resource-list-widget-wrapper").resizable();
+						//$("#box-test").resizable();
+						//this.view.$().resizable();
+						//this.view.$().dialog();
+						//console.log(this.view);
+						
+						//$(this.view.$(".resource-list-widget-wrapper")).dialog();
+						
 						this.controller.refresh();
 					},
 				
@@ -349,13 +361,14 @@
 							self.each(function(i, child){ child.destroy(); });
 							
 							ns.createResourceTable(list, backend.labelFetcher, 3, options).pipe(function(agilityTable) {
-								self.append(agilityTable);
+								//self.append(agilityTable);
+								self.append(agilityTable, self.view.$(".resource-list-widget-content"));
 							});
 							
 						});
 					}
 				});
-		
+
 				return widget;
 	
 	};

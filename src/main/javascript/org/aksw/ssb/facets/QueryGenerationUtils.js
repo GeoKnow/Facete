@@ -463,6 +463,8 @@
 	/**
 	 * Wraps an element for counting (possibly using group by)
 	 * 
+	 * If one of the groupVars equals variable, it is omitted
+	 * 
 	 */
 	ns.createCountQuery = function(element, limit, variable, outputVar, groupVars) {
 		
@@ -484,9 +486,15 @@
 		
 		if(groupVars) {
 			for(var i = 0; i < groupVars.length; ++i) {
+				
+				var groupVar = groupVars[i];
+				
+				if(groupVar.value !== variable.value) {
+					subQuery.projectVars.add(groupVar);
+				}
+				
 				// FIXME Only works with virtuoso that way
-				result.projectVars.add(groupVars[i]);
-				subQuery.projectVars.add(groupVars[i]);
+				result.projectVars.add(groupVar);
 			}
 		}
 		

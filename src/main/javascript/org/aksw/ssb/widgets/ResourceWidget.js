@@ -89,16 +89,12 @@
                       autoParse: false, 
                       showPropertyButton: true, 
                       onSubmitSuccess: function (responseData) {
-                          var newLocation;
-                          if (responseData && responseData.changed) {
-                              newLocation = resourceURL(responseData.changed);
-                          } else {
-                              newLocation = window.location.href;
-                          }
-                          // TODO [HACK]: reload whole page after 500 ms
-                          window.setTimeout(function () {
-                              window.location.href = newLocation;
-                          }, 500);
+                          // called on submit
+                          // do something
+                      },
+                      onCancel: function () {
+                          // called on cancel
+                          // do something;
                       }
                  });
                  RDFauthor.start();

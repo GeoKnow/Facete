@@ -145,7 +145,7 @@
 	
 	ns.ConstraintEquals.prototype.toString = function() {
 		return "" + this.breadcrumb + " = " + this.nodeValue;
-	}
+	};
 	
 	ns.ConstraintEquals.prototype.getExpr = function() {
 		var varName = this.breadcrumb.targetNode.variable;
@@ -244,7 +244,7 @@
 		  new sparql.E_LogicalAnd(
             new sparql.E_LogicalAnd(new sparql.E_GreaterThan(long, xMin), new sparql.E_LessThan(long, xMax)),
             new sparql.E_LogicalAnd(new sparql.E_GreaterThan(lat, yMin), new sparql.E_LessThan(lat, yMax))
-		  )
+		  );
 		//);
 
 		return result;		

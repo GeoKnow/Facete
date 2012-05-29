@@ -224,8 +224,11 @@
 	};
 	
 	ns.Breadcrumb.fromString = function(pathManager, pathStr) {
-		var items = pathStr.split(" ");
-
+		pathStr = pathStr.trim();
+		
+		
+		var items = pathStr.length !== 0 ? pathStr.split(" ") : [];
+		
 		var sourceNode = pathManager.root;
 		var targetNode = ns.Breadcrumb.getTargetNode(pathManager, items);
 		
@@ -240,7 +243,7 @@
 		for(var i = 0; i < items.length; ++i) {
 			var propertyName = items[i];
 			
-			var result = result.getOrCreate(propertyName);
+			result = result.getOrCreate(propertyName);
 		}
 		
 		return result;

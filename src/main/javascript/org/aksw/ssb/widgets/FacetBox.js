@@ -222,7 +222,7 @@
 			// TODO Separate this
 			var constraintWidget = this.model.get("constraintWidget");
 			
-			var variable = breadcrumb.targetNode.variable;
+			//var variable = breadcrumb.targetNode.variable;
 			var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue(facetValue.node));
 			
 			var id = breadcrumb.toString() + " @" + facetValue.node.toString();
@@ -255,7 +255,7 @@
 
 	ns.FacetSwitcher = $$(
 		{valueToItem: {}, constraintWidget: null},
-		'<li class="facets-tab-content-facetswitcher-li">' + 
+		'<li class="facets-tab-content-facetswitcher-li">' +
 			'<span data-bind="name"/> ' +
 			'(<span data-bind="countStr"/>)' + 
 			'<div class="facets-tab-content-facetswitcher-li-entries">' +
@@ -263,23 +263,27 @@
 //					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
 //					'<a href="#t2" class="facets-tab-content-facetswitcher-li-nav-subfacets">Sub-Facets</a>' + 
 //				'</div>' +
-				'<div class="tabdiv" id="t1">' +
+//				'<div class="tabdiv" id="t1">' +
 					//'<form action="">'+ 
-						'<input type="text" id="facets-tab-values-searchTextBox" data-bind="searchString" />' + 
+						'<input type="text" id="facets-tab-values-searchTextBox" data-bind="searchString" />' +
 						//'<input type="button" value="Search" id="facets-tab-values-searchButton"/>' + 
-					//'</form>' + 
+					//'</form>' +
 					'<ol></ol>' +
 					'<span></span>' +
-				'</div>' + 
+//				'</div>' + 
 //				'<div class="tabdiv" id="t2">Subfacets not loaded</div>' + 
 			'</div>' +
 		'</li>', 
 		'& span { cursor:pointer; }',
 		{
 			create: function() {
+				var facetElement = this.view.$("div:first");
+				facetElement.hide();
+				//var isVisible = $(facetElement).is(":visible");
+
 				// Turn the Html-view-string into tabs
 				// TODO Should be an accordion
-				this.view.$().tabs();
+				//this.view.$().tabs();
 				//this.controller.loadValues();
 			}, 
 			
@@ -437,7 +441,7 @@
 				this.controller.refresh();
 			},
 			
-			'click span:first': function() {
+			'click li span': function() {
 				var facetElement = this.view.$("div:first");
 				var isVisible = $(facetElement).is(":visible");
 				//console.log("visible", isVisible);
@@ -475,13 +479,13 @@
 	ns.createFacetList = function(state, constraints, backend) {
 		var result = $$(
 			{state: state, constraints: constraints, propertyToItem: {}, constraintWidget: null, backend: backend},
-			'<div>' +
-				'<div id="facets-tab-content-searchContainer">' + 
-//					'<form action="">'+ 
-//						'<input type="text" id="facets-tab-content-searchTextBox"/>' + 
-//						'<input type="button" value="Search" id="facets-tab-content-searchButton"/>' + 
-//					'</form>' + 
-				'</div>' + 
+			"<div class='.ssb-size-max'>" +
+//				'<div id="facets-tab-content-searchContainer">' + 
+////					'<form action="">'+ 
+////						'<input type="text" id="facets-tab-content-searchTextBox"/>' + 
+////						'<input type="button" value="Search" id="facets-tab-content-searchButton"/>' + 
+////					'</form>' + 
+//				'</div>' + 
 				'<ul></ul>' +
 			'</div>',
 			{
@@ -629,7 +633,7 @@
 							continue;
 						}
 						
-						var countStr = (count > config.facetCountThreshold) ? ">" + config.facetCountThreshold : "" + count; 
+						var countStr = (count >= config.facetCountThreshold) ? ">" + (config.facetCountThreshold - 1): "" + count; 
 
 						var breadcrumb = facets.Breadcrumb.fromString(state.pathManager, propertyName);
 						

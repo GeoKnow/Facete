@@ -6,6 +6,8 @@ function doSearch() {
 	controllers.AppController.doSearch();
 };
 
+
+
 /**
  * Attach scripted layouting and internationalization of the user interface.
  * 
@@ -28,21 +30,22 @@ function doSearch() {
 		//$("#container").
 		//var headerToggle = $(document).append('<img id="div_header_toggle" src="images/arrow_up.jpg">');
 
-		var headerDiv = $("#header_div");
+		//var headerDiv = $("#header_div");
 		//headerDiv.slideUp("fast", function() { $(window).resize(); });
 
 		$(window).resize(function() {
-			var headerDiv = $("#header_div");
+			var header = $("#header");
 			
 			var windowHeight = $(window).height();
-			var headerHeight = headerDiv.is(":visible") ? headerDiv.height() : 0;
+			var headerHeight = header.is(":visible") ? header.height() : 0;
 			var contentHeight = windowHeight - headerHeight;
 
 			
 			//console.log("header div", $("#headerDiv"));
 			//console.debug("windowHeigh, headerHeigh, contentHeigh", windowHeight, headerHeight, contentHeight);
 
-			// $("#main").css('height', contentHeight + "px");
+			//$("#main").css('height', contentHeight + "px");
+			//$("#map").css('height', contentHeight + "px");
 
 			
 			// $("#tabs").css('height', contentHeight + "px");
@@ -50,6 +53,31 @@ function doSearch() {
 			// $("#facets").css('max-height', (contentHeight - 75) + "px");
 		});
 
+		
+		/*
+		 * Auto height for the tabs
+		 * FIXME Make this a generic utility function:
+		 * Input: A container and an element which to resize based on the size of all other elements in the container
+		 */
+		$(window).resize(function() {
+			var containerSelector = "#tabs";
+			
+			// TODO We could just use the two children of the container
+			var headerSelector = "#ssb-nav-tabs-header";
+			var contentSelector = "#ssb-nav-tabs-content";
+			
+			var container = $(containerSelector);
+			var header = $(headerSelector); 
+			var content = $(contentSelector);
+			
+			var containerHeight = container.height();
+			var headerHeight = header.is(":visible") ? header.height() : 0;
+			var contentHeight = containerHeight - headerHeight;
+			
+			content.css("height", contentHeight + "px");			
+		});
+		
+		
 		$(window).resize();
 
 		$("#language-switcher").change(function() {

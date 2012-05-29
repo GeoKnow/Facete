@@ -91,9 +91,14 @@
 		//testBounds();
 		
 		var s = sparql.Node.v("s");
-		var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");		
+		var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");				
+		var node = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
+		
+		// LGD-TEST
 		var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
 		
+		
+		//var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
 		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
 		
 		var driver = new facets.Driver(driverElement, s);
@@ -102,16 +107,26 @@
 	
 		
 		var baseStr = "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs";	
-		var pathStrX = baseStr + " " + geo.long.value;
-		var pathStrY = baseStr + " " + geo.lat.value;
+
+		
+		
+		
+		// LGD-TEST
+		//var baseStr = "";
+		
+		
+		
+		
+		//var pathStrX = baseStr + " " + geo.long.value;
+		//var pathStrY = baseStr + " " + geo.lat.value;
 	
 		
-		var labelBc = new facets.Breadcrumb.fromString(pathManager, rdfs.label.value);
-		var typeBc = new facets.Breadcrumb.fromString(pathManager, rdf.type.value);
+		//var labelBc = new facets.Breadcrumb.fromString(pathManager, rdfs.label.value);
+		//var typeBc = new facets.Breadcrumb.fromString(pathManager, rdf.type.value);
 		
 		var breadcrumb = new facets.Breadcrumb.fromString(pathManager, baseStr);
-		var breadcrumbX = new facets.Breadcrumb.fromString(pathManager, pathStrX);
-		var breadcrumbY = new facets.Breadcrumb.fromString(pathManager, pathStrY);
+		//var breadcrumbX = new facets.Breadcrumb.fromString(pathManager, pathStrX);
+		//var breadcrumbY = new facets.Breadcrumb.fromString(pathManager, pathStrY);
 		
 		
 		var e = breadcrumb.getTriples();

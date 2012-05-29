@@ -1,0 +1,22 @@
+			<img src="images/logo_european_commision.gif" id="header-logo"/>
+			<div id="header-headline">
+			    <a href="">Open Data Portal</a>
+			</div>
+			<div id="header-abstract">
+			    Spatial Browser
+			</div>
+			<div id="header-menu-right">
+			    <a href="#"><span id="org.ec.odp.ssb.ui.label.legal-notice">Legal Notice</span></a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.contact">Contact</span></a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.search">Search</span></a> 
+			    <select name="lang" id="language-switcher">
+				<option value="#">Čeština</option>
+				<option value="#">Dansk</option>
+				<option value="de">Deutsch</option>
+				<option value="#">Ελληνικά</option>
+				<option value="en" selected="selected">English</option>
+				<option value="#">Eesti</option>
+				<option value="#">Español</option>
+				<option value="#">Français</option>
+				<option value="#">Gaeilge</option>
+			    </select>
+			</div>
+			<div id="header-blueblock">&nbsp;</div>

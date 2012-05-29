@@ -152,13 +152,15 @@ a:active {
 }
 
 /** */
-#map {
+#filtersAndMap {
     position: absolute; 
     top: 133px; 
     right: 0px; 
     left: 270px;
     bottom: 10px;
 }
+
+
 
 /** */
 #tabs {
@@ -188,25 +190,31 @@ a:active {
 	height: auto;
 }
 
-.tabs-header {
-    padding:0;
-	margin:0;
-    position:relative;
-    z-index: 1;
-    float:left;
-    list-style:none;
+
+.ssb-nav-tabs > li > a {
+	padding: 8px;
 }
 
 
+/* .tabs-header { */
+/*     padding:0; */
+/* 	margin:0; */
+/*     position:relative; */
+/*     z-index: 1; */
+/*     float:left; */
+/*     list-style:none; */
+/* } */
 
-.tabs-content {
-	/* max-height: 100%; */ 
-    /*height: 150px; */
-    /* height: 100%; */
-    bottom: 0px;
-    /* width: 100%; */
-    overflow: auto;
-}
+
+
+/* .tabs-content { */
+/* 	/* max-height: 100%; */  */
+/*     height: 150px; */
+/*     height: 100%; */
+/*     bottom: 0px; */
+/*     width: 100%; */
+/*     overflow: auto; */
+/* } */
 
 
 /* #tabs-links { */

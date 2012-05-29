@@ -7,6 +7,62 @@ function doSearch() {
 };
 
 
+var ns = {};
+
+
+/*
+ * An auto-height plugin, that assigns the remaining space to an element
+ * based on its parent and siblings (i.e. the parent's children)
+ * 
+ * Note: Currently does not update on non-window resize events.
+ * E.g. if only a sibling is resized, the 
+ */
+(function($) {
+
+	$.fn.autoHeight = function() {
+			
+		var element = $(this[0]);
+		
+		var result = function() {
+			var parent = element.parent();
+			var children = parent.children();
+		
+			var parentHeight = parent.outerHeight(true);
+			var childrenHeight = 0;
+			
+			children.each(function(i) {
+				
+				var child = $(this);
+				
+				// Do not count the elements size
+				if(element.is(child)) {
+					return;
+				}
+				
+				var childHeight = child.is(":visible") ? child.outerHeight(true) : 0;				
+				childrenHeight += childHeight;
+			});
+	
+			var space = element.outerHeight(true) - element.innerHeight();
+			
+			var elementHeight = parentHeight - childrenHeight - space;
+			if(elementHeight < 0) {
+				elementHeight = 0;
+			}
+			
+			element.css("height", elementHeight + "px");
+		};
+		
+		//var scheduler = new Scheduler();
+		//$(window).resize(function() { scheduler.schedule(result); });
+		
+		$(window).resize(result);
+		
+		return result;
+	};
+
+})(jQuery);
+
 
 /**
  * Attach scripted layouting and internationalization of the user interface.
@@ -33,6 +89,7 @@ function doSearch() {
 		//var headerDiv = $("#header_div");
 		//headerDiv.slideUp("fast", function() { $(window).resize(); });
 
+		/*
 		$(window).resize(function() {
 			var header = $("#header");
 			
@@ -52,6 +109,7 @@ function doSearch() {
 			// $("#instances").css('max-height', (contentHeight - 75) + "px");
 			// $("#facets").css('max-height', (contentHeight - 75) + "px");
 		});
+		*/
 
 		
 		/*
@@ -59,6 +117,12 @@ function doSearch() {
 		 * FIXME Make this a generic utility function:
 		 * Input: A container and an element which to resize based on the size of all other elements in the container
 		 */
+		
+		$("#map").autoHeight();
+		$("#ssb-nav-tabs-content").autoHeight();
+		
+		
+		/*
 		$(window).resize(function() {
 			var containerSelector = "#tabs";
 			
@@ -82,7 +146,7 @@ function doSearch() {
 			}
 			
 			content.css("height", contentHeight + "px");			
-		});
+		});*/
 		
 		
 		$(window).resize();
@@ -103,6 +167,7 @@ function doSearch() {
 		});
 
 		
+		//$("#filters").click(function() { $("#filters").html(""); $(window).resize(); });
 		
 		//$( "#tabs" ).tabs({ fx: { height: 'toggle', opacity: 'toggle' } });
 		//$( "#tabs" ).tabs({ fx: { opacity: 'toggle' } });

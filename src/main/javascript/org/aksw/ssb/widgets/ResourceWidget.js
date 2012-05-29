@@ -79,7 +79,7 @@
                   // grab first object key
                   for (var subjectUri in talisJson) {break;};
                   console.log(subjectUri);
-                  rdfAuthor.populateRDFauthor(talisJson, true, subjectUri, selectedGraph.URI);
+                  rdfAuthor.populateRDFauthor(talisJson, false, subjectUri, selectedGraph.URI);
                   RDFauthor.setOptions({
                       viewOptions: { type: 'popover' },
                       saveButtonTitle: 'Save Resource',
@@ -101,7 +101,7 @@
                           }, 500);
                       }
                  });
-                 //RDFauthor.start();
+                 RDFauthor.start();
                 });
 							});
 						});						

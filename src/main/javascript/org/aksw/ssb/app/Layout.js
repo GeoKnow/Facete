@@ -70,9 +70,16 @@ function doSearch() {
 			var header = $(headerSelector); 
 			var content = $(contentSelector);
 			
-			var containerHeight = container.height();
-			var headerHeight = header.is(":visible") ? header.height() : 0;
-			var contentHeight = containerHeight - headerHeight;
+			var containerHeight = container.outerHeight(true);
+			var headerHeight = header.is(":visible") ? header.outerHeight(true) : 0;
+			
+
+			var space = content.outerHeight(true) - content.innerHeight();
+			
+			var contentHeight = containerHeight - headerHeight - space;
+			if(contentHeight < 0) {
+				contentHeight = 0;
+			}
 			
 			content.css("height", contentHeight + "px");			
 		});
@@ -80,7 +87,10 @@ function doSearch() {
 		
 		$(window).resize();
 
+		
+		
 		$("#language-switcher").change(function() {
+				
 			var lang = $("#language-switcher").val();
 
 			var href = "src/main/resources/i18n/" + lang + "/LC_MESSAGES/messages.po";
@@ -88,16 +98,26 @@ function doSearch() {
 			$("#active_lang").attr('href', href);
 
 			ns.updateLang();
-
+			
 			//insertParam("lang", lang);
 		});
 
+		
+		
 		//$( "#tabs" ).tabs({ fx: { height: 'toggle', opacity: 'toggle' } });
 		//$( "#tabs" ).tabs({ fx: { opacity: 'toggle' } });
 		$( "#tabs" ).tabs({});
 		
 				
 	});
+	
+	
+	
+	ns.updateLangFromApi = function(lang) {
+		
+	};
+	
+	
 
 	ns.updateLangById = function(gt, domElement) {
 		var id = $(domElement).attr('id');
@@ -128,7 +148,7 @@ function doSearch() {
 		var gt = new Gettext({domain : 'messages'});
 
 		ns.updateLangConvention(gt, "[id^='org.aksw.ssb.ui.label']");
-		ns.updateLangConvention(gt, "[id^='org.ec.odp.ssb.ui.label']");
+		//ns.updateLangConvention(gt, "[id^='org.ec.odp.ssb.ui.label']");
 		
     	//var gt = new Gettext({ 'domain' : 'messages' });
     	//$("#facets-title").html(gt.gettext('ssb.ui.facets'));

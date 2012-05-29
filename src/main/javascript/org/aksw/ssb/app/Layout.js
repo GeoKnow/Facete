@@ -6,6 +6,8 @@ function doSearch() {
 	controllers.AppController.doSearch();
 };
 
+
+
 /**
  * Attach scripted layouting and internationalization of the user interface.
  * 
@@ -51,6 +53,31 @@ function doSearch() {
 			// $("#facets").css('max-height', (contentHeight - 75) + "px");
 		});
 
+		
+		/*
+		 * Auto height for the tabs
+		 * FIXME Make this a generic utility function:
+		 * Input: A container and an element which to resize based on the size of all other elements in the container
+		 */
+		$(window).resize(function() {
+			var containerSelector = "#tabs";
+			
+			// TODO We could just use the two children of the container
+			var headerSelector = "#ssb-nav-tabs-header";
+			var contentSelector = "#ssb-nav-tabs-content";
+			
+			var container = $(containerSelector);
+			var header = $(headerSelector); 
+			var content = $(contentSelector);
+			
+			var containerHeight = container.height();
+			var headerHeight = header.is(":visible") ? header.height() : 0;
+			var contentHeight = containerHeight - headerHeight;
+			
+			content.css("height", contentHeight + "px");			
+		});
+		
+		
 		$(window).resize();
 
 		$("#language-switcher").change(function() {

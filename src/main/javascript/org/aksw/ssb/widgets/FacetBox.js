@@ -263,20 +263,24 @@
 //					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
 //					'<a href="#t2" class="facets-tab-content-facetswitcher-li-nav-subfacets">Sub-Facets</a>' + 
 //				'</div>' +
-				'<div class="tabdiv" id="t1">' +
+//				'<div class="tabdiv" id="t1">' +
 					//'<form action="">'+ 
 						'<input type="text" id="facets-tab-values-searchTextBox" data-bind="searchString" />' +
 						//'<input type="button" value="Search" id="facets-tab-values-searchButton"/>' + 
 					//'</form>' +
 					'<ol></ol>' +
 					'<span></span>' +
-				'</div>' + 
+//				'</div>' + 
 //				'<div class="tabdiv" id="t2">Subfacets not loaded</div>' + 
 			'</div>' +
 		'</li>', 
 		'& span { cursor:pointer; }',
 		{
 			create: function() {
+				var facetElement = this.view.$("div:first");
+				facetElement.hide();
+				//var isVisible = $(facetElement).is(":visible");
+
 				// Turn the Html-view-string into tabs
 				// TODO Should be an accordion
 				//this.view.$().tabs();

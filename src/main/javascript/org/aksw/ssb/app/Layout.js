@@ -118,6 +118,7 @@ var ns = {};
 		 * Input: A container and an element which to resize based on the size of all other elements in the container
 		 */
 		
+
 		$("#map").autoHeight();
 		$("#ssb-nav-tabs-content").autoHeight();
 		

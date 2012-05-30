@@ -204,6 +204,34 @@
 		
 		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend);
 		$$.document.append(this.facetbox, "#tabs-content-facets");
+		
+		
+		var self = this;
+		
+		this.constraintWidget = facetbox.createConstraintList(constraints);
+		
+		$$.document.append(self.constraintWidget, $("#ssb-filters"));
+		
+		
+		// React to changes of the constraints
+		$(constraints).bind("change", function(ev, data) {
+			
+			
+			
+			self.repaint();
+			
+			console.log("change-event", data);
+			
+			_.each(data.added, function(entry) {
+				self.constraintWidget.controller.addItem(entry.key, entry.value);
+			});
+			
+			_.each(data.removed, function(entry) {
+				self.constraintWidget.controller.removeItem(entry);
+			});
+			
+			
+		});
 	};
 	
 	ns.AppController.prototype.showDescription = function(nodes) {

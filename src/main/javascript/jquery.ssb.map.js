@@ -68,7 +68,8 @@ $.widget("ui.ssb_map", {
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
-	    					new OpenLayers.Control.PanZoomBar(),
+	    					//new OpenLayers.Control.PanZoomBar(),
+	    					new OpenLayers.Control.PanZoom(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
 	    					new OpenLayers.Control.ScaleLine(),

@@ -22,12 +22,12 @@
 	ns.ConstraintCollection.prototype.put = function(id, constraint) {
 		this.idToConstraints.put(id, constraint);
 		
-		//$(this).trigger("changed", {added:[{id: id, constraint: constraint}], removed:[] });
+		$(this).trigger("change", {added:[{key: id, value: constraint}], removed:[] });
 	};
 	
 	ns.ConstraintCollection.prototype.remove = function(id) {
 		this.idToConstraints.removeKey(id);
-		//$(this).trigger("changed", {added:[], removed:[id] });
+		$(this).trigger("change", {added:[], removed:[id] });
 	};
 
 	

@@ -219,8 +219,6 @@
 			var constraints = this.model.get("constraints");
 			var breadcrumb = this.model.get("breadcrumb");
 			
-			// TODO Separate this
-			var constraintWidget = this.model.get("constraintWidget");
 			
 			//var variable = breadcrumb.targetNode.variable;
 			var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue(facetValue.node));
@@ -231,11 +229,8 @@
 			//console.log("Enabled:", isEnabled, id);
 			if(isEnabled) {			
 				constraints.put(id, constraint);
-				constraintWidget.controller.addItem(id, constraint);
 			} else {
 				constraints.remove(id);
-
-				constraintWidget.controller.removeItem(id);
 			}
 			
 			//console.log("Boom", facetValue, constraints, breadcrumb);
@@ -254,7 +249,7 @@
 
 
 	ns.FacetSwitcher = $$(
-		{valueToItem: {}, constraintWidget: null},
+		{valueToItem: {}},
 		'<li class="facets-tab-content-facetswitcher-li">' +
 			'<span data-bind="name"/> ' +
 			'(<span data-bind="countStr"/>)' + 
@@ -355,8 +350,6 @@
 
 				var backend = this.model.get('backend');
 				
-				var constraintWidget = this.model.get('constraintWidget');
-
 				
 				// Hide
 				var facetValues = breadcrumb.targetNode.facetValues;
@@ -390,7 +383,7 @@
 						continue;
 					}
 					
-					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints, constraintWidget: constraintWidget, backend: backend};
+					var model = {value: facetValue, label: facetValue.label.value, count: facetValue.count, breadcrumb: breadcrumb, constraints: constraints, backend: backend};
 
 					var key = facetValue.node.toString();
 					//console.debug("Key", key, valueToItem);
@@ -478,7 +471,7 @@
 	 */
 	ns.createFacetList = function(state, constraints, backend) {
 		var result = $$(
-			{state: state, constraints: constraints, propertyToItem: {}, constraintWidget: null, backend: backend},
+			{state: state, constraints: constraints, propertyToItem: {}, backend: backend},
 			"<div class='.ssb-size-max'>" +
 //				'<div id="facets-tab-content-searchContainer">' + 
 ////					'<form action="">'+ 
@@ -490,12 +483,10 @@
 			'</div>',
 			{
 				create: function() {
-					var constraints = this.model.get("constraints");
+//					var constraints = this.model.get("constraints");
 					
-					var constraintWidget = ns.createConstraintList(constraints);
-					
-					this.append(constraintWidget, "div:first");
-					this.model.set({constraintWidget: constraintWidget});
+					//this.append(constraintWidget, "div:first");
+					//this.model.set({constraintWidget: constraintWidget});
 					
 				},
 			
@@ -583,14 +574,11 @@
 					return result;
 				},
 				
-				refresh: function() {
-					var constraintWidget = this.model.get("constraintWidget");
-					
-					var backend = this.model.get("backend");
-					
+				refresh: function() {				
 					
 					var self = this;
 					
+					var backend = this.model.get("backend");
 					var state = this.model.get('state');
 
 					var propertyToNode = state ? state.pathManager.getRoot().outgoing : {};
@@ -639,7 +627,7 @@
 						
 						var item = propertyToItem[propertyName];
 						
-						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, constraintWidget: constraintWidget, backend: backend};
+						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, backend: backend};
 						if(!item) {						
 							item = $$(ns.FacetSwitcher, model);
 							propertyToItem[propertyName] = item;							

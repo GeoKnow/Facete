@@ -159,8 +159,7 @@
 	});
 	
 	ns.createConstraintList = function(constraints) {
-	
-				
+
 		var result = $$(
 			{idToItem: {}, constraints: constraints},
 			'<div>' +

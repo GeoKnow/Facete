@@ -126,9 +126,9 @@
 		}		
 	};
 	
-	ns.createFacetBox = function(state, constraints, backend) {
+	ns.createFacetBox = function(state, constraints, backend, callbacks) {
 
-		var facetList = ns.createFacetList(state, constraints, backend);
+		var facetList = ns.createFacetList(state, constraints, backend, callbacks);
 
 		/*
 		ns.loadFacets(sparqlService, state, {
@@ -233,7 +233,7 @@
 			}
 			
 			//console.log("Boom", facetValue, constraints, breadcrumb);
-			console.log("Constraints", constraints);
+			//console.log("Constraints", constraints);
 			
 			//console.log("Sparql element", constraints.getSparqlElement());
 		},
@@ -251,7 +251,8 @@
 		{valueToItem: {}},
 		'<li class="facets-tab-content-facetswitcher-li">' +
 			'<span data-bind="name"/> ' +
-			'(<span data-bind="countStr"/>)' + 
+			'(<span data-bind="countStr"/>)' +
+			'<a href="#">moveTo</a>' +
 			'<div class="facets-tab-content-facetswitcher-li-entries">' +
 //				'<div class="facets-tab-content-facetswitcher-li-entries-nav">' + 
 //					'<a href="#t1" class="facets-tab-content-facetswitcher-li-nav-values">Values</a>' + 
@@ -270,6 +271,21 @@
 		'</li>', 
 		'& span { cursor:pointer; }',
 		{
+			setState: function(state) {
+				this.model.set({state: state});
+				
+				console.log("New state for facet value:", state);
+				// TODO Recursively set state
+			},
+			
+			'click li a': function() {
+				var breadcrumb = this.model.get("breadcrumb");
+				var callbacks = this.model.get("callbacks");
+
+				callbacks.onMoveTo(breadcrumb);				
+			},
+			
+			
 			create: function() {
 				var facetElement = this.view.$("div:first");
 				facetElement.hide();
@@ -294,7 +310,7 @@
 			loadValues: function() {
 				var breadcrumb = this.model.get('breadcrumb');
 				var state = this.model.get('state');
-				var constraints = this.model.get('constraints');
+				//var constraints = this.model.get('constraints');
 			
 				var searchString = this.model.get('searchString');
 				
@@ -459,18 +475,24 @@
 				this.controller.loadValues();
 				*/
 			}
+			
+			
 		}
 	);
 	
 	
 	/**
 	 * 
+	 * 
+	 * 
 	 * @param sparqlService
 	 * @param config An object mapping facets to their states
+	 * @param callback: Event handler for navigation events
 	 */
-	ns.createFacetList = function(state, constraints, backend) {
+	ns.createFacetList = function(state, constraints, backend, callbacks) {
+
 		var result = $$(
-			{state: state, constraints: constraints, propertyToItem: {}, backend: backend},
+			{state: state, constraints: constraints, backend: backend, callbacks: callbacks},
 			"<div class='.ssb-size-max'>" +
 //				'<div id="facets-tab-content-searchContainer">' + 
 ////					'<form action="">'+ 
@@ -489,8 +511,13 @@
 					
 				},
 			
+				
 				setState: function(state) {
 					this.model.set({state: state});
+					
+					this.each(function(i, child) {
+						child.controller.setState({state: state});
+					});
 				},
 				
 				/*
@@ -499,6 +526,10 @@
 				},*/
 				
 				hideAll: function() {
+					this.each(function(i, child) {
+						child.view.$().hide();
+					});
+					/*
 					var propertyToItem = this.model.get('propertyToItem');
 
 					// Ugly code to remove all children and update the model
@@ -509,33 +540,48 @@
 						child.view.$().hide(); //destroy();
 					}
 					//propertyToItem = {};
-					this.model.set({propertyToItem: propertyToItem});					
+					this.model.set({propertyToItem: propertyToItem});
+					*/					
 				},
-
 
 				getVisiblePropertiesValues: function() {
-					
 					var result = {};
-
-					//var propertyToNode = state.pathManager.getRoot().outgoing;
-					var propertyToItem = this.model.get('propertyToItem');
-					
-					
-					for(var propertyName in propertyToItem) {						
-						var item = propertyToItem[propertyName];
+					this.each(function(i, child) {
 						
-						if(item && item.controller.isVisible()) {
-							result[propertyName] = item;
-							//result.put(propertyName);
-							//var breadcrumb = item.model.get("breadcrumb");
-							//item.controller.getVisibleBreadcrumbsValues(result);
-							
-							//result.push(breadcrumb);
+						if(child.controller.isVisible()) {
+							var propertyName = child.model.get("propertyName");
+							result[propertyName] = child;
 						}
-					}
-
+					});
+					
 					return result;
 				},
+//
+//				getVisiblePropertiesValuesOld: function() {
+//					
+//					
+//
+//					var result = {};
+//
+//					//var propertyToNode = state.pathManager.getRoot().outgoing;
+//					var propertyToItem = this.model.get('propertyToItem');
+//					
+//					
+//					for(var propertyName in propertyToItem) {						
+//						var item = propertyToItem[propertyName];
+//						
+//						if(item && item.controller.isVisible()) {
+//							result[propertyName] = item;
+//							//result.put(propertyName);
+//							//var breadcrumb = item.model.get("breadcrumb");
+//							//item.controller.getVisibleBreadcrumbsValues(result);
+//							
+//							//result.push(breadcrumb);
+//						}
+//					}
+//
+//					return result;
+//				},
 
 
 				/**
@@ -543,7 +589,7 @@
 				 * are visible.
 				 * 
 				 */
-				getVisibleBreadcrumbsValues: function(result) 
+				getVisibleBreadcrumbsValues: function(result)
 				{
 					if(!result) {
 						result = [];
@@ -573,25 +619,39 @@
 					return result;
 				},
 				
-				refresh: function() {				
-					
+				refresh: function() {
 					var self = this;
 					
 					var backend = this.model.get("backend");
+					var callbacks = this.model.get("callbacks");
 					var state = this.model.get('state');
 
+					
+					console.log("Callbacks", callbacks);
+					
 					var propertyToNode = state ? state.pathManager.getRoot().outgoing : {};
-					var propertyToItem = this.model.get('propertyToItem');
+
+					
+					// Index children by propertyName
+					var propertyToItem = {};
+					this.each(function(i, child) {
+						propertyToItem[propertyName] = child;						
+					});
+					
 
 					// Hide elements for which no node exits or whose count is zero
-					for(var propertyName in propertyToItem) {
+					//for(var propertyName in propertyToItem) {
+					this.each(function(i, child) {
+						var propertyName = child.model.get("propertyName");
 						var node = propertyToNode[propertyName];
-						var item = propertyToItem[propertyName];
+
+						//var item = propertyToItem[propertyName];
 						
 						if(!node || !node.data || node.data.count === 0) {
-							item.view.$().hide();
-						}						
-					}
+							child.view.$().hide();
+						}
+					});
+					//}
 
 					//console.log("Refresh");
 
@@ -626,10 +686,10 @@
 						
 						var item = propertyToItem[propertyName];
 						
-						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, backend: backend};
+						var model = {constraints: constraints, state: state, breadcrumb: breadcrumb, id: propertyName, name: data.label, count: count, countStr: countStr, backend: backend, callbacks: callbacks};
 						if(!item) {						
 							item = $$(ns.FacetSwitcher, model);
-							propertyToItem[propertyName] = item;							
+							propertyToItem[propertyName] = item;
 							
 							newItems.push(item);
 						} else {

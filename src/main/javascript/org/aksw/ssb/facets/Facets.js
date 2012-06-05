@@ -177,6 +177,8 @@
 	/**
 	 * Gets or create a new outgoing node.
 	 * 
+	 * FIXME The "outgoing" refers to reachable successor via some label.
+	 * The label can also indicate an inverse property step. 
 	 */
 	ns.PathNode.prototype.getOrCreate = function(propertyName) {
 		var node = this.outgoing[propertyName];
@@ -192,15 +194,27 @@
 		return node;
 	};
 
-	/*
-	 * TODO Design this class:
-	 *     I think it should contain information about
-	 *     "Starting from (sourceNode) go (backward/forward) via (property) to reach (targetNode) 
-	ns.Step = function(direction, resource) {
-		this.direction;
-		this.resource = resource;
+	
+	/**
+	 * 
+	 * @param direction
+	 * @param resource
+	 * @returns {ns.Step}
+	 */
+	ns.Step = function(propertyName, isInverse) {
+		this.type = "property";
+		this.propertyName = propertyName;
+		this.isInverse = isInverse;
 	};
-	*/
+	
+	ns.Step.prototype.toString = function() {
+		if(this.isInverse) {
+			return "<" + this.propertyName;
+		} else {
+			return this.propertyName;
+		}
+	};
+	
 	
 	/**
 	 * A breadcrumb encapsulates a path across RDF properties.
@@ -215,12 +229,45 @@
 	 * @param targetNode
 	 * @returns {ns.Breadcrumb}
 	 */
-	ns.Breadcrumb = function(pathManager, step, sourceNode, targetNode) {
+	ns.Breadcrumb = function(pathManager, steps, sourceNode, targetNode) {
 		this.pathManager = pathManager;
 		//this.step = step;
-		this.items = step;
+		//this.items = step;
+		this.steps = steps;
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
+	};
+	
+	/**
+	 * Returns a new breadcrumb that is the concatenation of the given two
+	 * 
+	 */
+	ns.Breadcrumb.prototype.concat = function(other) {
+		if(this.pathManager !== other.pathManager) {
+			throw "Only breadcrumbs with the same path manager can be concatenated";
+		};
+		
+		var steps = this.steps.concat(other.steps);
+		
+		var sourceNode = this.pathManager.root;
+		var targetNode = ns.Breadcrumb.getTargetNode(this.pathManager, steps);
+		
+		var result = new ns.Breadcrumb(
+				this.pathManager,
+				steps,
+				sourceNode,
+				targetNode
+				);
+				
+		return result;
+	};
+	
+	ns.Breadcrumb.parseStep = function(str) {
+		if(str.startsWith("<")) {
+			return new ns.Step(str.substring(1), true);
+		} else {
+			return new ns.Step(str, false);
+		}
 	};
 	
 	ns.Breadcrumb.fromString = function(pathManager, pathStr) {
@@ -229,21 +276,32 @@
 		
 		var items = pathStr.length !== 0 ? pathStr.split(" ") : [];
 		
+		var steps = _.map(items, function(item) { return ns.Breadcrumb.parseStep(item); });
+		
+		var result = ns.Breadcrumb.fromSteps(pathManager, steps);
+		
+		return result;
+	}
+	
+	ns.Breadcrumb.fromSteps = function(pathManager, steps) {
 		var sourceNode = pathManager.root;
-		var targetNode = ns.Breadcrumb.getTargetNode(pathManager, items);
+		var targetNode = ns.Breadcrumb.getTargetNode(pathManager, steps);
 		
 		// TODO [HACK] step should be a real class, not just the item array
-		var result = new ns.Breadcrumb(pathManager, items, sourceNode, targetNode);
+		var result = new ns.Breadcrumb(pathManager, steps, sourceNode, targetNode);
 		return result;
 	};
 	
-	ns.Breadcrumb.getTargetNode = function(pathManager, items) {
+	ns.Breadcrumb.getTargetNode = function(pathManager, steps) {
 		var result = pathManager.root;
 		
-		for(var i = 0; i < items.length; ++i) {
-			var propertyName = items[i];
+		for(var i = 0; i < steps.length; ++i) {
+			var step = steps[i];
 			
-			result = result.getOrCreate(propertyName);
+			var stepStr = step.toString();
+			//var propertyName = items[i];
+			
+			result = result.getOrCreate(stepStr);
 		}
 		
 		return result;
@@ -261,13 +319,23 @@
 		
 		var node = this.pathManager.root;
 		
-		for(var i = 0; i < this.items.length; ++i) {
-			var propertyName = this.items[i];
+		for(var i = 0; i < this.steps.length; ++i) {
+			var step = this.steps[i];
 			
-			var nextNode = node.getOrCreate(propertyName);
+			var stepStr = step.toString();
+			
+			var nextNode = node.getOrCreate(stepStr);
 			var s = sparql.Node.v(node.variable);
-			var p = sparql.Node.uri(propertyName);
+			var p = sparql.Node.uri(step.propertyName);
 			var o = sparql.Node.v(nextNode.variable);
+			
+			// Swap subject-object if inverse step
+			if(step.isInverse) {
+				var tmp = s;
+				s = o;
+				o = tmp;
+			}
+			
 			
 			var triple = new sparql.Triple(s, p, o);
 			result.push(triple);
@@ -285,7 +353,7 @@
 	*/
 	
 	ns.Breadcrumb.prototype.toString = function() {
-		return this.items.join(" ");
+		return this.steps.join(" ");
 	};
 	
 	

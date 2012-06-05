@@ -235,6 +235,9 @@
 		src="src/main/javascript/org/aksw/ssb/widgets/ResourceListWidget.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
+
+	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/app/controllers/AppController.js"></script>
 
 	<script type="text/javascript"
@@ -414,14 +417,21 @@
 	    <div id="main">
 
 		<div id="filtersAndMap">
-	    	<div id="ssb-filters">
-	    	    <ul class="breadcrumb">
-	    	    	<li>Showing:</li>
-				    <li><a href="#">geo</a> <span class="divider">/</span></li>
-				    <li><a href="#">sameAs<sup>-1</sup></a> <span class="divider">/</span>
-				    <li><a href="#">city<sup>-1</sup></a> <span class="divider">/</span>
-				    </li><li class="active">beneficiary<sup>-1</sup></li></ul>
-	    	</div>
+	    	
+	    	
+<!-- 	    	<div id="ssb-filters"> -->
+	    		<div id="ssb-breadcrumb"></div>
+	    		<div id="ssb-constraints"></div>
+	    		
+<!-- 	    	    <ul class="breadcrumb"> -->
+<!-- 	    	    	<li>Showing:</li> -->
+<!-- 				    <li><a href="#">geo</a> <span class="divider">/</span></li> -->
+<!-- 				    <li><a href="#">sameAs<sup>-1</sup></a> <span class="divider">/</span> -->
+<!-- 				    <li><a href="#">city<sup>-1</sup></a> <span class="divider">/</span> -->
+<!-- 				    </li><li class="active">beneficiary<sup>-1</sup></li></ul> -->
+<!-- 	    	</div> -->
+	    	
+	    	
 			<div id="map"></div>
 		</div>
 

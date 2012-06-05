@@ -575,7 +575,9 @@
 	 */
 	ns.createFacetQueryCountVisibleGeomNested = function(queryGenerator, uris) {
 
-		var driver = queryGenerator.driver;
+		//var driver = queryGenerator.driver;
+		var inferredDriver = queryGenerator.getInferredDriver();
+
 		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
 
 
@@ -593,11 +595,11 @@
 		var filterElement = new sparql.ElementFilter(filterExpr);
 
 		subQuery.elements.push(filterElement);
-		subQuery.projectVars.add(driver.variable);
+		subQuery.projectVars.add(inferredDriver.variable);
 		///subQuery.projection[driver.variable.value] = null;
 		subQuery.distinct = true;
 		
-		var elements = [driver.element, new sparql.ElementSubQuery(subQuery)];
+		var elements = [inferredDriver.element, new sparql.ElementSubQuery(subQuery)];
 		
 		// Add facet constraints
 		var facetElement = queryGenerator.constraints.getSparqlElement();
@@ -609,7 +611,10 @@
 		var element = new sparql.ElementGroup(elements);		
 		
 		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
-		var result = new facets.Driver(element, queryGenerator.driver.variable);
+		//var result = new facets.Driver(element, queryGenerator.driver.variable);
+
+		var result = new facets.Driver(element, inferredDriver.variable);
+
 
 		return result;
 	};
@@ -673,7 +678,10 @@
 
 		var element = new sparql.ElementGroup(elements);
 		
-		var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+		
+		var inferredDriver = this.queryGenerator.getInferredDriver();
+		
+		var result = queryUtils.createFacetQueryCount(element, inferredDriver.variable);
 
 		return result;
 	};

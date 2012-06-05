@@ -121,7 +121,7 @@
 	
 	
 	ns.AppController.prototype.init = function() {
-		var self = this;
+		//var self = this;
 		
 		this.initWidgets();
 		this.initEvents();		
@@ -195,22 +195,54 @@
 		var constraints = queryGenerator.constraints;
 		
 		//var facetConfig = new facetbox.FacetConfig(1001, 10001);
-		var facetConfig = new facetbox.FacetConfig(1001, null);
+		this.facetConfig = new facetbox.FacetConfig(1001, null);
 		
-		this.facetState = new facetbox.FacetState(facetConfig, queryGenerator.driver, queryGenerator.pathManager);
+		this.facetState = new facetbox.FacetState(this.facetConfig, queryGenerator.getInferredDriver(), queryGenerator.pathManager);
 				
 		
 		var facetBoxBackend = new facetbox.FacetValueBackendSparql(this.sparqlService, this.labelFetcher);
+
+		var self = this;
+
 		
-		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend);
+		this.breadcrumbWidget = widgets.createBreadcrumbWidget();
+		$$.document.append(this.breadcrumbWidget, "#ssb-breadcrumb");
+		
+		var callbacks = {
+			onMoveTo: function(breadcrumb) {
+				
+				//console.log("NavigationBreadcrumb", breadcrumb);
+				var concat = self.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
+				//self.queryGenerator.navigationBreadcrumb = breadcrumb;
+				self.queryGenerator.navigationBreadcrumb = concat;
+
+				self.facetState = new facetbox.FacetState(self.facetConfig, self.queryGenerator.getInferredDriver(), self.queryGenerator.pathManager);
+				self.facetbox.controller.setState(self.facetState);
+				
+				self.facetbox.controller.refresh();
+
+				
+				var uris = _.map(breadcrumb.steps, function(step) {
+					return step.propertyName;
+				});
+				
+				self.labelFetcher.fetch(uris).pipe(function(uriToLabel) {
+
+					self.breadcrumbWidget.controller.setBreadcrumb(breadcrumb, uriToLabel);
+					self.repaint();
+
+				});
+			}
+		};
+
+		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend, callbacks);
 		$$.document.append(this.facetbox, "#tabs-content-facets");
 		
 		
-		var self = this;
 		
 		this.constraintWidget = facetbox.createConstraintList(constraints);
 		
-		$$.document.append(self.constraintWidget, $("#ssb-filters"));
+		$$.document.append(self.constraintWidget, $("#ssb-constraints"));
 		
 		
 		// React to changes of the constraints
@@ -475,7 +507,7 @@
 	*/
 	
 	/**
-	 * Updates the facet counts based considering all constraints.
+	 * Updates the facet counts considering all constraints.
 	 * This deviates from the usual facet behaviour:
 	 * Usally the count of a specific facet is based on an exclusion of all of its constraints.
 	 * 
@@ -847,7 +879,7 @@
 						var element = self.queryGenerator.forGeoms([geom]);
 
 						//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
-						var featureVar = self.queryGenerator.driver.variable;
+						var featureVar = self.queryGenerator.getInferredDriver().variable;
 						var driver = new facets.Driver(element, featureVar);
 						
 						//var element = this.queryGenerator.ForGeoms(geomUriNodes);

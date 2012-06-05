@@ -124,10 +124,14 @@
 		//var labelBc = new facets.Breadcrumb.fromString(pathManager, rdfs.label.value);
 		//var typeBc = new facets.Breadcrumb.fromString(pathManager, rdf.type.value);
 		
+		
 		var breadcrumb = new facets.Breadcrumb.fromString(pathManager, baseStr);
 		//var breadcrumbX = new facets.Breadcrumb.fromString(pathManager, pathStrX);
 		//var breadcrumbY = new facets.Breadcrumb.fromString(pathManager, pathStrY);
 		
+		
+		var navigationBreadcrumb = new facets.Breadcrumb.fromString(pathManager, ""); 
+
 		
 		var e = breadcrumb.getTriples();
 		//console.log("Breadcrumb:", breadcrumb);
@@ -150,6 +154,7 @@
 	
 		var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
 
+		
 		/*
 		var config = new facetbox.FacetConfig(driver, 1001, 10001);
 		var state = new facetbox.FacetState(config, pathManager);
@@ -164,6 +169,7 @@
 				queryGenerator: {
 					driver: driver,
 					//driverVar: s,
+					navigationBreadcrumb: navigationBreadcrumb,
 					pathManager: pathManager,
 					geoConstraintFactory: factory,
 					constraints: constraints

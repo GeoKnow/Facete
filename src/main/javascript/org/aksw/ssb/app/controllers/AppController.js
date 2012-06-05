@@ -207,33 +207,17 @@
 		var self = this;
 
 		
-		this.breadcrumbWidget = widgets.createBreadcrumbWidget();
+		this.breadcrumbWidget = widgets.createBreadcrumbWidget({
+			onNavigate: function(breadcrumb) {
+				self.setNavigationBreadcrumb(breadcrumb);
+			}
+		});
+		
 		$$.document.append(this.breadcrumbWidget, "#ssb-breadcrumb");
 		
 		var callbacks = {
 			onMoveTo: function(breadcrumb) {
-				
-				//console.log("NavigationBreadcrumb", breadcrumb);
-				var concat = self.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
-				//self.queryGenerator.navigationBreadcrumb = breadcrumb;
-				self.queryGenerator.navigationBreadcrumb = concat;
-
-				self.facetState = new facetbox.FacetState(self.facetConfig, self.queryGenerator.getInferredDriver(), concat);
-				self.facetbox.controller.setState(self.facetState);
-				
-				self.facetbox.controller.refresh();
-
-				
-				var uris = _.map(breadcrumb.steps, function(step) {
-					return step.propertyName;
-				});
-				
-				self.labelFetcher.fetch(uris).pipe(function(uriToLabel) {
-
-					self.breadcrumbWidget.controller.setBreadcrumb(breadcrumb, uriToLabel);
-					self.repaint();
-
-				});
+				self.setNavigationBreadcrumb(breadcrumb);
 			}
 		};
 
@@ -267,6 +251,41 @@
 			
 		});
 	};
+	
+	
+	ns.AppController.prototype.setNavigationBreadcrumb = function(breadcrumb) {
+		
+		
+		
+		
+		console.log("NavigationBreadcrumb", breadcrumb);
+		var concat = this.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
+		//var concat = breadcrumb;
+		
+		this.queryGenerator.navigationBreadcrumb = breadcrumb;
+		//this.queryGenerator.navigationBreadcrumb = concat;
+
+		this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.getInferredDriver(), concat);
+		this.facetbox.controller.setState(this.facetState);
+		
+		this.facetbox.controller.refresh();
+
+		
+		var uris = _.map(breadcrumb.steps, function(step) {
+			return step.propertyName;
+		});
+		
+		var self = this;
+		
+		this.labelFetcher.fetch(uris).pipe(function(uriToLabel) {
+
+			self.breadcrumbWidget.controller.setBreadcrumb(breadcrumb, uriToLabel);
+			self.repaint();
+
+		});
+
+	};
+
 	
 	ns.AppController.prototype.showDescription = function(nodes) {
 		this.factBox.controller.setNodes(nodes);

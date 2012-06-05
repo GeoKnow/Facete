@@ -319,9 +319,14 @@
 				'click i' : function() {
 
 					var breadcrumb = this.model.get("breadcrumb");
+					
+					var state = this.model.get("state");
 					var callbacks = this.model.get("callbacks");
 
-					callbacks.onMoveTo(breadcrumb);
+					
+					var concat = state.baseBreadcrumb.concat(breadcrumb);
+					
+					callbacks.onMoveTo(concat);
 				},
 				
 				'change' : function() {
@@ -366,7 +371,7 @@
 				},
 
 				refresh : function() {
-					var facetElement = this.view.$("div:first");
+					var facetElement = this.view.$("div.eq(1)");
 					var isVisible = $(facetElement).is(":visible");
 
 					if (isVisible) {
@@ -381,7 +386,6 @@
 					// var constraints = this.model.get('constraints');
 
 					
-					console.log("WOOOOOO", breadcrumb, state);
 					
 					var searchString = this.model.get('searchString');
 
@@ -518,7 +522,7 @@
 				},
 
 				isVisible : function() {
-					var facetElement = this.view.$("div[1]");
+					var facetElement = this.view.$("div.eq(1)");
 					var result = $(facetElement).is(":visible");
 					return result;
 				},

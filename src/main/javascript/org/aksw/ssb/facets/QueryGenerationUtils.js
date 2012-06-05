@@ -174,16 +174,27 @@
 		return q;
 	};
 
-	ns.createQueryFacetValuesCountedFiltered = function(baseElement, breadcrumb, sampleSize, searchString) {
+	ns.createQueryFacetValuesCountedFiltered = function(baseElement, breadcrumb, sampleSize, searchString, countVar) {
 		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);
-		var result = ns.createQueryFacetValuesCounted(element, breadcrumb, sampleSize);		
+		
+		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
+		
+		//var result = ns.createQueryFacetValuesCounted(element, breadcrumb, sampleSize);
+		var result = ns.createCountQuery(element, sampleSize, facetVar, countVar, [facetVar]);
+
 		return result;
 	};
 
-	ns.createQueryCountFacetValues = function(baseElement, breadcrumb, searchString, sampleSize, outputVar) {
+	/*
+	 * Creates a query for counting the distinct number of facet values.
+	 * e.g. there is 10 distinct values for the facet 'ValuesBetween 0 and 9 (inclusive)'.
+	 * 
+	 * 
+	 */
+	ns.createQueryCountFacetValues = function(baseElement, breadcrumb, searchString, sampleSize, countVar) {
 		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);		
 		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
-		var result = ns.createCountQuery(element, sampleSize, facetVar, outputVar);		
+		var result = ns.createCountQuery(element, sampleSize, facetVar, countVar);
 		return result;
 	};
 	
@@ -277,12 +288,16 @@
 	 * Select Distinct ?o Count(?s) { { Select Distinct ?s { ?s driver ... constraints . } Limit 10001 } . ?s rdfs:label ?o .
 	 * 
 	 * 
-	 * 
 	 * @param config
 	 * @param facet
 	 * @param sampleSize Puts a limit on the number of resources to consider
 	 */
 	ns.createQueryFacetValuesCounted = function(baseElement, breadcrumb, sampleSize) {
+		
+		console.log("BaseElement", "" + baseElement);
+		console.log("Breadcrumb", "" + breadcrumb, breadcrumb);
+		
+		
 		// The maximum number of instances to scan for collecting properties
 		//var config = facet.getConfig();
 
@@ -360,7 +375,9 @@
 		}
 
 		
-		//console.debug("Created query: " + result);
+		
+		
+		console.debug("Created query: " + result);
 		return {query: result, outputVars: outputVars };
 		
 	};

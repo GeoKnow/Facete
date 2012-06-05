@@ -197,7 +197,9 @@
 		//var facetConfig = new facetbox.FacetConfig(1001, 10001);
 		this.facetConfig = new facetbox.FacetConfig(1001, null);
 		
-		this.facetState = new facetbox.FacetState(this.facetConfig, queryGenerator.getInferredDriver(), queryGenerator.pathManager);
+		var baseBreadcrumb = facets.Breadcrumb.fromSteps(queryGenerator.pathManager, []);
+		
+		this.facetState = new facetbox.FacetState(this.facetConfig, queryGenerator.getInferredDriver(), baseBreadcrumb);
 				
 		
 		var facetBoxBackend = new facetbox.FacetValueBackendSparql(this.sparqlService, this.labelFetcher);
@@ -216,7 +218,7 @@
 				//self.queryGenerator.navigationBreadcrumb = breadcrumb;
 				self.queryGenerator.navigationBreadcrumb = concat;
 
-				self.facetState = new facetbox.FacetState(self.facetConfig, self.queryGenerator.getInferredDriver(), self.queryGenerator.pathManager);
+				self.facetState = new facetbox.FacetState(self.facetConfig, self.queryGenerator.getInferredDriver(), concat);
 				self.facetbox.controller.setState(self.facetState);
 				
 				self.facetbox.controller.refresh();

@@ -111,9 +111,13 @@
 
 		var baseElement = state.driver.element;
 		
-		var queryData = ns.createQueryFacetValuesCountedFiltered(baseElement, breadcrumb, state.config.sampleSize, searchString);
+		var countVar = sparql.Node.v("__c");
+		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
+		var query = ns.createQueryFacetValuesCountedFiltered(baseElement, breadcrumb, state.config.sampleSize, searchString, countVar);
 
-		var query = queryData.query;
+		console.log("Query data", "" + query);
+		
+		//var query = queryData.query;
 		query.limit = 10;
 		
 		//console.debug("Values query:", queryData);
@@ -128,16 +132,15 @@
 		return sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {
 				//console.debug("Binding", jsonRs);
 				
-				var outputVar = breadcrumb.targetNode.variable;
 				
 				var bindings = jsonRs.results.bindings;
 				
 				for(var i = 0; i < bindings.length; ++i) {
 					var binding = bindings[i];
-					var val = binding[outputVar];
+					var val = binding[facetVar.value];
 					
 					var valueNode = sparql.Node.fromJson(val);
-					var count = binding["__c"].value;// TODO Maybe parse as int
+					var count = binding[countVar.value].value;// TODO Maybe parse as int
 					
 					var facetValue = new facets.FacetValue(valueNode, count);
 					result[valueNode] = facetValue;

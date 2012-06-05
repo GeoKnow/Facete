@@ -60,7 +60,7 @@
 	ns.QueryGenerator.prototype.getInferredDriver = function() {
 		//var element = this.forGlobal();
 		
-		var element;
+		var element = null;
 
 		var navigationTriples = this.navigationBreadcrumb.getTriples();
 		if(navigationTriples.length > 0) {

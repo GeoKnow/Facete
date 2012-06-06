@@ -527,7 +527,7 @@
 				},
 
 				isVisible : function() {
-					var facetElement = this.view.$("div.eq(1)");
+					var facetElement = this.view.$("div:eq(1)");
 					var result = $(facetElement).is(":visible");
 					return result;
 				},

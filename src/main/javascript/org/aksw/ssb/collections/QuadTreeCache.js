@@ -73,7 +73,8 @@
 		this.queryGenerator = queryGenerator;
 		
 		this.geomVar = sparql.Node.v(this.queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable);
-		this.featureVar = sparql.Node.v(this.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
+		//this.featureVar = sparql.Node.v(this.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
+		this.featureVar = sparql.Node.v(this.queryGenerator.navigationBreadcrumb.targetNode.variable);
 	};
 	
 	ns.BackendFactory.prototype.forBounds = function(bounds, options) {

@@ -30,14 +30,14 @@
 	ns.FacetValueBackendSparql.prototype.fetchFacetValues = function(
 			breadcrumb, facetState, searchString) {
 
-		var concat = facetState.baseBreadcrumb.concat(breadcrumb);
+		//var concat = facetState.baseBreadcrumb.concat(breadcrumb);
 		
 		
-		console.log("FacetValues", facetState, "" + concat);
+		//console.log("FacetValues", facetState, "" + breadcrumb);
 		
 		
 		return queryUtils.loadFacetValues(this.sparqlService,
-				this.labelFetcher, facetState, concat, searchString);
+				this.labelFetcher, facetState, breadcrumb, searchString);
 		/*
 		 * .pipe(function(data) { //child.facetValues = data.facetValues;
 		 * //console.log("So far got", facetValues); }));
@@ -54,10 +54,10 @@
 		var baseElement = facetState.driver.element;
 
 		
-		var concat = facetState.baseBreadcrumb.concat(breadcrumb);
+		//var concat = facetState.baseBreadcrumb.concat(breadcrumb);
 		
 		var query = queryUtils.createQueryCountFacetValues(baseElement,
-				concat, searchString, countLimit, countVar);
+				breadcrumb, searchString, countLimit, countVar);
 
 		return queryUtils.fetchInt(this.sparqlService, query.toString(),
 				countVar).pipe(function(value) {
@@ -266,7 +266,8 @@
 
 	ns.FacetSwitcher = $$(
 			{
-				valueToItem : {}
+				valueToItem : {},
+				searchString: ""
 			},
 			'<li class="facets-tab-content-facetswitcher-li">'
 					+ '<div>'
@@ -377,7 +378,7 @@
 				},
 
 				refresh : function() {
-					var facetElement = this.view.$("div.eq(1)");
+					var facetElement = this.view.$("div:eq(1)");
 					var isVisible = $(facetElement).is(":visible");
 
 					if (isVisible) {
@@ -396,7 +397,7 @@
 					var backend = this.model.get('backend');
 
 					var self = this;
-
+					
 					var countTask = backend.fetchCountFacetValues(breadcrumb,
 							state, searchString);
 

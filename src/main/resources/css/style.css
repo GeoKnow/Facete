@@ -428,6 +428,7 @@ a:active {
     overflow: auto;
     overflow-y: auto;
     display: none;
+	z-index: 1000;
 }
 
 .box-facts-table {
@@ -466,16 +467,16 @@ a:active {
     word-wrap: break-word;
 }
 
-#box-facts-closebutton {
-    position: relative;
-    top: 0px;
-    left: 0px;
-    margin-top: 3px;
-    margin-right: 5px;
-    float: left;
-}
+/* #box-facts-closebutton { */
+/*     position: relative; */
+/*     top: 0px; */
+/*     left: 0px; */
+/*     margin-top: 3px; */
+/*     margin-right: 5px; */
+/*     float: left; */
+/* } */
 
-#box-facts-closebutton-img {
-    width: 14px;
-    text-align: middle;
-}
+/* #box-facts-closebutton-img { */
+/* /*     width: 14px; */ */
+/* /*     text-align: middle; */ */
+/* } */

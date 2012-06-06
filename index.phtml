@@ -336,13 +336,20 @@
 	
 	<script type="text/javascript">
 
-	    // Twitter Bootstrap's way of enabling tabs
 	    $(document).ready(function() {
 
+		    // Twitter Bootstrap's way of enabling tabs
 	    	$('#tabs a').click(function (e) {
                 e.preventDefault();
                 $(this).tab('show');
             });
+
+			// Make the fact box closable
+            $("#box-facts-closebutton-img").click(function () {
+                $("#box-facts").fadeOut ('slow');
+            });
+            
+
     		
 	    	//$("#tabs").tabs();
 		    /* 
@@ -378,17 +385,23 @@
             $("#tabs-instances-content").hide ();
             $("#tabs-places-content").hide ();
             $("#tabs-types-content").hide ();
-            
-            $("#box-facts-closebutton-img").click(function () {
-                $("#box-facts").fadeOut ('slow');
-            });
-            */
+        */
 	    });
 	
 	</script>
 
     </head>
     <body>
+
+
+	<div id="box-facts">
+		<div style="font-size: 24px;">
+			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
+			<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
+		</div>
+	</div>
+
+
 	<div id="wrapper">
 	    <div id="header">
 	    
@@ -417,8 +430,12 @@
 			</div>
 			<div id="header-blueblock">&nbsp;</div>
 	    </div>        
+
+
 	    
 	    <div id="main">
+	    
+
 
 		<div id="filtersAndMap">
 	    	
@@ -509,14 +526,11 @@
 <!--         </div> -->
 
 
-		<div id="box-facts">
-            <div id="box-facts-closebutton">
-                <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/>
-            </div>
-        </div>
 		
 	    </div>
     
 	</div>
+	
+	
     </body>
 </html>

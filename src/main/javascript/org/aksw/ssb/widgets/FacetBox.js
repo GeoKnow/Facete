@@ -116,6 +116,8 @@
 	ns.FacetState = function(config, driver, baseBreadcrumb) {
 		this.config = config;
 		this.driver = driver;
+		
+		
 		// this.pathManager = new
 		// facets.PathManager(config.driver.variable.value);
 		// this.pathManager = pathManager;
@@ -316,17 +318,21 @@
 					this.view.$("div i").hide();
 				},
 				
+				
+				// Pivoting action
 				'click i' : function() {
 
 					var breadcrumb = this.model.get("breadcrumb");
+					//var step = this.model.get("step");
 					
-					var state = this.model.get("state");
+					//var state = this.model.get("state");
 					var callbacks = this.model.get("callbacks");
-
+ 
+					console.log("Moving to:", breadcrumb);
 					
-					var concat = state.baseBreadcrumb.concat(breadcrumb);
+					//var concat = state.baseBreadcrumb.makeStep(step);
 					
-					callbacks.onMoveTo(concat);
+					callbacks.onMoveTo(breadcrumb);
 				},
 				
 				'change' : function() {
@@ -385,8 +391,6 @@
 					var state = this.model.get('state');
 					// var constraints = this.model.get('constraints');
 
-					
-					
 					var searchString = this.model.get('searchString');
 
 					var backend = this.model.get('backend');
@@ -507,14 +511,14 @@
 					 * if(_.keys(valueToItem).length) { return; }
 					 */
 
-					for ( var i = 0; i < newItems.length; ++i) {
+					for(var i = 0; i < newItems.length; ++i) {
 						var item = newItems[i];
 						this.append(item, "ol:first");
 					}
 
 					// console.log("visibleitems", visibleItems.length);
 
-					for ( var i = 0; i < visibleItems.length; ++i) {
+					for(var i = 0; i < visibleItems.length; ++i) {
 						var item = visibleItems[i];
 						item.view.$().show();
 						// self.append(item, "ol");
@@ -529,8 +533,9 @@
 
 			});
 
+	
 	/**
-	 * 
+	 * The state combines (config, driver, baseBreadcrumb)  
 	 * 
 	 * 
 	 * @param sparqlService
@@ -541,12 +546,17 @@
 	 */
 	ns.createFacetList = function(state, constraints, backend, callbacks) {
 
+		
+		//var breadcrumb = state.baseBreadcrumb;
+		
 		var result = $$(
 				{
 					state : state,
 					constraints : constraints,
 					backend : backend,
-					callbacks : callbacks
+					callbacks : callbacks,
+					//steps: []
+					baseBreadcrumb: state.baseBreadcrumb
 				},
 				"<div class='.ssb-size-max'>" +
 				// '<div id="facets-tab-content-searchContainer">' +
@@ -568,7 +578,7 @@
 					},
 
 					setState : function(state) {
-						this.model.set({state : state});
+						this.model.set({state: state, baseBreadcrumb: state.baseBreadcrumb});
 
 						this.each(function(i, child) {
 							child.controller.setState(state);
@@ -658,7 +668,7 @@
 						// state.pathManager.getRoot().outgoing;
 						var propertyToItem = this.model.get('propertyToItem');
 
-						for ( var propertyName in propertyToItem) {
+						for (var propertyName in propertyToItem) {
 							var item = propertyToItem[propertyName];
 
 							if (item) {
@@ -680,19 +690,31 @@
 						var backend = this.model.get("backend");
 						var callbacks = this.model.get("callbacks");
 						var state = this.model.get('state');
+						//var steps = this.model.get('steps');
+						
+						var baseBreadcrumb = this.model.get('baseBreadcrumb');
+						
 
 						console.log("Callbacks", callbacks);
 
+						
+						// TODO: there should not be a path manager here - rather it should be
+						// an array of steps and targets, such as [{step: ..., successors:[{step: ...]}, {...}]
+						
 						var propertyToNode = state ? state.pathManager
 								.getRoot().outgoing : {};
 
 						// Index children by propertyName
+
 						var propertyToItem = {};
 						this.each(function(i, child) {
+							var propertyName = child.model.get("propertyName");
+							
 							propertyToItem[propertyName] = child;
 						});
 
-						// Hide elements for which no node exits or whose count
+
+						// Hide elements for which no node exists or whose count
 						// is zero
 						// for(var propertyName in propertyToItem) {
 						this.each(function(i, child) {
@@ -720,7 +742,7 @@
 						var newItems = [];
 						var refreshableItems = [];
 
-						for ( var propertyName in propertyToNode) {
+						for (var propertyName in propertyToNode) {
 							var node = propertyToNode[propertyName];
 
 							var data = node.data;
@@ -735,15 +757,24 @@
 									+ (config.facetCountThreshold - 1)
 									: "" + count;
 
-							var breadcrumb = facets.Breadcrumb.fromString(
-									state.pathManager, propertyName);
+									/*
+									var breadcrumb = facets.Breadcrumb.fromString(
+											state.pathManager, propertyName);
+											*/
+
+									//var childSteps = steps.slice(0).push(step);
+
+							var step = new facets.Step(propertyName);
+							var childBreadcrumb = baseBreadcrumb.makeStep(step);  
 
 							var item = propertyToItem[propertyName];
 
 							var model = {
 								constraints : constraints,
 								state : state,
-								breadcrumb : breadcrumb,
+								breadcrumb : childBreadcrumb,
+								//step: step,
+								//steps: childSteps,
 								id : propertyName,
 								name : data.label,
 								count : count,

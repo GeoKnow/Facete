@@ -256,16 +256,15 @@
 	ns.AppController.prototype.setNavigationBreadcrumb = function(breadcrumb) {
 		
 		
-		
-		
 		console.log("NavigationBreadcrumb", breadcrumb);
-		var concat = this.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
-		//var concat = breadcrumb;
+		//var concat = this.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
+		var concat = breadcrumb;
 		
 		this.queryGenerator.navigationBreadcrumb = breadcrumb;
 		//this.queryGenerator.navigationBreadcrumb = concat;
 
-		this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.getInferredDriver(), concat);
+		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.getInferredDriver(), concat);
+		this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.driver, concat);
 		this.facetbox.controller.setState(this.facetState);
 		
 		this.facetbox.controller.refresh();

@@ -238,6 +238,10 @@
 		this.targetNode = targetNode;
 	};
 	
+	ns.Breadcrumb.prototype.clone = function() {
+		return new ns.Breadcrumb(this.pathManager, this.steps, this.sourceNode, this.targetNode);
+	};
+	
 	/**
 	 * Returns a new breadcrumb that is the concatenation of the given two
 	 * 
@@ -281,7 +285,7 @@
 		var result = ns.Breadcrumb.fromSteps(pathManager, steps);
 		
 		return result;
-	}
+	};
 	
 	ns.Breadcrumb.fromSteps = function(pathManager, steps) {
 		var sourceNode = pathManager.root;
@@ -289,6 +293,16 @@
 		
 		// TODO [HACK] step should be a real class, not just the item array
 		var result = new ns.Breadcrumb(pathManager, steps, sourceNode, targetNode);
+		return result;
+	};
+	
+	// Create a new breadcrumb with a step performed
+	ns.Breadcrumb.prototype.makeStep = function(step) {
+		var newSteps = this.steps.slice(0);
+		newSteps.push(step);
+		
+		var result = ns.Breadcrumb.fromSteps(this.pathManager, newSteps);
+		
 		return result;
 	};
 	

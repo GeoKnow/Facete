@@ -97,7 +97,7 @@
                           // do something;
                       }
                  });
-                 //RDFauthor.start();
+                 RDFauthor.start();
                 });
 							});
 						});						

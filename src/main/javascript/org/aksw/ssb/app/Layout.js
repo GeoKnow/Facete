@@ -172,7 +172,7 @@ var ns = {};
 		
 		//$( "#tabs" ).tabs({ fx: { height: 'toggle', opacity: 'toggle' } });
 		//$( "#tabs" ).tabs({ fx: { opacity: 'toggle' } });
-		$( "#tabs" ).tabs({});
+		// $( "#tabs" ).tabs({});
 		
 				
 	});

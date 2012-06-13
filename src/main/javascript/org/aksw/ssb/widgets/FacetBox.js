@@ -161,10 +161,13 @@
 		constraintId : null,
 		label : ""
 	}, '<li><span data-bind="label" /></li>', '& span { cursor:pointer; }', {
-		'click span:first' : function() {
+		'click li span:first' : function() {
+			
+			//alert("weee");
+			
 			var constraintId = this.model.get("constraintId");
 			var constraints = this.model.get("constraints");
-
+			
 			constraints.remove(constraintId);
 			// this.destroy();
 			var parent = this.model.get("parent");
@@ -221,13 +224,13 @@
 	ns.FacetItem = $$({
 		isEnabled : false
 	},
-			'<div class="facets-tab-content-facetitem-li">'
+			'<li class="facets-tab-content-facetitem-li">'
 					+ '<form action="">'
 					+ '<input type="checkbox" data-bind="isEnabled"/>'
 					+ '<span data-bind="label"/> (<span data-bind="count"/>)'
 					+ '</form>'
 					+ '<ol class="facets-tab-content-facetitem-li-ol"></ol>'
-					+ '</div>', '& span { cursor:pointer; }', {
+					+ '</li>', '& span { cursor:pointer; }', {
 
 				'click input' : function() {
 					var facetValue = this.model.get("value");
@@ -299,8 +302,10 @@
 					// '<div class="tabdiv" id="t2">Subfacets not loaded</div>'
 					// +
 					'</div>' +
-					'</li>', '& span { cursor:pointer; } \
+					'</li>',
+					'& span { cursor:pointer; } \
 					& i { cursor:pointer; }', {
+				
 				setState : function(state) {
 					this.model.set({
 						state : state
@@ -310,12 +315,13 @@
 					// TODO Recursively set state
 				},
 
+				
 
-				'mouseenter li div': function() {
+				'mouseenter div': function() {
 					this.view.$("div i").show();
 				},
 				
-				'mouseleave li div': function() {
+				'mouseleave div': function() {
 					this.view.$("div i").hide();
 				},
 				
@@ -340,10 +346,9 @@
 					this.controller.refresh();
 				},
 
-				'click span' : function() {
-					//alert("Facet Values");
-					var facetElement = this.view.$("div:eq(1)");
-
+				'click div:nth-child(1) span' : function() {
+					
+					var facetElement = this.controller.getFacetElement();
 					var isVisible = $(facetElement).is(":visible");
 					// console.log("visible", isVisible);
 
@@ -366,8 +371,20 @@
 					 */
 				},
 
+				getFacetElement : function() {
+					//var result = this.view.$("div:eq(1)");
+					var result = this.view.$("div:nth-child(2)");
+					return result;
+				},
+				
+				isFacetElementVisible: function() {
+					var facetElement = this.controller.getFacetElement();
+					var result = $(facetElement).is(":visible");
+					return result;
+				},
+				
 				create : function() {
-					var facetElement = this.view.$("div:eq(1)");
+					var facetElement = this.controller.getFacetElement();
 					facetElement.hide();
 					// var isVisible = $(facetElement).is(":visible");
 
@@ -378,8 +395,7 @@
 				},
 
 				refresh : function() {
-					var facetElement = this.view.$("div:eq(1)");
-					var isVisible = $(facetElement).is(":visible");
+					var isVisible = this.controller.isFacetElementVisible();
 
 					if (isVisible) {
 						// console.log("Refreshing facet value");
@@ -411,6 +427,7 @@
 						return data;
 					});
 
+					// TODO This should not be here
 					$.when(countTask, valuesTask).then(
 							function(count, data) {
 								self.controller.syncValues(state);
@@ -430,7 +447,7 @@
 						result = [];
 					}
 
-					if (!this.controller.isVisible()) {
+					if (!this.controller.isFacetElementVisible()) {
 						return result;
 					} else {
 						var breadcrumb = this.model.get("breadcrumb");
@@ -526,12 +543,6 @@
 					}
 				},
 
-				isVisible : function() {
-					var facetElement = this.view.$("div:eq(1)");
-					var result = $(facetElement).is(":visible");
-					return result;
-				},
-
 			});
 
 	
@@ -613,7 +624,7 @@
 						var result = {};
 						this.each(function(i, child) {
 
-							if (child.controller.isVisible()) {
+							if (child.controller.isFacetElementVisible()) {
 								var propertyName = child.model
 										.get("propertyName");
 								result[propertyName] = child;

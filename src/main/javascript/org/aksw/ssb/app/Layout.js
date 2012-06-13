@@ -19,6 +19,45 @@ var ns = {};
  */
 (function($) {
 
+	/**
+	 * Returns the actual height of an element; considering margins of child elements 
+	 * 
+	 */
+	/*
+	$.fn.actualHeight = function() {
+		var element = $(this[0]);
+		
+		var children = element.children();
+		
+		
+	};
+	*/
+
+	/**
+	 * Returns the sibling of an element excluding the element.
+	 * 
+	 */
+	$.fn.otherSiblings = function() {
+		var element = $(this[0]);
+		
+		var parent = element.parent();
+		var children = parent.children();
+
+		var result = children.filter(function(i) {
+			var child = $(this);
+			return !element.is(child);
+		});
+		
+		return result;
+	};
+	
+	
+	/**
+	 * Resizes an element to take the remaining space by substracting the height from all children from that of the parent.
+	 * 
+	 * 
+	 * 
+	 */
 	$.fn.autoHeight = function() {
 			
 		var element = $(this[0]);
@@ -30,16 +69,13 @@ var ns = {};
 			var parentHeight = parent.outerHeight(true);
 			var childrenHeight = 0;
 			
-			children.each(function(i) {
-				
+			var otherSiblings = $(element).otherSiblings();
+			
+			otherSiblings.each(function(i) {
 				var child = $(this);
 				
-				// Do not count the elements size
-				if(element.is(child)) {
-					return;
-				}
-				
-				var childHeight = child.is(":visible") ? child.outerHeight(true) : 0;				
+				var childHeight = child.is(":visible") ? child.outerHeight(true) : 0;
+				console.log("childHeight: " + childHeight, child);
 				childrenHeight += childHeight;
 			});
 	
@@ -53,10 +89,24 @@ var ns = {};
 			element.css("height", elementHeight + "px");
 		};
 		
+		
+		//var parent = element.parent();
+		//var otherSiblings = $(element).otherSiblings();
+		
+		//$(parent).resize(result);
+		//$(otherSiblings).resize(result);
+		
+		//var children = parent.children();
+
+		//$(parent).resize(result);
+		//$(children).resize(result);
+		
+		
 		//var scheduler = new Scheduler();
 		//$(window).resize(function() { scheduler.schedule(result); });
 		
 		$(window).resize(result);
+		//$(element).resize(result);
 		
 		return result;
 	};
@@ -118,10 +168,14 @@ var ns = {};
 		 * Input: A container and an element which to resize based on the size of all other elements in the container
 		 */
 		
-
-		$("#map").autoHeight();
+		//$("#wrapper").autoHeight();
+		//$("#main").autoHeight();
+		//$("#ssb-breadcrumb").autoHeight();
 		$("#ssb-nav-tabs-content").autoHeight();
+		$("#map").autoHeight();
 		
+		
+		//$(window).height($(window).height() - 1);
 		
 		/*
 		$(window).resize(function() {
@@ -148,9 +202,6 @@ var ns = {};
 			
 			content.css("height", contentHeight + "px");			
 		});*/
-		
-		
-		$(window).resize();
 
 		
 		
@@ -175,6 +226,11 @@ var ns = {};
 		$( "#tabs" ).tabs({});
 		
 				
+
+		//var scheduler = new Scheduler(5000);
+		//scheduler.schedule(function() { $(window).trigger("resize"); });
+		//$(window).trigger("resize");
+
 	});
 	
 	

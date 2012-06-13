@@ -7,6 +7,12 @@
     // empty means use it all
     $graph    = isset($_REQUEST['default-graph-uri']) ? $_REQUEST['default-graph-uri'] : '';
     
+    
+    $endpoint = "http://localhost/sparql";
+    // LGD-TEST
+    //$endpoint = "http://localhost/lgd/sparql";
+    
+    
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
     <head xmlns:update="http://ns.aksw.org/update/">
@@ -18,9 +24,35 @@
         <link about="" rel="update:sourceGraph" href="http://localhost/spatial" class="Resource"> 
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>Spatial Semantic Browser</title>
+        <title>European Commission | Opening up European Commission</title>
         
-        <style media="all" type="text/css">@import "style.css";</style>
+
+		<link rel="stylesheet" href="lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" /> 
+
+
+    	<link rel="stylesheet" href="lib/Font-Awesome/css/font-awesome.css">
+    
+    
+<!--         <link rel='stylesheet' type='text/css' -->
+<!--             href='lib/dynatree/1.2.0_rc1/src/skin/ui.dynatree.css'> -->
+        
+        <link rel="stylesheet" type="text/css" href="src/main/resources/css/style.css" />
+
+<!--         <link rel="stylesheet" type="text/css" -->
+<!--             href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" /> -->
+
+<!--         <link rel="stylesheet" type="text/css" -->
+<!--             href="lib/jquery-ui/1.8.16/themes/base/jquery.ui.tabs.css" /> -->
+
+<!-- 			<link -->
+<!-- 				rel="stylesheet" type="text/css" -->
+<!-- 				href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/ui-lightness/jquery-ui.css" /> -->
+
+
+			<!-- 		<link rel="stylesheet" href="lib/jquery-ui/1.8.16/css/smoothness/jquery-ui-1.8.20.custom.css" /> -->
+<!-- 		<link rel="stylesheet" href="style.css" /> -->
+
+
 
         <script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
 
@@ -30,7 +62,8 @@
         <script type="text/javascript"
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
-        <script type="text/javascript" src="lib/jquery/1.6.2/jquery-1.6.2.js"></script>
+        <script type="text/javascript" src="lib/jquery/1.7.2/jquery-1.7.2.js"></script>
+
 
         <script type="text/javascript"
             src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
@@ -39,22 +72,30 @@
         <script type="text/javascript"
             src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script>
 
-        <script type="text/javascript"
-            src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script>
-
-        <link rel='stylesheet' type='text/css'
-            href='lib/dynatree/1.2.0_rc1/src/skin/ui.dynatree.css'>
-        
-        <link rel="stylesheet" type="text/css"
-            href="src/main/javascript/style.css" />
+<!--         <script type="text/javascript" -->
+<!--             src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script> -->
 
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
 
-        <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
+<!--         <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script> -->
+
+        <script type="text/javascript"
+            src="lib/twitter-bootstrap/2.0.3/js/bootstrap.js"></script>
+
 
         <script type="text/javascript" src="lib/agility/0.1.2/agility.min.js"
             charset="utf-8"></script>
+
+
+        <script type="text/javascript"
+            src="lib/CryptoJS/3.0.2/components/core-min.js"></script>
+
+		<script type="text/javascript" src="lib/CryptoJS/3.0.2/components/enc-utf16-min.js"></script>
+
+        <script type="text/javascript"
+            src="lib/CryptoJS/3.0.2/components/enc-base64-min.js"></script>
+
 
 	<!-- Open Layers 2.11-rc2 -->
 	<script type="text/javascript"
@@ -63,11 +104,11 @@
 	<script type="text/javascript"
 		src="lib/json-template/0.85/json-template.js"></script>
 
-	<script type="text/javascript"
-		src="lib/rdfquery/1.0/jquery.rdfquery.core-1.0.js"></script>
+	<!--script type="text/javascript"
+		src="lib/rdfquery/1.0/jquery.rdfquery.core-1.0.js"></script-->
 
-    <!--script type="text/javascript"
-		src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script-->
+    <script type="text/javascript"
+		src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
 
 	<script type="text/javascript"
 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
@@ -198,6 +239,9 @@
 		src="src/main/javascript/org/aksw/ssb/widgets/ResourceListWidget.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
+
+	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/app/controllers/AppController.js"></script>
 
 	<script type="text/javascript"
@@ -225,6 +269,12 @@
 	<!-- Layouting for this (p)HTML file-->
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
+
+
+	<!-- OpenDataPortal specify layouting (header bar translations)-->
+	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/app/Layout-Odp.js"></script>
+
 
 	<!--script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script-->
 	<script type="text/javascript">
@@ -286,7 +336,23 @@
 	
 	<script type="text/javascript">
 
-	    $(document).ready(function(){ 
+	    $(document).ready(function() {
+
+		    // Twitter Bootstrap's way of enabling tabs
+	    	$('#tabs a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+			// Make the fact box closable
+            $("#box-facts-closebutton-img").click(function () {
+                $("#box-facts").fadeOut ('slow');
+            });
+            
+
+    		
+	    	//$("#tabs").tabs();
+		    /* 
             $("#tabs-instances").click ( function () {
                 $("#tabs-facets-content").hide ();
                 $("#tabs-places-content").hide ();
@@ -319,20 +385,27 @@
             $("#tabs-instances-content").hide ();
             $("#tabs-places-content").hide ();
             $("#tabs-types-content").hide ();
-            
-            $("#box-facts-closebutton-img").click(function () {
-                $("#box-facts").fadeOut ('slow');
-            });
+        */
 	    });
 	
 	</script>
 
     </head>
     <body>
+
+
+	<div id="box-facts">
+		<div style="font-size: 24px;">
+			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
+			<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
+		</div>
+	</div>
+
+
 	<div id="wrapper">
 	    <div id="header">
-
-	    	<img src="images/linkedgeodata-big-neutral.svg" id="header-logo"/>
+	    
+	    	<img src="src/main/resources/images/linkedgeodata-big-neutral.svg" id="header-logo"/>
 			<div id="header-headline">
 			    <a href="">Spatial Semantic Browser</a>
 			</div>
@@ -342,76 +415,107 @@
 			<div id="header-blueblock">&nbsp;</div>
 
 	    </div>        
+
+
 	    
 	    <div id="main">
-		<div id="map"></div>
+	    
+
+
+		<div id="filtersAndMap">
+	    	
+	    	
+<!-- 	    	<div id="ssb-filters"> -->
+	    		<div id="ssb-breadcrumb"></div>
+	    		<div id="ssb-constraints"></div>
+	    		
+<!-- 	    	    <ul class="breadcrumb"> -->
+<!-- 	    	    	<li>Showing:</li> -->
+<!-- 				    <li><a href="#">geo</a> <span class="divider">/</span></li> -->
+<!-- 				    <li><a href="#">sameAs<sup>-1</sup></a> <span class="divider">/</span> -->
+<!-- 				    <li><a href="#">city<sup>-1</sup></a> <span class="divider">/</span> -->
+<!-- 				    </li><li class="active">beneficiary<sup>-1</sup></li></ul> -->
+<!-- 	    	</div> -->
+	    	
+	    	
+			<div id="map"></div>
+		</div>
 
 		<div id="tabs">
 		    
-		    <div id="tabs-links">
-                <a id="tabs-instances">
-                    <div id="org.aksw.ssb.ui.label.instances-tab">Instances</div></a>
-                <a id="tabs-facets">
-                    <div id="org.aksw.ssb.ui.label.facets-tab">Facets</div></a>
-                <a id="tabs-types">
-                    <div id="org.aksw.ssb.ui.label.types-tab">Types</div></a>
-                <a id="tabs-places">
-                    <div id="org.aksw.ssb.ui.label.places-tab">Places</div></a>
-            </div>
-            
-            <br/>
+<!-- 		    <div id="tabs-links"> -->
+<!--                 <a id="tabs-instances"> -->
+<!--                     <div id="org.aksw.ssb.ui.label.instances-tab">Instances</div></a> -->
+<!--                 <a id="tabs-facets"> -->
+<!--                     <div id="org.aksw.ssb.ui.label.facets-tab">Facets</div></a> -->
+<!--                 <a id="tabs-types"> -->
+<!--                     <div id="org.aksw.ssb.ui.label.types-tab">Types</div></a> -->
+<!--                 <a id="tabs-places"> -->
+<!--                     <div id="org.aksw.ssb.ui.label.places-tab">Places</div></a> -->
+<!--             </div> -->
+<!-- 		    <div id="tabs-links"> -->
+<!-- 		    	<ul class="tabs-header"> -->
+				<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs"> 
+	                <li id="tabs-header-instances"><a href="#tabs-content-instances"><span id="org.aksw.ssb.ui.label.instances-tab">Instances</span></a></li>
+	                <li id="tabs-header-facets"><a href="#tabs-content-facets"><span id="org.aksw.ssb.ui.label.facets-tab">Facets</span></a></li>
+	                <li id="tabs-header-types"><a href="#tabs-content-types"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></li>
+	                <li id="tabs-header-places"><a href="#tabs-content-places"><span id="org.aksw.ssb.ui.label.places-tab">Places</span></a></li>
+            	</ul>
+<!--             </div> -->
+
 		    
-		    <div id="tabs-instances-content">
-                <div class="tabdiv" id="instances-tab">
-                    <!-- <div id="instances"></div>  -->
-                </div>
-		    </div>
-		    <div id="tabs-facets-content">
-                <div class="tabdiv" id="facets-tab"></div>
-		    </div>
-		    <div id="tabs-types-content">
-                <div class="tabdiv" id="types-tab">
-                    <form>
-                        <input type="radio" name="type" value="http://ssb.org/facet/project"/> Projects
-                        <input type="radio" name="type" value="http://ssb.org/facet/subvention"/> Subventions
-                    </form>
-                </div>
-		    </div>
-		    <div id="tabs-places-content">
-                <div>
-                    <div class="tabdiv" id="places-tab">
-                        <div style="float: left;">
-                        <form id="box-places-searchform" action="javascript: doSearch();">
-                            <input type="text" id="search-field" name="search-field" value="" autocomplete="off"/>
-                            <input type="image" src="images/search.png" class="icon"/>
-                        </form>
-                        </div>
-                        <p style="font-size:7px;">
-                            powered by
-                            <a href="http://nominatim.openstreetmap.org" target="_blank">Nominatim</a>
-                        </p>		    
-                        <div id="searchResults"></div>
-                    </div>
-                </div>
-		    </div>
-		    
-		</div>
+		   		<div id="ssb-nav-tabs-content" class="tab-content">
+			    <div id="tabs-content-instances" class="tab-pane active">
+	<!--                 <div class="tabdiv" id="instances-tab"> -->
+	                    <!-- <div id="instances"></div>  -->
+	<!--                 </div> -->
+			    </div>
+			    <div id="tabs-content-facets" class="tab-pane">
+	<!--                <div class="tabdiv" id="facets-tab" style="max-height:200px"></div> -->
+			    </div>
+			    <div id="tabs-content-types" class="tab-pane">
+	<!--                 <div class="tabdiv" id="types-tab"> -->
+	<!--                     <form> -->
+	<!--                         <input type="radio" name="type" value="http://ssb.org/facet/project"/> Projects -->
+	<!--                         <input type="radio" name="type" value="http://ssb.org/facet/subvention"/> Subventions -->
+	<!--                     </form> -->
+	<!--                 </div> -->
+			    </div>
+					<div id="tabs-content-places" class="tab-pane">
+						<!--                 <div>  -->
+						<div class="tabdiv" id="places-tab">
+							<div style="float: left;">
+								<form id="box-places-searchform"
+									action="javascript: doSearch();">
+									<input type="text" id="search-field" name="search-field"
+										value="" autocomplete="off" /> <input type="image"
+										src="src/main/resources/images/search.png" class="ssb-icon" />
+								</form>
+							</div>
+							<p style="font-size: 7px;">
+								powered by <a href="http://nominatim.openstreetmap.org"
+									target="_blank">Nominatim</a>
+							</p>
+							<div id="searchResults"></div>
+						</div>
+						<!--                 </div>  -->
+					</div>
 
-		<div id="box-test">
-            <div id="box-test-closebutton">
-                <img src="images/cross.svg" id="box-test-closebutton-img"/>
-            </div>
-        </div>
+				</div>
+				</div>
+
+<!-- 		<div id="box-test"> -->
+<!--             <div id="box-test-closebutton"> -->
+<!--                 <img src="images/cross.svg" id="box-test-closebutton-img"/> -->
+<!--             </div> -->
+<!--         </div> -->
 
 
-		<div id="box-facts">
-            <div id="box-facts-closebutton">
-                <img src="images/cross.svg" id="box-facts-closebutton-img"/>
-            </div>
-        </div>
 		
 	    </div>
     
 	</div>
+	
+	
     </body>
 </html>

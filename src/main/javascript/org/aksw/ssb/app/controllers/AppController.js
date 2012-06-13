@@ -242,10 +242,12 @@
 			
 			_.each(data.added, function(entry) {
 				self.constraintWidget.controller.addItem(entry.key, entry.value);
+				$(window).resize();
 			});
 			
 			_.each(data.removed, function(entry) {
 				self.constraintWidget.controller.removeItem(entry);
+				$(window).resize();
 			});
 			
 			
@@ -376,6 +378,20 @@
 
 	};
 
+	
+	/**
+	 * Flushes the given resources from all caches that are known by the controller.
+	 * Specifically:
+	 * - label cache
+	 * - geometry cache
+	 * - quad tree cache (nodes containing flush resources are reset to "not loaded")
+	 * 
+	 */
+	ns.AppController.flushCacheResources = function(nodes) {
+
+		// TODO Implement me
+		
+	};
 
 	ns.AppController.prototype.refresh = function(olBounds, delay) {		
 		var self = this;

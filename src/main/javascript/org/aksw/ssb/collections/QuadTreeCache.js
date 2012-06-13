@@ -85,7 +85,7 @@
 	};
 
 	ns.BackendFactory.prototype.forGeoms = function(geomUriNodes, options) {
-		var element = this.queryGenerator.ForGeoms(geomUriNodes);
+		var element = this.queryGenerator.forGeoms(geomUriNodes);
 		var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
 		
 		return new ns.Backend(this.sparqlService, queryFactory);
@@ -116,7 +116,8 @@
 
 	// TODO: I want to be able to generate these queries without having to pass in bounds
 	ns.Backend.prototype.fetchFeatureCount = function(element, featureVariable, maxCount) {
-		var query = this.queryFactory.createQueryGeomCount(maxCount);
+		var query = this.queryFactory.createQueryFeatureCount(maxCount);
+		//var query = this.queryFactory.createQueryGeomCount(maxCount);
 		var result = queryUtils.fetchInt(this.sparqlService, query.toString(), this.queryFactory.countVar);
 		return result;
 	};

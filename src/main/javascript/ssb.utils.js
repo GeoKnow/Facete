@@ -9,24 +9,24 @@
  * 
  * @returns {Scheduler}
  */
-function Scheduler() {
+var Scheduler = function(requestPeriod) {
 	this.lastRequestTime = 0;
-	this.requestPeriod = 2000; // Minimum period between requests 
+	this.requestPeriod = requestPeriod ? requestPeriod : 2000; // Minimum period between requests 
+};
+
+Scheduler.prototype.schedule = function(callback) {
+	var now = new Date().getTime();
+	var delay = Math.max(0, this.requestPeriod - (now - this.lastRequestTime));
+
+	clearTimeout(this.timeout);
+
+	var outer = this;
 	
-	this.schedule = function(callback) {
-		var now = new Date().getTime();
-		var delay = Math.max(0, this.requestPeriod - (now - this.lastRequestTime));
-
-		clearTimeout(this.timeout);
-
-		var outer = this;
-		
-		this.timeout = setTimeout(function() {
-			outer.lastRequestTime = new Date().getTime();
-			callback();
-		}, delay);
-	};
-}
+	this.timeout = setTimeout(function() {
+		outer.lastRequestTime = new Date().getTime();
+		callback();
+	}, delay);
+};
 
 function toOpenLayersBounds(bounds) {
 	return new OpenLayers.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);

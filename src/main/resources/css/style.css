@@ -161,6 +161,18 @@ a:active {
 }
 
 
+/* [HACK] This is required as otherwise our $.autoHeight() will give */
+/* incorrect heights as it does not consider margins of child elements that */
+/* extend outside of the parent element */
+/* This style overrides Twitter Bootstraps defaults for the given element */
+#filtersAndMap ul {
+	margin: 0px;
+}
+
+#filtersAndMap ol {
+	margin: 0px;
+}
+
 
 /** */
 #tabs {
@@ -466,6 +478,24 @@ a:active {
     height: auto;
     word-wrap: break-word;
 }
+
+
+#ssb-breadcrumb {
+/* 	position: relative; */
+	height: auto;
+}
+
+/*
+#ssb-constraints {
+	position: relative;
+}
+
+#map {
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
+*/
 
 /* #box-facts-closebutton { */
 /*     position: relative; */

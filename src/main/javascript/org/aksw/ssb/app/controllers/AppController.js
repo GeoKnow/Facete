@@ -252,6 +252,10 @@
 			
 			
 		});
+		
+		
+		// Do layout
+		$(window).resize();
 	};
 	
 	

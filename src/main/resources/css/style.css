@@ -173,6 +173,14 @@ a:active {
 	margin: 0px;
 }
 
+#tabs-content-places {
+	margin-left: 25px;
+}
+
+#tabs-content-places form {
+	margin: 0px;
+}
+
 
 /** */
 #tabs {

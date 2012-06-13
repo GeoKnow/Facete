@@ -230,7 +230,7 @@ var ns = {};
 		//var scheduler = new Scheduler(5000);
 		//scheduler.schedule(function() { $(window).trigger("resize"); });
 		//$(window).trigger("resize");
-
+		$(window).resize();
 	});
 	
 	

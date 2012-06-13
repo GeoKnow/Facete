@@ -316,6 +316,8 @@
 				},
 
 				
+				// TODO Pivoting must not lead to dead ends -
+				// We must know whether a navigation step leads to a dead end.
 
 				'mouseenter div': function() {
 					this.view.$("div i").show();
@@ -398,7 +400,7 @@
 					var isVisible = this.controller.isFacetElementVisible();
 
 					if (isVisible) {
-						// console.log("Refreshing facet value");
+						console.log("Refreshing facet value");
 						this.controller.loadValues();
 					}
 				},
@@ -419,6 +421,7 @@
 
 					var valuesTask = backend.fetchFacetValues(breadcrumb,
 							state, searchString).pipe(function(data) {
+								
 						// TODO HACK I think the facetValues should not be
 						// simply attached to the target node
 						// On the other hand, where should they go?
@@ -432,7 +435,7 @@
 							function(count, data) {
 								self.controller.syncValues(state);
 
-								console.log(arguments);
+								console.log("Retrieved values: ", arguments);
 
 								self.view.$("ol:first~span:first").html(
 										"Count: " + count.count);
@@ -607,16 +610,16 @@
 							child.view.$().hide();
 						});
 						/*
-						 * var propertyToItem =
-						 * this.model.get('propertyToItem');
+						 * var stepToItem =
+						 * this.model.get('stepToItem');
 						 *  // Ugly code to remove all children and update the
-						 * model var children = _.values(propertyToItem);
+						 * model var children = _.values(stepToItem);
 						 * for(var i = 0; i < children.length; ++i) { var child =
 						 * children[i];
 						 * 
 						 * child.view.$().hide(); //destroy(); }
-						 * //propertyToItem = {};
-						 * this.model.set({propertyToItem: propertyToItem});
+						 * //stepToItem = {};
+						 * this.model.set({stepToItem: stepToItem});
 						 */
 					},
 
@@ -642,11 +645,11 @@
 					//
 					// //var propertyToNode =
 					// state.pathManager.getRoot().outgoing;
-					// var propertyToItem = this.model.get('propertyToItem');
+					// var stepToItem = this.model.get('stepToItem');
 					//					
 					//					
-					// for(var propertyName in propertyToItem) {
-					// var item = propertyToItem[propertyName];
+					// for(var propertyName in stepToItem) {
+					// var item = stepToItem[propertyName];
 					//						
 					// if(item && item.controller.isVisible()) {
 					// result[propertyName] = item;
@@ -661,6 +664,17 @@
 					// return result;
 					// },
 
+					getStepStrToItem: function() {
+						var result = {};
+						this.each(function(i, child) {
+							var step = child.model.get("step");
+							
+							result["" + step] = child;
+						});
+						
+						return result;
+					},
+					
 					/**
 					 * Return an array containing breadcrumbs for which their
 					 * values are visible.
@@ -678,10 +692,10 @@
 
 						// var propertyToNode =
 						// state.pathManager.getRoot().outgoing;
-						var propertyToItem = this.model.get('propertyToItem');
+						var stepStrToItem = this.controller.getStepStrToItem();
 
-						for (var propertyName in propertyToItem) {
-							var item = propertyToItem[propertyName];
+						for (var stepStr in stepStrToItem) {
+							var item = stepStrToItem[stepStr];
 
 							if (item) {
 								// var breadcrumb =
@@ -707,9 +721,6 @@
 						var baseBreadcrumb = this.model.get('baseBreadcrumb');
 						
 
-						console.log("Callbacks", callbacks);
-
-						
 						// TODO: there should not be a path manager here - rather it should be
 						// an array of steps and targets, such as [{step: ..., successors:[{step: ...]}, {...}]
 						
@@ -718,22 +729,19 @@
 
 						// Index children by propertyName
 
-						var propertyToItem = {};
-						this.each(function(i, child) {
-							var propertyName = child.model.get("propertyName");
-							
-							propertyToItem[propertyName] = child;
-						});
+						var stepStrToItem = this.controller.getStepStrToItem();
+						
+						console.log("P2I", stepStrToItem);
 
 
 						// Hide elements for which no node exists or whose count
 						// is zero
-						// for(var propertyName in propertyToItem) {
+						// for(var propertyName in stepToItem) {
 						this.each(function(i, child) {
-							var propertyName = child.model.get("propertyName");
-							var node = propertyToNode[propertyName];
+							var step = child.model.get("step");
+							var node = propertyToNode["" + step];
 
-							// var item = propertyToItem[propertyName];
+							// var item = stepToItem[propertyName];
 
 							if (!node || !node.data || node.data.count === 0) {
 								child.view.$().hide();
@@ -754,8 +762,8 @@
 						var newItems = [];
 						var refreshableItems = [];
 
-						for (var propertyName in propertyToNode) {
-							var node = propertyToNode[propertyName];
+						for (var stepStr in propertyToNode) {
+							var node = propertyToNode[stepStr];
 
 							var data = node.data;
 							var count = data ? data.count : 0;
@@ -776,18 +784,19 @@
 
 									//var childSteps = steps.slice(0).push(step);
 
-							var step = new facets.Step(propertyName);
+							var step = new facets.Step(stepStr);
 							var childBreadcrumb = baseBreadcrumb.makeStep(step);  
 
-							var item = propertyToItem[propertyName];
+							var item = stepStrToItem["" + step];
 
+							
 							var model = {
 								constraints : constraints,
 								state : state,
 								breadcrumb : childBreadcrumb,
-								//step: step,
+								step: step,
 								//steps: childSteps,
-								id : propertyName,
+								id : "" + step,
 								name : data.label,
 								count : count,
 								countStr : countStr,
@@ -796,7 +805,7 @@
 							};
 							if (!item) {
 								item = $$(ns.FacetSwitcher, model);
-								propertyToItem[propertyName] = item;
+								stepStrToItem["" + step] = item;
 
 								newItems.push(item);
 							} else {

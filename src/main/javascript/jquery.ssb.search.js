@@ -74,7 +74,7 @@ $.widget("ui.ssb_search", {
 
 		for(var i = 0; i < len; ++i) {
 			item = items[i];
-			html += "<li id='sr" + i + "'>" + 
+			html += "<li id='sr" + i + "' style='cursor:pointer;'>" + 
 						"<div class=\"searchResults-item-name\">" + escapeHTML(item.name) + "</div>" + 
 						"<div class=\"searchResults-item-description\">" + escapeHTML(item.description) + "</div>" + 
 					"</li>";

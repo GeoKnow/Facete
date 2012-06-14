@@ -442,9 +442,29 @@ $.widget("ui.ssb_map", {
 
 	getBounds: function() {
 		return this.map.getExtent().transform(this.map.projection, this.map.displayProjection);
-	}
+	},
 
+	
+	saveState: function() {
+		var result = {
+				center: this.map.getCenter(),
+				zoom: this.map.getZoom()
+		};
+		
+		return result;
+	},
 
+	loadState: function(state) {
+		if(!state) {
+			return
+		}
+
+		var center = state.center ? new OpenLayers.LonLat(state.center.lon, state.center.lat) : this.map.getCenter();
+		var zoom = state.zoom ? state.zoom : this.map.getZoom();
+		
+		this.map.setCenter(center, zoom, false, false);		
+	},
+	
 	/*
 	onMapEvent: function(event) {
 		$(this.domElement).trigger("onMapEvent", event, this.map);

@@ -90,6 +90,7 @@
 		
 		var type;
 		switch(talisJson.type) {
+		case 'bnode': type = 0; break;
 		case 'uri': type = 1; break;
 		case 'literal': type = 2; break;
 		case 'typed-literal': type = 3; break;
@@ -266,6 +267,30 @@
 	ns.Template.prototype.toString = function() {
 		return "{ " + this.bgp + " }";
 	};
+	
+	ns.ElementNamedGraph = function(element, namedGraphNode) {
+		this.element = element;
+		this.namedGraphNode = namedGraphNode;
+	};
+	
+	ns.ElementNamedGraph.prototype.toString = function() {
+		return "Graph " + this.namedGraphNode + " { " + this.element + " }";
+	};
+	
+	ns.ElementNamedGraph.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementNamedGraph(this.element.copySubstitute(fnNodeMap), this.namedGraphNode.copySubstitute(fnNodeMap));
+	};
+	
+	ns.ElementNamedGraph.prototype.getVarsMentioned = function() {
+		
+		var result = this.element.getVarsMentioned();
+		if(this.namedGraphNode.isVar()) {
+			_.union(result, [this.namedGraphNode]);
+		}
+		
+		return result;
+	};
+	
 	
 	ns.ElementString = function(value) {
 		this.value = value;
@@ -708,6 +733,12 @@
 		
 		this.limit = null;
 		this.offset = null;
+	};
+	
+	ns.fnIdentity = function(x) { return x; };
+	
+	ns.Query.prototype.clone = function() {
+		return this.copySubstitute(ns.fnIdentity);
 	};
 	
 	ns.Query.prototype.copySubstitute = function(fnNodeMap) {

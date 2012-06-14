@@ -119,12 +119,60 @@
 	};
 	
 	
+	/**
+	 * Save the current application state to a JSON object
+	 * 
+	 */
+	ns.AppController.prototype.saveState = function() {
+		var result = {
+			map: this.mapWidget.saveState()
+		};
+		
+		return result;
+	};
+	
+	
+	/**
+	 * Load an application state from an JSON object
+	 * 
+	 */
+	ns.AppController.prototype.loadState = function(state) {
+		this.mapWidget.loadState(state.map);
+		
+		
+		//this.doLayout();
+		//this.repaint();
+	};
+	
+	ns.AppController.prototype.doLayout = function() {
+		$(window).resize();
+	};
+
+	
 	
 	ns.AppController.prototype.init = function() {
 		//var self = this;
 		
 		this.initWidgets();
 		this.initEvents();		
+		
+		var self = this;
+		// DEBUG/TESTING
+		var test = $$({}, "<div style='position: absolute; left: 60px; top: 5px; z-index: 1000;'><button>PermaLink</button></div>", {
+			'click button': function() {
+				var urlPart = location.href;
+				
+				//var stateArg = $.param(self.saveState());
+				var stateStr = JSON.stringify(self.saveState());
+				var stateArg = encodeURIComponent(stateStr); 
+				
+				var url = urlPart + "?state=" + stateArg;
+				//alert("State: " + url + "?state=" + stateArg);
+				window.prompt("Copy to clipboard", url);
+			}
+		});
+		
+		$$.document.append(test, "#map");
 		
 		var homeBreadcrumb = new facets.Breadcrumb.fromString(this.queryGenerator.pathManager, "");
 		this.setNavigationBreadcrumb(homeBreadcrumb);

@@ -225,8 +225,15 @@
 		//ssb.setFacetConfig(facetConfig);
 		
 		console.log("Initialization in progress");
+				
+		
+		if(ssbconf.state) {
+			//alert("State: " + JSON.stringify(ssbconf.state));
+			appController.loadState(ssbconf.state);
+		}
 		
 		appController.repaint();
+
 	};
 	
 	

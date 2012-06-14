@@ -14,6 +14,7 @@
 	 */
 
 	ns.Paginator = function(query, pageSize) {
+		this.query = query;
 		this.nextOffset = query.offset ? query.offset : 0;
 		this.nextRemaining = (query.limit || query.limit === 0) ? query.limit : null;
 		
@@ -22,14 +23,14 @@
 	
 	
 	// Returns the next limit and offset
-	ns.Paginator.next = function() {
-		query.offset = this.nextOffset === 0 ? null : this.nextOffset;
+	ns.Paginator.prototype.next = function() {
+		this.query.offset = this.nextOffset === 0 ? null : this.nextOffset;
 
-		if(this.remaining == null) {
+		if(this.nextRemaining == null) {
 			this.query.limit = this.pageSize;
-			this.nextOffset += pageSize;
+			this.nextOffset += this.pageSize;
 		} else {
-			var limit = Math.min(pageSize, this.remaining);
+			var limit = Math.min(this.pageSize, this.nextRemaining);
 			this.nextOffset += limit;
 			this.nextRemaining -= limit;
 			
@@ -40,7 +41,7 @@
 			this.query.limit = limit;
 		}
 		
-		return query;
+		return this.query;
 	};
 	
 	ns.SparqlServicePaginator = function(backend, pageSize) {
@@ -48,32 +49,38 @@
 		this.pageSize = pageSize ? pageSize : 0;
 	};
 	
-	ns.SparqlServicePaginator.prototype.executeSelectRec = function(paginator, prevResult) {
+	ns.SparqlServicePaginator.prototype.executeConstructRec = function(paginator, prevResult, deferred) {
+		
+	};
+	
+	ns.SparqlServicePaginator.prototype.executeSelectRec = function(paginator, prevResult, deferred) {
 		var query = paginator.next();
+		if(!query) {
+			deferred.resolve(prevResult);
+			return;
+		}
 		
 		var self = this;
-		$.when(backend.executeSelect(query)).then(function(jsonRs) {
+		$.when(this.backend.executeSelect(query)).then(function(jsonRs) {
 			// If result set size equals pageSize, request more data.			
 			var result;
 			if(!prevResult) {
 				result = jsonRs;
 			} else {
-				prevResult.result.bindings.concat(jsonRs.result.bindings);
+				prevResult.results.bindings = prevResult.results.bindings.concat(jsonRs.results.bindings);
 				result = prevResult;
 			}
 			
-			var resultSetSize = jsonRs.result.bindings.length;
+			var resultSetSize = jsonRs.results.bindings.length;
+			//console.debug("ResultSetSize, PageSize: ", resultSetSize, self.pageSize);
 			if(resultSetSize < self.pageSize) {
-				return result;
-			} else {
-				
-				// TODO HOW TO DO THE PAGINATION NOW??? Somehow I need to construct a pipe-chain here,
-				// so that the caller does not see the nesting.
-				
-				return self.executeSelectRec(paginator, result);
+				deferred.resolve(result);
+			} else {				
+				return self.executeSelectRec(paginator, result, deferred);
 			}
 			
-		});
+		}, function() { deferred.fail(); });
+		// TODO Add fail handler
 
 	};
 	
@@ -81,9 +88,16 @@
 		var clone = query.clone();
 		var paginator = new ns.Paginator(clone, this.pageSize);
 		
-		return this.executeSelectRec(paginator, null);
+		var deferred = $.Deferred();
+		
+		this.executeSelectRec(paginator, null, deferred);
+		
+		return deferred;
 	};
 	
+	ns.SparqlServicePaginator.prototype.executeConstruct = function(query) {
+		
+	};
 	
 	
 	

@@ -9,6 +9,35 @@
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils"); 
 
 
+	ns.fetchClasses = function(sparqlService) {
+		var c = sparql.Node.v("c");
+		var query = ns.createQueryGetClasses(c);
+		
+		var task = ns.fetchList(sparqlService, query, c);
+		/*
+		.pipe(function(nodes) {
+			var names = _.map(nodes, function(node) { return node.value; });
+			return names;
+		});*/
+		
+		return task;
+	};
+
+	ns.fetchNamedGraphs = function(sparqlService) {
+		var g = sparql.Node.v("g");
+		var query = ns.createQueryGetNamedGraphs(g);
+		
+		var task = ns.fetchList(sparqlService, query, g);
+		/*
+		.pipe(function(nodes) {
+			var names = _.map(nodes, function(node) { return node.value; });
+			return names;
+		});
+		*/
+		
+		return task;
+	};
+
 	/**
 	 * 
 	 * 
@@ -266,7 +295,7 @@
 
 	
 	ns.fetchList = function(sparqlService, query, variable) {
-		var result = sparqlService.executeSelect(query.toString()).pipe(function(data) {
+		var result = sparqlService.executeSelect(query).pipe(function(data) {
 			
 			var list = _.map(data.results.bindings, function(binding) {
 				var item = binding[variable.value];
@@ -280,6 +309,7 @@
 	
 		return result;		
 	};
+	
 	
 	/**
 	 * Fetches the first column of the first row of a result set and parses it as int.

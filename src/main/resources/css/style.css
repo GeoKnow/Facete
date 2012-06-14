@@ -493,6 +493,12 @@ a:active {
 	height: auto;
 }
 
+#map {
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
+
 /*
 #ssb-constraints {
 	position: relative;

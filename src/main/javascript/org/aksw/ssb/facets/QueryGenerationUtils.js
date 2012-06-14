@@ -10,11 +10,68 @@
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
+	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+	var owl = Namespace("org.aksw.ssb.vocabs.owl");
 	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 	
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
+
+	ns.createQueryGetClasses = function(outputVar) {
+		var result = new sparql.Query();
+		
+		var s = outputVar;
+		var x = sparql.Node.v("x");
+		
+		var element = new sparql.ElementUnion([
+		    new sparql.ElementTriplesBlock([new sparql.Triple(s, rdf.type, owl.Class)]),
+		    new sparql.ElementTriplesBlock([new sparql.Triple(x, rdfs.subClassOf, s)]),
+		    new sparql.ElementTriplesBlock([new sparql.Triple(s, rdfs.subClassOf, x)]),
+		]);
+		
+		result.projectVars.add(s);
+		result.distinct = true;
+		result.elements.push(element);
+		
+		return result;		
+	};
+
+	ns.createQueryGetTypes = function(outputVar) {
+		var result = new sparql.Query();
+		
+		var s = outputVar;
+		var t = sparql.Node.v("t");
+		
+		var element = new sparql.ElementTriplesBlock([new sparql.Triple(s, rdf.type, t)]);
+		
+		result.projectVars.add(t);
+		result.distinct = true;
+		result.elements.push(element);
+		
+		return result;		
+	};
+	
+	/**
+	 * Select Distinct ?g { Graph ?g { ?s ?p ?o } }
+	 * 
+	 */
+	ns.createQueryGetNamedGraphs = function(outputVar) {
+		var result = new sparql.Query();
+		
+		var g = outputVar;
+		var s = sparql.Node.v("s");
+		var p = sparql.Node.v("p");
+		var o = sparql.Node.v("o");
+		
+		var element = new sparql.ElementNamedGraph(new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]), g);
+		
+		result.projectVars.add(g);
+		result.distinct = true;
+		result.elements.push(element);
+		
+		return result;
+	};
 	
 	/**
 	 * Creates a Select-Query from a driver.

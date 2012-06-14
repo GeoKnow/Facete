@@ -125,6 +125,10 @@
 		
 		this.initWidgets();
 		this.initEvents();		
+		
+		var homeBreadcrumb = new facets.Breadcrumb.fromString(this.queryGenerator.pathManager, "");
+		this.setNavigationBreadcrumb(homeBreadcrumb);
+
 	};
 	
 		
@@ -220,6 +224,8 @@
 				self.setNavigationBreadcrumb(breadcrumb);
 			}
 		};
+		
+		
 
 		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend, callbacks);
 		$$.document.append(this.facetbox, "#tabs-content-facets");

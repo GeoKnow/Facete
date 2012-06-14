@@ -75,7 +75,7 @@ var ns = {};
 				var child = $(this);
 				
 				var childHeight = child.is(":visible") ? child.outerHeight(true) : 0;
-				console.log("childHeight: " + childHeight, child);
+				//console.log("childHeight: " + childHeight, child);
 				childrenHeight += childHeight;
 			});
 	
@@ -89,24 +89,7 @@ var ns = {};
 			element.css("height", elementHeight + "px");
 		};
 		
-		
-		//var parent = element.parent();
-		//var otherSiblings = $(element).otherSiblings();
-		
-		//$(parent).resize(result);
-		//$(otherSiblings).resize(result);
-		
-		//var children = parent.children();
-
-		//$(parent).resize(result);
-		//$(children).resize(result);
-		
-		
-		//var scheduler = new Scheduler();
-		//$(window).resize(function() { scheduler.schedule(result); });
-		
 		$(window).resize(result);
-		//$(element).resize(result);
 		
 		return result;
 	};
@@ -122,87 +105,18 @@ var ns = {};
 
 	var ns = Namespace("org.aksw.ssb.app");
 	
-	
+
 	/**
-	 * This is a bit hacky, as we resize the instance list to 100% minus some pixel,
-	 * but its less hacky than hiding divs on mouse over and such
-	 * (and we require javascript anyway)
+	 * Some elements have scripted layouts.
+	 * 
 	 */
 	$(document).ready(function() {
-	 
-		/*
-		 * Add a button to toggle the header
-		 */
-		//$("#container").
-		//var headerToggle = $(document).append('<img id="div_header_toggle" src="images/arrow_up.jpg">');
-
-		//var headerDiv = $("#header_div");
-		//headerDiv.slideUp("fast", function() { $(window).resize(); });
-
-		/*
-		$(window).resize(function() {
-			var header = $("#header");
-			
-			var windowHeight = $(window).height();
-			var headerHeight = header.is(":visible") ? header.height() : 0;
-			var contentHeight = windowHeight - headerHeight;
-
-			
-			//console.log("header div", $("#headerDiv"));
-			//console.debug("windowHeigh, headerHeigh, contentHeigh", windowHeight, headerHeight, contentHeight);
-
-			//$("#main").css('height', contentHeight + "px");
-			//$("#map").css('height', contentHeight + "px");
-
-			
-			// $("#tabs").css('height', contentHeight + "px");
-			// $("#instances").css('max-height', (contentHeight - 75) + "px");
-			// $("#facets").css('max-height', (contentHeight - 75) + "px");
-		});
-		*/
-
-		
-		/*
-		 * Auto height for the tabs
-		 * FIXME Make this a generic utility function:
-		 * Input: A container and an element which to resize based on the size of all other elements in the container
-		 */
 		
 		//$("#wrapper").autoHeight();
 		//$("#main").autoHeight();
 		//$("#ssb-breadcrumb").autoHeight();
 		$("#ssb-nav-tabs-content").autoHeight();
 		$("#map").autoHeight();
-		
-		
-		//$(window).height($(window).height() - 1);
-		
-		/*
-		$(window).resize(function() {
-			var containerSelector = "#tabs";
-			
-			// TODO We could just use the two children of the container
-			var headerSelector = "#ssb-nav-tabs-header";
-			var contentSelector = "#ssb-nav-tabs-content";
-			
-			var container = $(containerSelector);
-			var header = $(headerSelector); 
-			var content = $(contentSelector);
-			
-			var containerHeight = container.outerHeight(true);
-			var headerHeight = header.is(":visible") ? header.outerHeight(true) : 0;
-			
-
-			var space = content.outerHeight(true) - content.innerHeight();
-			
-			var contentHeight = containerHeight - headerHeight - space;
-			if(contentHeight < 0) {
-				contentHeight = 0;
-			}
-			
-			content.css("height", contentHeight + "px");			
-		});*/
-
 		
 		
 		$("#language-switcher").change(function() {
@@ -219,17 +133,10 @@ var ns = {};
 		});
 
 		
-		//$("#filters").click(function() { $("#filters").html(""); $(window).resize(); });
 		
-		//$( "#tabs" ).tabs({ fx: { height: 'toggle', opacity: 'toggle' } });
-		//$( "#tabs" ).tabs({ fx: { opacity: 'toggle' } });
-		// $( "#tabs" ).tabs({});
-		
-				
-
-		//var scheduler = new Scheduler(5000);
-		//scheduler.schedule(function() { $(window).trigger("resize"); });
-		//$(window).trigger("resize");
+		// Trigger a resize event for doing the layout
+		// Note: AppController triggers another resize event once it
+		// initialized some further widgets
 		$(window).resize();
 	});
 	

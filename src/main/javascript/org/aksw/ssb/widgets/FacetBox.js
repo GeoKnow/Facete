@@ -315,12 +315,21 @@
 					// TODO Recursively set state
 				},
 
+				/*
+				'change:pivotable': function(value) {
+					if(value) {
+						this.view.$("div i").style("color: black;");
+					} else {
+						this.view.$("div i").style("color: grey;");
+					}
+				},*/
 				
-				// TODO Pivoting must not lead to dead ends -
-				// We must know whether a navigation step leads to a dead end.
 
 				'mouseenter div': function() {
-					this.view.$("div i").show();
+					var isPivotable = this.model.get("pivotable");
+					if(isPivotable) {
+						this.view.$("div i").show();
+					}
 				},
 				
 				'mouseleave div': function() {
@@ -396,6 +405,7 @@
 					// this.controller.loadValues();
 				},
 
+				
 				refresh : function() {
 					var isVisible = this.controller.isFacetElementVisible();
 
@@ -710,6 +720,17 @@
 						return result;
 					},
 
+					setPivotFacets : function(steps) {
+						var stepStrToItem = this.controller.getStepStrToItem();
+						
+						_.each(steps, function(step) {
+							var item = stepStrToItem["" + step];
+							if(item) {
+								item.model.set({pivotable: true});
+							}
+						});
+					},
+					
 					refresh : function() {
 						var self = this;
 
@@ -795,6 +816,7 @@
 								state : state,
 								breadcrumb : childBreadcrumb,
 								step: step,
+								pivotable: false,
 								//steps: childSteps,
 								id : "" + step,
 								name : data.label,

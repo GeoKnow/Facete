@@ -51,7 +51,10 @@
 		this.constraints = options.constraints;
 		
 		// A breadcrumb to the set of resources a user navigated to
+		// TODO This should better be a path - i.e. no duplication of the pathManager
 		this.navigationBreadcrumb = options.navigationBreadcrumb;
+
+		
 		
 		// A list of paths for which to fetch data
 		// TODO Not sure how components should declare that

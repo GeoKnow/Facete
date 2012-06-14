@@ -562,7 +562,7 @@
 		this.facetState.driver = driver;
 		
 		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
-		//console.log("Facet Query", query.toString());
+		//console.log("Facet Query", driver);
 
 		
 		// clear the pathManager
@@ -576,17 +576,35 @@
 		}
 
 		var state = this.facetState;
-		var node = state.pathManager.getRoot();
+		//var node = state.pathManager.getRoot();
+		
+		var node = this.queryGenerator.navigationBreadcrumb.targetNode;
+		
 
 		//var breadcrumbs = this.facetbox.controller.getVisibleBreadcrumbsValues();
-		var propertyNameToItem = this.facetbox.controller.getVisiblePropertiesValues();
+		// TODO: The method should return a pure json object such as an array holding information about the
+		// steps and sub-steps
+		// [ {step: foo, page: 2, facetValues: [baaaar], children: [ ] ]  
+		var stepStrToItem = this.facetbox.controller.getVisiblePropertiesValues();
+
 		
-		// Once all facet counts have been obtained, update the view
-		$.when(queryUtils.fetchFacetCountsGeomRec(this.sparqlService, this.labelFetcher, state, node, propertyNameToItem)).then(function(facetState) {
+		var self = this;
+		
+		// Once all facet counts have been obtained, and the pivoting abilities have been checked, update the view
+		var facetCountTask = queryUtils.fetchFacetCountsGeomRec(this.sparqlService, this.labelFetcher, state, node, stepStrToItem);
+		var pivotCheckTask = queryUtils.fetchPivotFacets(this.sparqlService, state.driver);
+		
+		$.when(facetCountTask, pivotCheckTask).then(function(facetState, pivotFacets) {
+			
+			var steps = _.map(pivotFacets, function(item) { return new facets.Step(item.value); });
+			
+			//alert("Pivoting enabled facets:" + pivotFacets);
 			
 			//console.log("facetstate", facetState);
 			//self.facetbox.controller.setState(state);
 			self.facetbox.controller.refresh();
+			self.facetbox.controller.setPivotFacets(steps);
+
 		});
 		
 	};

@@ -206,6 +206,18 @@
 			});
 	};
 
+	
+	ns.fetchPivotFacets = function(sparqlService, driver) {
+		
+		var outputVar = sparql.Node.v("__p");
+		var query = ns.createQueryGetPivotFacets(driver, outputVar);
+		
+		var result = ns.fetchList(sparqlService, query, outputVar);
+		//var result = sparqlService.executeSelect(query.toString()).pipe(function()
+		
+		return result;
+	}
+	
 	/**
 	 * 
 	 * 
@@ -221,6 +233,7 @@
 		// Return a promise so we can react if the callback finishes
 		var result = sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {
 
+				console.log("fetchFacetCountsGeomRec Query", query.toString());
 				//console.log("jsonRs for facet counts", jsonRs);
 				return ns.processFacets(facetState, jsonRs, labelFetcher).pipe(function(facetState) {
 												

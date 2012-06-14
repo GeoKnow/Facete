@@ -13,6 +13,79 @@
 	 * SparqlServiceVirtuoso 
 	 */
 
+	ns.Paginator = function(query, pageSize) {
+		this.nextOffset = query.offset ? query.offset : 0;
+		this.nextRemaining = (query.limit || query.limit === 0) ? query.limit : null;
+		
+		this.pageSize = pageSize;
+	};
+	
+	
+	// Returns the next limit and offset
+	ns.Paginator.next = function() {
+		query.offset = this.nextOffset === 0 ? null : this.nextOffset;
+
+		if(this.remaining == null) {
+			this.query.limit = this.pageSize;
+			this.nextOffset += pageSize;
+		} else {
+			var limit = Math.min(pageSize, this.remaining);
+			this.nextOffset += limit;
+			this.nextRemaining -= limit;
+			
+			if(limit === 0) {
+				return null;
+			}
+			
+			this.query.limit = limit;
+		}
+		
+		return query;
+	};
+	
+	ns.SparqlServicePaginator = function(backend, pageSize) {
+		this.backend = backend;
+		this.pageSize = pageSize ? pageSize : 0;
+	};
+	
+	ns.SparqlServicePaginator.prototype.executeSelectRec = function(paginator, prevResult) {
+		var query = paginator.next();
+		
+		var self = this;
+		$.when(backend.executeSelect(query)).then(function(jsonRs) {
+			// If result set size equals pageSize, request more data.			
+			var result;
+			if(!prevResult) {
+				result = jsonRs;
+			} else {
+				prevResult.result.bindings.concat(jsonRs.result.bindings);
+				result = prevResult;
+			}
+			
+			var resultSetSize = jsonRs.result.bindings.length;
+			if(resultSetSize < self.pageSize) {
+				return result;
+			} else {
+				
+				// TODO HOW TO DO THE PAGINATION NOW??? Somehow I need to construct a pipe-chain here,
+				// so that the caller does not see the nesting.
+				
+				return self.executeSelectRec(paginator, result);
+			}
+			
+		});
+
+	};
+	
+	ns.SparqlServicePaginator.prototype.executeSelect = function(query) {
+		var clone = query.clone();
+		var paginator = new ns.Paginator(clone, this.pageSize);
+		
+		return this.executeSelectRec(paginator, null);
+	};
+	
+	
+	
 	
 	ns.SparqlServiceVirtuoso = function(serviceUrl, defaultGraphUri) {
 		this.serviceUrl = serviceUrl;

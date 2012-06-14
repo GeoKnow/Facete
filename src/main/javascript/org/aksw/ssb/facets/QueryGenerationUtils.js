@@ -94,7 +94,52 @@
 		
 		return result;
 	};
+
 	
+	/**
+	 * Returns the facets for which pivoting is possible - i.e. pivoting does not lead to dead ends.
+	 * 
+	 * Forward:
+	 * Select Distinct ?p {
+	 *   ?o ?x ?y
+	 *   
+	 *   {?s ?p ?o
+	 *   driver(?s)}
+	 * }
+	 * 
+	 * Backward:
+	 *     Select Distinct ?p {
+	 *       ?y ?x ?o
+	 *       
+	 *       {?s ?p ?o
+	 *       driver(?s)}
+	 *     }
+
+	 */
+	ns.createQueryGetPivotFacets = function(driver, outputVar) {
+		var result = new sparql.Query();
+				
+		result.elements.push(driver.element);
+		
+		//var s = sparql.Node.v(driver.variable);
+		var s = driver.variable;
+		var p = outputVar; //sparql.Node.v("__p");
+		var o = sparql.Node.v("__o");
+		var x = sparql.Node.v("__x");
+		var y = sparql.Node.v("__y");
+
+		var triplesBlock = new sparql.ElementTriplesBlock(
+				[ new sparql.Triple(s, p, o),
+				  new sparql.Triple(o, x, y) ]);
+		
+		result.elements.push(triplesBlock);
+		
+		result.distinct = true;
+		result.projectVars.add(outputVar);
+
+		console.log("PivotCheckQuery", result);
+		return result;
+	};
 
 	/**
 	 * Counts the number of unique subjects per property.
@@ -382,105 +427,22 @@
 		
 	};
 	
-	
-	ns.createStatusQuery = function(config) {
-		// For each facet get its count by taking the status of the other facets into account.
-		//
-		var maxCount = 1001;
 
-		var knownFacets = config.getRoot().getSubFacets().asArray();
-		
-		if(!knownFacets) {
-			console.log("No facets to load");
-			return;
-		}
-		
-		//console.log("Reloading facets:" , knownFacets);
-		/*
-		for(var i in open) {
-			var facet = 
-		}
-		*/
-		
-		//var self = this;
-
-		
-		var unionElements = [];
-		var p = sparql.Node.v("__p");
-		var count = sparql.Node.v("__c");
-		for(var i in knownFacets) {
-			
-			var facet = knownFacets[i];
-			
-			//console.log("Known facet: ", facet);
-			
-			var q = new sparql.Query();
-
-			var s = config.driverVar;
-			q.projection.projectVars.add(p);
-			q.projection.porjectVars.add(count, new sparql.E_Count(s));
-			///q.projection[p.value] = null;
-			///q.projection[count.value] = new sparql.E_Count(s);
-
-
-			var subQuery = new sparql.Query();
-			subQuery.limit = maxCount;
-			subQuery.elements.push(config.driver);
-			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.driverVar);
-			subQuery.distinct = true;
-			subQuery.projectVars.add(p, new sparql.NodeValue(sparql.Node.uri(facet.id)));
-			subQuery.projectVars.add(s);
-			///subQuery.projection[p.value] = new sparql.NodeValue(sparql.Node.uri(facet.id));
-			///subQuery.projection[s.value] = null;
-			//subQuery.projection[count] = new sparql.E_Count(subExpr);
-			//subQuery.projection[count] = new sparql.E_Count(new sparql.ExprVar(s));
-			//q.elements.push(new sparql.ElementSubQuery(subQuery));
-
-			
-			var countWrapper = new sparql.Query();
-			countWrapper.projectVars.add(p);
-			countWrapper.projectVars.add(count, new sparql.E_Count(new sparql.ExprVar(s)));
-			///countWrapper.projection[p.value] = null;
-			///countWrapper.projection[count.value] = new sparql.E_Count(new sparql.ExprVar(s));
-			
-			countWrapper.elements.push(new sparql.ElementSubQuery(subQuery));
-			
-
-			unionElements.push(new sparql.ElementSubQuery(countWrapper));
-			//batchQuery.
-			//this.facetManager. somehow get the configuration as a query
-			
-			
-			// TODO: For each facet we need to get its query element.
-			// facet.getQueryElement();
-			
-			
-			// Select Distinct ?p ?c { { Select ?p { <driver> ?driver_var ?p ?o . Filter(?p = <facet>) . } Limit 1001 } }
-			
-			//this.sparqlService.
-		}
-		
-		//var union = FacetController.balance(sparql.ElementUnion, unionElements);
-		
-
-		var batchQuery = new sparql.Query();
-		//batchQuery.isResultStar = true;
-		batchQuery.projectVars.add(p);
-		batchQuery.projectVars.add(count);
-		///batchQuery.projection[p.value] = null;
-		///batchQuery.projection[count.value] = null;
-		batchQuery.elements.push(new sparql.ElementUnion(unionElements));
-
-		console.log("Facet query: " + batchQuery);
-		
-		return batchQuery;
-	};
 
 	
 	/**
 	 * Wraps an element for counting (possibly using group by)
 	 * 
-	 * If one of the groupVars equals variable, it is omitted
+	 * Select [groupVars] (Count(variable) As outputVar) {
+	 *     { Select Distinct(variable) {
+	 *         element(variable)
+	 *     } Limit limit }
+	 * }
+	 * 
+	 * TODO Explicitely group by groupVars; not needed for virtuoso.
+	 * 
+	 * 
+	 * If one of the groupVars equals the variable, it is omitted
 	 * 
 	 */
 	ns.createCountQuery = function(element, limit, variable, outputVar, groupVars) {
@@ -525,53 +487,6 @@
 		return result;
 	};
 	
-	/**
-	 * @deprecated
-	 * 
-	 * Creates a query that - based on another query - counts the number of
-	 * distinct values for a given variable.
-	 * 
-	 * TODO Move to some utils package
-	 * DONE Change it so it doesn't take a query as arg, but an element - 
-	 * 
-	 * @param baseQuery
-	 * @param limit
-	 * @param variable
-	 * @param groupVars Optional an array of variables to group by
-	 *     TODO Now I finally have to change to projection to a list rather than a map...
-	 * @returns {sparql.Query}
-	 */
-	ns.createCountQueryFromQuery = function(baseQuery, limit, variable, groupVars) {
-		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
-		
-		// Create a new query with its elemets set to copies of that of the baseQuery
-		var subQuery = new sparql.Query();
-		
-		for(var i = 0; i < baseQuery.elements.length; ++i) {
-			var element = baseQuery.elements[i];
-			var copy = element.copySubstitute(function(x) { return x; });
-			
-			subQuery.elements.push(copy);
-		}
-		
-		subQuery.projectVars.add(variable);
-		///subQuery.projection[variable.value] = null;
-		subQuery.distinct = true;
-		
-		if(limit) {
-			subQuery.limit = limit;
-		}
-		
-		var result = new sparql.Query();
-		result.projectVars.add(sparql.Node.v("c"), new sparql.E_Count(new sparql.ExprVar(variable)));
-		///result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
-		result.elements.push(new sparql.ElementSubQuery(subQuery));
-
-		//console.error(limit);
-		//console.error(result.toString());
-		
-		return result;
-	};
 	
 	
 	/**
@@ -592,7 +507,7 @@
 	 */
 	ns.createFacetQueryCountVisibleGeomNested = function(queryGenerator, uris) {
 
-		//var driver = queryGenerator.driver;
+		var driver = queryGenerator.driver;
 		var inferredDriver = queryGenerator.getInferredDriver();
 
 		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
@@ -605,6 +520,7 @@
 		triplesBlock.addTriples(queryGenerator.geoConstraintFactory.getTriples());
 		subQuery.elements.push(triplesBlock);
 		
+		var geomSrcVar = sparql.Node.v(queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
 		var geomVarStr = queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable; //geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable;
 		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
 		//console.log("geomVar", geomVar);
@@ -612,9 +528,13 @@
 		var filterElement = new sparql.ElementFilter(filterExpr);
 
 		subQuery.elements.push(filterElement);
-		subQuery.projectVars.add(inferredDriver.variable);
+		//subQuery.projectVars.add(inferredDriver.variable);
+		//subQuery.projectVars.add(driver.variable);
+		subQuery.projectVars.add(geomSrcVar);
 		///subQuery.projection[driver.variable.value] = null;
 		subQuery.distinct = true;
+		
+		
 		
 		var elements = [inferredDriver.element, new sparql.ElementSubQuery(subQuery)];
 		
@@ -789,4 +709,149 @@
 	};
 	*/
 	
+	/**
+	 * @deprecated
+	 * 
+	 * Creates a query that - based on another query - counts the number of
+	 * distinct values for a given variable.
+	 * 
+	 * TODO Move to some utils package
+	 * DONE Change it so it doesn't take a query as arg, but an element - 
+	 * 
+	 * @param baseQuery
+	 * @param limit
+	 * @param variable
+	 * @param groupVars Optional an array of variables to group by
+	 *     TODO Now I finally have to change to projection to a list rather than a map...
+	 * @returns {sparql.Query}
+	 */
+	ns.createCountQueryFromQuery = function(baseQuery, limit, variable, groupVars) {
+		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
+		
+		// Create a new query with its elemets set to copies of that of the baseQuery
+		var subQuery = new sparql.Query();
+		
+		for(var i = 0; i < baseQuery.elements.length; ++i) {
+			var element = baseQuery.elements[i];
+			var copy = element.copySubstitute(function(x) { return x; });
+			
+			subQuery.elements.push(copy);
+		}
+		
+		subQuery.projectVars.add(variable);
+		///subQuery.projection[variable.value] = null;
+		subQuery.distinct = true;
+		
+		if(limit) {
+			subQuery.limit = limit;
+		}
+		
+		var result = new sparql.Query();
+		result.projectVars.add(sparql.Node.v("c"), new sparql.E_Count(new sparql.ExprVar(variable)));
+		///result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
+		result.elements.push(new sparql.ElementSubQuery(subQuery));
+
+		//console.error(limit);
+		//console.error(result.toString());
+		
+		return result;
+	};
+	
+	
+	/**
+	 * TODO Is this method used?
+	 * 
+	 */
+	ns.createStatusQuery = function(config) {
+		// For each facet get its count by taking the status of the other facets into account.
+		//
+		var maxCount = 1001;
+
+		var knownFacets = config.getRoot().getSubFacets().asArray();
+		
+		if(!knownFacets) {
+			console.log("No facets to load");
+			return;
+		}
+		
+		//console.log("Reloading facets:" , knownFacets);
+		/*
+		for(var i in open) {
+			var facet = 
+		}
+		*/
+		
+		//var self = this;
+
+		
+		var unionElements = [];
+		var p = sparql.Node.v("__p");
+		var count = sparql.Node.v("__c");
+		for(var i in knownFacets) {
+			
+			var facet = knownFacets[i];
+			
+			//console.log("Known facet: ", facet);
+			
+			var q = new sparql.Query();
+
+			var s = config.driverVar;
+			q.projection.projectVars.add(p);
+			q.projection.porjectVars.add(count, new sparql.E_Count(s));
+			///q.projection[p.value] = null;
+			///q.projection[count.value] = new sparql.E_Count(s);
+
+
+			var subQuery = new sparql.Query();
+			subQuery.limit = maxCount;
+			subQuery.elements.push(config.driver);
+			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.driverVar);
+			subQuery.distinct = true;
+			subQuery.projectVars.add(p, new sparql.NodeValue(sparql.Node.uri(facet.id)));
+			subQuery.projectVars.add(s);
+			///subQuery.projection[p.value] = new sparql.NodeValue(sparql.Node.uri(facet.id));
+			///subQuery.projection[s.value] = null;
+			//subQuery.projection[count] = new sparql.E_Count(subExpr);
+			//subQuery.projection[count] = new sparql.E_Count(new sparql.ExprVar(s));
+			//q.elements.push(new sparql.ElementSubQuery(subQuery));
+
+			
+			var countWrapper = new sparql.Query();
+			countWrapper.projectVars.add(p);
+			countWrapper.projectVars.add(count, new sparql.E_Count(new sparql.ExprVar(s)));
+			///countWrapper.projection[p.value] = null;
+			///countWrapper.projection[count.value] = new sparql.E_Count(new sparql.ExprVar(s));
+			
+			countWrapper.elements.push(new sparql.ElementSubQuery(subQuery));
+			
+
+			unionElements.push(new sparql.ElementSubQuery(countWrapper));
+			//batchQuery.
+			//this.facetManager. somehow get the configuration as a query
+			
+			
+			// TODO: For each facet we need to get its query element.
+			// facet.getQueryElement();
+			
+			
+			// Select Distinct ?p ?c { { Select ?p { <driver> ?driver_var ?p ?o . Filter(?p = <facet>) . } Limit 1001 } }
+			
+			//this.sparqlService.
+		}
+		
+		//var union = FacetController.balance(sparql.ElementUnion, unionElements);
+		
+
+		var batchQuery = new sparql.Query();
+		//batchQuery.isResultStar = true;
+		batchQuery.projectVars.add(p);
+		batchQuery.projectVars.add(count);
+		///batchQuery.projection[p.value] = null;
+		///batchQuery.projection[count.value] = null;
+		batchQuery.elements.push(new sparql.ElementUnion(unionElements));
+
+		console.log("Facet query: " + batchQuery);
+		
+		return batchQuery;
+	};
 })(jQuery);

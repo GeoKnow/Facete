@@ -7,6 +7,13 @@
  */
 (function() {
 
+	/*
+	 * Retrieve the config object. Configurable via config.js and the URL. 
+	 */
+	var config = Namespace("org.aksw.ssb.config");
+	
+	
+
 	var facets = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	
@@ -227,9 +234,9 @@
 		console.log("Initialization in progress");
 				
 		
-		if(ssbconf.state) {
+		if(config.state) {
 			//alert("State: " + JSON.stringify(ssbconf.state));
-			appController.loadState(ssbconf.state);
+			appController.loadState(config.state);
 		}
 		
 		appController.repaint();
@@ -248,11 +255,11 @@
 		*/
 		
 		
-		var sparqlService = new backend.SparqlServiceVirtuoso(ssbconf.endpoint, ssbconf.models);
+		var sparqlService = new backend.SparqlServiceVirtuoso(config.sparqlServiceUrl, config.defaultGraphUris);
 		
 		
-		var config = new ns.AutoConfig(ns.init);
-		config.configureService(sparqlService);
+		var autoConfigurator = new ns.AutoConfig(ns.init);
+		autoConfigurator.configureService(sparqlService);
 	});
 	
 })();

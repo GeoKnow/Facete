@@ -18,6 +18,7 @@ var ns = {};
  * E.g. if only a sibling is resized, the 
  */
 (function($) {
+	var config = Namespace("org.aksw.ssb.config");
 
 	/**
 	 * Returns the actual height of an element; considering margins of child elements 
@@ -102,6 +103,8 @@ var ns = {};
  * 
  */
 (function($) {
+
+	var config = Namespace("org.aksw.ssb.config");
 
 	var ns = Namespace("org.aksw.ssb.app");
 	
@@ -190,7 +193,7 @@ var ns = {};
     window.onload = function init() {
 		ns.updateLang();
     	
-    	$("#language-switcher").val(lang);
+    	$("#language-switcher").val(config.lang);
    	};
 
 })(jQuery);

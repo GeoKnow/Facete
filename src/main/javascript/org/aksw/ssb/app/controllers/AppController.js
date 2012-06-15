@@ -160,13 +160,20 @@
 		// DEBUG/TESTING
 		var test = $$({}, "<div style='position: absolute; left: 60px; top: 5px; z-index: 1000;'><button>PermaLink</button></div>", {
 			'click button': function() {
-				var urlPart = location.href;
+				var baseUrl = location.href;
+				
+				// cut off the query string
+				var queryStringStart = baseUrl.indexOf("?");
+				if(queryStringStart > 0) {
+					baseUrl = baseUrl.substring(0, queryStringStart);
+				}
+				
 				
 				//var stateArg = $.param(self.saveState());
 				var stateStr = JSON.stringify(self.saveState());
 				var stateArg = encodeURIComponent(stateStr); 
 				
-				var url = urlPart + "?state=" + stateArg;
+				var url = baseUrl + "?state=" + stateArg;
 				//alert("State: " + url + "?state=" + stateArg);
 				window.prompt("Copy to clipboard", url);
 			}

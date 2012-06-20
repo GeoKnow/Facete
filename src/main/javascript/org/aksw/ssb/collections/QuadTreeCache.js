@@ -21,6 +21,8 @@
 	 * Query factory for counting geoms, features and features per geom
 	 * 
 	 *  TODO extend with the full breadcrumb
+	 *  TODO Can be genaralized to fetch source-to-target (n:m) relations
+	 *  via elements
 	 */
 	ns.QueryFactory = function(element, featureVar, geomVar, countVar) {
 		this.element = element;
@@ -77,20 +79,39 @@
 		this.featureVar = sparql.Node.v(this.queryGenerator.navigationBreadcrumb.targetNode.variable);
 	};
 	
-	ns.BackendFactory.prototype.forBounds = function(bounds, options) {
-		var element = this.queryGenerator.forBounds(bounds, options);
+	ns.BackendFactory.prototype.forElement = function(element) {
 		var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
 
-		return new ns.Backend(this.sparqlService, queryFactory);
+		return new ns.Backend(this.sparqlService, queryFactory);		
+	};
+	
+	
+	ns.BackendFactory.prototype.forBounds = function(bounds, options) {
+		var element = this.queryGenerator.forBounds(bounds, options);
+		
+		var result = this.forElement(element);
+		return result;
 	};
 
 	ns.BackendFactory.prototype.forGeoms = function(geomUriNodes, options) {
 		var element = this.queryGenerator.forGeoms(geomUriNodes);
-		var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
-		
-		return new ns.Backend(this.sparqlService, queryFactory);
+
+		var result = this.forElement(element);
+		return result;
 	};
 
+	/**
+	 * 
+	 * 
+	 * @param options
+	 */
+	ns.BackendFactory.prototype.forGlobal = function(options) {
+		var element = this.queryGenerator.forGlobal(options);
+
+		var result = this.forElement(element);
+		return result;
+	};
+	
 	
 	/*
 	 * Some thoughts on the revised process:
@@ -212,7 +233,12 @@
 	
 		this.backendFactory = backendFactory;
 
+		// FIXME Rename to maxTileItemCount
+		// Maximum geoms per tile before skipping
 		this.maxItemCount = 25;
+		
+		// Maximum geoms to accept for global lookup
+		this.maxGlobalItemCount = 50;
 		
 		this.labelFetcher = labelFetcher;
 		this.geomPosFetcher = geomPosFetcher;
@@ -318,6 +344,27 @@
 	};
 	
 	
+	/**
+	 * Sets the node's state to loaded, attaches the geomToFeatureCount to it.
+	 * 
+	 * @param node
+	 * @param geomToFeatureCount
+	 */
+	ns.QuadTreeCache.prototype.loadTaskAction = function(node, geomToFeatureCount) {
+		//console.log("GeomToFeatureCount", geomToFeatureCount);
+		
+		node.data.geomToFeatureCount = geomToFeatureCount;
+		
+		// We need to load all positions of the geometries
+		
+		
+		// Determine for which geoms we can load the features
+		
+		node.isLoaded = true;
+		//node.data.graph = rdfQueryUtils.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
+		
+	};
+	
 	ns.QuadTreeCache.prototype.createLoadTasks = function(nodes) {
 		var self = this;
 		var result = [];
@@ -329,18 +376,7 @@
 			//if(node.data.absoluteGeomToFeatureCount)
 			
 			var loadTask = self.backendFactory.forBounds(node.getBounds()).fetchGeomToFeatureCount().pipe(function(geomToFeatureCount) {
-				
-				//console.log("GeomToFeatureCount", geomToFeatureCount);
-				
-				node.data.geomToFeatureCount = geomToFeatureCount;
-				
-				// We need to load all positions of the geometries
-				
-				
-				// Determine for which geoms we can load the features
-				
-				node.isLoaded = true;
-				//node.data.graph = rdfQueryUtils.rdfQueryFromTalisJson(data); //ns.triplesFromTalisJson(data); //data;//ns.rdfQueryFromTalisJson(data);
+				self.loadTaskAction(node, geomToFeatureCount);
 			});
 
 			result.push(loadTask);
@@ -349,6 +385,11 @@
 		return result;
 	};
 	
+	
+	/**
+	 * Extracts labels and geometries from the databanks that were fetched for the nodes 
+	 * 
+	 */
 	ns.QuadTreeCache.prototype.postProcess = function(nodes) {
 		var self = this;
 		
@@ -407,7 +448,7 @@
 					var tripleStr = "" + s + " " + rdfs.label + " " + o;
 					var triple = $.rdf.triple(tripleStr);
 					
-					databank.add(triple);					
+					databank.add(triple);
 				});
 
 				var geomToPoint = data.geomToPoint;
@@ -436,8 +477,102 @@
 	};
 	
 	
+	ns.QuadTreeCache.prototype.load = function(bounds) {
+		// Prevent the bounds being set too frequently
+		// TODO Maybe look the tree rather than this.... 
+		var self = this;
+		if(this.isLocked) {
+			return;
+		}
+		this.isLocked = true;
+
+		var result = $.Deferred();
+		
+		var task = this.createWorkflow(bounds);
+		
+		$.when(task).then(function(nodes) {
+			self.isLocked = false;
+			result.resolve(nodes);
+		}).fail(function() {
+			result.fail();
+		});
+		
+		return result;
+	};
+	
+	ns.QuadTreeCache.prototype.createWorkflow = function(bounds) {
+		var rootNode = this.quadTree.getRootNode();
+		
+		var self = this;
+		var result;
+		console.debug("Initiating data fetching workflow");
+		if(!rootNode.checkedGlobal) {
+			
+			console.debug("Checking applicability of global fetching strategy (was not checked before)");
+			
+			result = $.Deferred();
+			
+			globalCheckTask = this.backendFactory.forGlobal().fetchGeomCount(self.maxGlobalItemCount).pipe(function(geomCount) {
+				//console.debug("Global check counts", geomCount, self.maxGlobalItemCount);
+				return !(geomCount >= self.maxGlobalItemCount);
+			});
+
+			result = $.Deferred();
+
+			$.when(globalCheckTask).then(function(canUseGlobal) {
+
+				console.debug("Applicability: ", canUseGlobal);
+				
+				rootNode.checkedGlobal = true;
+				task = canUseGlobal ? self.createGlobalWorkflow(rootNode) : self.loadTiles(bounds);
+
+				$.when(task).then(function(nodes) {
+					result.resolve(nodes);
+				}).fail(function() {
+					result.fail();
+				});
+			}).fail(function() {
+				result.fail();
+			});
+		} else {
+			console.debug("Using tile based strategy (global strategy checked)");
+			result = self.loadTiles(bounds);
+		}
+		
+		return result;
+	};
+	
+	ns.QuadTreeCache.prototype.createGlobalWorkflow = function(node) {
+		
+		var self = this;
+		
+		var result = $.Deferred();
+
+		// Fetch the items
+		var loadTask = self.backendFactory.forGlobal().fetchGeomToFeatureCount().pipe(function(geomToFeatureCount) {
+			console.debug("Global fetching: ", geomToFeatureCount);
+			self.loadTaskAction(node, geomToFeatureCount);
+		});
+
+		$.when(loadTask).then(function() {
+			$.when(self.postProcess([node])).then(function() {
+				console.debug("Global workflow completed.");
+				//console.debug("Workflow completed. Resolving deferred.");
+				result.resolve([node]);
+			}).fail(function() {
+				result.fail();
+			});
+		}).fail(function() {
+			result.fail();
+		});
+
+		return result;
+	};
+		
+	
+	
 	/**
-	 * This method implements the primary workflow for fetching data.
+	 * This method implements the primary workflow for tile-based fetching data.
 	 * 
 	 * globalGeomCount = number of geoms - facets enabled, bounds disabled.
 	 * if(globalGeomCount > threshold) {
@@ -458,16 +593,9 @@
 	 * } 
 	 * 
 	 */
-	ns.QuadTreeCache.prototype.load = function(bounds) {
+	ns.QuadTreeCache.prototype.loadTiles = function(bounds) {
 		var self = this;
-		
-		// Prevent the bounds being set too frequently
-		// TODO This is probably not the best place for doing that 
-		if(self.isLocked) {
-			return;
-		}
-		self.isLocked = true;
-	
+			
 		
 		//console.debug("Aquiring nodes for " + bounds);
 		var nodes = this.quadTree.aquireNodes(bounds, 2);
@@ -506,7 +634,7 @@
 				//ns.QuadTreeCache.finalizeLoading(nodes);
 				
 				$.when(self.postProcess(nodes)).then(function() {
-					self.isLocked = false;
+					//self.isLocked = false;
 					//console.debug("Workflow completed. Resolving deferred.");
 					result.resolve(nodes);
 				});

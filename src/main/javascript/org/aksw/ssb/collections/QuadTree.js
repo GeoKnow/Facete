@@ -19,6 +19,9 @@
 		this.node = new ns.Node(null, bounds, maxDepth, 0, k); 
 	};
 	
+	ns.QuadTree.prototype.getRootNode = function() {
+		return this.node;
+	}
 	
 	/**
 	 * Retrieve the node that completely encompasses the given bounds

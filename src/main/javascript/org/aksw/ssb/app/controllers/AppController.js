@@ -320,6 +320,34 @@
 	};
 	
 	
+	/**
+	 * The start tab contains elements for selecting a starting point for
+	 * filtering and navigation.
+	 * 
+	 * There are different starting points:
+	 * - Everything
+	 *     Initially, all resources are selected.
+	 * - Class
+	 *     The instances of a class serve as starting points for navigation
+	 * - Geo
+	 *     Geo resources are selected by default
+	 * 
+	 * For each selection there is a small controller that configures the app accordingly:
+	 * If geo is chosen, special logic is required to create the polygon view:
+	 * - A lat/long constraint is set as the geo-constraint factory
+	 * - A projection path "isMemberOfWay georss" is declared
+	 * - The projection path is bound to the WKT-source of the view
+	 * 
+	 * 
+	 *             
+	 * Note that in general the app distinguishes between selection and projection/view binding.
+	 * 
+	 * 
+	 */
+	ns.AppController.loadStartTab = function() {
+		
+	};
+	
 	ns.AppController.prototype.setNavigationBreadcrumb = function(breadcrumb) {
 		
 		

@@ -1,3 +1,16 @@
+
+
+/**
+ * TODO Not sure if we need this class, or whether we could reuse something
+ * The requirements are:
+ * Take an ajax request, and while the request is running, queue only the most recet successing request.
+ * 
+ */
+var SchedulerDeferred = function(timeout) {
+	this.timeout = timeout ? timeout : 1000;
+};
+
+
 /**
  * Schedules callbacks for delayed invocation.
  * Only the latest set callback will be invoked after the delay, the others are discarded.

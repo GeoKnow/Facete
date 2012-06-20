@@ -60,12 +60,12 @@
 							child.destroy();
 						});
 						
-						var item = ns.createBreadcrumbItem(facets.Breadcrumb.fromSteps(breadcrumb.pathManager, []), "home", callbacks);						
+						var item = ns.createBreadcrumbItem(facets.Breadcrumb.fromPath(breadcrumb.pathManager, new facets.Path()), "home", callbacks);						
 						this.append(item);
 
 						
 						
-						var steps = breadcrumb.steps;
+						var steps = breadcrumb.getPath().getSteps();
 						
 						//var bc = new facets.Breadcrumb.fromString(breadcrumb.pathManager, "");
 						var array = [];
@@ -80,7 +80,7 @@
 							var name = step.propertyName;
 							var label = name in uriToLabel ? uriToLabel[name].value : name;
 							
-							var bc = facets.Breadcrumb.fromSteps(breadcrumb.pathManager, array);
+							var bc = facets.Breadcrumb.fromPath(breadcrumb.pathManager, new facets.Path(array));
 							//console.log("Status", name, label, bc, array, step);
 
 							var item = ns.createBreadcrumbItem(bc, label, callbacks);

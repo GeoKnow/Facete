@@ -128,8 +128,15 @@
 	};
 
 	
+	/*
+	ns.ConstraintQuery = function(constraints) {
+		this.constraints = constraints;
+	};
+	*/
 
 	/**
+	 * Fetches the values for given path.
+	 * Constraints on this path can be excluded.
 	 * 
 	 * 
 	 * @returns A promise for the action
@@ -147,6 +154,7 @@
 		console.log("Query data", "" + query);
 		
 		//var query = queryData.query;
+		// TODO Make the limit configurable
 		query.limit = 10;
 		
 		//console.debug("Values query:", queryData);

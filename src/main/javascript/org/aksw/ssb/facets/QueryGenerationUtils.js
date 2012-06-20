@@ -276,14 +276,21 @@
 		return q;
 	};
 
+	
+	/**
+	 * Counts the number of focus-resources per facet value
+	 * 
+	 */
 	ns.createQueryFacetValuesCountedFiltered = function(baseElement, breadcrumb, sampleSize, searchString, countVar) {
 		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);
 		
+		var sourceVar = sparql.Node.v(breadcrumb.sourceNode.variable);
 		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
 		
 		//var result = ns.createQueryFacetValuesCounted(element, breadcrumb, sampleSize);
-		var result = ns.createCountQuery(element, sampleSize, facetVar, countVar, [facetVar]);
+		var result = ns.createCountQuery(element, sampleSize, sourceVar, countVar, [facetVar]);
 
+		//alert(result);
 		return result;
 	};
 

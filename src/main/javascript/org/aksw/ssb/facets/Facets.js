@@ -16,7 +16,23 @@
 		this.node = node;
 		this.count = count;
 	};
+	
+	ns.DriverProvider = function(label, driver) {
+		this.label = label;
+		this.driver = driver;
+	};
 
+	ns.DriverProvider.prototype.getDriver = function() {
+		return this.driver;
+	};
+
+	ns.DriverProvider.prototype.getLabel = function() {
+		return this.label;
+	};
+
+	
+	
+	
 	/**
 	 * Object holding a query element and a variable (of the query element).
 	 * 
@@ -206,6 +222,19 @@
 		this.propertyName = propertyName;
 		this.isInverse = isInverse;
 	};
+
+	ns.Step.fromString = function(str) {
+		if(str.startsWith("<")) {
+			return new ns.Step(str.substring(1), true);
+		} else {
+			return new ns.Step(str, false);
+		}
+	};
+
+	
+	ns.Step.prototype.equals = function(other) {
+		return _.isEquals(this, other);
+	};
 	
 	ns.Step.prototype.toString = function() {
 		if(this.isInverse) {
@@ -215,8 +244,75 @@
 		}
 	};
 	
+
+	/**
+	 * A path is a sequence of steps
+	 * 
+	 * @param steps
+	 * @returns {ns.Path}
+	 */
+	ns.Path = function(steps) {
+		this.steps = steps ? steps : [];
+	};
+	
+	ns.Path.prototype.toString = function() {
+		return this.steps.join(" ");		
+	};
+	
+	ns.Path.fromString = function(pathStr) {
+		pathStr = pathStr.trim();
+		
+		var items = pathStr.length !== 0 ? pathStr.split(" ") : [];		
+		var steps = _.map(items, function(item) { return ns.Step.fromString(item); });
+		
+		var result = new ns.Path(steps);
+		
+		return result;
+	};
+	
+	
+	ns.Path.prototype.concat = function(other) {
+		this.steps.concat(other.steps);
+	};
+	
+	ns.Path.prototype.getSteps = function() {
+		return this.steps;
+	};
+	
+	ns.Path.prototype.equals = function() {
+		var n = this.steps.length;
+		if(n != other.steps.length) {
+			return false;
+		}
+		
+		for(var i = 0; i < n; ++i) {
+			if(!this.steps[i].equals(other.steps[i])) {
+				return false;
+			}
+		}
+		
+		return true;
+	};
+
+	// Create a new path with a step appended
+	ns.Path.prototype.copyAppendStep = function(step) {
+		var newSteps = this.steps.slice(0);
+		newSteps.push(step);
+		
+		var result = new ns.Path(newSteps);
+		
+		return result;
+	};
+
 	
 	/**
+	 * A breadcrumb is a path that has been resolved against a path manager.
+	 * 
+	 * 
+	 * 
+	 * TODO: Either treat an array of steps as a path, or create a specific path object.
+	 * 
+	 * 
 	 * A breadcrumb encapsulates a path across RDF properties.
 	 * A breadcrumb can be converted into a set of sparql.Triple objects.
 	 * Additionally, it grants access to the source and target nodes
@@ -229,17 +325,23 @@
 	 * @param targetNode
 	 * @returns {ns.Breadcrumb}
 	 */
-	ns.Breadcrumb = function(pathManager, steps, sourceNode, targetNode) {
+	ns.Breadcrumb = function(pathManager, path, sourceNode, targetNode) {
 		this.pathManager = pathManager;
 		//this.step = step;
 		//this.items = step;
-		this.steps = steps;
+		//this.steps = steps;
+		this.path = path;
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
 	};
 	
+	ns.Breadcrumb.prototype.getPath = function() {
+		return this.path;
+	};
+	
+	// TODO Why did I add a clone method? Breadcrumbs should be considered immutable.
 	ns.Breadcrumb.prototype.clone = function() {
-		return new ns.Breadcrumb(this.pathManager, this.steps, this.sourceNode, this.targetNode);
+		return new ns.Breadcrumb(this.pathManager, this.path, this.sourceNode, this.targetNode);
 	};
 	
 	/**
@@ -251,14 +353,14 @@
 			throw "Only breadcrumbs with the same path manager can be concatenated";
 		};
 		
-		var steps = this.steps.concat(other.steps);
+		var path = this.path.concat(other.path);
 		
 		var sourceNode = this.pathManager.root;
-		var targetNode = ns.Breadcrumb.getTargetNode(this.pathManager, steps);
+		var targetNode = ns.Breadcrumb.getTargetNode(this.pathManager, path);
 		
 		var result = new ns.Breadcrumb(
 				this.pathManager,
-				steps,
+				path,
 				sourceNode,
 				targetNode
 				);
@@ -266,37 +368,40 @@
 		return result;
 	};
 	
-	ns.Breadcrumb.parseStep = function(str) {
-		if(str.startsWith("<")) {
-			return new ns.Step(str.substring(1), true);
-		} else {
-			return new ns.Step(str, false);
-		}
+	ns.Breadcrumb.prototype.makeStep = function(step) {
+		var newPath = this.path.copyAppendStep(step);
+		var result = ns.Breadcrumb.fromPath(this.pathManager, newPath);
+		
+		return result;
 	};
 	
 	ns.Breadcrumb.fromString = function(pathManager, pathStr) {
-		pathStr = pathStr.trim();
+		var path = ns.Path.fromString(pathStr);
 		
-		
-		var items = pathStr.length !== 0 ? pathStr.split(" ") : [];
-		
-		var steps = _.map(items, function(item) { return ns.Breadcrumb.parseStep(item); });
-		
-		var result = ns.Breadcrumb.fromSteps(pathManager, steps);
+		var result = ns.Breadcrumb.fromPath(pathManager, path);
 		
 		return result;
 	};
 	
+	/*
 	ns.Breadcrumb.fromSteps = function(pathManager, steps) {
-		var sourceNode = pathManager.root;
-		var targetNode = ns.Breadcrumb.getTargetNode(pathManager, steps);
+		var path = new ns.Path(steps);
+		var result = this.fromPath(path);
 		
-		// TODO [HACK] step should be a real class, not just the item array
-		var result = new ns.Breadcrumb(pathManager, steps, sourceNode, targetNode);
 		return result;
+	};
+	*/
+	
+	ns.Breadcrumb.fromPath = function(pathManager, path) {
+		var sourceNode = pathManager.root;
+		var targetNode = ns.Breadcrumb.getTargetNode(pathManager, path);
+		
+		var result = new ns.Breadcrumb(pathManager, path, sourceNode, targetNode);
+		return result;		
 	};
 	
 	// Create a new breadcrumb with a step performed
+	/*
 	ns.Breadcrumb.prototype.makeStep = function(step) {
 		var newSteps = this.steps.slice(0);
 		newSteps.push(step);
@@ -304,10 +409,11 @@
 		var result = ns.Breadcrumb.fromSteps(this.pathManager, newSteps);
 		
 		return result;
-	};
+	};*/
 	
-	ns.Breadcrumb.getTargetNode = function(pathManager, steps) {
+	ns.Breadcrumb.getTargetNode = function(pathManager, path) {
 		var result = pathManager.root;
+		var steps = path.getSteps();
 		
 		for(var i = 0; i < steps.length; ++i) {
 			var step = steps[i];
@@ -331,10 +437,11 @@
 	ns.Breadcrumb.prototype.getTriples = function() {
 		var result = [];
 		
-		var node = this.pathManager.root;
-		
-		for(var i = 0; i < this.steps.length; ++i) {
-			var step = this.steps[i];
+		var node = this.pathManager.root;		
+		var steps = this.path.getSteps();
+
+		for(var i = 0; i < steps.length; ++i) {
+			var step = steps[i];
 			
 			var stepStr = step.toString();
 			
@@ -367,7 +474,8 @@
 	*/
 	
 	ns.Breadcrumb.prototype.toString = function() {
-		return this.steps.join(" ");
+		//return this.steps.join(" ");
+		return this.path.toString();
 	};
 	
 	

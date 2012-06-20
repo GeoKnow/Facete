@@ -59,6 +59,27 @@
 		// A list of paths for which to fetch data
 		// TODO Not sure how components should declare that
 	};
+	
+	/**
+	 * Create a new QueryGenerator, where constraints on a specific path have been excluded
+	 * 
+	 */
+	ns.QueryGenerator.prototype.copyExcludeConstraints = function(path) {
+		var result = new ns.QueryGenerator(
+				this.options,
+				this.driver,
+				this.pathManager,
+				this.geoConstraintFactory,
+				this.constraints.copyExclude(path),
+				this.navigationBreadcrumb);
+		
+		return result;
+	};
+	
+	/*
+	ns.QueryGenerator.prototype.excludeConstraint(paths) {
+		return new ns.QueryGene
+	};*/
 
 	ns.QueryGenerator.prototype.getInferredDriver = function() {
 		//var element = this.forGlobal();

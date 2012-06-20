@@ -22,6 +22,7 @@
 
 	var ns = Namespace("org.aksw.ssb.widgets.facetbox");
 
+	
 	ns.FacetValueBackendSparql = function(sparqlService, labelFetcher) {
 		this.sparqlService = sparqlService;
 		this.labelFetcher = labelFetcher;
@@ -112,6 +113,13 @@
 	 * the baseBreadcrumb must be relative to the pathManager
 	 * 
 	 * Note: the breadcrumb must be related to the driver.
+	 * 
+	 * TODO: The facetState is broken:
+	 * We need: 
+	 * 
+	 * - a driver provider { ?s a Commitment}
+	 *- a constraint collection { Equals(beneficiary, "University of Leipzig") } (How to treat "exists" constraints?)
+	 * - 
 	 */
 	ns.FacetState = function(config, driver, baseBreadcrumb) {
 		this.config = config;
@@ -161,7 +169,7 @@
 		constraintId : null,
 		label : ""
 	}, '<li><span data-bind="label" /></li>', '& span { cursor:pointer; }', {
-		'click li span:first' : function() {
+		'click span' : function() {
 			
 			//alert("weee");
 			
@@ -426,6 +434,8 @@
 
 					var self = this;
 					
+					var path = breadcrumb.getPath();
+					// TODO Change to path
 					var countTask = backend.fetchCountFacetValues(breadcrumb,
 							state, searchString);
 

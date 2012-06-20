@@ -5,6 +5,18 @@
 (function() {
 	var ns = Namespace("org.aksw.ssb");
 
+	
+	ns.QueryFactoryFacet = function(queryGenerator) {
+		this.queryGenerator = queryGenerator;
+	};
+		
+	ns.QueryFactoryFacet.prototype.fetchFacetValues = function(path) {
+		var subQueryGenerator = this.queryGenerator.copyExcludeConstraints(path);
+
+		
+	};
+	
+	
 	ns.FacetNavigator = function() {
 		
 	};
@@ -29,7 +41,9 @@
 	
 	/**
 	 * Fetches the facets for the current location
+	 *
 	 * 
+	 * Returns a set of steps that can be done
 	 */
 	ns.FacetNavigator.prototype.fetchFacets = function() {
 		

@@ -4,6 +4,25 @@
  * based on facet path expressions. 
  * 
  * 
+ * TODO In general, constraints are more complex than just being compiled to SPARQL predicates:
+ * The new model should be as follows:
+ * - A constraint is always associated with a specific path or set of paths.
+ * - This means, that a constraint affects a set of SPARQL variables.
+ * - A constraint may be compiled to SPARQL, but - and here comes the clue:
+ * - A constraint may perform post processing on the query result!
+ * 
+ * constraint.getSparqlElement();
+ * constraint.getPostProcessor();
+ *  
+ * Note that post processors are evaluated on the client.
+ * The workflow is as follows: First the SPARQL query is generated based on all constraints.
+ * Then, for each focus resource, the corresponding path elements are fetched.
+ * 
+ *    TODO: Does a post processor only work on the end-nodes of a path? 
+ *    We may have to extend the path language to allow aliases:
+ *    "memberOfWay georrs{polygon}"
+ *    getPostProcessor(
+ *  
  */
 (function($) {
 
@@ -33,13 +52,16 @@
 	
 	/**
 	 * 
-	 * @param excludes An array of breadcrumb strings
+	 * @param excludes An array of paths
+	 * 
+	 * TODO Mixes breadcrumbs and paths - only works because their toString() methods
+	 * return the same strings on same paths
 	 */
-	ns.ConstraintCollection.prototype.copyExclude = function(excludes) {
+	ns.ConstraintCollection.prototype.copyExclude = function(exclude) {
 		var tmp = {};
 		if(excludes) {
 			for(var i = 0; i < excludes.length; ++i) {
-				tmp[excludes[i]] = true;
+				tmp[excludes[i].toString()] = true;
 			}
 		}
 

@@ -256,7 +256,7 @@
 		//var facetConfig = new facetbox.FacetConfig(1001, 10001);
 		this.facetConfig = new facetbox.FacetConfig(1001, null);
 		
-		var baseBreadcrumb = facets.Breadcrumb.fromSteps(queryGenerator.pathManager, []);
+		var baseBreadcrumb = facets.Breadcrumb.fromPath(queryGenerator.pathManager, new facets.Path());
 		
 		this.facetState = new facetbox.FacetState(this.facetConfig, queryGenerator.getInferredDriver(), baseBreadcrumb);
 				
@@ -365,7 +365,7 @@
 		this.facetbox.controller.refresh();
 
 		
-		var uris = _.map(breadcrumb.steps, function(step) {
+		var uris = _.map(breadcrumb.getPath().getSteps(), function(step) {
 			return step.propertyName;
 		});
 		

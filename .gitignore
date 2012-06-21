@@ -7,5 +7,8 @@ install-rdf-author.sh
 lib/jPages/
 lib/jscache/
 
+lib/RDFauthor/current
+lib/Font-Awesome/current
+
 config.js
 

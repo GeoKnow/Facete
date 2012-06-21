@@ -1,6 +1,0 @@
-[submodule "lib/RDFauthor/current"]
-	path = lib/RDFauthor/current
-	url = https://github.com/AKSW/RDFauthor.git
-[submodule "lib/Font-Awesome/current"]
-	path = lib/Font-Awesome/current
-	url = https://github.com/FortAwesome/Font-Awesome.git

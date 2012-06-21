@@ -1,6 +1,10 @@
 (function($) {
+
+	var config = Namespace("org.aksw.ssb.config"); 
+
 	
 	var ns = Namespace("org.aksw.ssb.odp");
+	
 	
 	ns.ajax = function(url) {
 			
@@ -28,7 +32,7 @@
 	
 	$(document).ready(function() {
 
-		var baseUrl = "http://localhost/open-data/api/";
+		var baseUrl = config.odp.apiUrl;
 		
 		var urlGetLanguages = baseUrl + "getLanguages";
 		var urlGetHeaderMenu = baseUrl + "getHeaderMenu/";

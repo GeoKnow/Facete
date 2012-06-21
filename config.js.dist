@@ -12,4 +12,8 @@
 	config.defaultGraphUris = [];
 	
 	
+	config.odp = {};	
+	config.odp.apiUrl = "http://localhost/open-data/api/";
+	
+	
 })();

@@ -7,3 +7,5 @@ install-rdf-author.sh
 lib/jPages/
 lib/jscache/
 
+config.js
+

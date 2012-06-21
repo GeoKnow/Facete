@@ -1047,8 +1047,11 @@
 						
 						self.prevResWidget = widget;
 						
-						$$.document.append(widget, $("body"));
-						widget.view.$().show();
+						
+						var resourceListBox = $("#box-resources")
+						$$.document.append(widget, resourceListBox);
+						resourceListBox.show();
+						//widget.view.$().show();
 						
 						/*
 						var targetElement = $("#box-test");

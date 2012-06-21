@@ -399,6 +399,10 @@
                 $("#box-facts").fadeOut ('slow');
             });
             
+			// Make the fact box closable
+            $("#box-resources-closebutton-img").click(function () {
+                $("#box-resources").fadeOut ('slow');
+            });
 
     		
 	    	//$("#tabs").tabs();
@@ -443,13 +447,6 @@
     </head>
     <body>
 
-
-	<div id="box-facts">
-		<div style="font-size: 24px;">
-			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
-			<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
-		</div>
-	</div>
 
 	<div id="wrapper">
 	    <div id="header">
@@ -500,7 +497,21 @@
 <!-- 	    	</div> -->
 	    	
 	    	
-			<div id="map"></div>
+			<div id="map">
+				<div id="box-resources">
+					<div style="font-size: 24px;">
+						<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
+						<i id="box-resources-closebutton-img" class="icon-remove-sign"></i>
+					</div>
+				</div>
+				
+				<div id="box-facts">
+					<div style="font-size: 24px;">
+						<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
+						<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div id="tabs">

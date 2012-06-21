@@ -326,12 +326,12 @@
 		
 		var widget =
 			$$({backend: backend, options: options},
-				"<div class='box-test'>" +
+//				"<div class='box-test'>" +
 					"<div class='resource-list-widget-wrapper'>" +
 						"Search: <input type='text' data-bind='searchString' />" +
 						"<div class='resource-list-widget-content' />" +
-					"</div>" +
-				"</div>",
+					"</div>",
+//				"</div>",
 				{
 					'create': function() {
 						//this.view.$(".resource-list-widget-wrapper").resizable();

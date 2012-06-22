@@ -19,24 +19,26 @@
 
 
 	ns.createQueryGetClasses = function(outputVar) {
-		var result = new sparql.Query();
-		
+		var driver = new facets.Driver(ns.createElementGetClasses(outputVar), outputVar);
+		var result = ns.createQuerySelect(driver, {distinct: true});
+
+		return result;
+	};
+	
+
+	ns.createElementGetClasses = function(outputVar) {
 		var s = outputVar;
-		var x = sparql.Node.v("x");
+		var x = sparql.Node.v("__x");
 		
-		var element = new sparql.ElementUnion([
+		var result = new sparql.ElementUnion([
 		    new sparql.ElementTriplesBlock([new sparql.Triple(s, rdf.type, owl.Class)]),
 		    new sparql.ElementTriplesBlock([new sparql.Triple(x, rdfs.subClassOf, s)]),
 		    new sparql.ElementTriplesBlock([new sparql.Triple(s, rdfs.subClassOf, x)]),
 		]);
 		
-		result.projectVars.add(s);
-		result.distinct = true;
-		result.elements.push(element);
-		
-		return result;		
+		return result;
 	};
-
+	
 	ns.createQueryGetTypes = function(outputVar) {
 		var result = new sparql.Query();
 		
@@ -57,22 +59,39 @@
 	 * 
 	 */
 	ns.createQueryGetNamedGraphs = function(outputVar) {
-		var result = new sparql.Query();
-		
+		var driver = new facets.Driver(ns.createElementGetNamedGraphs(outputVar), outputVar);
+		var result = ns.createQuerySelect(driver, {distinct: true});
+
+		return result;
+	};
+
+	ns.createQueryGetNamedGraphsFallback = function(outputVar) {
+		var driver = new facets.Driver(ns.createElementGetNamedGraphsFallback(outputVar), outputVar);
+		var result = ns.createQuerySelect(driver, {distinct: true});
+
+		return result;
+	};
+
+	ns.createElementGetNamedGraphsFallback = function(outputVar) {
+		var subQuery = ns.createQueryGetNamedGraphs(outputVar);
+		subQuery.distinct = false;
+		var result = new sparql.ElementSubQuery(subQuery);
+
+		return result;
+	};
+
+	ns.createElementGetNamedGraphs = function(outputVar) {
 		var g = outputVar;
 		var s = sparql.Node.v("s");
 		var p = sparql.Node.v("p");
 		var o = sparql.Node.v("o");
 		
-		var element = new sparql.ElementNamedGraph(new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]), g);
-		
-		result.projectVars.add(g);
-		result.distinct = true;
-		result.elements.push(element);
-		
+		var result = new sparql.ElementNamedGraph(new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]), g);
+
 		return result;
 	};
 	
+
 	/**
 	 * Creates a Select-Query from a driver.
 	 * 

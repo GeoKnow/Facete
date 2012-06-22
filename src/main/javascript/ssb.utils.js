@@ -1,4 +1,24 @@
 
+	/**
+	 * Add an .endsWith method to the prototype of String.
+	 * TODO Include underscore.string
+	 * 
+	 * http://stackoverflow.com/questions/280634/endswith-in-javascript
+	 * 
+	 */
+	if (!String.prototype.hasOwnProperty("endsWith")) {
+	    String.prototype.endsWith = function(suffix) {
+	        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	    };
+	}
+
+	if (!String.prototype.hasOwnProperty("startsWith")) {
+		String.prototype.startsWith = function(prefix) {
+			return this.indexOf(prefix) == 0;
+		};
+	}
+	
+	
 
 /**
  * TODO Not sure if we need this class, or whether we could reuse something

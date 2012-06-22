@@ -32,17 +32,6 @@
 	var ns = Namespace("org.aksw.ssb.main");
 	
 	
-	/**
-	 * Add an .endsWith method to the prototype of String.
-	 * 
-	 * http://stackoverflow.com/questions/280634/endswith-in-javascript
-	 * 
-	 */
-	if (!String.prototype.hasOwnProperty("endsWith")) {
-	    String.prototype.endsWith = function (suffix) {
-	        return this.indexOf(suffix, this.length - suffix.length) !== -1;
-	    };
-	}
 			
 			
 	
@@ -102,8 +91,8 @@
 		var node = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
 		
 		// LGD-TEST
-		var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
-		
+		//var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+		var subvention = sparql.Node.uri("http://diadem.cs.ox.ac.uk/ontologies/real-estate#House");
 		
 		//var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
 		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
@@ -119,7 +108,7 @@
 		
 		
 		// LGD-TEST
-		//var baseStr = "";
+		var baseStr = "";
 		
 		
 		

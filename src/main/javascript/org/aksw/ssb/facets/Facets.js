@@ -45,6 +45,10 @@
 		this.variable = variable;
 	};
 	
+	ns.Driver.prototype.toString = function() {
+		return "" + this.element + " with " + this.variable; 
+	};
+	
 	ns.PathNodeFactoryDefault = function() {
 	};
 	

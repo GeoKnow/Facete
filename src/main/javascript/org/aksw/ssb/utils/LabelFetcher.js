@@ -1,5 +1,6 @@
 (function($) {
 
+	var collections = Namespace("org.aksw.ssb.collections");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
@@ -19,7 +20,7 @@
 	// A cache instance that is shared among label fetcher instances
 	// NOTE Data based on different LabelFetcher
 	// configurations will go into the same cache.
-	ns.LabelFetcher.defaultCache = new LabelCollection();
+	ns.LabelFetcher.defaultCache = new collections.LabelCollection();
 
 	
 	/**
@@ -137,14 +138,17 @@
 				callback(result);
 			}
 			
-			return result;
+			return {uris: uris, uriToLabel: result};
 		});	
 	
 		return deferred.promise();
 	};
 	
 	
+	
+	
 	/**
+	 * @Deprecated
 	 * A static function that fetches labels of the given set of uris.
 	 * 
 	 */

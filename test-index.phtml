@@ -24,6 +24,10 @@
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
 
+        <script type="text/javascript" src="lib/agility/0.1.2/agility.min.js"
+            charset="utf-8"></script>
+
+
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/backend/SparqlServiceVirtuoso.js"></script>
 
@@ -72,14 +76,77 @@
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/facets/QueryExecutionUtils.js"></script>
 
+	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/collections/LabelCollection.js"></script>
+
+	<script type="text/javascript" 
+		src="src/main/javascript/ssb.utils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/utils/LabelFetcher.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/widgets/ListWidgetSparql.js"></script>
+
+	<script type="text/javascript" 
+		src="src/main/javascript/Dispatcher.js"></script>
+
 	
 	<script type="text/javascript">
 
+
+		var testListWidget = function() {
+
+			var backend = Namespace("org.aksw.ssb.backend");
+	    	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+			var widgets = Namespace("org.aksw.sbb.widgets");
+	    	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	    	var service = new backend.SparqlServiceVirtuoso("http://localhost/sparql");
+	    	var utils = Namespace("org.aksw.ssb.utils");
+	    	var facets = Namespace("org.aksw.ssb.facets");
+
+
+	    	
+	    	var labelFetcher = new utils.LabelFetcher(service, ["en"]); 
+
+	    	var driverVar = sparql.Node.v("c");
+	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
+	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+
+			var model = new widgets.ListModelSparql(service, labelFetcher, driver, labelFetcher, {distinct: true});
+			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
+
+			listWidget.bind("click", function(ev, payload) {
+				alert(payload.checked + " " + payload.item.model.get("label"));
+			});
+
+			$$.document.append(listWidget);
+			
+		};
+
+		$(document).ready(function() {
+
+			testListWidget();	
+	
+		});
+		
+		
 		/*
 		 * Fetch named graphs
 		 */		
     	$(document).ready(function() {
 
+    		var skip = true;
+    		
+    		if(skip) {
+        		return;
+    		}
+
+    		
     		var backend = Namespace("org.aksw.ssb.backend");
 	    	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
@@ -95,6 +162,12 @@
 		 */
     	$(document).ready(function() {
 
+    		var skip = true;
+    		
+    		if(skip) {
+        		return;
+    		}
+    		
     		var backend = Namespace("org.aksw.ssb.backend");
 	    	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
@@ -111,6 +184,12 @@
     	
 	    $(document).ready(function() {
 
+    		var skip = true;
+    		
+    		if(skip) {
+        		return;
+    		}
+	    	
 	    	/*
 	    	 * A test that uses SPARQL pagination
 	    	 */

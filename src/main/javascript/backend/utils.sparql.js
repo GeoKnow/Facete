@@ -22,7 +22,7 @@ ns.LabelFetcher = function(sparqlService, langs, fetchAllLangs) {
 	this.fetchAllLangs = fetchAllLangs ? fetchAllLangs : true;
 	this.sparqlService = sparqlService;
 	
-	this.cache = new LabelCollection();		
+	this.cache = new LabelCollection();
 };
 
 ns.LabelFetcher.prototype.cacheLookup = function(uris, includeAllUris) {

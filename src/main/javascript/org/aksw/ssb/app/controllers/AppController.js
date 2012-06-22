@@ -371,9 +371,9 @@
 		
 		var self = this;
 		
-		this.labelFetcher.fetch(uris).pipe(function(uriToLabel) {
+		this.labelFetcher.fetch(uris).pipe(function(data) {
 
-			self.breadcrumbWidget.controller.setBreadcrumb(breadcrumb, uriToLabel);
+			self.breadcrumbWidget.controller.setBreadcrumb(breadcrumb, data.uriToLabel);
 			self.repaint();
 
 		});

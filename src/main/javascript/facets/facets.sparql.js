@@ -1146,8 +1146,9 @@
 								console.log("Value URIs", uris, map);
 								
 								var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
-								labelFetcher.fetch(uris, true, function(idToLabel) {
+								labelFetcher.fetch(uris, true, function(data) {
 
+									var idToLabel = data.uriToLabel;
 									console.log("Facet value uris", idToLabel);
 
 								
@@ -1233,8 +1234,9 @@
 
 						//console.log("labelFetcher", $.ssb);
 						var labelFetcher = new $.ssb.utils.LabelFetcher(sparqlService);
-						labelFetcher.fetch(_.keys(map), true, function(idToLabel) {
+						labelFetcher.fetch(_.keys(map), true, function(data) {
 							
+							var idToLabel = data.uriToLabel;
 							
 							//console.log("uriToLabel", idToLabel);
 							for(var propertyName in map) {

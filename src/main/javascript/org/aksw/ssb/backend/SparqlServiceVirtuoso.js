@@ -101,9 +101,9 @@
 	
 	
 	
-	ns.SparqlServiceVirtuoso = function(serviceUrl, defaultGraphUri) {
+	ns.SparqlServiceVirtuoso = function(serviceUrl, defaultGraphUris) {
 		this.serviceUrl = serviceUrl;
-		this.defaultGraphUri = defaultGraphUri;
+		this.defaultGraphUris = defaultGraphUris ? defaultGraphUris : [];
 	};
 	
 	ns.SparqlServiceVirtuoso.prototype.executeAny = function(queryString, callback) {
@@ -111,7 +111,7 @@
 			console.error("Empty queryString - should not happen");
 		}
 		
-		var result = ns.executeQuery(this.serviceUrl, this.defaultGraphUri, queryString);
+		var result = ns.executeQuery(this.serviceUrl, this.defaultGraphUris, queryString);
 		
 		if(callback) {
 			result.done(function(data) {
@@ -173,7 +173,7 @@
 	 * @param callback
 	 * @param format
 	 */
-	ns.executeQuery = function(baseURL, defaultGraphUri, query, callback, format) {
+	ns.executeQuery = function(baseURL, defaultGraphUris, query, callback, format) {
 		if(!format) {
 			format="application/json";
 		}
@@ -185,22 +185,21 @@
 			"save": "display", "fname": ""
 		};
 		*/
-		var params={
-				"default-graph-uri": defaultGraphUri, "query": query,
-				"format": format,
-		};
+		var params = _.map(defaultGraphUris, function(item) {
+			var pair = {key: "default-graph-uri", value: item };
+			return pair;
+		});
+		
+		params.push({key: "query", value: query});
+		params.push({key: "format", value: format});
 	
 		
 		var querypart="";
-		for(var k in params) {
+		_.each(params, function(param) {
 			//querypart+=k+"="+encodeURI(params[k])+"&";
-			querypart+=k+"="+encodeURIComponent(params[k])+"&";
-		}
-		//var queryURL=baseURL + '?' + querypart;
-		
-		//return $.ajax(queryURL, callback);
-		//console.log(baseURL, querypart);
-		
+			querypart+=param.key+"="+encodeURIComponent(param.value)+"&";
+		});
+
 		return $.post(baseURL, querypart, callback);
 	};
 

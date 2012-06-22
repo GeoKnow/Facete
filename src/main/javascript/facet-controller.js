@@ -231,32 +231,6 @@ function computeTreeStructureRec(node, key, classHierarchy, outKeyHierarchy, out
 }
 
 
-function LabelCollection() {
-	this.uriToLangToLabel = {};
-	
-	this.get = function(uri, lang) {
-		if(uri in this.uriToLangToLabel && lang in this.uriToLangToLabel[uri]) {
-			return this.uriToLangToLabel[uri][lang];
-		}
-	};
-	
-	this.put = function(uri, lang, label) {
-		//console.log(uri + " x " + lang + " x " + label);
-		if(!(uri in this.uriToLangToLabel)) {
-			this.uriToLangToLabel[uri] = {};
-		}
-		
-		var old = this.uriToLangToLabel[uri][lang];
-		
-		//if(!old || !)
-		if(!old || !old === label) {
-			this.uriToLangToLabel[uri][lang] = label;
-			Dispatcher.fireEvent("labelChanged", {u: uri, l: lang, o: old, n:label});
-		}
-	};
-}
-
-
 function MapCollection() {
 	this.map = {};
 	

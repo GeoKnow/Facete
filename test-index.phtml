@@ -16,6 +16,8 @@
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
+		<link rel="stylesheet" href="lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" /> 
+
         <script type="text/javascript"
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
@@ -102,7 +104,7 @@
 
 			var backend = Namespace("org.aksw.ssb.backend");
 	    	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
-			var widgets = Namespace("org.aksw.sbb.widgets");
+			var widgets = Namespace("org.aksw.ssb.widgets");
 	    	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	    	var service = new backend.SparqlServiceVirtuoso("http://localhost/sparql");
 	    	var utils = Namespace("org.aksw.ssb.utils");
@@ -117,7 +119,7 @@
 	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
 	    	var driver = new facets.Driver(driverElement, driverVar);
 
-			var model = new widgets.ListModelSparql(service, labelFetcher, driver, labelFetcher, {distinct: true});
+			var model = new widgets.ListModelSparql(service, labelFetcher, driver, {distinct: true});
 			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
 
 			listWidget.bind("click", function(ev, payload) {

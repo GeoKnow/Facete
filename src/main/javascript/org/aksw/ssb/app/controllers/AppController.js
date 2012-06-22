@@ -317,6 +317,9 @@
 		
 		// Do layout
 		$(window).resize();
+		
+		
+		this.loadStartTab();
 	};
 	
 	
@@ -344,8 +347,43 @@
 	 * 
 	 * 
 	 */
-	ns.AppController.loadStartTab = function() {
+	ns.AppController.prototype.loadStartTab = function() {
 		
+		{
+	    	var driverVar = sparql.Node.v("c");
+	    	var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+	
+	    	console.log("Widget Ns", widgets);
+	    	
+			var model = new widgets.ListModelSparql(this.sparqlService, this.labelFetcher, driver, {distinct: true});
+			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
+	
+			listWidget.bind("click", function(ev, payload) {
+				alert(payload.checked + " " + payload.item.model.get("label"));
+			});
+	
+			$$.document.append(listWidget, $("#ssb-graph-selection"));
+		}
+
+		{
+	    	var driverVar = sparql.Node.v("c");
+	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+	
+			var model = new widgets.ListModelSparql(this.sparqlService, this.labelFetcher, driver, {distinct: true});
+			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
+	
+			listWidget.bind("click", function(ev, payload) {
+				alert(payload.checked + " " + payload.item.model.get("label"));
+			});
+	
+			$$.document.append(listWidget, $("#ssb-class-selection"));
+		}
+		
+		
+    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+
 	};
 	
 	ns.AppController.prototype.setNavigationBreadcrumb = function(breadcrumb) {

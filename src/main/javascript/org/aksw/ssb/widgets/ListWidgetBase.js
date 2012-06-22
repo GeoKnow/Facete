@@ -1,6 +1,6 @@
 (function($) {
 
-	var ns = Namespace("org.aksw.sbb.widgets");
+	var ns = Namespace("org.aksw.ssb.widgets");
 	
 	ns.agilityJsIndexChildren = function(parent) {
 		var result = {};
@@ -21,7 +21,7 @@
 	};
 	
 	ns.listWidget = $$({
-		view: { format: "<ul></ul>" },
+		view: { format: '<ul class="nav nav-list"></ul>', },
 		model: {itemFactory: ns.ItemFactoryString},
 		controller: {},
 

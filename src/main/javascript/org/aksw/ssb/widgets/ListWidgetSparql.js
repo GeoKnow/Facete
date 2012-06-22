@@ -1,15 +1,15 @@
-(function() {
+(function($) {
 	
 
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
-	var ns = Namespace("org.aksw.sbb.widgets");
+	var ns = Namespace("org.aksw.ssb.widgets");
 	
 	ns.CheckItem = $$({}, '<li>'
-					+ '<form action="">'
-					+ '<input type="checkbox" data-bind="isEnabled"/>'
-					+ '<span data-bind="label"/>'
-					+ '</form>'
+					//+ '<form action="">'
+					+ '<input type="checkbox" data-bind="isEnabled"/><span data-bind="label"/>'
+					//+ '<span data-bind="label"/>'
+					//+ '</form>'
 					+ '</li>',
 					{
 						'click input': function() {
@@ -28,7 +28,7 @@
 
 	//ns.refreshList(list, )
 
-	ns.ListModelSparql = function(sparqlService, labelFetcher, driver, itemFactory, options) {
+	ns.ListModelSparql = function(sparqlService, labelFetcher, driver, options) {
 		this.sparqlService = sparqlService;
 		this.labelFetcher = labelFetcher;
 		this.driver = driver;
@@ -77,4 +77,4 @@
 
 	
 	
-})();
+})(jQuery);

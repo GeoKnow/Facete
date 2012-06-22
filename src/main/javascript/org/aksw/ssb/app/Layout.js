@@ -195,5 +195,7 @@ var ns = {};
     	
     	$("#language-switcher").val(config.lang);
    	};
+   	
+   	
 
 })(jQuery);

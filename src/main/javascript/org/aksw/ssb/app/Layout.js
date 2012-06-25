@@ -53,48 +53,110 @@ var ns = {};
 	};
 	
 	
+	var ns = {};
+	
+	ns.innerHeight = function(element) {
+		return element.innerHeight(); 
+	};
+	
+	ns.outerHeight = function(element) {
+		return element.outerHeight(true);
+	};
+	
+	ns.innerWidth = function(element) {
+		return element.innerWidth();
+	};
+	
+	ns.outerWidth = function(element) {
+		return element.outerWidth(true);
+	};
+	
+	ns.calcDim = function(element, innerDim, outerDim) {
+		var parent = element.parent();
+		var children = parent.children();
+	
+		var parentDim = outerDim(parent);
+		var childrenDim = 0;
+		
+		var otherSiblings = $(element).otherSiblings();
+		
+		otherSiblings.each(function(i) {
+			var child = $(this);
+			
+			var childDim = child.is(":visible") ? outerDim(child) : 0;
+			//console.log("childHeight: " + childHeight, child);
+			childrenDim += childDim;
+		});
+
+		var space = outerDim(element) - innerDim(element);
+		
+		var elementDim = parentDim - childrenDim - space;
+		if(elementDim < 0) {
+			elementDim = 0;
+		}
+		
+		//element.css("height", elementHeight + "px");
+		return elementDim;
+	};
+
+
+	
 	/**
 	 * Resizes an element to take the remaining space by substracting the height from all children from that of the parent.
 	 * 
 	 * 
 	 * 
 	 */
-	$.fn.autoHeight = function() {
-			
+	$.fn.autoHeight = function() {			
 		var element = $(this[0]);
 		
-		var result = function() {
-			var parent = element.parent();
-			var children = parent.children();
-		
-			var parentHeight = parent.outerHeight(true);
-			var childrenHeight = 0;
-			
-			var otherSiblings = $(element).otherSiblings();
-			
-			otherSiblings.each(function(i) {
-				var child = $(this);
-				
-				var childHeight = child.is(":visible") ? child.outerHeight(true) : 0;
-				//console.log("childHeight: " + childHeight, child);
-				childrenHeight += childHeight;
-			});
+		$(window).resize(function() {
+			var height = ns.calcDim(element, ns.innerHeight, ns.outerHeight);
+			console.log("Heightcalc", element, height);
+			element.css("height", height + "px");
+		});		
+	};
 	
-			var space = element.outerHeight(true) - element.innerHeight();
-			
-			var elementHeight = parentHeight - childrenHeight - space;
-			if(elementHeight < 0) {
-				elementHeight = 0;
-			}
-			
-			element.css("height", elementHeight + "px");
-		};
+	
+	$.fn.autoWidth = function() {
+		var element = $(this[0]);
+
+		$(window).resize(function() {
+			var width = ns.calcDim(element, ns.innerWidth, ns.outerWidth);
+			element.css("width", width + "px");
+		});
 		
-		$(window).resize(result);
-		
-		return result;
 	};
 
+	
+
+	/*
+	var result = function() {
+		var parent = element.parent();
+		var children = parent.children();
+	
+		var parentHeight = parent.outerHeight(true);
+		var childrenHeight = 0;
+		
+		var otherSiblings = $(element).otherSiblings();
+		
+		otherSiblings.each(function(i) {
+			var child = $(this);
+			
+			var childHeight = child.is(":visible") ? child.outerHeight(true) : 0;
+			//console.log("childHeight: " + childHeight, child);
+			childrenHeight += childHeight;
+		});
+
+		var space = element.outerHeight(true) - element.innerHeight();
+		
+		var elementHeight = parentHeight - childrenHeight - space;
+		if(elementHeight < 0) {
+			elementHeight = 0;
+		}
+		
+		element.css("height", elementHeight + "px");
+	};*/
 })(jQuery);
 
 
@@ -118,8 +180,31 @@ var ns = {};
 		//$("#wrapper").autoHeight();
 		//$("#main").autoHeight();
 		//$("#ssb-breadcrumb").autoHeight();
+
+		//$("#content").autoHeight();
+		
+		/*
+		$( ".positionable" ).position({
+			of: $( "#parent" ),
+			my: $( "#my_horizontal" ).val() + " " + $( "#my_vertical" ).val(),
+			at: $( "#at_horizontal" ).val() + " " + $( "#at_vertical" ).val(),
+			offset: $( "#offset" ).val(),
+			collision: $( "#collision_horizontal" ).val() + " " + $( "#collision_vertical" ).val()
+		});*/
+		
+		$("#main").autoHeight();
+		
+		//$("#tabs").autoHeight();
 		$("#ssb-nav-tabs-content").autoHeight();
+		
+		//$("#ssb-main-content").autoWidth();
+
+		
 		$("#map").autoHeight();
+		
+		$("#ssb-tabs-start").autoHeight();
+		$("#ssb-tabs-start-content").autoHeight();
+		
 		
 		
 		$("#language-switcher").change(function() {

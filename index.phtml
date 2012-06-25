@@ -49,8 +49,8 @@
         
         <link rel="stylesheet" type="text/css" href="src/main/resources/css/style.css" />
 
-<!--         <link rel="stylesheet" type="text/css" -->
-<!--             href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" /> -->
+        <link rel="stylesheet" type="text/css"
+            href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" />
 
 <!--         <link rel="stylesheet" type="text/css" -->
 <!--             href="lib/jquery-ui/1.8.16/themes/base/jquery.ui.tabs.css" /> -->
@@ -83,8 +83,8 @@
             src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
 
 
-        <script type="text/javascript"
-            src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script>
+<!--         <script type="text/javascript" -->
+<!--             src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script> -->
 
 <!--         <script type="text/javascript" -->
 <!--             src="lib/dynatree/1.2.0_rc1/src/jquery.dynatree.js"></script> -->
@@ -406,6 +406,19 @@
 		    // Enable the first tab
 	    	$('#tabs a:first').tab('show');
 
+		    
+			//$("#ssb-navbar").resizable();
+
+		    // Enable tabs: start
+	    	$('#ssb-tabs-start > ul > li > a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+		    // Enable the first tab
+	    	$('#ssb-tabs-start a:first').tab('show');
+
+		    
 	    	//$(".collapse").collapse();
 	    	
 			// Make the fact box closable
@@ -418,6 +431,12 @@
                 $("#box-resources").fadeOut ('slow');
             });
 
+
+			$("#box-facts").position({of: $("#map")});
+			$("#box-resources").position({of: $("#map")});
+			//$("#box-resources").position({of: $("#map"));
+			
+			//$("#box-facts").resizable();
     		
 	    	//$("#tabs").tabs();
 		    /* 
@@ -459,202 +478,139 @@
 	</script>
 
     </head>
-    <body>
+<body>
 
 
 	<div id="wrapper">
-	    <div id="header">
-	    
-	    	<!--#xxxinclude file="odp-header.shtml" -->
-	    
-			<img src="src/main/resources/images/logo_european_commision.gif" id="header-logo"/>
+		<div id="header">
+
+
+			<img src="src/main/resources/images/logo_european_commision.gif"
+				id="header-logo" />
 			<div id="header-headline">
-			    <a href="">Open Data Portal</a>
+				<a href="">Open Data Portal</a>
 			</div>
-			<div id="header-abstract">
-			    Spatial Browser
-			</div>
+			<div id="header-abstract">Spatial Browser</div>
 			<div id="header-menu-right">
-			    <a id="org.ec.odp.ssb.ui.label.legal-notice" href="#">Legal Notice</a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.contact">Contact</span></a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.search">Search</span></a> 
-			    <select name="lang" id="language-switcher">
-				<option value="#">Čeština</option>
-				<option value="#">Dansk</option>
-				<option value="de">Deutsch</option>
-				<option value="#">Ελληνικά</option>
-				<option value="en" selected="selected">English</option>
-				<option value="#">Eesti</option>
-				<option value="#">Español</option>
-				<option value="#">Français</option>
-				<option value="#">Gaeilge</option>
-			    </select>
+				<a id="org.ec.odp.ssb.ui.label.legal-notice" href="#">Legal Notice</a>
+				| <a href="#"><span id="org.ec.odp.ssb.ui.label.contact">Contact</span>
+				</a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.search">Search</span>
+				</a> <select name="lang" id="language-switcher">
+					<option value="#">Čeština</option>
+					<option value="#">Dansk</option>
+					<option value="de">Deutsch</option>
+					<option value="#">Ελληνικά</option>
+					<option value="en" selected="selected">English</option>
+					<option value="#">Eesti</option>
+					<option value="#">Español</option>
+					<option value="#">Français</option>
+					<option value="#">Gaeilge</option>
+				</select>
 			</div>
 			<div id="header-blueblock">&nbsp;</div>
-	    </div>        
-
-
-	    
-	    <div id="main">
-
-		<div id="filtersAndMap">
-	    	
-	    	
-<!-- 	    	<div id="ssb-filters"> -->
-	    		<div id="ssb-breadcrumb"></div>
-	    		<div id="ssb-constraints"></div>
-	    		
-<!-- 	    	    <ul class="breadcrumb"> -->
-<!-- 	    	    	<li>Showing:</li> -->
-<!-- 				    <li><a href="#">geo</a> <span class="divider">/</span></li> -->
-<!-- 				    <li><a href="#">sameAs<sup>-1</sup></a> <span class="divider">/</span> -->
-<!-- 				    <li><a href="#">city<sup>-1</sup></a> <span class="divider">/</span> -->
-<!-- 				    </li><li class="active">beneficiary<sup>-1</sup></li></ul> -->
-<!-- 	    	</div> -->
-	    	
-	    	
-			<div id="map">
-				<div id="box-resources">
-					<div style="font-size: 24px;">
-						<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
-						<i id="box-resources-closebutton-img" class="icon-remove-sign"></i>
-					</div>
-				</div>
-				
-				<div id="box-facts">
-					<div style="font-size: 24px;">
-						<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
-						<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
-					</div>
-				</div>
-			</div>
 		</div>
 
-		<div id="tabs">
-		    
-<!-- 		    <div id="tabs-links"> -->
-<!--                 <a id="tabs-instances"> -->
-<!--                     <div id="org.aksw.ssb.ui.label.instances-tab">Instances</div></a> -->
-<!--                 <a id="tabs-facets"> -->
-<!--                     <div id="org.aksw.ssb.ui.label.facets-tab">Facets</div></a> -->
-<!--                 <a id="tabs-types"> -->
-<!--                     <div id="org.aksw.ssb.ui.label.types-tab">Types</div></a> -->
-<!--                 <a id="tabs-places"> -->
-<!--                     <div id="org.aksw.ssb.ui.label.places-tab">Places</div></a> -->
-<!--             </div> -->
-<!-- 		    <div id="tabs-links"> -->
-<!-- 		    	<ul class="tabs-header"> -->
-				<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs"> 
-					<li id="tabs-header-start"><a href="#tabs-content-start"><span id="org.aksw.ssb.ui.label.start-tab">Start</span></a></li>
-				
-	                <li id="tabs-header-instances"><a href="#tabs-content-instances"><span id="org.aksw.ssb.ui.label.instances-tab">Instances</span></a></li>
-	                <li id="tabs-header-facets"><a href="#tabs-content-facets"><span id="org.aksw.ssb.ui.label.facets-tab">Facets</span></a></li>
-<!-- 	                <li id="tabs-header-types"><a href="#tabs-content-types"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></li> -->
-	                <li id="tabs-header-places"><a href="#tabs-content-places"><span id="org.aksw.ssb.ui.label.places-tab">Places</span></a></li>
-            	</ul>
-<!--             </div> -->
-
-		    
-		   		<div id="ssb-nav-tabs-content" class="tab-content">
-		   	
-		   			<div id="tabs-content-start" class="tab-pane">
 
 
+		<div id="main" style="position:relative; width: 100%; height: 100%">
+			<!-- <div class="row-fluid" style="height:100%"> -->
+			<div id="ssb-navbar" style="position: absolute; top: 0px; left: 0px; width: 300px; height: 100%;">
 
-						<div class="accordion" id="accordion2">
-							<div class="accordion-group">
-								<div class="accordion-heading">
-									<a class="accordion-toggle" data-toggle="collapse"
-										data-parent="#accordion2" href="#collapseOne">Graph Selection</a>
-								</div>
-								<div id="collapseOne" class="accordion-body collapse in">
-									<div id="ssb-graph-selection" class="accordion-inner"></div>
+				<div id="tabs" style="height: 100%; width: 100%;">
 
-								</div>
-							</div>
-							<div class="accordion-group">
-								<div class="accordion-heading">
-									<a class="accordion-toggle" data-toggle="collapse"
-										data-parent="#accordion2" href="#collapseTwo">Class Selection</a>
-								</div>
-								<div id="collapseTwo" class="accordion-body collapse">
+					<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs">
+						<li id="tabs-header-start"><a href="#tabs-content-start"><span
+								id="org.aksw.ssb.ui.label.start-tab">Start</span> </a></li>
 
-									<div id="ssb-class-selection" class="accordion-inner"></div>
-							</div>
-							<div class="accordion-group">
-								<div class="accordion-heading">
-									<a class="accordion-toggle" data-toggle="collapse"
-										data-parent="#accordion2" href="#collapseThree"> Collapsible
-										Group Item #3 </a>
+						<li id="tabs-header-instances"><a href="#tabs-content-instances"><span
+								id="org.aksw.ssb.ui.label.instances-tab">Instances</span> </a></li>
+						<li id="tabs-header-facets"><a href="#tabs-content-facets"><span
+								id="org.aksw.ssb.ui.label.facets-tab">Facets</span> </a></li>
+						<!-- 	                <li id="tabs-header-types"><a href="#tabs-content-types"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></li> -->
+						<li id="tabs-header-places"><a href="#tabs-content-places"><span
+								id="org.aksw.ssb.ui.label.places-tab">Places</span> </a></li>
+					</ul>
+					<!--             </div> -->
 
-								</div>
-								<div id="collapseThree" class="accordion-body collapse">
-									<div class="accordion-inner">Anim pariatur cliche
-										reprehenderit, enim eiusmod high life accusamus terry
-										richardson ad squid. 3 wolf moon officia aute, non cupidatat
-										skateboard dolor brunch. Food truck quinoa nesciunt laborum
-										eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on
-										it squid single-origin coffee nulla assumenda shoreditch et.
-										Nihil anim keffiyeh helvetica, craft beer labore wes anderson
-										cred nesciunt sapiente ea proident. Ad vegan excepteur butcher
-										vice lomo. Leggings occaecat craft beer farm-to-table, raw
-										denim aesthetic synth nesciunt you probably haven't heard of
-										them accusamus labore sustainable VHS.</div>
+
+					<div id="ssb-nav-tabs-content" class="tab-content">
+
+						<div id="tabs-content-start" class="tab-pane">
+
+							<div id="ssb-tabs-start" class="tab-content">
+								<ul class="nav nav-tabs ssb-nav-tabs">
+									<li><a href="#ssb-graph-selection"><span
+											id="org.aksw.ssb.ui.label.graph-selection-tab">Graphs</span>
+									</a></li>
+									<li><a href="#ssb-class-selection"><span
+											id="org.aksw.ssb.ui.label.class-selection-tab">Classes</span>
+									</a></li>
+								</ul>
+								<div id="ssb-tabs-start-content" class="tab-content">
+									<div id="ssb-graph-selection" class="tab-pane"></div>
+									<div id="ssb-class-selection" class="tab-pane"></div>
 								</div>
 							</div>
 						</div>
 
-					</div>
-		   		</div>
-			    <div id="tabs-content-instances" class="tab-pane">
-	<!--                 <div class="tabdiv" id="instances-tab"> -->
-	                    <!-- <div id="instances"></div>  -->
-	<!--                 </div> -->
-			    </div>
-			    <div id="tabs-content-facets" class="tab-pane">
-	<!--                <div class="tabdiv" id="facets-tab" style="max-height:200px"></div> -->
-			    </div>
-<!-- 			    <div id="tabs-content-types" class="tab-pane"> -->
-	<!--                 <div class="tabdiv" id="types-tab"> -->
-	<!--                     <form> -->
-	<!--                         <input type="radio" name="type" value="http://ssb.org/facet/project"/> Projects -->
-	<!--                         <input type="radio" name="type" value="http://ssb.org/facet/subvention"/> Subventions -->
-	<!--                     </form> -->
-	<!--                 </div> -->
-<!-- 			    </div> -->
-					<div id="tabs-content-places" class="tab-pane">
-						<!--                 <div>  -->
-						<div class="tabdiv" id="places-tab">
-							<div>
-								<form id="box-places-searchform"
-									action="javascript: doSearch();">
-									<input type="text" id="search-field" name="search-field"
-										value="" autocomplete="off" style="width: 200px;" /> <input type="image"
-										src="src/main/resources/images/search.png" class="ssb-icon" />
-								</form>
-							<p style="font-size: 11px;">
-								powered by <a href="http://nominatim.openstreetmap.org"
-									target="_blank">Nominatim</a>
-							</p>
+
+						<div id="tabs-content-instances" class="tab-pane"></div>
+						<div id="tabs-content-facets" class="tab-pane"></div>
+						<div id="tabs-content-places" class="tab-pane">
+							<!--                 <div>  -->
+							<div class="tabdiv" id="places-tab">
+								<div>
+									<form id="box-places-searchform"
+										action="javascript: doSearch();">
+										<input type="text" id="search-field" name="search-field"
+											value="" autocomplete="off" style="width: 200px;" /> <input
+											type="image" src="src/main/resources/images/search.png"
+											class="ssb-icon" />
+									</form>
+									<p style="font-size: 11px;">
+										powered by <a href="http://nominatim.openstreetmap.org"
+											target="_blank">Nominatim</a>
+									</p>
+								</div>
+								<div id="searchResults"></div>
 							</div>
-							<div id="searchResults"></div>
+							<!--                 </div>  -->
 						</div>
-						<!--                 </div>  -->
+
 					</div>
 
 				</div>
+			</div>
+			<div id="ssb-main-content"
+				style="position: absolute; top: 0px; bottom: 0px; left: 300px; right: 0px;">
+
+				<div id="filtersAndMap" style="height: 100%; width: 100%;">
+
+					<div id="ssb-breadcrumb"></div>
+					<div id="ssb-constraints"></div>
+					<div id="map" style="position:relative"></div>
 				</div>
-
-<!-- 		<div id="box-test"> -->
-<!--             <div id="box-test-closebutton"> -->
-<!--                 <img src="images/cross.svg" id="box-test-closebutton-img"/> -->
-<!--             </div> -->
-<!--         </div> -->
+			</div>
 
 
-		
-	    </div>
-    
+		</div>
 	</div>
-	
-	
-    </body>
+
+
+	<div id="box-resources">
+		<div style="font-size: 24px;">
+			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
+			<i id="box-resources-closebutton-img" class="icon-remove-sign"></i>
+		</div>
+	</div>
+
+	<div id="box-facts">
+		<div style="font-size: 24px;">
+			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
+			<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
+		</div>
+	</div>
+
+
+</body>
 </html>

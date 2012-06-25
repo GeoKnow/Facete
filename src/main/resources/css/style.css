@@ -50,11 +50,18 @@ a:active {
     color: #6386A4;
 }
 
+
 #main {
-    height: 100%;
+/* 	position: static; */
+    /* height: 100%; */
 }
 
-#wrapper { 
+#wrapper .container-fluid {
+	padding: 0px 0px !important;
+}
+
+#wrapper {
+	position: absolute;
     width: 100%;
     height: 100%; 
     margin: 0px; 
@@ -65,7 +72,7 @@ a:active {
  * header related stuff ------------------------------------------------
  */
 #header { 
-    float: left; 
+    /*float: left;*/ 
     width: 100%;
     height: 116px; 
     display: block; 
@@ -151,15 +158,6 @@ a:active {
     margin-left: 8px;
 }
 
-/** */
-#filtersAndMap {
-    position: absolute; 
-    top: 133px; 
-    right: 0px; 
-    left: 270px;
-    bottom: 10px;
-}
-
 
 /* [HACK] This is required as otherwise our $.autoHeight() will give */
 /* incorrect heights as it does not consider margins of child elements that */
@@ -184,15 +182,14 @@ a:active {
 
 /** */
 #tabs {
-    position: absolute; 
-    left: 0px;
-	top: 133px; 
-    bottom: 10px;
+/*     position: absolute;  */
+/*     left: 0px; */
+/* 	top: 133px;  */
+/*     bottom: 10px; */
     width: 260px; 
-    max-width: 260px;
 /*     width: 300px;  */
 /*     max-width: 300px; */
-	float: left;
+/* 	float: left; */
 /*     overflow-y: auto; */
 	overflow: hidden;
     padding: 0px;
@@ -210,6 +207,10 @@ a:active {
 	height: auto;
 }
 
+#tabs-content-start {
+	height: 100%;
+	overflow: auto;
+}
 
 .ssb-nav-tabs > li > a {
 	padding: 8px;
@@ -435,7 +436,7 @@ a:active {
 #box-facts {
     position: absolute; 
     right: 0px; 
-    top: 30px;
+    top: 0px;
     margin-right: 10px;
     width: 45%; 
     max-height: 75%;
@@ -514,11 +515,12 @@ a:active {
 	height: auto;
 }
 
-#map {
-	position: relative;
-	top: 0px;
-	left: 0px;
-}
+
+/* #map { */
+/* 	position: relative; */
+/* 	top: 0px; */
+/* 	left: 0px; */
+/* } */
 
 
 

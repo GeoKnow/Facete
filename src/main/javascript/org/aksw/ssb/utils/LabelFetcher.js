@@ -80,7 +80,7 @@
 				callback(result);
 			}
 			defer = $.Deferred();
-			defer.resolve(result);
+			defer.resolve({uris: uris, uriToLabel: result});
 			//defer.promise();
 			return defer.promise();
 		}
@@ -152,6 +152,7 @@
 	 * A static function that fetches labels of the given set of uris.
 	 * 
 	 */
+	/*
 	ns.fetchLabels = function(uris, languages, callback) {		
 		uris = filterUrisValidate(uris);
 		
@@ -175,6 +176,6 @@
 				callback(map);				
 			}	
 		});	
-	}
+	}*/
 
 })(jQuery);

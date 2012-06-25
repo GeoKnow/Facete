@@ -49,7 +49,7 @@
 					
 					
 					refresh: function() {
-						model.getLabels().pipe();
+						//model.getLabels().pipe();
 					},
 					
 					setBreadcrumb: function(breadcrumb, uriToLabel) {

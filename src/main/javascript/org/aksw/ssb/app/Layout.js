@@ -112,7 +112,6 @@ var ns = {};
 		
 		$(window).resize(function() {
 			var height = ns.calcDim(element, ns.innerHeight, ns.outerHeight);
-			console.log("Heightcalc", element, height);
 			element.css("height", height + "px");
 		});		
 	};

@@ -19,16 +19,16 @@
 //	};
 //	
 	
-	ns.createBreadcrumbItem = function(breadcrumb, label, callbacks) {
+	ns.createStepItem = function(path, label, callbacks) {
 		var result = $$(
-				{breadcrumb: breadcrumb, label: label, callbacks: callbacks},
+				{path: path, label: label, callbacks: callbacks},
 				'<li><span class="divider">/</span> <a href="#" data-bind="label" /></li>',
 				{
 					'click a': function() {
 						var callbacks = this.model.get("callbacks");
-						var breadcrumb = this.model.get("breadcrumb");
+						var path = this.model.get("path");
 						
-						callbacks.onNavigate(breadcrumb);
+						callbacks.onNavigate(path);
 					}
 				});
 		
@@ -52,7 +52,7 @@
 						//model.getLabels().pipe();
 					},
 					
-					setBreadcrumb: function(breadcrumb, uriToLabel) {
+					setPath: function(path, uriToLabel) {
 						var callbacks = this.model.get("callbacks");
 						
 						
@@ -60,12 +60,12 @@
 							child.destroy();
 						});
 						
-						var item = ns.createBreadcrumbItem(facets.Breadcrumb.fromPath(breadcrumb.pathManager, new facets.Path()), "home", callbacks);						
+						var item = ns.createStepItem(new facets.Path(), "home", callbacks);						
 						this.append(item);
 
 						
 						
-						var steps = breadcrumb.getPath().getSteps();
+						var steps = path.getSteps();
 						
 						//var bc = new facets.Breadcrumb.fromString(breadcrumb.pathManager, "");
 						var array = [];
@@ -80,10 +80,11 @@
 							var name = step.propertyName;
 							var label = name in uriToLabel ? uriToLabel[name].value : name;
 							
-							var bc = facets.Breadcrumb.fromPath(breadcrumb.pathManager, new facets.Path(array));
+							//var bc = facets.Breadcrumb.fromPath(breadcrumb.pathManager, new facets.Path(array));
 							//console.log("Status", name, label, bc, array, step);
-
-							var item = ns.createBreadcrumbItem(bc, label, callbacks);
+							var path = new facets.Path(array);
+							
+							var item = ns.createStepItem(path, label, callbacks);
 							
 							this.append(item);
 						}

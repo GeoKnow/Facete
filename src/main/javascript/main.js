@@ -110,7 +110,8 @@
 		// LGD-TEST
 		var baseStr = "";
 		
-		
+		var geoPath = facets.Path.fromString(baseStr);
+		var navigationPath = facets.Path.fromString("");
 		
 		
 		//var pathStrX = baseStr + " " + geo.long.value;
@@ -121,24 +122,24 @@
 		//var typeBc = new facets.Breadcrumb.fromString(pathManager, rdf.type.value);
 		
 		
-		var breadcrumb = new facets.Breadcrumb.fromString(pathManager, baseStr);
+		//var breadcrumb = new facets.Path.fromString(pathManager, baseStr);
 		//var breadcrumbX = new facets.Breadcrumb.fromString(pathManager, pathStrX);
 		//var breadcrumbY = new facets.Breadcrumb.fromString(pathManager, pathStrY);
 		
 		
-		var navigationBreadcrumb = new facets.Breadcrumb.fromString(pathManager, ""); 
+		//var navigationPath = new facets.Path.fromString(pathManager, ""); 
 
 		
-		var e = breadcrumb.getTriples();
+		//var e = breadcrumb.getTriples();
 		//console.log("Breadcrumb:", breadcrumb);
 		//console.log("XXXXX:", e.toString());
 	
 		
-		var constraint = new facets.ConstraintEquals(breadcrumb, new sparql.NodeValue.makeNode(sparql.Node.uri("http://test.org")));
+		//var constraint = new facets.ConstraintEquals(geoPath, new sparql.NodeValue.makeNode(sparql.Node.uri("http://test.org")));
 		
 		//console.log("Constraint:", constraint.getExpr());
 		
-		var factory = new facets.ConstraintWgs84.Factory(breadcrumb);//breadcrumbX, breadcrumbY);
+		var factory = new facets.ConstraintWgs84.Factory(geoPath);//breadcrumbX, breadcrumbY);
 		
 		var bounds = new qt.Bounds(0, 1, 2, 4);
 		var c2 = factory.create(bounds);
@@ -165,7 +166,7 @@
 				queryGenerator: {
 					driver: driver,
 					//driverVar: s,
-					navigationBreadcrumb: navigationBreadcrumb,
+					navigationPath: navigationPath,
 					pathManager: pathManager,
 					geoConstraintFactory: factory,
 					constraints: constraints

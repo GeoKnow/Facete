@@ -3,6 +3,8 @@
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
+	var widgets = Namespace("org.aksw.ssb.widgets");
+
 	/*
 	var facets = Namespace("org.aksw.ssb.facets");
 
@@ -14,6 +16,246 @@
 	*/
 
 	var ns = Namespace("org.aksw.ssb.app.controllers");
+	
+	
+	
+	/**
+	 * New approach: A GeoQueryFactory is an extension of a QueryFactory. 
+	 * 
+	 * @param queryGenerator
+	 * @param geoConstraintFactory
+	 * @param options
+	 * @returns {ns.QueryGeneratorGeo}
+	 */
+	ns.QueryGeneratorGeo = function(queryGenerator, geoConstraintFactory, options) {
+		this.queryGenerator = queryGenerator;
+		this.geoConstraintFactory = geoConstraintFactory;
+		this.options = options;
+	};
+			
+	/*
+	 * Pass-Through methods
+	 * 
+	 * Maybe it makes sense to switch to some inheritance scheme:
+	 * The question is, whether a QueryGeneratorGeo should be a subclass of QueryGenerator, or whether composition is better.
+	 * Actually, composition seems fine for now.
+	 */
+	ns.QueryGeneratorGeo.prototype.setNavigationPath = function(path) {
+		this.queryGenerator.setNavigationPath(path);
+	};
+
+	
+	ns.QueryGeneratorGeo.prototype.getInferredDriver = function() {
+		return this.queryGenerator.getInferredDriver();
+	};
+	
+	ns.QueryGeneratorGeo.prototype.getConstraints = function() {
+		return this.queryGenerator.getConstraints();
+	};
+
+	ns.QueryGeneratorGeo.prototype.getFocusPath = function() {
+		return this.queryGenerator.getFocusPath();
+	};
+
+	ns.QueryGeneratorGeo.prototype.getNavigationPath = function() {
+		return this.queryGenerator.getNavigationPath();
+	};
+
+	ns.QueryGeneratorGeo.prototype.getPathManager = function() {
+		return this.queryGenerator.getPathManager();
+	};
+	
+	ns.QueryGeneratorGeo.prototype.getNavigationBreadcrumb = function() {
+		return this.queryGenerator.getNavigationBreadcrumb();
+	};
+
+	ns.QueryGeneratorGeo.prototype.getGeoBreadcrumb = function() {
+		var result = new facets.Breadcrumb(this.getPathManager(), this.geoConstraintFactory.getPath());
+		
+		return result;
+	};
+	
+	ns.QueryGeneratorGeo.prototype.clone = function() {
+		return new ns.QueryGeneratorGeo(this.queryGenerator.clone(), this.geoConstraintFactory, this.options);
+	};
+	
+	ns.QueryGeneratorGeo.prototype.createDriverValues = function() {
+		return this.queryGenerator.createDriverValues();
+	};
+	
+	
+	
+	/**
+	 * Returns an element without constraints on the geoms.
+	 * Note that the geo-related triples will still be there by default.
+	 * 
+	 * FIXME: Should there be an option to disable that?
+	 * 
+	 * @param options
+	 */
+	ns.QueryGeneratorGeo.prototype.forGlobal = function(options) {
+
+		var oldDriver = this.createDriverValues();
+		
+		var group = new sparql.ElementGroup();
+		group.elements.push(oldDriver.getElement());
+		
+		var geoElement = this._createGeoElement();
+		if(geoElement.triples.length > 0) {
+			group.elements.push(geoElement);
+		}
+		
+		
+		var newDriver = new facets.Driver(group, oldDriver.getVariable());
+		
+		var result = new widgets.QueryGenerator(
+				newDriver,
+				this.getNavigationPath(),
+				this.getFocusPath(),
+				this.getConstraints(),
+				this.getPathManager());
+		
+		//alert("RESULT " + result.createDriverValues());
+		
+		return result;
+	};
+
+	ns.QueryGeneratorGeo.prototype.forBounds = function(bounds, options) {
+		var filter = this._createGeoElementBounds(bounds);
+		var result = this._forFilter(filter);
+		return result;
+	};
+	
+	ns.QueryGeneratorGeo.prototype.forGeoms = function(geomUriNodes, options) {
+
+		
+		//var geomVar = this.geoConstraintFactory.geomVar;
+		var geomVar = this.getGeoBreadcrumb().getTargetVariable(); //sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+		
+		var geoElement = this._createGeoElement();
+		var filter = new sparql.ElementFilter(new sparql.E_In(geomVar, geomUriNodes));
+		
+		var element = new sparql.ElementGroup([geoElement, filter]);
+		
+		
+		var result = this._forFilter(element);
+		return result;		
+	};
+	
+	
+	/**
+	 * Common code for forBounds and forGeoms.
+	 */
+	ns.QueryGeneratorGeo.prototype._forFilter = function(filter, options) {
+		var inferredDriver = this.getInferredDriver();
+		
+		var tmpElement = new sparql.ElementGroup();
+		tmpElement.elements.push(inferredDriver.element);
+		tmpElement.elements.push(filter);
+				
+		var newElement;
+		if(options && options.geoSubQuery) {
+			var subQuery = new sparql.ElementSubQuery();
+			
+			//var geomVar = this.geoConstraintFactory.geomVar;
+			var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+			
+			subQuery.projectVars.add(geomVar);
+			subQuery.elements.push(tmpElement);
+			
+			newElement = new sparql.ElementGroup();
+			newElement.elemements.push(subQuery);
+			
+			
+		} else {
+			newElement = tmpElement; 
+		}
+		
+		var result = new widgets.QueryGenerator(
+				new facets.Driver(newElement, inferredDriver.getVariable()),
+				this.getNavigationPath(),
+				this.getFocusPath(),
+				this.getConstraints(),
+				this.getPathManager()
+				);
+		
+		
+		
+		//this._appendConstraintElement(result.elements, options);
+
+		return result;
+	};
+
+	
+	ns.QueryGeneratorGeo.prototype._createGeoElement = function() {
+		var result = new sparql.ElementTriplesBlock();
+		result.addTriples(this.geoConstraintFactory.getTriples(this.getPathManager()));
+		result.uniq();		
+		
+		return result;
+	};
+	
+	ns.QueryGeneratorGeo.prototype._createGeoElementBounds = function(bounds) {
+		var result = new sparql.ElementGroup();
+
+		
+		// Add geo triples
+		//this._appendGeoElement(result.elements);
+		//result.elements.push(this._createGeoElement());
+		
+		
+		// Add the filter statement
+		var geoConstraint = this.geoConstraintFactory.create(bounds);
+		
+		var ce = geoConstraint.createConstraintElement(this.getPathManager());
+		
+		var element = new sparql.ElementTriplesBlock(ce.getTriples());		
+		var filter = new sparql.ElementFilter(ce.getExpr());
+		
+		result.elements.push(element);
+		result.elements.push(filter);
+
+		return result;		
+	};
+	
+	
+	/*
+	 * Utility methods
+	 */
+/*	
+	ns.QueryGeneratorGeo.prototype._appendGeoElement = function(destElements) {
+		var geoElement = this._createGeoElement();
+		destElements.push(geoElement);
+	};
+	*/
+	/*
+	ns.QueryGeneratorGeo.prototype._appendGeoElementBounds = function(destElements, bounds, options) {
+		var element = this._cerateGeoElementBounds();
+		destElements.push(element);
+	};
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/***
+	 * OLD APPROACH BELOW
+	 */
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -52,12 +294,30 @@
 		
 		// A breadcrumb to the set of resources a user navigated to
 		// TODO This should better be a path - i.e. no duplication of the pathManager
-		this.navigationBreadcrumb = options.navigationBreadcrumb;
+		//this.navigationBreadcrumb = options.navigationBreadcrumb;
+		
+		this.navigationPath = options.navigationPath;
 
 		
 		
 		// A list of paths for which to fetch data
 		// TODO Not sure how components should declare that
+	};
+	
+	ns.QueryGenerator.prototype.setNavigationPath = function(path) {
+		this.navigationPath = path;
+	};
+	
+	ns.QueryGenerator.prototype.getTargetNode = function() {
+		var result = this.pathManager.getNode(this.navigationPath);
+		
+		return result;
+	};
+	
+	
+	ns.QueryGenerator.prototype.getTargetVariable = function() {
+		var node = this.getTargetNode();
+		return sparql.Node.v(node.variable);
 	};
 	
 	/**
@@ -71,10 +331,36 @@
 				this.pathManager,
 				this.geoConstraintFactory,
 				this.constraints.copyExclude(path),
-				this.navigationBreadcrumb);
+				this.navigationPath);
 		
 		return result;
 	};
+	
+	
+	/**
+	 * TODO What to do with the current navigationBreadcrumb?
+	 * Simply replace it?
+	 * 
+	 * 
+	 * @param path
+	 */
+	ns.QueryGenerator.prototype.copyNavigate = function(navigationPath) {
+		var result = new ns.QueryGenerator(
+				this.options,
+				this.driver,
+				this.pathManager,
+				this.geoConstraintFactory,
+				this.constraints,
+				this.navigationPath);
+				
+	};
+	
+	
+	ns.QueryGenerator.prototype.getNavigationBreadcrumb = function() {
+		var result = new facets.Breadcrumb(this.pathManager, this.navigationPath);
+		return result;
+	};
+	
 	
 	/*
 	ns.QueryGenerator.prototype.excludeConstraint(paths) {
@@ -85,8 +371,10 @@
 		//var element = this.forGlobal();
 		
 		var element = null;
-
-		var navigationTriples = this.navigationBreadcrumb.getTriples();
+		
+		var navigationBreadcrumb = this.getNavigationBreadcrumb();
+		
+		var navigationTriples = navigationBreadcrumb.getTriples();
 		if(navigationTriples.length > 0) {
 			var elements = [];
 
@@ -100,7 +388,7 @@
 		}
 
 		
-		var variable = sparql.Node.v(this.navigationBreadcrumb.targetNode.variable);				
+		var variable = sparql.Node.v(navigationBreadcrumb.targetNode.variable);				
 		var result = new facets.Driver(element, variable);
 
 		return result;
@@ -129,8 +417,10 @@
 		this._appendConstraintElement(elements, options);
 		
 		
+		
 		// Add the navigation breadcrumb
-		var navigationTriples = this.navigationBreadcrumb.getTriples();
+		var navigationBreadcrumb = this.getNavigationBreadcrumb();
+		var navigationTriples = navigationBreadcrumb.getTriples();
 		elements.push(new sparql.ElementTriplesBlock(navigationTriples));
 		
 		var result = new sparql.ElementGroup(elements); 
@@ -208,7 +498,7 @@
 	
 	ns.QueryGenerator.prototype._createGeoElement = function() {
 		var result = new sparql.ElementTriplesBlock();
-		result.addTriples(this.geoConstraintFactory.getTriples());
+		result.addTriples(this.geoConstraintFactory.getTriples(this.pathManager));
 		result.uniq();		
 		
 		return result;
@@ -222,7 +512,7 @@
 		
 		// Add the filter statement
 		var geoConstraint = this.geoConstraintFactory.create(bounds);		
-		var filter = new sparql.ElementFilter(geoConstraint.getExpr());
+		var filter = new sparql.ElementFilter(geoConstraint.createConstraintElement(this.pathManager).getExpr());
 		result.elements.push(filter);
 
 		return result;		
@@ -238,10 +528,13 @@
 		destElements.push(geoElement);
 	};
 	
+	/*
 	ns.QueryGenerator.prototype._appendGeoElementBounds = function(destElements, bounds, options) {
 		var element = this._cerateGeoElementBounds();
 		destElements.push(element);
 	};
+	*/
+	
 	
 	ns.QueryGenerator.prototype._appendConstraintElement = function(destElements, options) {
 		if(!(options && options.disableConstraints)) {

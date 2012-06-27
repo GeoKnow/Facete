@@ -63,7 +63,16 @@
 	 */
 	ns.AppController = function(options) {
 		this.sparqlService = null;
-		this.queryGenerator = new ns.QueryGenerator(options.queryGenerator);
+
+		
+		var conf = options.queryGenerator;
+		
+		var queryGenerator = new widgets.QueryGenerator(conf.driver, conf.navigationPath, null, conf.constraints, conf.pathManager);
+		
+		this.queryGeneratorGeo = new ns.QueryGeneratorGeo(queryGenerator, conf.geoConstraintFactory);
+		
+		
+		//this.queryGenerator = new ns.QueryGenerator(options.queryGenerator);
 		
 		this.queryFactory = null;
 	
@@ -181,8 +190,8 @@
 		
 		$$.document.append(test, "#map");
 		
-		var homeBreadcrumb = new facets.Breadcrumb.fromString(this.queryGenerator.pathManager, "");
-		this.setNavigationBreadcrumb(homeBreadcrumb);
+		var homePath = new facets.Path(); //new facets.Breadcrumb.fromString(this.queryGenerator.pathManager, "");
+		this.setNavigationPath(homePath);
 
 	};
 	
@@ -250,40 +259,89 @@
 		
 		
 		// Facet box
-		var queryGenerator = this.queryGenerator;
-		var constraints = queryGenerator.constraints;
+		var queryGenerator = this.queryGeneratorGeo;
+		var constraints = queryGenerator.getConstraints();
 		
 		//var facetConfig = new facetbox.FacetConfig(1001, 10001);
 		this.facetConfig = new facetbox.FacetConfig(1001, null);
 		
-		var baseBreadcrumb = facets.Breadcrumb.fromPath(queryGenerator.pathManager, new facets.Path());
+		//var baseBreadcrumb = new facets.Breadcrumb(queryGenerator.pathManager);
 		
-		this.facetState = new facetbox.FacetState(this.facetConfig, queryGenerator.getInferredDriver(), baseBreadcrumb);
+		//this.facetState = new facetbox.FacetState(this.facetConfig, queryGenerator.getInferredDriver(), basePath);
+		var basePath = new facets.Path();
+		//this.facetState = new facetbox.FacetState(this.queryGenerator, basePath);
 				
 		
-		var facetBoxBackend = new facetbox.FacetValueBackendSparql(this.sparqlService, this.labelFetcher);
+		//var facetBoxBackend = new facetbox.FacetValueBackendSparql(this.sparqlService, this.facetConfig, this.queryGenerator); //this.labelFetcher);
 
 		var self = this;
 
 		
 		this.breadcrumbWidget = widgets.createBreadcrumbWidget({
-			onNavigate: function(breadcrumb) {
-				self.setNavigationBreadcrumb(breadcrumb);
+			onNavigate: function(path) {
+				self.setNavigationPath(path);
 			}
 		});
 		
 		$$.document.append(this.breadcrumbWidget, "#ssb-breadcrumb");
 		
 		var callbacks = {
-			onMoveTo: function(breadcrumb) {
-				self.setNavigationBreadcrumb(breadcrumb);
+			onMoveTo: function(path) {
+				self.setNavigationPath(path);
 			}
 		};
 		
 		
+		//config, queryGenerator, basePath, backend, callbacks
+		this.facetBox = $$(facetbox.FacetBox); //widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.hackId);
+		
+		this.facetBox.bind("clickFacetValues", function(ev, payload) {
 
-		this.facetbox = facetbox.createFacetBox(this.facetState, constraints, facetBoxBackend, callbacks);
-		$$.document.append(this.facetbox, "#tabs-content-facets");
+			console.log("PAYLOAD", payload.model);
+			
+			var path = payload.model.get("path");
+			
+			var executor = self.executor.navigateToPath(path);
+			
+			$.when(executor.fetchValuesCounted(null, {limit: 10})).then(function(data) {
+
+				// TODO Fetch labels - Create some utility methods that create the models from the default result formats {node, count}
+				_.each(data, function(item) {
+					item.path = path;
+					item.label = item.node.value;
+					item.countStr = item.count;
+				});
+				
+				var widget = payload.getFacetValues();
+				widget.setCollection(data);
+				widget.syncView();
+			});
+		});
+		
+		this.facetBox.bind("clickConstraint", function(ev, payload) {
+
+			var path = payload.model.get("path");
+			var facetValue = payload.model.get("node");
+			var constraints = self.constraints;
+
+			var constraint = new facets.ConstraintEquals(path,
+					new sparql.NodeValue(facetValue.node));
+
+			//var isEnabled = !this.model.get("isEnabled");
+			// console.log("Enabled:", isEnabled, id);
+			if (payload.isEnabled()) {
+				constraints.add(constraint);
+			} else {
+				constraints.remove(constraint);
+			}
+		});
+		
+		
+		
+		
+		//facetbox.createFacetBox(); 
+		//this.facetbox = facetbox.createFacetBox(this.facetConfig, queryGenerator, basePath, facetBoxBackend, callbacks);
+		$$.document.append(this.facetBox, "#tabs-content-facets");
 		
 		
 		
@@ -354,9 +412,10 @@
 	    	var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
 	    	var driver = new facets.Driver(driverElement, driverVar);
 	
-	    	console.log("Widget Ns", widgets);
+	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	//console.log("Widget Ns", widgets);
 	    	
-			var model = new widgets.ListModelSparql(this.sparqlService, this.labelFetcher, driver, {distinct: true});
+			var model = widgets.createListModelLabels(this.sparqlService, queryGenerator, {distinct: true}, this.labelFetcher);
 			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
 	
 			listWidget.bind("click", function(ev, payload) {
@@ -366,6 +425,7 @@
 			$$.document.append(listWidget, $("#ssb-graph-selection"));
 		}
 
+		/*
 		{
 	    	var driverVar = sparql.Node.v("c");
 	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
@@ -380,30 +440,35 @@
 	
 			$$.document.append(listWidget, $("#ssb-class-selection"));
 		}
+		*/
 		
 		
     	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
 
 	};
 	
-	ns.AppController.prototype.setNavigationBreadcrumb = function(breadcrumb) {
+	ns.AppController.prototype.setNavigationPath = function(path) {
 		
 		
-		console.log("NavigationBreadcrumb", breadcrumb);
+		console.log("NavigationPath", path);
 		//var concat = this.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
-		var concat = breadcrumb;
+		var concat = path;
 		
-		this.queryGenerator.navigationBreadcrumb = breadcrumb;
+		this.queryGeneratorGeo.setNavigationPath(path);
 		//this.queryGenerator.navigationBreadcrumb = concat;
 
 		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.getInferredDriver(), concat);
-		this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.driver, concat);
-		this.facetbox.controller.setState(this.facetState);
+		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.driver, concat);
+		//this.facetbox.controller.setState(this.facetState);
+		//this.facebox.controller.setState(queryGenerator);
+		console.warn("TODO - Set the FacetSate");
 		
-		this.facetbox.controller.refresh();
+		//this.facetbox.controller.refresh();
+		//this.updateFacetsRec(this.executor, this.facetBox);
+		this.updateFacets();
 
 		
-		var uris = _.map(breadcrumb.getPath().getSteps(), function(step) {
+		var uris = _.map(path.getSteps(), function(step) {
 			return step.propertyName;
 		});
 		
@@ -411,7 +476,7 @@
 		
 		this.labelFetcher.fetch(uris).pipe(function(data) {
 
-			self.breadcrumbWidget.controller.setBreadcrumb(breadcrumb, data.uriToLabel);
+			self.breadcrumbWidget.controller.setPath(path, data.uriToLabel);
 			self.repaint();
 
 		});
@@ -538,8 +603,12 @@
 		var disableConstraints = true;
 
 
-		console.log("Constraints", this.queryGenerator.constraints);
-		var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.driver.element;
+		console.log("Constraints", this.queryGeneratorGeo.getConstraints());
+		var queryGenerator = this.queryGeneratorGeo.forGlobal();
+		
+		
+		var baseElement = queryGenerator.createDriverValues().getElement();
+		//var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.driver.element;
 		 
 		var hash = baseElement.toString();
 		console.debug("Query hash (including facets): ", hash);
@@ -547,7 +616,7 @@
 		
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
-			var backendFactory = new qtc.BackendFactory(this.sparqlService, this.queryGenerator);
+			var backendFactory = new qtc.BackendFactory(this.sparqlService, this.queryGeneratorGeo);
 			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPointFetcher);
 			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
 			this.hashToCache[hash] = cacheEntry;
@@ -673,6 +742,108 @@
 	};
 	*/
 	
+	
+
+	/**
+	 * Create the model for the facet box
+	 * 
+	 */
+	ns.postProcessFacets = function(facets, pivotFacets, labelFetcher) {
+		// Index pivot facets
+		var pivotStrs = {};
+		_.each(pivotFacets.facets, function(item) {
+			
+			if(item.isUri()) {
+				pivotStrs[item.value] = true;
+			}
+		});
+
+		// Check pivot state
+		//var collection = [];
+		_.each(facets, function(item) {
+			// Note: Facets must all be URIs, but better check
+			var isPivotable = false;
+
+			if(item.node.isUri()) {
+				var str = item.node.value;
+				
+				if(str in pivotStrs) {
+					isPivotable = true;
+				}
+			}
+
+			item.countStr = "" + item.count;			
+			item.isPivotable = isPivotable;
+		});
+
+		
+		// Fetch labels
+		var uriStrs = [];
+		
+		_.each(facets, function(item) {
+			if(item.node.isUri()) {
+				uriStrs.push(item.node.value);
+			}
+		});
+		
+		var promise = labelFetcher.fetch(uriStrs).pipe(function(labels) {
+
+			_.each(facets, function(item) {
+				var label = labels.uriToLabel[item.node.value];
+				
+				item.label = label ? label.value : "" + item.node;
+			});
+			
+			return facets;
+		});			
+			
+		return promise;
+	};
+
+	
+	
+	ns.AppController.prototype.updateFacetsRecDir = function(executor, view, isInverse, path) {
+		var self = this;
+		$.when(executor.fetchValuesCounted(), executor.fetchPivotFacets()).then(function(facetCollection, pivotFacets) {
+			
+			var promise = ns.postProcessFacets(facetCollection, pivotFacets, self.labelFetcher);
+			
+			$.when(promise).then(function(facetCollection) {
+				
+				_.each(facetCollection, function(item) {
+					var propertyName = item.node.value;
+					var step = new facets.Step(propertyName, isInverse);
+					item.path = path.copyAppendStep(step);
+				});
+				
+				console.log("FacetSatus", facetCollection);
+				view.setCollection(facetCollection);
+			});
+			
+		});		
+	};
+	
+	ns.AppController.prototype.updateFacetsRec = function(executor, view) {
+		
+		var path = new facets.Path(); //executor.getNavigationPath();
+		
+		executorIncoming = executor.navigateToFacets(-1);
+		executorOutgoing = executor.navigateToFacets(1);
+		
+		this.updateFacetsRecDir(executorOutgoing, view.getOutgoing(), false, path);
+		this.updateFacetsRecDir(executorIncoming, view.getIncoming(), true, path);
+	};
+	
+	
+	ns.AppController.prototype.updateFacets = function() {
+		if(!this.executor) {
+			console.warn("No executor set (yet)");
+			return;
+		}
+		
+		this.updateFacetsRec(this.executor, this.facetBox);
+	};
+	
 	/**
 	 * Updates the facet counts considering all constraints.
 	 * This deviates from the usual facet behaviour:
@@ -681,12 +852,39 @@
 	 * @param uris
 	 */
 	ns.AppController.prototype.updateFacetCountsGeom = function(uris) {
+		
+		if(uris.length === 0) {
+			return;
+		}
+		
+		var queryGenerator = this.queryGeneratorGeo.forGeoms(uris);
+		
+		this.executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
+		
+		
+		this.updateFacets();
+		
+		
+			/*
+		executor.fetchValues().pipe(function(data) {
+			alert(data);
+		});
+		*/
+		
+		//var generator = widgets.QueryGenerator(driver, );
+		
+		
+		if(true) {
+			console.warn("Facets disabled", uris);
+			return;
+		}
+		
 		var self = this;
 		var driver = queryUtils.createFacetQueryCountVisibleGeomNested(this.queryGenerator, uris);
 		
 		
 		// Set the driver of the facet state to the new query element
-		this.facetState.driver = driver;
+		//this.facetState.driver = driver;
 		
 		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
 		//console.log("Facet Query", driver);
@@ -694,7 +892,7 @@
 		
 		// clear the pathManager
 		//var propertyToNode = this.facetState.pathManager.getRoot().outgoing;
-		this.facetState.clearCounts();
+		//this.facetState.clearCounts();
 		
 		if(!uris.length) {
 			//self.facetbox.controller.setState(null);
@@ -704,6 +902,8 @@
 
 		var state = this.facetState;
 		//var node = state.pathManager.getRoot();
+		
+		//this.queryGenerator.getNavigationTarget();
 		
 		var node = this.queryGenerator.navigationBreadcrumb.targetNode;
 		
@@ -1060,12 +1260,16 @@
 						
 						
 						// Create the resource query element
-						console.log("QueryGenerator", self.queryGenerator);
-						var element = self.queryGenerator.forGeoms([geom]);
+						console.log("QueryGenerator", self.queryGeneratorGeo);
+						var queryGenerator = self.queryGeneratorGeo.forGeoms([geom]);
+
+						
+						//var element = s
 
 						//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
-						var featureVar = self.queryGenerator.getInferredDriver().variable;
-						var driver = new facets.Driver(element, featureVar);
+						//var featureVar = self.queryGenerator.getInferredDriver().variable;
+						//var driver = new facets.Driver(element, featureVar);
+						var driver = queryGenerator.createDriverValues();
 						
 						//var element = this.queryGenerator.ForGeoms(geomUriNodes);
 						//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);

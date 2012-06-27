@@ -108,17 +108,23 @@
 		
 		result.projectVars.add(driver.variable);
 		result.elements.push(driver.element);
-		
-		if(options) {
-			result.distinct = options.distinct ? true : false;
-		
-			result.limit  = options.limit ? options.limit : null;
-			result.offset = options.offset ? options.offset : null;
-		}
+
+		ns.applyQueryOptions(result, options);
 		
 		return result;
 	};
 	
+	
+	ns.applyQueryOptions = function(query, options) {
+		if(!options) {
+			return;
+		}
+		
+		query.distinct = options.distinct ? true : false;
+		
+		query.limit  = options.limit ? options.limit : null;
+		query.offset = options.offset ? options.offset : null;			
+	};
 
 	/**
 	 * Creates a query that fetches plain facets (i.e. no counts)
@@ -192,7 +198,7 @@
 	 *     }
 
 	 */
-	ns.createQueryGetPivotFacets = function(driver, outputVar) {
+	ns.createQueryGetPivotFacets = function(driver, outputVar, isInverse) {
 		var result = new sparql.Query();
 				
 		result.elements.push(driver.element);
@@ -204,9 +210,11 @@
 		var x = sparql.Node.v("__x");
 		var y = sparql.Node.v("__y");
 
-		var triplesBlock = new sparql.ElementTriplesBlock(
-				[ new sparql.Triple(s, p, o),
-				  new sparql.Triple(o, x, y) ]);
+		var triples = isInverse
+			? [ new sparql.Triple(o, p, s), new sparql.Triple(y, x, o) ]
+			: [ new sparql.Triple(s, p, o), new sparql.Triple(o, x, y) ];
+		
+		var triplesBlock = new sparql.ElementTriplesBlock(triples);
 		
 		result.elements.push(triplesBlock);
 		
@@ -528,7 +536,7 @@
 	 * If one of the groupVars equals the variable, it is omitted
 	 * 
 	 */
-	ns.createCountQuery = function(element, limit, variable, outputVar, groupVars) {
+	ns.createCountQuery = function(element, limit, variable, outputVar, groupVars, options) {
 		
 		
 		var subQuery = new sparql.Query();
@@ -563,13 +571,74 @@
 		result.projectVars.add(outputVar, new sparql.E_Count(new sparql.ExprVar(variable)));
 		///result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
 		result.elements.push(new sparql.ElementSubQuery(subQuery));
-
+		
 		//console.error(limit);
 		//console.error(result.toString());
+		
+		ns.applyQueryOptions(result, options);
+
 		
 		return result;
 	};
 	
+	
+	
+	/*
+	ns.createPlainQueryGenerator = function(queryGenerator, uris) {
+
+		var driver = queryGenerator.driver;
+		var inferredDriver = queryGenerator.getInferredDriver();
+
+		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
+
+
+		//console.log("queryFactory", queryFactory);
+
+		var subQuery = new sparql.Query();
+		var triplesBlock = new sparql.ElementTriplesBlock();
+		triplesBlock.addTriples(queryGenerator.geoConstraintFactory.getTriples());
+		subQuery.elements.push(triplesBlock);
+		
+		var geomSrcVar = sparql.Node.v(queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
+		var geomVarStr = queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable; //geoQueryFactory.geoConstraintFactory.breadcrumb.targetNode.variable;
+		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
+		//console.log("geomVar", geomVar);
+		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
+		var filterElement = new sparql.ElementFilter(filterExpr);
+
+		subQuery.elements.push(filterElement);
+		//subQuery.projectVars.add(inferredDriver.variable);
+		//subQuery.projectVars.add(driver.variable);
+		subQuery.projectVars.add(geomSrcVar);
+		///subQuery.projection[driver.variable.value] = null;
+		subQuery.distinct = true;
+		
+		
+		
+		var elements = [inferredDriver.element, new sparql.ElementSubQuery(subQuery)];
+		
+		// Add facet constraints
+		/ *
+		var facetElement = queryGenerator.constraints.getSparqlElement();
+		if(facetElement) {
+			elements.push(facetElement);
+		}* /
+		
+
+		
+		var element = new sparql.ElementGroup(elements);		
+		
+		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
+		//var result = new facets.Driver(element, queryGenerator.driver.variable);
+
+		var newDriver = new facets.Driver(element, inferredDriver.variable);
+
+		
+		var result = new widgets.QueryGenerator(newDriver, )
+
+		return result;
+	};
+	*/
 	
 	
 	/**

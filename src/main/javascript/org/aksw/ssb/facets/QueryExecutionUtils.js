@@ -134,6 +134,118 @@
 	};
 	*/
 
+	
+	ns.fetchFacetValues = function(sparqlService, queryFactory, path, searchString) {
+		
+		// Create a query factory without constraints for the given path
+		var qf = queryFactory.copyExcludeConstraint(path);
+		
+		// Navigate to the given path
+		qf = queryFactory.copyNavigate(path);
+		
+		//  
+		var driver = qf.getDriver();
+		
+		var baseElement = driver.element;
+		
+		var countVar = sparql.Node.v("__c");
+		var facetVar = driver.variable;//sparql.Node.v(breadcrumb.targetNode.variable);
+		var query = ns.createQueryFacetValuesCountedFiltered(baseElement, breadcrumb, state.config.sampleSize, searchString, countVar);
+
+		console.log("Query data", "" + query);
+		
+		//var query = queryData.query;
+		// TODO Make the limit configurable
+		query.limit = 10;
+		
+		//console.debug("Values query:", queryData);
+		
+		// Test query
+		//query.elements.push(new sparql.ElementString("?s rdfs:label ?var1 . Filter(regex(?var1, '199')) ."));
+		
+		// The result is a list of facet values:
+		// (valueNode, label, count)
+		var result = {}; //[];
+		
+		return sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {
+				//console.debug("Binding", jsonRs);
+				
+				
+				var bindings = jsonRs.results.bindings;
+				
+				for(var i = 0; i < bindings.length; ++i) {
+					var binding = bindings[i];
+					var val = binding[facetVar.value];
+					
+					var valueNode = sparql.Node.fromJson(val);
+					var count = binding[countVar.value].value;// TODO Maybe parse as int
+					
+					var facetValue = new facets.FacetValue(valueNode, count);
+					result[valueNode] = facetValue;
+					//result.push();
+				}
+					
+				
+				//console.log("Raw facet values:", result);
+				//var vars = jsonRs.head.vars;
+				
+				// TODO We need a discriminator column so we know which facet the values correspond to
+				//var map = jsonRdfResultSetToMap(jsonRs, "var1", "__c");
+		
+				var uris = [];
+				for(key in result) {
+					var node = result[key].node;
+
+					if(node.isUri()) {						
+						uris.push(node.value);
+					}
+				}
+				
+				//console.debug("Value URIs", uris, result);
+				
+				//var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
+				return labelFetcher.fetch(uris, true).pipe(function(uriToLabel) {
+
+					//console.log("Facet value uris", uris, uriToLabel);
+
+					for(var i in result) {						
+						var facetValue = result[i];
+						var node = result[i].node;
+						
+						var label = uriToLabel[node.value];
+						if(!label) {
+							label = node;
+						}
+						
+						facetValue.label = label;
+						
+						//console.debug("Using facet value label", facetValue.label);
+					}
+					
+					/*
+					for(var i = 0; i < result.length; ++i) {						
+						var val = result[i].node;
+						
+						var label = idToLabel[val.value];
+						if(!label) {
+							label = val;
+						}
+						
+						result[i].label = label;					
+					}
+					*/
+
+					if(callback) {
+						callback.success(result, uriToLabel);
+					}
+					
+					return {facetValues:result, uriToLabel: uriToLabel};
+				});
+			});
+		
+		
+	};
+	
 	/**
 	 * Fetches the values for given path.
 	 * Constraints on this path can be excluded.
@@ -244,10 +356,10 @@
 	};
 
 	
-	ns.fetchPivotFacets = function(sparqlService, driver) {
+	ns.fetchPivotFacets = function(sparqlService, driver, isInverse) {
 		
 		var outputVar = sparql.Node.v("__p");
-		var query = ns.createQueryGetPivotFacets(driver, outputVar);
+		var query = ns.createQueryGetPivotFacets(driver, outputVar, isInverse);
 		
 		var result = ns.fetchList(sparqlService, query, outputVar);
 		//var result = sparqlService.executeSelect(query.toString()).pipe(function()

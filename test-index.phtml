@@ -79,6 +79,9 @@
 		src="src/main/javascript/org/aksw/ssb/facets/QueryExecutionUtils.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/javascript/org/aksw/ssb/collections/MultiMap.js"></script>
+
+	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/collections/LabelCollection.js"></script>
 
 	<script type="text/javascript" 
@@ -99,17 +102,122 @@
 	
 	<script type="text/javascript">
 
+		var backend = Namespace("org.aksw.ssb.backend");
+		var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+		var widgets = Namespace("org.aksw.ssb.widgets");
+		var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+		var utils = Namespace("org.aksw.ssb.utils");
+		var facets = Namespace("org.aksw.ssb.facets");
+		var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
+
+
+		var testExecutioner = function() {
+			var service = new backend.SparqlServiceVirtuoso("http://localhost/sparql");
+			
+			
+	    	var labelFetcher = new utils.LabelFetcher(service, ["en"]); 
+
+	    	var driverVar = sparql.Node.v("c");
+	    	var someClass = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+	    	//var driverElement = queryUtils.createElementGetClasses(driverVar);
+	    	
+	    	var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, rdf.type, someClass)]);
+	    	
+	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+
+			var focusPath = facets.Path.fromString("");
+	    	//var navigationPath = facets.Path.fromString("http://fintrans.publicdata.eu/ec/ontology/beneficiary <^");
+	    	var navigationPath = facets.Path.fromString(""); //http://fintrans.publicdata.eu/ec/ontology/year");
+
+	    	
+			var queryGenerator = new widgets.QueryGenerator(driver, navigationPath, focusPath);
+	    	
+
+	    	queryGenerator.getConstraints().add(new facets.ConstraintEquals(facets.Path.fromString("http://fintrans.publicdata.eu/ec/ontology/year"), sparql.Node.uri("http://dbpedia.org/resource/2007")));
+	    	//queryGenerator.getConstraints().add(new facets.ConstraintEquals(facets.Path.fromString("http://fintrans.publicdata.eu/ec/ontology/year"), sparql.Node.uri("http://dbpedia.org/resource/2010")));
+	    	queryGenerator.getConstraints().add(new facets.ConstraintEquals(facets.Path.fromString("http://fintrans.publicdata.eu/ec/ontology/expenseType"), sparql.Node.uri("http://fintrans.publicdata.eu/ec/resource/operational")));
+
+
+	    	queryGenerator = queryGenerator.copyExcludeConstraint(facets.Path.fromString("http://fintrans.publicdata.eu/ec/ontology/expenseType"));
+
+	    	//console.log("navigationPath", navigationPath);
+	    	
+			//var path = facets.Path.fromString("http://www.w3.org/2000/01/rdf-schema#label");
+
+
+			
+			//console.log("Path: ", path);
+
+			var executioner = new widgets.QueryExecutioner(service, queryGenerator);
+
+			//executioner = executioner.navigateToFacets(-1);
+			//executioner = executioner.navigateToFacetValues();
+
+			//console.log("executioner", executioner);
+			
+			//var promise = executioner.fetchValuesCounted();
+			var promise = executioner.fetchPivotFacets(true); //executioner.fetchCountValues();
+
+			$.when(promise).then(function(data) {
+				console.log("Executioner result:", data);
+			}).fail(function() {
+				alert("Something went wrong");
+			}); 
+			
+			
+		};
+
+
+		
+		var testQueryGenerator = function() {
+			var service = new backend.SparqlServiceVirtuoso("http://localhost/sparql");
+			
+			
+	    	var labelFetcher = new utils.LabelFetcher(service, ["en"]); 
+
+	    	var driverVar = sparql.Node.v("c");
+	    	var someClass = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+	    	//var driverElement = queryUtils.createElementGetClasses(driverVar);
+	    	
+	    	var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, rdf.type, someClass)]);
+	    	
+	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+
+			var focusPath = facets.Path.fromString("");
+	    	var navigationPath = facets.Path.fromString("http://fintrans.publicdata.eu/ec/ontology/beneficiary <^");
+			//var path = facets.Path.fromString("http://www.w3.org/2000/01/rdf-schema#label");
+			var queryGenerator = new widgets.QueryGenerator(driver, navigationPath, focusPath);
+			//console.log("Path: ", path);
+
+
+			console.log("Count query: " + queryGenerator.createQueryCountNavigation());
+
+			console.log("Copy:", queryGenerator.copy());
+			
+			
+			//queryGenerator = queryGenerator.copyNavigate(path);
+
+			//var postProcessor = new widgets.PostProcessorLabels(labelFetcher);
+
+			
+			//var model = new widgets.ListModelSparql(service, queryGenerator, {distinct: true}, function(deferred, collection) { postProcessor.process(deferred, collection); });
+			
+
+			var model = widgets.createListModelLabels(service, queryGenerator, {distinct: true}, labelFetcher);
+			
+			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
+
+			listWidget.bind("click", function(ev, payload) {
+				alert(payload.checked + " " + payload.item.model.get("label"));
+			});
+
+			$$.document.append(listWidget);
+			
+		};
 
 		var testListWidget = function() {
-
-			var backend = Namespace("org.aksw.ssb.backend");
-	    	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
-			var widgets = Namespace("org.aksw.ssb.widgets");
-	    	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
-	    	var service = new backend.SparqlServiceVirtuoso("http://localhost/sparql");
-	    	var utils = Namespace("org.aksw.ssb.utils");
-	    	var facets = Namespace("org.aksw.ssb.facets");
-
 
 	    	
 	    	var labelFetcher = new utils.LabelFetcher(service, ["en"]); 
@@ -119,7 +227,9 @@
 	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
 	    	var driver = new facets.Driver(driverElement, driverVar);
 
-			var model = new widgets.ListModelSparql(service, labelFetcher, driver, {distinct: true});
+			var queryGenerator = new widgets.QueryGenerator(null, driver);
+	    	
+			var model = new widgets.ListModelSparql(service, queryGenerator, {distinct: true}, labelFetcher);
 			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
 
 			listWidget.bind("click", function(ev, payload) {
@@ -132,7 +242,7 @@
 
 		$(document).ready(function() {
 
-			testListWidget();	
+			testExecutioner();	
 	
 		});
 		

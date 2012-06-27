@@ -12,11 +12,36 @@
 	var ns = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 
+
+	/**
+	 * Another class that mimics Jena's behaviour.
+	 * 
+	 * @param prefix
+	 * @param start
+	 * @returns {ns.GenSym}
+	 */
+	ns.GenSym = function(prefix, start) {
+		this.prefix = prefix ? prefix : "v";
+		this.nextValue = start ? start : 0;
+	};
+	
+	ns.GenSym.prototype.next = function() {
+		++this.nextValue;
+		
+		var result = this.prefix + "_" + this.nextValue;
+		
+		return result;
+	};
+	
+	
+	/*
 	ns.FacetValue = function(node, count) {
 		this.node = node;
 		this.count = count;
 	};
+	*/
 	
+	/*
 	ns.DriverProvider = function(label, driver) {
 		this.label = label;
 		this.driver = driver;
@@ -28,7 +53,7 @@
 
 	ns.DriverProvider.prototype.getLabel = function() {
 		return this.label;
-	};
+	};*/
 
 	
 	
@@ -45,8 +70,16 @@
 		this.variable = variable;
 	};
 	
+	ns.Driver.prototype.getVariable = function() {
+		return this.variable;
+	};
+	
+	ns.Driver.prototype.getElement = function() {
+		return this.element;
+	};
+	
 	ns.Driver.prototype.toString = function() {
-		return "" + this.element + " with " + this.variable; 
+		return "" + this.getElement() + " with " + this.getVariable(); 
 	};
 	
 	ns.PathNodeFactoryDefault = function() {
@@ -110,14 +143,32 @@
 	 * 
 	 * @param pathStr
 	 */
-	ns.PathManager.prototype.toTriples = function(pathStr) {
-		var items = pathStr.split(" ");
-		
-		var result = this.toTriplesRec(this.root, items);
+	ns.PathManager.prototype.toTriples = function(path) {
+		var result = this.toTriplesRec(this.root, path);
 		
 		return result;
 	};
 	
+	
+	ns.PathManager.prototype.getNode = function(path) {
+		var result = this.root;
+
+		//console.log("PATH", path);
+		
+		var steps = path.getSteps();
+
+		for(var i = 0; i < steps.length; ++i) {
+			var stepStr = "" + steps[i];
+			
+			result = result.getOrCreate(stepStr);
+		}
+		
+		return result;
+	};
+		
+	
+	
+	/*
 	ns.PathManager.prototype.getNode = function(pathStr) {
 		var items = pathStr.split(" ");
 		
@@ -125,28 +176,22 @@
 		
 		return result;
 	};
+	*/
 
-	ns.PathManager.prototype.getNodeRec = function(pathStr, items) {
-		var result = this.root;
-		
-		for(var i = 0; i < items.length; ++i) {
-			var propertyName = items[i];
-			
-			var result = result.getOrCreate(propertyName);
-		}
-		
-		return result;		
-	};
 	
-	ns.PathManager.prototype.toTriplesRec = function(node, items) {
+	ns.PathManager.prototype.toTriplesRec = function(node, path) {
 		var result = [];
 		
-		for(var i = 0; i < items.length; ++i) {
-			var propertyName = items[i];
+		var steps = path.getSteps();
+		
+		for(var i = 0; i < steps.length; ++i) {
+			var step = steps[i];
+			var stepStr = "" + step;
 			
-			var nextNode = node.getOrCreate(propertyName);
+			
+			var nextNode = node.getOrCreate(stepStr);
 			var s = ssb.Node.v(node.variable);
-			var p = ssb.Node.uri(propertyName);
+			var p = ssb.Node.uri(step.getPropertyName());
 			var o = ssb.Node.v(nextNode.variable);
 			
 			var triple = new ssb.Triple(s, p, o);
@@ -216,6 +261,35 @@
 
 	
 	/**
+	 * A step to the set of facets (properties) of a set of resources
+	 * Symbol is ^ 
+	 * 
+	 * Use <^ or >^ to navigate to incoming/outgoing uris only.
+	 * 
+	 * 
+	 * @param direction: <0 incoming, =0 both; >0 outgoing
+	 */
+	ns.StepFacet = function(direction) {
+		this.direction = direction;
+	};
+	
+	ns.StepFacet.prototype.toString = function() {
+		if(this.direction < 0) {
+			return "<^";
+		} else if(this.direction > 0) {
+			return ">^";
+		} else {
+			return "^";
+		}
+	};
+	
+	ns.StepFacet.prototype.equals = function(other) {
+		return _.isEquals(this, other);
+	};
+
+	
+	
+	/**
 	 * 
 	 * @param direction
 	 * @param resource
@@ -267,7 +341,16 @@
 		pathStr = pathStr.trim();
 		
 		var items = pathStr.length !== 0 ? pathStr.split(" ") : [];		
-		var steps = _.map(items, function(item) { return ns.Step.fromString(item); });
+		var steps = _.map(items, function(item) {
+			
+			if(item === "<^") {
+				return new ns.StepFacet(-1);
+			} else if(item === "^" || item === ">^") {
+				return new ns.StepFacet(1);
+			} else {
+				return ns.Step.fromString(item);
+			}
+		});
 		
 		var result = new ns.Path(steps);
 		
@@ -276,7 +359,7 @@
 	
 	
 	ns.Path.prototype.concat = function(other) {
-		this.steps.concat(other.steps);
+		return new ns.Path(this.steps.concat(other.steps));
 	};
 	
 	ns.Path.prototype.getSteps = function() {
@@ -297,6 +380,8 @@
 		
 		return true;
 	};
+	
+	
 
 	// Create a new path with a step appended
 	ns.Path.prototype.copyAppendStep = function(step) {
@@ -329,14 +414,17 @@
 	 * @param targetNode
 	 * @returns {ns.Breadcrumb}
 	 */
-	ns.Breadcrumb = function(pathManager, path, sourceNode, targetNode) {
+	ns.Breadcrumb = function(pathManager, path) {//, sourceNode, targetNode) {
 		this.pathManager = pathManager;
 		//this.step = step;
 		//this.items = step;
 		//this.steps = steps;
-		this.path = path;
-		this.sourceNode = sourceNode;
-		this.targetNode = targetNode;
+		this.path = path ? path : new ns.Path();
+		
+		
+		// Cache source and target node
+		this.sourceNode = this.pathManager.getRoot(); //sourceNode;
+		this.targetNode = this.pathManager.getNode(this.path);
 	};
 	
 	ns.Breadcrumb.prototype.getPath = function() {
@@ -431,6 +519,64 @@
 		return result;
 	};
 	
+	ns.Breadcrumb.prototype.getTargetVariable = function() {
+		//var node = this.getTargetNode();
+		
+		var result = sparql.Node.v(this.targetNode.variable);//node.variable);
+		
+		return result;
+	};
+	
+	
+	ns.Breadcrumb.prototype.createTriplesStep = function(generator, step, startVar, endVar) {
+		if(step instanceof ns.Step) {
+			return this.createTriplesStepProperty(generator, step, startVar, endVar);
+		} else if(step instanceof ns.StepFacet) {
+			return this.createTriplesStepFacets(generator, step, startVar, endVar);
+		} else {
+			console.error("Should not happen");
+		}
+	};
+	
+	ns.Breadcrumb.prototype.createTriplesStepProperty = function(generator, step, startVar, endVar) {
+		var s = startVar;
+		var p = sparql.Node.uri(step.propertyName);
+		var o = endVar;
+		
+		// Swap subject-object if inverse step
+		if(step.isInverse) {
+			var tmp = s;
+			s = o;
+			o = tmp;
+		}
+		
+		
+		var triple = new sparql.Triple(s, p, o);
+		
+		return [triple];
+	};
+	
+	ns.Breadcrumb.prototype.createTriplesStepFacets = function(generator, step, startVar, endVar) {
+		
+		console.log("Generator:", generator);
+		var s = startVar;
+		var p = endVar;
+		var o = sparql.Node.v(generator.next()); // TODO Create a new unique var name
+		
+		// Swap subject-object if inverse step
+		if(step.direction < 0) {
+			var tmp = s;
+			s = o;
+			o = tmp;
+		}
+		
+		
+		var triple = new sparql.Triple(s, p, o);
+		
+		return [triple];
+		
+	};
+
 	/**
 	 * Converts the breadcrumb into a set of triple patterns.
 	 * Variables are assigned based on the underlying path manager.
@@ -438,18 +584,32 @@
 	 * 
 	 * @returns {Array}
 	 */
-	ns.Breadcrumb.prototype.getTriples = function() {
+	ns.Breadcrumb.prototype.getTriples = function(generator) {
 		var result = [];
 		
-		var node = this.pathManager.root;		
+		
+		if(!generator) {
+			generator = new ns.GenSym("v");
+		}
+		
+		var node = this.pathManager.getRoot();	
 		var steps = this.path.getSteps();
+		//console.log("Steps", steps);
 
 		for(var i = 0; i < steps.length; ++i) {
 			var step = steps[i];
 			
 			var stepStr = step.toString();
-			
 			var nextNode = node.getOrCreate(stepStr);
+			
+			var startVar = sparql.Node.v(node.variable);
+			var endVar = sparql.Node.v(nextNode.variable);
+			
+			var triples = this.createTriplesStep(generator, step, startVar, endVar);
+			//console.log("triples", triples);
+			result = result.concat(triples);
+		
+			/*
 			var s = sparql.Node.v(node.variable);
 			var p = sparql.Node.uri(step.propertyName);
 			var o = sparql.Node.v(nextNode.variable);
@@ -464,11 +624,12 @@
 			
 			var triple = new sparql.Triple(s, p, o);
 			result.push(triple);
+			*/
 
 			node = nextNode;
 		}
 		
-		return result;		
+		return result;
 	};
 	
 	/*

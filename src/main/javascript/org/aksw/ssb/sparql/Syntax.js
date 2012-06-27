@@ -437,6 +437,30 @@
 		return this.varsMentioned;
 	};
 	*/
+	ns.E_Cast = function(expr, node) {
+		this.expr = expr;
+		this.node = node;
+	};
+	
+	ns.E_Cast.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.E_Cast(this.expr.copySubstitute(fnNodeMap), this.node.copySubstitute(fnNodeMap));		
+	};
+	
+	ns.E_Cast.prototype.getVarsMentioned = function() {
+		var result = this.expr.getVarsMentioned();
+		
+		// Note: Actually a variable is invalid in the node postition 
+		if(node.isVar()) {
+			result.push(result);
+		}
+		
+		return result;
+	};
+	
+	ns.E_Cast.prototype.toString = function() {
+		return this.node + "(" + this.expr + ")";
+	};
+	
 	ns.E_Str = function(subExpr) {
 		this.subExpr = subExpr; 
 	};

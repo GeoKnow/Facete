@@ -32,7 +32,18 @@
 	
 	$(document).ready(function() {
 
-		var baseUrl = config.odp.apiUrl;
+		if(!config.odp) {
+			return;
+		}
+		
+		var odp = config.odp;
+		
+		if(!config.odp.apiUrl) {
+			return;
+		}
+		
+		
+		var baseUrl = odp.apiUrl;
 		
 		var urlGetLanguages = baseUrl + "getLanguages";
 		var urlGetHeaderMenu = baseUrl + "getHeaderMenu/";

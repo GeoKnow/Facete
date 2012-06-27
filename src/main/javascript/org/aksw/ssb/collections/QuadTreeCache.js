@@ -6,7 +6,7 @@
 
 	var rdfQueryUtils = Namespace("org.aksw.ssb.utils.rdfquery");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
-
+	var facets = Namespace("org.aksw.ssb.facets");
 	
 	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
@@ -70,33 +70,44 @@
 	 * 	subQuery = {none, bounds, bounds+facets}
 	 * 
 	 */
-	ns.BackendFactory = function(sparqlService, queryGenerator) {
+	ns.BackendFactory = function(sparqlService, queryGeneratorGeo) {
 		this.sparqlService = sparqlService;
-		this.queryGenerator = queryGenerator;
+		this.queryGeneratorGeo = queryGeneratorGeo;
 		
-		this.geomVar = sparql.Node.v(this.queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable);
+		var geomBreadcrumb = new facets.Breadcrumb(queryGeneratorGeo.getPathManager(), this.queryGeneratorGeo.geoConstraintFactory.path);
+		
+		this.geomVar = geomBreadcrumb.getTargetVariable(); //sparql.Node.v(this.queryGenerator.geoConstraintFactory.breadcrumb.targetNode.variable);
 		//this.featureVar = sparql.Node.v(this.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
-		this.featureVar = sparql.Node.v(this.queryGenerator.navigationBreadcrumb.targetNode.variable);
+		this.featureVar = this.queryGeneratorGeo.getNavigationBreadcrumb().getTargetVariable();//this.queryGeneratorGeo.getTargetVariable(); //sparql.Node.v(this.queryGenerator.navigationBreadcrumb.targetNode.variable);
 	};
 	
+	ns.BackendFactory.prototype.forQueryGenerator = function(queryGenerator) {
+
+		var element = queryGenerator.createDriverValues().getElement();
+
+		return this.forElement(element);
+	};
+
+
 	ns.BackendFactory.prototype.forElement = function(element) {
 		var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
 
 		return new ns.Backend(this.sparqlService, queryFactory);		
 	};
+
 	
 	
 	ns.BackendFactory.prototype.forBounds = function(bounds, options) {
-		var element = this.queryGenerator.forBounds(bounds, options);
+		var queryGenerator = this.queryGeneratorGeo.forBounds(bounds, options);
 		
-		var result = this.forElement(element);
+		var result = this.forQueryGenerator(queryGenerator);
 		return result;
 	};
 
 	ns.BackendFactory.prototype.forGeoms = function(geomUriNodes, options) {
-		var element = this.queryGenerator.forGeoms(geomUriNodes);
+		var queryGenerator = this.queryGeneratorGeo.forGeoms(geomUriNodes);
 
-		var result = this.forElement(element);
+		var result = this.forQueryGenerator(queryGenerator);
 		return result;
 	};
 
@@ -106,9 +117,9 @@
 	 * @param options
 	 */
 	ns.BackendFactory.prototype.forGlobal = function(options) {
-		var element = this.queryGenerator.forGlobal(options);
+		var queryGenerator = this.queryGeneratorGeo.forGlobal(options);
 
-		var result = this.forElement(element);
+		var result = this.forQueryGenerator(queryGenerator);
 		return result;
 	};
 	
@@ -130,6 +141,9 @@
 	
 	ns.Backend.prototype.fetchGeomCount = function(maxCount) {
 		var query = this.queryFactory.createQueryGeomCount(maxCount);
+		
+		console.debug("geomcountquery " + query);
+		
 		var result = queryUtils.fetchInt(this.sparqlService, query.toString(), this.queryFactory.countVar);
 		return result;
 	};
@@ -494,6 +508,7 @@
 			self.isLocked = false;
 			result.resolve(nodes);
 		}).fail(function() {
+			self.isLocked = false;
 			result.fail();
 		});
 		

@@ -431,9 +431,13 @@
 	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
 	    	var driver = new facets.Driver(driverElement, driverVar);
 	
-			var model = new widgets.ListModelSparql(this.sparqlService, this.labelFetcher, driver, {distinct: true});
+	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	
+			var model = widgets.createListModelLabels(this.sparqlService, queryGenerator, {distinct: true}, this.labelFetcher);
 			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
-	
+			listWidget.sort();
+			
+			
 			listWidget.bind("click", function(ev, payload) {
 				alert(payload.checked + " " + payload.item.model.get("label"));
 			});
@@ -441,7 +445,24 @@
 			$$.document.append(listWidget, $("#ssb-class-selection"));
 		}
 		*/
+
+		console.log("PaginatorX", widgets.Paginator);
+		var paginator = widgets.createPaginator();//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+
+		paginator.setMaxSlotCount(5);
+		paginator.setPageCount(10);
+		paginator.setCurrentPage(5);
+		paginator.refresh();
 		
+		
+		paginator.bind("click", function(ev, payload) {
+			alert("click");
+		});
+		
+		//paginatorWidget.trimToSize(0);
+		
+		$$.document.append(paginator, $("#ssb-class-selection"));
+
 		
     	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
 

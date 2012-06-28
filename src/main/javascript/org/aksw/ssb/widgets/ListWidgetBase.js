@@ -8,7 +8,7 @@
 	};
 	
 	
-	ns.listItem = $$({
+	ns.ListItem = $$({
 		setId: function(id) {
 			this.model.set({id:id});
 		},
@@ -40,7 +40,7 @@
 		return $$(ns.itemLabel, {parent: parent, label: data, fnId: fnId});
 	};
 	
-	ns.listWidget = $$({
+	ns.ListWidget = $$({
 		view: { format: '<ul class="nav nav-list"></ul>', },
 		model: {itemFactory: ns.ItemFactoryString, collection: []},
 		controller: {
@@ -55,7 +55,7 @@
 					keyToData[id] = data;
 				});
 				
-				console.log("Synch", keyToData);
+				//console.log("Synch", keyToData);
 				this.syncView(keyToData);
 			}			
 		},
@@ -64,6 +64,20 @@
 			this.each(function(child) {
 				child.destroy();
 			});
+		},
+		getItems: function() {
+			var result = [];
+			this.each(function(i, item) {
+				result.push(item);
+			});
+			return result;
+		},
+		trimToSize: function(size) {
+			var items = this.getItems();
+			
+			for(var i = size; i < items.length; ++i) {
+				items[i].destroy();
+			}
 		},
 		setCollection: function(collection) {
 			this.model.set({collection: collection});
@@ -150,7 +164,7 @@
 	
 	
 	ns.createListWidget2 = function(itemFactory, fnId) {
-		var result = $$(ns.listWidget);
+		var result = $$(ns.ListWidget);
 		//console.log("ListWidget", result);
 		
 		if(itemFactory) {
@@ -167,7 +181,7 @@
 	};
 	
 	ns.createListWidget = function(model, itemFactory) {
-		var result = $$(ns.listWidget);
+		var result = $$(ns.ListWidget);
 		
 		if(itemFactory) {
 			result.setItemFactory(itemFactory);

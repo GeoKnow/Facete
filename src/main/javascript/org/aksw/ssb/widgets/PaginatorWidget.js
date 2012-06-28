@@ -72,7 +72,7 @@
 	/*
 	var PaginatorItemNext = 
 	*/
-		
+			
 		
 	
 	ns.createPaginator = function() {
@@ -87,16 +87,24 @@
 	 * hasMorePages: Whether more pages than those are known exist
 	 * 
 	 */
-	 ns.Paginator = $$(ns.ListWidget, {
+	 ns.Paginator = $$({
 		model: {maxSlotCount: 5, currentPage: 0, pageCount: 0, hasMorePages: false, slots: []},
 		view: {
-			format: '<ul class="pagination"></ul>'
+			format: '<div class="pagination pagination-centered"></div>'
 		},
 		controller: {
 			create: function() {
+				var listWidget = ns.createListWidget(null, ns.createItemFactory(ns.PaginatorItem));
+				
+				this.setListWidget(listWidget);
+				
+				this.append(listWidget);
+				
+				/*
 				var item = $$(ns.PaginatorItem);
 				item.setLabel("test");				
 				this.addItem(item);
+				*/
 			}
 		},
 		setCurrentPage: function(index) {
@@ -119,20 +127,23 @@
 		 * 
 		 * @param size
 		 */
-		setSlots: function(size) {			
+		setSlots: function(size) {
+			
+			var listWidget = this.getListWidget();
+			
 			var n = size + 2;
 
 			// Remove superfluous items
-			this.trimToSize(n);
+			listWidget.trimToSize(n);
 			
 			var slots = this.getSlots();
 
 			// Create new items as neccessary
 			var m = n - slots.length; 
 			for(var i = 0; i < m; ++i) {
-				var item = this.getItemFactory()(this);
+				var item = listWidget.getItemFactory()(this);
 				//item.setLabel("" + (pages.length + i));
-				this.addItem(item);
+				listWidget.addItem(item);
 			}			 
 			
 			//this.refresh();
@@ -159,7 +170,7 @@
 			var maxNumHeadSlots = currentPage - 1;
 			var maxNumTailSlots = pageCount - currentPage - 1;
 
-			var numTailSlots = Math.min(maxNumTailSlots, numSlots / 2);
+			var numTailSlots = Math.min(maxNumTailSlots, Math.round(numSlots / 2));
 			var numHeadSlots = Math.min(maxNumHeadSlots, numTailSlots - numTailSlots);
 
 			var numRequiredSlots = numHeadSlots + numTailSlots + 1;
@@ -220,53 +231,51 @@
 		getMaxSlotCount: function() {
 			return this.model.get("maxSlotCount");
 		},
-
-		/*
-		setPages: function(pages) {
-			this.model.set({pages: pages});
-		},
-		*/
+		
 		getAllSlots: function() {
-			//return this.model.get("slots");
-			//return this.model.get("slots");
-			return this.getItems();
+			return this.getListWidget().getItems();
 		},
+		
 		getSlots: function() {
 			var slots = this.getAllSlots();
 			return slots.slice(1, slots.length - 1);
 		},
+		
 		getJumpToPrev: function() {
 			return this.getAllSlots()[0];
 		},
+		
 		getJumpToNext: function() {
 			var slots = this.getAllSlots();
 			return slots[slots.length - 1];
 		},
+		
 		getJumpToCustom: function() {
 			
 		},
+		
 		getJumpToFirst: function() {
 			var pages = this.getAllPages();
 			return pages[0];
 		},
+		
 		getJumpToLast: function() {
 			var pages = this.getAllPages();
 			return pages[pages.length - 1];			
 		},
+		
 		getPage: function() {
 			
-		}
+		},
+		
+		getListWidget: function() {
+			return this.model.get("listWidget");
+		},
+		
+		setListWidget: function(listWidget) {
+			this.model.set({listWidget: listWidget});
+		} 
 	});
 	 
-	 /*
-	ns.Paginator.prototype.test = function() {
-		// HACK, but controller.create does not seem to get called....
-		console.log("Created");
-		var item = $$(PaginatorItem);
-		item.setLabel("test");				
-		this.addItem(item);
-	};
-	*/
-	
 	
 })(jQuery);

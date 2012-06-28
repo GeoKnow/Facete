@@ -416,13 +416,17 @@
 	    	//console.log("Widget Ns", widgets);
 	    	
 			var model = widgets.createListModelLabels(this.sparqlService, queryGenerator, {distinct: true}, this.labelFetcher);
-			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
-	
-			listWidget.bind("click", function(ev, payload) {
+			var listWidget = widgets.createListWidgetSparql(model, widgets.checkItemFactory);
+			//var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
+			
+			listWidget.getListWidget().bind("click", function(ev, payload) {
 				alert(payload.checked + " " + payload.item.model.get("label"));
 			});
 	
 			$$.document.append(listWidget, $("#ssb-graph-selection"));
+			//listWidget.init();
+			
+			//listWidget.refresh();
 		}
 
 		/*
@@ -446,6 +450,7 @@
 		}
 		*/
 
+		/*
 		console.log("PaginatorX", widgets.Paginator);
 		var paginator = widgets.createPaginator();//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 
@@ -456,14 +461,24 @@
 		
 		
 		paginator.bind("click", function(ev, payload) {
-			alert("click");
+			alert("click" + payload.getTargetPage());
 		});
 		
 		//paginatorWidget.trimToSize(0);
 		
 		$$.document.append(paginator, $("#ssb-class-selection"));
+		*/
 
 		
+		//var sparqlListWidget = $$(widgets.ListWidgetSparql);
+		/*
+		var sparqlListWidget = widgets.createListWidgetSparql();
+	
+		
+		$$.document.append(sparqlListWidget, $("#ssb-class-selection"));
+		
+		sparqlListWidget.refresh();
+		*/
     	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
 
 	};

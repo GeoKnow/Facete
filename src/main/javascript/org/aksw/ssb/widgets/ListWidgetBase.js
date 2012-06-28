@@ -41,7 +41,8 @@
 	};
 	
 	ns.ListWidget = $$({
-		view: { format: '<ul class="nav nav-list"></ul>', },
+		//view: { format: '<ul class="nav nav-list"></ul>', },
+		view: { format: '<ul></ul>', },
 		model: {itemFactory: ns.ItemFactoryString, collection: []},
 		controller: {
 			'change': function() {
@@ -59,7 +60,11 @@
 				this.syncView(keyToData);
 			}			
 		},
-		
+		/*
+		getContainerElement: function() {
+			return this.view.$();
+		},
+		*/
 		clear: function() {
 			this.each(function(child) {
 				child.destroy();
@@ -87,7 +92,7 @@
 		},
 		addItem: function(item) {
 			console.log("Item is", item);
-			this.append(item);
+			this.append(item);//, this.getContainerElement());
 		},
 		removeItem: function(item) {
 			this.remove(item);
@@ -142,7 +147,7 @@
 					item = self.getItemFactory()(self, data);
 					
 					console.log("Append", item);
-					self.append(item);
+					self.append(item);//, self.getContainerElement());
 				}
 			});
 			
@@ -150,9 +155,16 @@
 		},
 		
 		refresh: function() {
-			var self = this;
-			var task = this.getListModel().fetchData();
+			var listModel = this.getListModel();
 			
+			console.log("listModel", listModel);
+			if(!listModel || !listModel.fetchData) {
+				return;
+			}
+
+			var self = this;
+						
+			var task = listModel.fetchData();
 			$.when(task).then(function(keyToData) {
 				
 				self.syncView(keyToData);				

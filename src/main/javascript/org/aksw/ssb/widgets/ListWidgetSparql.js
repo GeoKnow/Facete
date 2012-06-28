@@ -698,4 +698,135 @@
 	
 	
 	
+	ns.TextBox = $$({
+		model: {text: "" },
+		view: {
+			format: '<input type="text" data-bind="text" />'
+		},
+		'change' : function() {
+			this.trigger("change:text", this.model.get("text"));
+		}
+	});
+
+	
+	ns.Div = $$({view: {format: '<div />'}});
+	
+	/**
+	 * A list widget that provides a text box for searches and pagination.
+	 * TODO Maybe a table model is yet the better option....
+	 * 
+	 * The table model would have a set of physical (i.e. backend backed) columns
+	 * and a set of columns that are computed on the client.
+	 * 
+	 * So the features should be:
+	 * global:
+	 * - setSampleSize
+	 * - setPaceSize (setItemsPerPage)
+	 * - order([[name, 'asc'], [name2, 'desc']]
+	 * columns:
+	 * -
+	 * 
+	 * 
+	 * model.addColumn(name, expr);
+	 * 
+	 * model.compileExpr....
+	 * 
+	 * model.addColumn(name, function(row) { });
+	 * 
+	 */
+	ns.ListWidgetSparql = $$({
+		view: {
+			format: '<div></div>'
+		},
+		controller: {
+		},
+		init: function() {
+			var widgets = ns;
+			
+			var div = $$(ns.Div, {view: {style: "& {text-align: center}"}});
+
+			this.append(div);
+			var searchBox = $$(ns.TextBox);
+			div.append(searchBox);
+
+						
+			//this.model.set({containerElement: listWidget});
+
+			var listWidget = this.getListWidget(); 
+			this.append(listWidget);
+			
+			
+			//var self = this;
+			
+			
+			var paginator = widgets.createPaginator();//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+			this.setPaginator(paginator);
+			
+			paginator.setMaxSlotCount(6);
+			paginator.setPageCount(10);
+			paginator.setCurrentPage(5);
+			paginator.refresh();
+
+
+			this.append(paginator);
+			
+			
+			// Bind to the paginator
+			paginator.bind("click", function(ev, payload) {
+				alert("click" + payload.getTargetPage());
+			});
+			
+			
+			//var listWidget = this.model.getListWidget();
+			//this.append(listWidget);
+			
+			
+		},
+		setListWidget: function(listWidget) {
+			this.model.set({listWidget: listWidget});
+		},
+		getListWidget: function() {
+			return this.model.get("listWidget");
+		},
+		setPaginator: function(paginator) {
+			this.model.set({paginator: paginator});
+		},
+		getPaginator: function() {
+			return this.model.get("paginator");
+		},
+		
+		/*
+		getContainerElement: function() {
+			return this.model.get("containerElement");
+		},*/
+		getSearchElement: function() {
+			
+		},
+		getPaginateElement: function() {
+			
+		},
+		getListElement: function() {
+			
+		},
+		refresh: function() {
+			this.getListWidget().refresh();
+			this.getPaginator().refresh();
+		},
+		updatePageCount: function() {
+			// (Re)counts the number of pages
+		}
+		
+	});
+	
+	
+	ns.createListWidgetSparql = function(model, itemFactory) {
+		var listWidget = ns.createListWidget(model, itemFactory);
+
+		var result = $$(ns.ListWidgetSparql);
+		result.setListWidget(listWidget);
+		result.init(listWidget);
+		
+		return result;
+	};
+	
 })(jQuery);

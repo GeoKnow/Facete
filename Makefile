@@ -1,8 +1,16 @@
+wd=$(shell pwd)
+
 clean-deps:
 	rm -rf lib/twitter-bootstrap/current
 	rm -rf lib/agility/current
 	rm -rf lib/RDFauthor/current
 	rm -rf lib/Font-Awesome/current
+
+zip:
+	tarFile="$(wd)/../SemMap.tar"
+	@echo $(tarFile)
+	tar -cvf $(tarFile) $(wd)
+	gzip $(tarFile)
 
 deploy: clean-deps
 	git clone git://github.com/twitter/bootstrap.git lib/twitter-bootstrap/current

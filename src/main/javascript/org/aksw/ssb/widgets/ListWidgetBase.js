@@ -40,10 +40,19 @@
 		return $$(ns.itemLabel, {parent: parent, label: data, fnId: fnId});
 	};
 	
+	
+	/**
+	 * A simple list widget.
+	 * 
+	 * TODO I think we should distinguish between a pure view-only list widget,
+	 * and a view+model list widget.
+	 * 
+	 */
 	ns.ListWidget = $$({
 		//view: { format: '<ul class="nav nav-list"></ul>', },
 		view: { format: '<ul></ul>', },
 		model: {itemFactory: ns.ItemFactoryString, collection: []},
+		/*
 		controller: {
 			'change': function() {
 				
@@ -59,14 +68,14 @@
 				//console.log("Synch", keyToData);
 				this.syncView(keyToData);
 			}			
-		},
+		},*/
 		/*
 		getContainerElement: function() {
 			return this.view.$();
 		},
 		*/
 		clear: function() {
-			this.each(function(child) {
+			this.each(function(i, child) {
 				child.destroy();
 			});
 		},
@@ -97,10 +106,10 @@
 		removeItem: function(item) {
 			this.remove(item);
 		},
-		setListModel: function(listModel) {
+		setModel: function(listModel) {
 			this.model.set({listModel: listModel});
 		},
-		getListModel: function() {
+		getModel: function() {
 			return this.model.get("listModel");
 		},
 		setItemFactory: function(fn) {
@@ -115,8 +124,24 @@
 		setFnId: function(fnId) {
 			this.model.set({fnId: fnId});
 		},
+		syncView2: function(collection) {
+			this.clear();
+			
+			var self = this;
+			//var collection = this.getCollection();
+			_.each(collection, function(item) {
+				var renderer = self.getItemFactory(); 
+				itemView = renderer(self, item);
+				self.append(itemView);
+			});
+			
+			//this.trimToSize(collection.size());
+		},
+		
 		syncView: function(keyToData) {
 			
+			this.syncView2(keyToData);
+			return;
 			
 			var idToItem = ns.agilityJsIndexChildren(this);
 
@@ -155,7 +180,7 @@
 		},
 		
 		refresh: function() {
-			var listModel = this.getListModel();
+			var listModel = this.getModel();
 			
 			console.log("listModel", listModel);
 			if(!listModel || !listModel.fetchData) {
@@ -165,9 +190,9 @@
 			var self = this;
 						
 			var task = listModel.fetchData();
-			$.when(task).then(function(keyToData) {
+			$.when(task).then(function(collection) {
 				
-				self.syncView(keyToData);				
+				self.syncView(collection);
 				
 			});
 		}
@@ -198,7 +223,7 @@
 		if(itemFactory) {
 			result.setItemFactory(itemFactory);
 		}
-		result.setListModel(model);
+		result.setModel(model);
 		
 		
 		

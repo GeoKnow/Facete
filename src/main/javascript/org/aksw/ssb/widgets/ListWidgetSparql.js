@@ -79,6 +79,18 @@
 		this.queryGenerator.getNavigationPath();
 	};
 	
+	ns.QueryExecutor.prototype.fetchValuesFiltered = function(searchString, property, options) {
+		if(!searchString || $.trim("" + searchString).length === 0) {
+			return this.fetchValues(options);
+		} 
+		
+		var variable = this.queryGenerator.getNavigationVariable();
+		var query = this.queryGenerator.createQueryValuesFiltered(searchString, property, options);
+		var promise = queryUtils.fetchList(this.sparqlService, query, variable);
+		
+		return promise;
+	};
+	
 	/**
 	 * FIXME Decide on options; they may e.g. include: limit, offset, order
 	 * 
@@ -530,6 +542,21 @@
 	};
 	
 	
+	ns.QueryGenerator.prototype.createQueryValuesFiltered = function(searchString, property, options) {
+		var driver = this.createDriverValues();
+		
+		var labelVar = sparql.Node.v("__l");
+		var element = queryUtils.createElementLabelRegex(driver.getVariable(), searchString, labelVar, property);
+		
+		var newElement = element ? new sparql.ElementGroup([driver.getElement(), element]) : driver.getElement();
+		
+		var newDriver = new facets.Driver(newElement, driver.getVariable());
+		
+		var result = queryUtils.createQuerySelect(newDriver, options);
+		
+		return result;
+	};
+	
 	ns.QueryGenerator.prototype._appendConstraintElement = function(destElements, options) {
 		if(!(options && options.disableConstraints)) {
 			var element = this.constraints.getSparqlElement(this.pathManager);
@@ -585,6 +612,32 @@
 		return result;
 	};
 
+	
+	ns.PostProcessorModel = function(model, postProcessor) {
+		this.model = model;
+		this.postProcessor = postProcessor;
+	};
+	
+	ns.PostProcessorModel.prototype.fetchData = function() {
+			
+		var result = $.Deferred();
+		var self = this;
+		var task = this.model.fetchData();
+		$.when(task).then(function(resources) {
+
+			var processed = _.map(resources, function(item) {
+				return {data: item};
+			});
+			
+			self.postProcessor.process(result, processed);
+			
+		}).fail(function() {
+			result.fail();
+		});
+
+		return result;
+	};
+	
 
 	ns.isNode = function(candidate) {
 		return candidate && (candidate instanceof sparql.Node);
@@ -703,8 +756,12 @@
 		view: {
 			format: '<input type="text" data-bind="text" />'
 		},
-		'change' : function() {
-			this.trigger("change:text", this.model.get("text"));
+		controller: {
+			'change' : function() {
+				var text = this.view.$().val();
+				
+				this.trigger("change-text", text);
+			}
 		}
 	});
 
@@ -748,39 +805,57 @@
 			this.append(div);
 			var searchBox = $$(ns.TextBox);
 			div.append(searchBox);
-
+			
+			this.setTextWidget(searchBox);
 						
 			//this.model.set({containerElement: listWidget});
 
 			var listWidget = this.getListWidget(); 
 			this.append(listWidget);
 			
+			this.setListWidget(listWidget);
 			
 			//var self = this;
 			
+			var paginatorModel = new widgets.PaginatorModel();
 			
-			var paginator = widgets.createPaginator();//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+			var paginator = widgets.createPaginator(paginatorModel);//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 			this.setPaginator(paginator);
-			
-			paginator.setMaxSlotCount(6);
-			paginator.setPageCount(10);
-			paginator.setCurrentPage(5);
-			paginator.refresh();
-
 
 			this.append(paginator);
 			
+			paginator.refresh();
 			
-			// Bind to the paginator
-			paginator.bind("click", function(ev, payload) {
-				alert("click" + payload.getTargetPage());
+			this.setPaginator(paginator);
+			
+/*
+			var self = this;
+			searchBox.bind("change-text", function(ev, text) {
+				//this.view.$().val();
+				alert(text);
+				/*
+				var executor = self.getExecutor();
+				$.when(executor.fetchValuesFiltered(text)).then(function(data) {
+					alert("data");
+				});* /
 			});
 			
+			// Bind to the paginator
+			paginator.getListWidget().bind("click", function(ev, payload) {
+				alert("click" + payload.getPage());
+			});
+	*/		
 			
 			//var listWidget = this.model.getListWidget();
 			//this.append(listWidget);
 			
 			
+		},
+		getTextWidget: function() {
+			return this.model.get("textWidget");
+		},
+		setTextWidget: function(textWidget) {
+			this.model.set({textWidget: textWidget});
 		},
 		setListWidget: function(listWidget) {
 			this.model.set({listWidget: listWidget});
@@ -793,30 +868,56 @@
 		},
 		getPaginator: function() {
 			return this.model.get("paginator");
-		},
+		}
+	});
+	
+	
+	ns.ListModelExecutor = function(executor, limit, offset, searchString) {
+		this.executor = executor;
+		this.limit = limit;
+		this.offset = offset;
+		this.searchString = searchString;
+	};
+	
+	ns.ListModelExecutor.prototype.fetchData = function() {
+		var options = {limit: this.limit, offset: this.offset, distinct: true};
+		console.log("Options", options);
+		
+		var promise = this.executor.fetchValuesFiltered(this.searchString, null, options);
+		return promise;
+		//return $.Deferred();
+	};
+	
+	
+	
+	ns.createExecutorList = function(model, itemRenderer, labelFetcher) {
+
+		var postProcessor = new ns.PostProcessorLabels(labelFetcher);
+		var postModel = new ns.PostProcessorModel(model, postProcessor);
+		
+		var result = ns.createListWidgetSparql(postModel, itemRenderer);
+		
+		
+		var self = this;
+		result.getTextWidget().bind("change-text", function(ev, text) {
+			model.searchString = text;
+			result.getListWidget().refresh();
+		});
+		
+		result.getPaginator().bind("click", function(ev, page) {
+			alert("foo");
+		});
 		
 		/*
-		getContainerElement: function() {
-			return this.model.get("containerElement");
-		},*/
-		getSearchElement: function() {
-			
-		},
-		getPaginateElement: function() {
-			
-		},
-		getListElement: function() {
-			
-		},
-		refresh: function() {
-			this.getListWidget().refresh();
-			this.getPaginator().refresh();
-		},
-		updatePageCount: function() {
-			// (Re)counts the number of pages
-		}
+		result.getListWidget().bind("click", function(ev, payload) {
+			alert("bar");
+		});
+		*/
 		
-	});
+		
+		
+		return result;
+	};
 	
 	
 	ns.createListWidgetSparql = function(model, itemFactory) {
@@ -825,6 +926,11 @@
 		var result = $$(ns.ListWidgetSparql);
 		result.setListWidget(listWidget);
 		result.init(listWidget);
+		
+		
+		
+		
+		
 		
 		return result;
 	};

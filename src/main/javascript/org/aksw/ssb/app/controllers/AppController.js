@@ -413,21 +413,45 @@
 	    	var driver = new facets.Driver(driverElement, driverVar);
 	
 	    	var queryGenerator = new widgets.QueryGenerator(driver);
-	    	//console.log("Widget Ns", widgets);
 	    	
-			var model = widgets.createListModelLabels(this.sparqlService, queryGenerator, {distinct: true}, this.labelFetcher);
-			var listWidget = widgets.createListWidgetSparql(model, widgets.checkItemFactory);
-			//var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
+			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
+
+			var executorModel = new widgets.ListModelExecutor(executor, 50);
 			
+			var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+						
 			listWidget.getListWidget().bind("click", function(ev, payload) {
 				alert(payload.checked + " " + payload.item.model.get("label"));
 			});
 	
 			$$.document.append(listWidget, $("#ssb-graph-selection"));
-			//listWidget.init();
 			
-			//listWidget.refresh();
+			listWidget.getListWidget().refresh();
 		}
+
+		
+		{
+	    	var driverVar = sparql.Node.v("c");
+	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+	
+	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	
+			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
+
+			var executorModel = new widgets.ListModelExecutor(executor, 50);
+			
+			var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+						
+			listWidget.getListWidget().bind("click", function(ev, payload) {
+				alert(payload.checked + " " + payload.item.model.get("label"));
+			});
+	
+			$$.document.append(listWidget, $("#ssb-class-selection"));
+			
+			listWidget.getListWidget().refresh();
+		}
+
 
 		/*
 		{

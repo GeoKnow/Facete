@@ -20,6 +20,17 @@
 	};
 	*/
 	
+	ns.PaginatorItemRenderer = function(parent, data) {
+		var result = $$(ns.PaginatorItem, {parent: parent});
+		
+		result.setEnabled(data.isEnabled);
+		result.setActive(data.isActive);
+		result.setPage(data.page);
+		result.setLabel(data.label);
+		
+		
+		return result;
+	};
 	
 	ns.PaginatorItem =
 		$$({
@@ -49,11 +60,11 @@
 					this.view.$().removeClass("active");
 				}
 			}, 
-			setTargetPage: function(index) {
-				this.model.set({targetPage: index});
+			setPage: function(index) {
+				this.model.set({page: index});
 			},
-			getTargetPage: function() {
-				return this.model.get("targetPage");
+			getPage: function() {
+				return this.model.get("page");
 			},
 			setLabel: function(label) {
 				this.view.$("a").text(label);//html($.escapeHTML(label));
@@ -72,11 +83,123 @@
 	/*
 	var PaginatorItemNext = 
 	*/
+	
+	/* TODO Eventually it seems backbone is the better choice
+	 * - although agility seemed simple at first, I find myself
+	 * re-implenting features that backbone already offers in
+	 * order to increase reusability
+	 */
+/*
+	ns.PaginatorModel = Backbone.Model.extend({
+		defaults: {
+			label: "not set",
+			page: -1
+		}
+	});
+	
+	
+	ns.PaginatorCollection = Backbone.Collection.extend({
+	    model: ns.PaginatorModel
+	});
+*/
+	
+	
+	
+		
+	ns.PaginatorModel = function(options) {
+		this.maxSlotCount = 5;
+		this.currentPage = 0;
+		this.pageCount = 10;
+		this.hasMorePages = false;
+		
+		_.extend(this, options);
+	};
+	
+	ns.PaginatorModel.prototype.setCurrentPage = function(page) {
+		this.currentPage = Math.min(this.pageCount, page);
+	};
+	
+	ns.PaginatorModel.prototype.getCurrentPage = function() {
+		return this.currentPage;
+	};
+	
+	ns.PaginatorModel.prototype.setPageCount = function(pageCount) {
+		this.pageCount = pageCount;
+	};
+	
+	ns.PaginatorModel.prototype.getPageCount = function() {
+		return this.getPageCount;
+	};
+	
+	ns.PaginatorModel.prototype.getMaxSlotCount = function() {
+		return this.maxSlotCount;
+	};
+	
+	//ns.PageModel.prototype.
+	
+	ns.PaginatorModel.prototype.fetchData = function() {
+		
+		var currentPage = this.currentPage;
+		
+		// page indexes are zero based in here
+		var numSlots = this.maxSlotCount - 1; // We need one slot for the current page			
+		var maxNumHeadSlots = currentPage - 1;
+		var maxNumTailSlots = this.pageCount - currentPage - 1;
+
+		var numTailSlots = Math.min(maxNumTailSlots, Math.round(numSlots / 2));
+		var numHeadSlots = Math.min(maxNumHeadSlots, numTailSlots - numTailSlots);
+
+		var numRequiredSlots = numHeadSlots + numTailSlots + 1;
+
+		var activeSlotIndex = numHeadSlots + 1;
+		
+		
+		var firstPage = currentPage - numHeadSlots;
+
+		var pageSlots = [];
+		
+		// Prev button
+		pageSlots.push({
+			label: "<",
+			isEnabled: currentPage > 0,
+			page: currentPage -1			
+		});
+		
+		for(var i = 0; i < numRequiredSlots; ++i) {
+			var page = firstPage + i;
+			
+			pageSlots.push({
+					label: "" + page,
+					isEnabled: true,
+					isActive: i == activeSlotIndex,
+					page: page
+			});
+		}
+		
+		pageSlots.push({
+			label: ">",
+			isEnabled: currentPage < this.pageCount - 1,
+			page: currentPage + 1
+		});
+
+		//return pageSlots;
+		
+		var result = $.Deferred();
+		
+		result.resolve(pageSlots);
+		
+		return result.promise();
+	};
 			
 		
 	
-	ns.createPaginator = function() {
-		return $$(ns.Paginator, {itemFactory: ns.createItemFactory(ns.PaginatorItem)});
+	ns.createPaginator = function(model) {
+		//return $$(ns.Paginator, {itemFactory: ns.createItemFactory(ns.PaginatorItem)});
+		//return ns.createListWidget(model, ns.createItemFactory(ns.PaginatorItem));
+		var result = $$(ns.Paginator);
+		result.getListWidget().setModel(model);
+		//result.getListWidget().setItemFactory(ns.PaginatorItemRenderer);
+		return result;
 	};
 	
 
@@ -88,25 +211,39 @@
 	 * 
 	 */
 	 ns.Paginator = $$({
-		model: {maxSlotCount: 5, currentPage: 0, pageCount: 0, hasMorePages: false, slots: []},
+		//model: {maxSlotCount: 5, currentPage: 0, pageCount: 0, hasMorePages: false, slots: []},
 		view: {
 			format: '<div class="pagination pagination-centered"></div>'
 		},
 		controller: {
 			create: function() {
-				var listWidget = ns.createListWidget(null, ns.createItemFactory(ns.PaginatorItem));
-				
-				this.setListWidget(listWidget);
-				
+				var listWidget = ns.createListWidget(null, ns.PaginatorItemRenderer);
+				this.setListWidget(listWidget);				
 				this.append(listWidget);
 				
-				/*
-				var item = $$(ns.PaginatorItem);
-				item.setLabel("test");				
-				this.addItem(item);
-				*/
+				var self = this;
+				listWidget.bind("click", function(ev, item) {
+					self.trigger("click", item);
+				});
 			}
 		},
+		setModel: function(model) {
+			this.getListWidget().setModel(model);
+		},
+		getModel: function() {
+			return this.getListWidget().getModel();
+		},
+		getListWidget: function() {
+			return this.model.get("listWidget");
+		},
+		setListWidget: function(listWidget) {
+			this.model.set({listWidget: listWidget});
+		},
+		refresh: function() {
+			this.getListWidget().refresh();
+		}
+
+		/*
 		setCurrentPage: function(index) {
 			this.model.set({currentPage: index});
 		},
@@ -127,12 +264,14 @@
 		 * 
 		 * @param size
 		 */
+		/*
 		setSlots: function(size) {
 			
 			var listWidget = this.getListWidget();
 			
 			var n = size + 2;
 
+			
 			// Remove superfluous items
 			listWidget.trimToSize(n);
 			
@@ -148,6 +287,7 @@
 			
 			//this.refresh();
 		},
+		*/
 		/**
 		 * [<<] [<] [10] [*11*] [12] [...] [>] [>>]
 		 *  
@@ -161,6 +301,7 @@
 		 * [<<] [<] [...] [30] [31] [32] [...] [>] [>>]
 		 * 
 		 */
+		/*
 		refresh: function() {
 			var currentPage = this.getCurrentPage();
 			var pageCount = this.getPageCount();			
@@ -227,7 +368,7 @@
 		},
 		/**
 		 * Return the number of pages that are displayed
-		 */
+		 * /
 		getMaxSlotCount: function() {
 			return this.model.get("maxSlotCount");
 		},
@@ -267,14 +408,7 @@
 		getPage: function() {
 			
 		},
-		
-		getListWidget: function() {
-			return this.model.get("listWidget");
-		},
-		
-		setListWidget: function(listWidget) {
-			this.model.set({listWidget: listWidget});
-		} 
+								*/
 	});
 	 
 	

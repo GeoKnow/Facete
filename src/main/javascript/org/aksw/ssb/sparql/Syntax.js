@@ -494,9 +494,10 @@
 	
 	ns.E_Regex.prototype.toString = function() {
 		var patternStr = this.pattern.replace("'", "\\'");
-		var flagsStr = this.flags.replace("'", "\\'");
+		var flagsStr = this.flags ? ", '" + this.flags.replace("'", "\\'") + "'" : "";
+
 		
-		return "Regex(" + this.expr + ", '" + patternStr + "', '" + flagsStr + "')"; 
+		return "Regex(" + this.expr + ", '" + patternStr + "'" + flagsStr + ")"; 
 	};
 
 	ns.E_Equals = function(left, right) {

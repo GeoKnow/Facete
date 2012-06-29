@@ -38,7 +38,7 @@
 				format: '<li><a href="#" /></li>' 
 			},
 			controller: {
-				'click a': function() { this.getParent().trigger("click", this); }
+				'click a': function() { this.getParent().trigger("change-page", this.getPage()); }
 			},
 			isEnabled: function() {
 				return this.view.$().hasClass("disabled");
@@ -222,8 +222,8 @@
 				this.append(listWidget);
 				
 				var self = this;
-				listWidget.bind("click", function(ev, item) {
-					self.trigger("click", item);
+				listWidget.bind("change-page", function(ev, item) {
+					self.trigger("change-page", item);
 				});
 			}
 		},

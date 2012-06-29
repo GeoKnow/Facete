@@ -55,10 +55,18 @@
 	
 	
 	
-	ns.ConstraintCollection = function() {
-		this.idToConstraints = new collections.MultiMap(); 
+	ns.ConstraintCollection = function(multimap) {
+		if(!multimap) {
+			multimap = new collections.MultiMap();
+		}
+		
+		this.idToConstraints = multimap; 
 	};
 	
+	ns.ConstraintCollection.prototype.clone = function() {
+		//return this.idToConstraints.clone();
+		return new ns.ConstraintCollection(this.idToConstraints.clone());
+	};
 	
 	// TODO Is an add method more useful than put?
 	ns.ConstraintCollection.prototype.add = function(constraint) {
@@ -241,6 +249,34 @@
 		return result;
 	};
 	*/
+	
+	/*
+	 * Regex
+	 */
+
+	ns.ConstraintRegex = function(path, regexStr, flags) {
+		this.path = path;
+		this.regexStr = regexStr;
+		this.flags = flags;
+	};
+	
+	ns.ConstraintRegex.prototype.toString = function() {
+		return "regex(" + this.path + ", " + this.regexStr + ", " + this.flags + ")";
+	};
+	
+	ns.ConstraintRegex.prototype.createConstraintElement = function(pathManager) {
+		var breadcrumb = new facets.Breadcrumb(pathManager, this.path); 
+		
+		var triples = breadcrumb.getTriples();
+		
+		var varExpr = new sparql.ExprVar(breadcrumb.getTargetVariable()); 		
+		var expr = new sparql.E_Regex(varExpr, this.regexStr);
+		
+		
+		
+		var result = new ns.ConstraintElement(triples, expr, this.flags);
+		return result;
+	};
 
 	
 	/*

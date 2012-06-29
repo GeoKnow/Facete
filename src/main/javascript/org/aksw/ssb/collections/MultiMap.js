@@ -155,6 +155,13 @@
 		this.entries = {};
 	};
 	
+	ns.MultiMap.prototype.clone = function() {
+		var result = new ns.MultiMap();
+		result.addMultiMap(this);
+		
+		return result;
+	};
+	
 	ns.MultiMap.prototype.clear = function() {
 		this.entries = {};
 	};

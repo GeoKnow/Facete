@@ -5,6 +5,8 @@
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
+	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
+	
 	var ns = Namespace("org.aksw.ssb.widgets");
 	
 	ns.CheckItem = $$({}, '<li>'
@@ -79,6 +81,26 @@
 		this.queryGenerator.getNavigationPath();
 	};
 	
+	
+	ns.QueryExecutor.prototype.filterRegex = function(regexStr, path) {
+		if(!regexStr || $.trim("" + regexStr).length === 0) {
+			return this;
+		} 
+
+		var subGenerator = this.queryGenerator.filterRegex(regexStr, path);
+		
+		return new ns.QueryExecutor(this.sparqlService, subGenerator);
+	};
+	
+	/**
+	 * @Deprecated
+	 * 
+	 * 
+	 * @param searchString
+	 * @param property
+	 * @param options
+	 * @returns
+	 */
 	ns.QueryExecutor.prototype.fetchValuesFiltered = function(searchString, property, options) {
 		if(!searchString || $.trim("" + searchString).length === 0) {
 			return this.fetchValues(options);
@@ -246,7 +268,7 @@
 				this.driver,
 				this.navigationPath,
 				this.focusPath,
-				this.constraints,
+				this.constraints.clone(),
 				this.pathManager);
 	};
 	
@@ -540,8 +562,22 @@
 		var result = queryUtils.createQuerySelect(driver, options);
 		return result;
 	};
-	
-	
+
+	ns.QueryGenerator.prototype.filterRegex = function(regexStr, path) {
+		if(!path) {
+			path = new facets.Path([new facets.Step(rdfs.label.value)]);
+		}
+		
+		var constraint = new facets.ConstraintRegex(path, regexStr, "");
+		
+		var result = this.clone();
+		
+		result.constraints.add(constraint);
+		
+		return result;
+	};
+
+	/*
 	ns.QueryGenerator.prototype.createQueryValuesFiltered = function(searchString, property, options) {
 		var driver = this.createDriverValues();
 		
@@ -555,7 +591,7 @@
 		var result = queryUtils.createQuerySelect(newDriver, options);
 		
 		return result;
-	};
+	};*/
 	
 	ns.QueryGenerator.prototype._appendConstraintElement = function(destElements, options) {
 		if(!(options && options.disableConstraints)) {
@@ -868,6 +904,9 @@
 		},
 		getPaginator: function() {
 			return this.model.get("paginator");
+		},
+		getModel: function() {
+			return this.getListWidget().getModel();
 		}
 	});
 	
@@ -883,29 +922,61 @@
 		var options = {limit: this.limit, offset: this.offset, distinct: true};
 		console.log("Options", options);
 		
-		var promise = this.executor.fetchValuesFiltered(this.searchString, null, options);
+		var subExecutor = this.executor.filterRegex(this.searchString);
+		
+		var promise = subExecutor.fetchValues(options);
 		return promise;
 		//return $.Deferred();
 	};
 	
-	
+	ns.ListModelExecutor.prototype.getExecutor = function() {
+		return this.executor;
+	};
 	
 	ns.createExecutorList = function(model, itemRenderer, labelFetcher) {
 
+		var executor = model.getExecutor();
 		var postProcessor = new ns.PostProcessorLabels(labelFetcher);
 		var postModel = new ns.PostProcessorModel(model, postProcessor);
-		
+			
 		var result = ns.createListWidgetSparql(postModel, itemRenderer);
-		
+	
+		var paginatorModel = result.getPaginator().getModel(); 
+
 		
 		var self = this;
 		result.getTextWidget().bind("change-text", function(ev, text) {
 			model.searchString = text;
+		
+			var subExecutor = executor.filterRegex(model.searchString);
+			
+			$.when(subExecutor.fetchCountValues()).then(function(info) {
+				var itemCount = info.count;
+				var limit = model.limit;
+				
+				var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
+				if(itemCount === 0) {
+					pageCount = 0;
+				}
+				
+				paginatorModel.setPageCount(pageCount);
+				result.getPaginator().refresh();
+			});
+			
 			result.getListWidget().refresh();
 		});
 		
-		result.getPaginator().bind("click", function(ev, page) {
-			alert("foo");
+		result.getPaginator().bind("change-page", function(ev, page) {
+			var limit = model.limit;
+			
+			var offset = limit ? page * limit : 0;
+			
+			model.offset = offset;
+			//alert("offest" + offset);
+			paginatorModel.setCurrentPage(page);
+			
+			result.getPaginator().refresh();
+			result.getListWidget().refresh();
 		});
 		
 		/*

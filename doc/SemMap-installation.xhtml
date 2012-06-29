@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<title>EC Open Data Portal - SemMap installation</title>
+	<style type="text/css" media="all">
+		@import "./bootstrap.css";
+		@import "./style.css";
+	</style>
+	<meta name="keywords" content="SemMap, ODP, EC, Open Data Portal, installation, deployment" />
+	<meta name="description" content="Describes installing and configuring SemMap for EC ODP" />
+</head>
+
+<body>
+	<div class="doc">
+		<h2>EC Open Data Portal - SemMap installation</h2>
+
+		<h3 id="TableOfContents">Table of Contents</h3>
+
+		<div id="toc">
+			<ul>
+				<li><a href="#intro">Introduction</a></li>
+				<li>
+					<a href="#prereq">Prerequisites</a>
+					<ul>
+						<li><a href="#external-deps-services">External Dependencies</a></li>
+					</ul>
+					<ul>
+						<li><a href="#external-deps-tools">Install required tools</a></li>
+					</ul>
+					<ul>
+						<li><a href="#apache-config">Configure Apache</a></li>
+					</ul>				
+				</li>
+				<li><a href="#semmap-deploy">Deploy SemMap</a></li>
+				<li>
+				<ul>
+					<li><a href="#semmap-install-archive">Install SemMap from Archive</a></li>
+					<li><a href="#semmap-install-github">Install SemMap from Github</a></li>
+					<li><a href="#semmap-configure">Install SemMap from Github</a></li>
+				</ul>
+				</li>
+				<li><a href="#troubleshooting">Troubleshooting</a></li>
+				<li><a href="#appendix">Appendix</a>
+					<ul>
+						<li><a href="#makefile-targets">Makefile targets</a></li>
+					</ul>				
+				</li>
+				
+			</ul>
+		</div>
+
+		<div id="intro">
+			<h3>Introduction</h3>
+This document contains an installation and configuration manual for the SemMap application as part of the EC Open Data Portal.
+SemMap is an application enabling faceted browsing of spatial RDF data that is accessible via a SPARQL endpoint.
+The manual is written for a RedHad system. Several steps of the deployment of SemMap and its dependencies require sudo rights.
+		</div>
+
+			<h3>Prerequisites</h3>
+		<div id="prereq">
+			<h4 id="external-deps-services">External Dependencies</h4>
+<span class="todo">In the source code, make these parameters configurable in a central file, e.g. services.js.
+We could, for instance, exchange the map service at some point in the project.</span>
+
+SemMap uses external services for retrieving map tiles and performing place searches.
+Please ensure that the following services are accessible:
+<ul>
+	<li>
+		OpenStreetMap for map tiles
+		<pre>ping http://tile.openstreetmap.org/</pre>
+	</li>
+	<li>
+		Nominatim for place searches
+		<pre>ping http://nominatim.openstreetmap.org/</pre>
+	</li>
+</ul>
+GoogleMaps/GoogleMaps API is likely to be integrated in the future as an alternative service provider.
+
+		<h4 id="external-deps-install">Install required tools</h4>
+<ul>
+	<li>
+		If you are installing SemMap from the github repository, then the git tool is required for cloning the repository:
+		<pre>sudo yum install git</pre>
+	</li>
+	<li>
+		In any case, Apache is required
+		<pre>sudo yum install httpd</pre>
+	</li>
+	<li>
+		SemMap requires PHP for processing arguments that are passed via URL query strings
+		<pre>sudo yum install php</pre>
+	</li>
+	<li>
+		Additionally, <span class="pre">PHP-curl</span> is required for communicating with the Nominatim service in order to enable place-searches (e.g. “Leipzig”)
+		sudo yum install php-curl
+		Note: This dependency may become obsolete, as the communication could also be established using Apache's reverse proxy functionality.
+	</li>
+	<li>
+		An installation of OpenLink's Virtuoso Triple Store.
+		Please refer to TODO reference for this.
+	</li>
+</ul>
+
+		
+			<h4 id="apache-config">Configure Apache</h4>
+Apache needs to be configured so that SemMap can access the Virtuoso (cross site scripting)
+Add the following snippet to the apache config (the lines starting with # are comments and can therfore be omitted):
+<pre>
+        # Prevent opening up the server for proxy requests.
+        # NEVER enable this unless you know what you are doing.
+        ProxyRequests Off 
+
+        # Allow (reverse) proxying
+        &lt;Proxy *&gt; 
+            Order allow,deny 
+            allow from all 
+        &lt;/Proxy&gt; 
+
+        # Reverse proxy for SemMap to the Virtuoso SPARQL endpoint. Adjust as needed.
+        ProxyPass /SemMap/sparql http://localhost:8890/sparql retry=0 
+        ProxyPassReverse /SemMap/sparql http://localhost:8890/sparql 
+</pre>
+		</div>
+		
+		
+		<div>
+			<h3 id="semmap-deploy">Deploy SemMap</h3>
+		
+			<h4 id="semmap-install-archive">Installing SemMap from archive</h4>
+By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
+<ul>
+	<li>
+		Extract the archive:
+		<pre>tar -zxvf SemMap.tar.gz</pre>
+		The will create the directory <span class="pre">SpatialSemanticBrowsingWidgets</span>.
+	</li>
+	<li>
+		Copy this folder to the Web directory, for example:
+		<pre>mv SpatialSemanticBrowsingWidgets /var/www</pre>
+	</li>
+</ul>					
+
+			<h4 id="semmap-install-github">Install SemMap from Github</h4>
+			
+<ul>
+	<li>
+		Change the current working directory to the location where you want to check out the SemMap, for example
+		<pre>cd /var/www</pre>
+	</li>
+	<li>
+		Clone the project from the git repository
+		<pre>git clone git://github.com/AKSW/SpatialSemanticBrowsingWidgets.git</pre>
+		This will download all files into the directory SpatialSemanticBrowsingWidgets.
+		<span class="note">The repository location is not final yet. An updated version of the deployment guide may be published later.</span>
+	</li>
+	<li>
+		Switch to the odp (Open Data Portal) branch of the project:
+		<pre>git checkout odp</pre>
+		The main HTML file is named <span class="pre">index.phtml</span>
+	</li>
+	<li>
+		You need to install further dependencies:
+		<pre>make deploy</pre>
+		See <a href="#makefile-targets">Makefile targets</a> for details on this command.
+	</li>
+	
+</ul>
+
+		<h4 id="semmap-configure">Configuring SemMap</h4>
+ 
+			
+<ul>
+	<li>
+		If the configuration files have not been set up already, run:
+		<pre>make init</pre>
+		This will set up the configuration file <span class="pre">config.js</span>.
+		<span class="note">You will be asked for confirmation if existing files are to be overwritten.</span>
+		See <a href="#makefile-targets">Makefile targets</a> for more details.
+	</li>
+	<li>
+		Adjust the following parameterns in <span class="pre">config.js</span>:
+
+		<table class="table table-striped table-bordered table-condensed">
+		<tr><th>Property</th><th>Description</th><th>Level</th><th>Example</th></tr>
+		<tr><td><span class="pre">config.sparqlServiceUrl</span></td><td>The URL of the SPARQL endpoint to be used by SemMap - <span class="note">as seen by the client browser</span></td><td>mandatory</td><td><span class="todo">http://opendata/sparql</span></td></tr>
+		<tr><td><span class="pre">config.defaultGraphUris</span></td><td>An array of default graph names</td><td>optional</td><td><span class="pre">["http://ex.org/1", "http://ex.org/2"]</span></td></tr>
+		<tr><td><span class="pre">config.odp.apiUrl</span></td><td>The URL of the API from which to fetch data for the default EC header links</td><td>optional</td><td><span class="todo">http://opendata/api</span></td></tr>
+		</table>		
+	</li>
+</ul>
+
+		</div>
+
+<span class="todo">Add a defaultState parameter for pre-configuration of map center and facet selection.</span>
+
+
+		<div id="troubleshooting">
+			<h3>Troubleshooting</h3>
+		
+			<span class="note">No content here yet.</span>
+		</div>
+
+
+		<div id="appendix">
+			<h3>Appendix</h3>
+		
+			<h4 id="makefile-targets">Makefile targets</h4>
+
+<table class="table table-striped table-bordered table-condensed">
+<tr>
+	<th>Target</th>
+	<th>Description</th>
+</tr>
+<tr>
+	<td><span class="pre">deploy</span></td>
+	<td>Downloads required dependencies from github (agilityjs, twitter bootstrap, Font-Awesome, RDFauthor)</td>
+</tr>
+<tr>
+	<td><span class="pre">zip</span></td>
+	<td>Bundles the current directory into the file <span class="pre">SemMap.tar.gz</span>,
+	thereby excluding <span class="pre">.git*</span> files.</td>
+</tr>
+<tr>
+	<td><span class="pre">init</span></td>
+	<td>Sets up the initial configuration files.
+	Currently this is only <span class="pre">config.js</span>.</td>		
+</tr>
+</table>		
+		</div>
+
+			
+
+
+	</div>
+</body>
+</html>

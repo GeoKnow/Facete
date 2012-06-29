@@ -1,0 +1,21 @@
+/*
+pre {
+    margin-left: 5em;
+    padding-left: 2em;
+    line-height: 150%;
+    border-left: 1px solid #690;
+    
+}
+*/
+
+.pre {
+	font-family: monospace;
+}
+
+.todo {
+	color: red;
+}
+
+.note {
+	color: blue;
+}

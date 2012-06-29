@@ -38,10 +38,16 @@
 				format: '<li><a href="#" /></li>' 
 			},
 			controller: {
-				'click a': function() { this.getParent().trigger("change-page", this.getPage()); }
+				'click a': function() {
+					if(!this.isEnabled()) {
+						return;
+					}
+					
+					this.getParent().trigger("change-page", this.getPage());
+				}
 			},
 			isEnabled: function() {
-				return this.view.$().hasClass("disabled");
+				return !this.view.$().hasClass("disabled");
 			},
 			setEnabled: function(value) {
 				if(value) {
@@ -107,10 +113,17 @@
 	
 		
 	ns.PaginatorModel = function(options) {
-		this.maxSlotCount = 5;
-		this.currentPage = 0;
+		this.maxSlotCount = 7;
+		this.currentPage = 1;
 		this.pageCount = 10;
+		
+		this.maxContextCount = 5; // Number of boxes around the current location
+		this.minStartCount = 1;
+		this.minEndCount = 1;
+		
 		this.hasMorePages = false;
+		
+		
 		
 		_.extend(this, options);
 	};
@@ -142,16 +155,16 @@
 		var currentPage = this.currentPage;
 		
 		// page indexes are zero based in here
-		var numSlots = this.maxSlotCount - 1; // We need one slot for the current page			
-		var maxNumHeadSlots = currentPage - 1;
-		var maxNumTailSlots = this.pageCount - currentPage - 1;
+		var numSlots = this.maxSlotCount - 2;			
+		var maxNumHeadSlots = currentPage - 1; // If we are on page 1, then there is 0 head pages
+		var maxNumTailSlots = this.pageCount - currentPage; // If we are one page 10 of 10, there is 0 tail pages
 
-		var numTailSlots = Math.min(maxNumTailSlots, Math.round(numSlots / 2));
-		var numHeadSlots = Math.min(maxNumHeadSlots, numTailSlots - numTailSlots);
+		var numTailSlots = Math.min(maxNumTailSlots, Math.floor((numSlots - 1) / 2));
+		var numHeadSlots = Math.min(maxNumHeadSlots, numSlots - numTailSlots - 1); // All slots that are neither tail nor current may be head
 
-		var numRequiredSlots = numHeadSlots + numTailSlots + 1;
+		var numRequiredSlots = Math.min(numSlots, this.pageCount);//numHeadSlots + numTailSlots + 1;
 
-		var activeSlotIndex = numHeadSlots + 1;
+		//var activeSlotIndex = numHeadSlots + 1;
 		
 		
 		var firstPage = currentPage - numHeadSlots;
@@ -161,24 +174,26 @@
 		// Prev button
 		pageSlots.push({
 			label: "<",
-			isEnabled: currentPage > 0,
+			isEnabled: currentPage > 1,
 			page: currentPage -1			
 		});
+		
+		// First page button (only applies if there is more than two pages)
 		
 		for(var i = 0; i < numRequiredSlots; ++i) {
 			var page = firstPage + i;
 			
 			pageSlots.push({
 					label: "" + page,
-					isEnabled: true,
-					isActive: i == activeSlotIndex,
+					isEnabled: page != currentPage,
+					isActive: page == currentPage,
 					page: page
 			});
 		}
 		
 		pageSlots.push({
 			label: ">",
-			isEnabled: currentPage < this.pageCount - 1,
+			isEnabled: currentPage < this.pageCount,
 			page: currentPage + 1
 		});
 

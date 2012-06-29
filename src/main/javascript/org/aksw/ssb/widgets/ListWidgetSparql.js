@@ -82,12 +82,20 @@
 	};
 	
 	
-	ns.QueryExecutor.prototype.filterRegex = function(regexStr, path) {
+	/**
+	 * Convenience method for filtering the current set of resources by a label
+	 * 
+	 * @param regexStr
+	 * @param path
+	 * @param flags
+	 * @returns {ns.QueryExecutor}
+	 */
+	ns.QueryExecutor.prototype.filterRegex = function(regexStr, flags, path) {
 		if(!regexStr || $.trim("" + regexStr).length === 0) {
 			return this;
 		} 
 
-		var subGenerator = this.queryGenerator.filterRegex(regexStr, path);
+		var subGenerator = this.queryGenerator.filterRegex(regexStr, flags, path);
 		
 		return new ns.QueryExecutor(this.sparqlService, subGenerator);
 	};
@@ -563,12 +571,12 @@
 		return result;
 	};
 
-	ns.QueryGenerator.prototype.filterRegex = function(regexStr, path) {
+	ns.QueryGenerator.prototype.filterRegex = function(regexStr, flags, path) {
 		if(!path) {
 			path = new facets.Path([new facets.Step(rdfs.label.value)]);
 		}
 		
-		var constraint = new facets.ConstraintRegex(path, regexStr, "");
+		var constraint = new facets.ConstraintRegex(path, regexStr, flags);
 		
 		var result = this.clone();
 		
@@ -922,7 +930,7 @@
 		var options = {limit: this.limit, offset: this.offset, distinct: true};
 		console.log("Options", options);
 		
-		var subExecutor = this.executor.filterRegex(this.searchString);
+		var subExecutor = this.executor.filterRegex(this.searchString, "i");
 		
 		var promise = subExecutor.fetchValues(options);
 		return promise;
@@ -931,6 +939,23 @@
 	
 	ns.ListModelExecutor.prototype.getExecutor = function() {
 		return this.executor;
+	};
+	
+	ns.updatePageCount = function(paginator, subExecutor, limit) {
+		
+		$.when(subExecutor.fetchCountValues()).then(function(info) {
+			var itemCount = info.count;
+			//var limit = model.limit;
+			
+			var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
+			if(itemCount === 0) {
+				pageCount = 1;
+			}
+			
+			paginator.getModel().setPageCount(pageCount);
+			paginator.refresh();
+
+		});		
 	};
 	
 	ns.createExecutorList = function(model, itemRenderer, labelFetcher) {
@@ -944,24 +969,14 @@
 		var paginatorModel = result.getPaginator().getModel(); 
 
 		
+		
 		var self = this;
 		result.getTextWidget().bind("change-text", function(ev, text) {
 			model.searchString = text;
-		
-			var subExecutor = executor.filterRegex(model.searchString);
 			
-			$.when(subExecutor.fetchCountValues()).then(function(info) {
-				var itemCount = info.count;
-				var limit = model.limit;
-				
-				var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
-				if(itemCount === 0) {
-					pageCount = 0;
-				}
-				
-				paginatorModel.setPageCount(pageCount);
-				result.getPaginator().refresh();
-			});
+			var subExecutor = executor.filterRegex(model.searchString, "i");
+			
+			ns.updatePageCount(result.getPaginator(), subExecutor, model.limit);
 			
 			result.getListWidget().refresh();
 		});
@@ -969,7 +984,7 @@
 		result.getPaginator().bind("change-page", function(ev, page) {
 			var limit = model.limit;
 			
-			var offset = limit ? page * limit : 0;
+			var offset = limit ? (page - 1) * limit : 0;
 			
 			model.offset = offset;
 			//alert("offest" + offset);
@@ -984,6 +999,9 @@
 			alert("bar");
 		});
 		*/
+		
+		ns.updatePageCount(result.getPaginator(), executor, model.limit);
+
 		
 		
 		

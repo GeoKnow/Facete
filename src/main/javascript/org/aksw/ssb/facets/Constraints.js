@@ -270,11 +270,11 @@
 		var triples = breadcrumb.getTriples();
 		
 		var varExpr = new sparql.ExprVar(breadcrumb.getTargetVariable()); 		
-		var expr = new sparql.E_Regex(varExpr, this.regexStr);
+		var expr = new sparql.E_Regex(varExpr, this.regexStr, this.flags);
 		
 		
 		
-		var result = new ns.ConstraintElement(triples, expr, this.flags);
+		var result = new ns.ConstraintElement(triples, expr);
 		return result;
 	};
 

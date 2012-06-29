@@ -293,10 +293,13 @@
 		
 		
 		//config, queryGenerator, basePath, backend, callbacks
-		this.facetBox = $$(facetbox.FacetBox); //widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.hackId);
+		//this.facetBox = $$(facetbox.FacetBox); //widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.hackId);
+		this.facetBox = facetbox.createFacetBox();
+		
+		this.facetBox.view.$().autoHeight();
 		
 		this.facetBox.bind("clickFacetValues", function(ev, payload) {
-
+			
 			console.log("PAYLOAD", payload.model);
 			
 			var path = payload.model.get("path");
@@ -313,8 +316,8 @@
 				});
 				
 				var widget = payload.getFacetValues();
-				widget.setCollection(data);
-				widget.syncView();
+				widget.getModel().setData(data);
+				widget.refresh();
 			});
 		});
 		
@@ -863,6 +866,7 @@
 	
 	
 	ns.AppController.prototype.updateFacetsRecDir = function(executor, view, isInverse, path) {
+		
 		var self = this;
 		$.when(executor.fetchValuesCounted(), executor.fetchPivotFacets()).then(function(facetCollection, pivotFacets) {
 			
@@ -876,8 +880,11 @@
 					item.path = path.copyAppendStep(step);
 				});
 				
-				console.log("FacetSatus", facetCollection);
-				view.setCollection(facetCollection);
+				//console.log("FacetSatus", facetCollection);
+				//view.setCollection(facetCollection);
+				view.getModel().setData(facetCollection);
+				
+				view.refresh();
 			});
 			
 		});		
@@ -914,6 +921,13 @@
 	ns.AppController.prototype.updateFacetCountsGeom = function(uris) {
 		
 		if(uris.length === 0) {
+
+			this.facetBox.getIncoming().getModel().setData([]);
+			this.facetBox.getOutgoing().getModel().setData([]);
+			
+			this.facetBox.getIncoming().refresh();
+			this.facetBox.getOutgoing().refresh();
+			
 			return;
 		}
 		

@@ -611,6 +611,17 @@
 	};
 
 	
+	ns.ListModelCollection = function(data) {
+		this.data = data ? data : [];
+	};
+	
+	ns.ListModelCollection.prototype.setData = function(data) {
+		this.data = data;
+	};
+	
+	ns.ListModelCollection.prototype.fetchData = function() {
+		return this.data;
+	};
 	
 	
 	ns.createListModelLabels = function(sparqlService, queryGenerator, options, labelFetcher) {

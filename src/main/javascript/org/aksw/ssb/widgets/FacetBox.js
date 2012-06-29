@@ -11,12 +11,14 @@
 	};
 
 
+	/*
 	ns.createFacetBox = function() {
 		var result = $$(ns.listWidget);
 		
 		
 		return result;
 	};
+	*/
 	
 	
 	ns.ListItem = $$({
@@ -43,54 +45,100 @@
 		//console.log("HACK ID", ns.hackId(data));
 		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
 	};					
+
+
+	ns.facetBoxId = 1;
 	
-	ns.FacetBox = $$(
-		{
-			view: { format: '<div><p>Outgoing</p><div /><p>Incoming</p><div /></div>' },
-			controller: {
-				create: function() {
-					var outgoing = widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.fnGetId);
-					var incoming = widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.fnGetId);
+	ns.createFacetBox = function() {
+	
+		var id1 = "fb-tabs-" + (ns.facetBoxId++);
+		var id2 = "fb-tabs-" + (ns.facetBoxId++);
+		
+		var result = $$(
+			{
+				view: { //format: '<div><p>Outgoing</p><div /><p>Incoming</p><div /></div>'
+					format
+						: '<div>'
+						+ '<ul class="nav nav-tabs ssb-nav-tabs">'
+						+ '<li><a href="#' + id1 + '">Outgoing</a></li>'
+						+ '<li><a href="#' + id2 + '">Incoming</a></li>'
+						+ '</ul>'
+						+ '<div class="tab-content">'
+						+ '<div id="' + id1 + '" class="tab-pane" />'
+						+ '<div id="' + id2 + '"class="tab-pane" />'
+						+ '</div>'
+				},
+				controller: {
+					create: function() {
+						
+					    // Twitter Bootstrap's way of enabling tabs
+				    	this.view.$('> ul > li > a').click(function (e) {
+			                e.preventDefault();
+			                $(this).tab('show');
+			            });
+	
+					    // Enable the first tab
+				    	// TODO Seems to not really work here
+				    	this.view.$('a:first').tab('show');
+	
+						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetSwitcherItemFactory);
+						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetSwitcherItemFactory);
+	
+	
+						/*
+						console.log("out", this.view.$("> div > div:eq(0)"));
+						console.log("in", this.view.$("> div > div:eq(1)"));
+						*/
+						
+						this.append(outgoing, "> div > div:eq(0)");
+						this.append(incoming, "> div > div:eq(1)");
+						
+						this.setOutgoing(outgoing);
+						this.setIncoming(incoming);
+						
+						
+						this.bindEvents(outgoing);
+						this.bindEvents(incoming);
+	
+						/*
+						var tabContent = this.view.$("> div");
+						console.log("tabContent", tabContent);
 					
-					//console.log("out", this.view.$("> div:eq(0)"));
-					//console.log("in", this.view.$("> div:eq(1)"));
-					
-					this.append(outgoing, "> div:eq(0)");
-					this.append(incoming, "> div:eq(1)");
-					
-					this.setOutgoing(outgoing);
-					this.setIncoming(incoming);
-					
-					
-					this.bindEvents(outgoing);
-					this.bindEvents(incoming);
-				}
-			},
-			getOutgoing: function() {
-				return this.model.get("outgoing");
-			},
-			setOutgoing: function(outgoing) {
-				this.model.set({outgoing: outgoing});
-			},
-			getIncoming: function() {
-				return this.model.get("incoming");
-			},
-			setIncoming: function(incoming) {
-				this.model.set({incoming: incoming});
-			},
-			
-			bindEvents: function(container) {
-				var self = this;
-				container.bind("clickFacetValues", function(ev, payload) {
-					self.trigger("clickFacetValues", payload);
-					//alert("boo", payload);
-					//payload.getFacetValues()
-				});
+						if(tabContent.autoHeight) {
+							tabContent.autoHeight();
+							$(window).resize();
+						}
+						*/
+					}
+				},
+				getOutgoing: function() {
+					return this.model.get("outgoing");
+				},
+				setOutgoing: function(outgoing) {
+					this.model.set({outgoing: outgoing});
+				},
+				getIncoming: function() {
+					return this.model.get("incoming");
+				},
+				setIncoming: function(incoming) {
+					this.model.set({incoming: incoming});
+				},
 				
-				container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
-			},
-		}
-	);
+				bindEvents: function(container) {
+					var self = this;
+					container.bind("clickFacetValues", function(ev, payload) {
+						self.trigger("clickFacetValues", payload);
+						//alert("boo", payload);
+						//payload.getFacetValues()
+					});
+					
+					container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
+				},
+			}
+		);
+		
+		return result;
+	}
 	
 	ns.FacetSwitcherItem = $$(
 		{
@@ -156,7 +204,7 @@
 			createFacetValues: function() {
 				//var facetValues = $$(ns.FacetValueItem);
 				
-				var facetValues = widgets.createListWidget2(ns.FacetValueItemFactory, ns.fnGetFacetValueId);
+				var facetValues = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetValueItemFactory);
 				
 				// Bind events
 				var self = this;

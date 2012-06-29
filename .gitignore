@@ -11,4 +11,5 @@ lib/RDFauthor/current
 lib/Font-Awesome/current
 
 config.js
+*.tar.gz
 

@@ -1,4 +1,8 @@
-wd=$(shell pwd)
+wd = $(shell pwd)
+#tarFile = "$(wd)/../SemMap.tar"
+tarFile = /tmp/SemMap.tar
+zipFile = $(tarFile).gz
+
 
 clean-deps:
 	rm -rf lib/twitter-bootstrap/current
@@ -7,10 +11,9 @@ clean-deps:
 	rm -rf lib/Font-Awesome/current
 
 zip:
-	tarFile="$(wd)/../SemMap.tar"
-	@echo $(tarFile)
-	tar -cvf $(tarFile) $(wd)
+	tar --exclude ".git*" -cvf $(tarFile) $(wd)
 	gzip $(tarFile)
+	cp $(zipFile) $(wd)
 
 deploy: clean-deps
 	git clone git://github.com/twitter/bootstrap.git lib/twitter-bootstrap/current

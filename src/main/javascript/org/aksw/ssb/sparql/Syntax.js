@@ -1012,7 +1012,7 @@
 	
 	
 	
-	$.ssb.test = function() {
+	ns.test = function() {
 		console.log("test");
 		
 		var q = new ssb.Query();

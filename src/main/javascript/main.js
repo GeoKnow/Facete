@@ -51,7 +51,7 @@
 				self.checkReady(result, callback);
 			},
 			success: function(jsonRdf) {
-				result.wgsPoint = jsonRdf.boolean;
+				result.wgsPoint = jsonRdf.value; // boolean
 				self.checkReady(result, sparqlService);
 			} 
 		});
@@ -184,7 +184,7 @@
 		// Destroy the old resources
 		
 		//console.log(caps);
-		
+		/*
 		var queryFactory = null;
 		var backend = null;
 		
@@ -201,6 +201,7 @@
 			
 			return;
 		}
+		*/
 		
 		
 		var prefixToService = {
@@ -211,7 +212,7 @@
 		//var ssb = new controllers.AppController();
 		var appController = createFacetConfigFts(sparqlService);
 		appController.setSparqlService(sparqlService);
-		appController.setQueryFactory(queryFactory);
+		//appController.setQueryFactory(queryFactory);
 		
 		appController.addFactSources(prefixToService);
 		

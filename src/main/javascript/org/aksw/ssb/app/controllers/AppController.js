@@ -171,18 +171,25 @@
 			'click button': function() {
 				var baseUrl = location.href;
 				
-				// cut off the query string
-				var queryStringStart = baseUrl.indexOf("?");
-				if(queryStringStart > 0) {
-					baseUrl = baseUrl.substring(0, queryStringStart);
+				// cut off any hash string
+				var hashString = "";
+				var hashStringStart = baseUrl.indexOf("#");
+				if(hashStringStart >= 0) {
+					hashString = baseUrl.substring(hashStringStart);
+					baseUrl = baseUrl.substring(0, hashStringStart);
 				}
 				
+				// cut off the query string
+				var queryStringStart = baseUrl.indexOf("?");
+				if(queryStringStart >= 0) {
+					baseUrl = baseUrl.substring(0, queryStringStart);
+				}
 				
 				//var stateArg = $.param(self.saveState());
 				var stateStr = JSON.stringify(self.saveState());
 				var stateArg = encodeURIComponent(stateStr); 
 				
-				var url = baseUrl + "?state=" + stateArg;
+				var url = baseUrl + "?state=" + stateArg + hashString;
 				//alert("State: " + url + "?state=" + stateArg);
 				window.prompt("Copy to clipboard", url);
 			}
@@ -292,6 +299,20 @@
 		};
 		
 		
+		/*
+		
+		var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+					
+		listWidget.getListWidget().bind("click", function(ev, payload) {
+			alert(payload.checked + " " + payload.item.model.get("label"));
+		});
+
+		$$.document.append(listWidget, $("#ssb-graph-selection"));
+		
+		listWidget.getListWidget().refresh();
+		 */
+		
+		
 		//config, queryGenerator, basePath, backend, callbacks
 		//this.facetBox = $$(facetbox.FacetBox); //widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.hackId);
 		this.facetBox = facetbox.createFacetBox();
@@ -305,7 +326,15 @@
 			var path = payload.model.get("path");
 			
 			var executor = self.executor.navigateToPath(path);
+			var executorModel = new widgets.ListModelExecutor(executor, 50);
+
+			widget = payload.getFacetValues();
+			widget.setModel(executorModel);
+			widget.refresh();
 			
+			//var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+
+			/*
 			$.when(executor.fetchValuesCounted(null, {limit: 10})).then(function(data) {
 
 				// TODO Fetch labels - Create some utility methods that create the models from the default result formats {node, count}
@@ -318,7 +347,7 @@
 				var widget = payload.getFacetValues();
 				widget.getModel().setData(data);
 				widget.refresh();
-			});
+			});*/
 		});
 		
 		this.facetBox.bind("clickConstraint", function(ev, payload) {
@@ -339,7 +368,10 @@
 			}
 		});
 		
-		
+
+		this.facetBox.bind("pivot", function(ev, payload) {
+			alert("Pivot");
+		});
 		
 		
 		//facetbox.createFacetBox(); 

@@ -1,0 +1,1 @@
+This folder contains files which we should not need anymore.

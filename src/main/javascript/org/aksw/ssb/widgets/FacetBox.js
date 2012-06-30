@@ -125,20 +125,21 @@
 				},
 				
 				bindEvents: function(container) {
+					// TODO This kind of event forwarding sucks, is there a better - dynamic - way?
+					// This object should not have to worry about the events...
 					var self = this;
 					container.bind("clickFacetValues", function(ev, payload) {
 						self.trigger("clickFacetValues", payload);
-						//alert("boo", payload);
-						//payload.getFacetValues()
 					});
 					
 					container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
+					container.bind("pivot", function(ev, payload) { self.trigger("pivot", payload); });
 				},
 			}
 		);
 		
 		return result;
-	}
+	};
 	
 	ns.FacetSwitcherItem = $$(
 		{
@@ -153,7 +154,8 @@
 					+     '</div>'
 					//+     '<div></div>'
 					+ '</li>',
-				style: '& span { cursor:pointer; }'
+				style: '& span { cursor: pointer; } \
+					& i { cursor: pointer; }'
 			},
 			
 			controller: {
@@ -173,8 +175,8 @@
 				
 				
 				// Pivoting action
-				'click i' : function() {					
-					this.getParent().trigger("click", this);
+				'click i' : function() {
+					this.getParent().trigger("pivot", this);
 				},
 				
 				'click div:eq(0) span': function() {
@@ -205,6 +207,11 @@
 				//var facetValues = $$(ns.FacetValueItem);
 				
 				var facetValues = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetValueItemFactory);
+				
+				// TODO How to get our new ListWidget here
+				
+				//var facetValues = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+				
 				
 				// Bind events
 				var self = this;

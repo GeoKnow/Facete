@@ -20,7 +20,11 @@
 	};
 	*/
 	
-	ns.PaginatorItemRenderer = function(parent, data) {
+	ns.PaginatorItemRenderer = function() {	
+	};
+	
+	ns.PaginatorItemRenderer.prototype.create = function(parent, data) {
+	
 		var result = $$(ns.PaginatorItem, {parent: parent});
 		
 		result.setEnabled(data.isEnabled);
@@ -232,7 +236,7 @@
 		},
 		controller: {
 			create: function() {
-				var listWidget = ns.createListWidget(null, ns.PaginatorItemRenderer);
+				var listWidget = ns.createListWidget(null, new ns.PaginatorItemRenderer());
 				this.setListWidget(listWidget);				
 				this.append(listWidget);
 				

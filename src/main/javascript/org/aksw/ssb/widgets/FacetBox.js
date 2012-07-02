@@ -40,7 +40,11 @@
 		return "" + data.label;
 	};
 	
-	ns.FacetSwitcherItemFactory = function(parent, data) {
+	
+	ns.FacetSwitcherItemFactory = function() {		
+	};
+	
+	ns.FacetSwitcherItemFactory.prototype.create = function(parent, data) {
 		
 		//console.log("HACK ID", ns.hackId(data));
 		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
@@ -81,8 +85,8 @@
 				    	// TODO Seems to not really work here
 				    	this.view.$('a:first').tab('show');
 	
-						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetSwitcherItemFactory);
-						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetSwitcherItemFactory);
+						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory());
+						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory());
 	
 	
 						/*
@@ -181,7 +185,7 @@
 				
 				'click div:eq(0) span': function() {
 					var facetValues = this.getFacetValues();
-					facetValues.view.$().toggle();
+					facetValues.getView().view.$().toggle();
 					
 					this.getParent().trigger("clickFacetValues", this);
 				},
@@ -206,7 +210,9 @@
 			createFacetValues: function() {
 				//var facetValues = $$(ns.FacetValueItem);
 				
-				var facetValues = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetValueItemFactory);
+				//var facetValues = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetValueItemFactory);
+				var facetValues = new widgets.ExecutorListWidget(null, widgets.checkItemFactory);
+				
 				
 				// TODO How to get our new ListWidget here
 				
@@ -215,13 +221,13 @@
 				
 				// Bind events
 				var self = this;
-				facetValues.bind("clickConstraint", function(ev, payload) { self.getParent().trigger("clickConstraint", payload); });
+				//facetValues.bind("clickConstraint", function(ev, payload) { self.getParent().trigger("clickConstraint", payload); });
 				
-				facetValues.view.$().hide();
+				facetValues.getView().view.$().hide();
 				
 				this.setFacetValues(facetValues);
 				
-				this.append(facetValues);
+				this.append(facetValues.getView());
 				
 				return facetValues;
 			},

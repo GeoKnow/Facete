@@ -44,16 +44,15 @@
 	ns.AutoConfig.prototype.configureService = function(sparqlService) {
 		var self = this;
 		var result = {};
+			
+		var exec = sparqlService.executeAsk("Ask { ?s geo:long ?x; geo:lat ?y . }");
 		
-		sparqlService.executeAsk("Ask { ?s geo:long ?x; geo:lat ?y . }", {
-			failure: function() {
-				result.wgsPoint = false;
-				self.checkReady(result, callback);
-			},
-			success: function(jsonRdf) {
-				result.wgsPoint = jsonRdf.value; // boolean
-				self.checkReady(result, sparqlService);
-			} 
+		$.when(exec).then(function(jsonRdf) {
+			result.wgsPoint = jsonRdf.value; // boolean
+			self.checkReady(result, sparqlService);
+		}).fail(function() {
+			result.wgsPoint = false;
+			self.checkReady(result, callback);
 		});
 		
 	};
@@ -246,7 +245,7 @@
 		*/
 		
 		
-		var sparqlService = new backend.SparqlServiceVirtuoso(config.sparqlServiceUrl, config.defaultGraphUris);
+		var sparqlService = new backend.SparqlServiceHttp(config.sparqlServiceUrl, config.defaultGraphUris);
 		
 		
 		var autoConfigurator = new ns.AutoConfig(ns.init);

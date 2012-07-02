@@ -36,8 +36,13 @@
 	
 	ns.itemLabel = $$({label: ""}, '<li><span data-bind="label" /></li>');
 	
-	ns.ItemFactoryString = function(parent, data, fnId) {
-		return $$(ns.itemLabel, {parent: parent, label: data, fnId: fnId});
+	ns.RendererString = function(fnId) {
+		this.fnId = fnId;
+	};
+	
+	
+	ns.RendererString.prototype.create = function(parent, data) {
+		return $$(ns.itemLabel, {parent: parent, label: data, fnId: this.fnId});
 	};
 	
 	
@@ -51,7 +56,7 @@
 	ns.ListWidget = $$({
 		//view: { format: '<ul class="nav nav-list"></ul>', },
 		view: { format: '<ul></ul>', },
-		model: {itemFactory: ns.ItemFactoryString, collection: []},
+		model: {itemRenderer: new ns.RendererString(), collection: []},
 		/*
 		controller: {
 			'change': function() {
@@ -93,12 +98,14 @@
 				items[i].destroy();
 			}
 		},
+		/*
 		setCollection: function(collection) {
 			this.model.set({collection: collection});
 		},
 		getCollection: function() {
 			return this.model.get("collection");
 		},
+		*/
 		addItem: function(item) {
 			console.log("Item is", item);
 			this.append(item);//, this.getContainerElement());
@@ -112,11 +119,11 @@
 		getModel: function() {
 			return this.model.get("listModel");
 		},
-		setItemFactory: function(fn) {
-			this.model.set({itemFactory: fn});
+		setItemRenderer: function(itemRenderer) {
+			this.model.set({itemRenderer: itemRenderer});
 		},
-		getItemFactory: function() {
-			return this.model.get("itemFactory");
+		getItemRenderer: function() {
+			return this.model.get("itemRenderer");
 		},		
 		getFnId: function() {
 			return this.model.get("fnId");
@@ -130,8 +137,8 @@
 			var self = this;
 			//var collection = this.getCollection();
 			_.each(collection, function(item) {
-				var renderer = self.getItemFactory(); 
-				itemView = renderer(self, item);
+				var renderer = self.getItemRenderer();				
+				itemView = renderer.create(self, item);
 				self.append(itemView);
 			});
 			
@@ -169,7 +176,7 @@
 					//item.setData(data);
 					item.view.sync();
 				} else {
-					item = self.getItemFactory()(self, data);
+					item = self.getItemRenderer().create(self, data);
 					
 					console.log("Append", item);
 					self.append(item);//, self.getContainerElement());
@@ -199,13 +206,13 @@
 		
 	});
 	
-	
-	ns.createListWidget2 = function(itemFactory, fnId) {
+	/*
+	ns.createListWidget2 = function(itemRenderer, fnId) {
 		var result = $$(ns.ListWidget);
 		//console.log("ListWidget", result);
 		
-		if(itemFactory) {
-			result.setItemFactory(itemFactory);
+		if(itemRenderer) {
+			result.setItemRenderer(itemRenderer);
 		}
 		
 		if(fnId) {
@@ -216,12 +223,13 @@
 		//result.setListModel(model);
 		
 	};
+	*/
 	
-	ns.createListWidget = function(model, itemFactory) {
+	ns.createListWidget = function(model, itemRenderer) {
 		var result = $$(ns.ListWidget);
 		
-		if(itemFactory) {
-			result.setItemFactory(itemFactory);
+		if(itemRenderer) {
+			result.setItemRenderer(itemRenderer);
 		}
 		result.setModel(model);
 		

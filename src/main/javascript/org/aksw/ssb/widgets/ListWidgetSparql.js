@@ -8,6 +8,26 @@
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 	
 	var ns = Namespace("org.aksw.ssb.widgets");
+
+	
+
+	ns.CheckboxList = $$(ns.ListWidget, {
+		model: { selected: {}},
+		controller: {
+
+			create: function() {
+				//setSelectionModel([]);
+			},
+			'selected': function(ev, item) {
+				//var model = this.model.get("selected");
+				alert("test");
+			}
+			
+	
+		},
+		
+	});
+	
 	
 	ns.CheckItem = $$({}, '<li>'
 					//+ '<form action="">'
@@ -16,19 +36,48 @@
 					//+ '</form>'
 					+ '</li>',
 					{
+						create: function() {
+							if(this.model.get("isSelected")) {
+								this.view.$("> input").attr("checked", "true");
+							}
+						},
 						'click input': function() {
 							var parent = this.model.get("parent");
 							
 							var checked = this.view.$(":checked").length == 1;
 							
-							parent.trigger("click", {isChild: true, item: this, checked: checked});
+							parent.trigger("selected", {isChild: true, item: this, checked: checked});
 						}
-					}	
-					);
+					}
+				);
 
-	ns.checkItemFactory = function(parent, data) {
-		return $$(ns.CheckItem, {parent: parent, data:data, label: data.label});
-	};					
+	
+	ns.RendererCheckItem = function(selectionModel, fnId) {
+		this.selectionModel = selectionModel;
+		this.fnId = fnId;
+	};
+	
+	ns.RendererCheckItem.prototype.create = function(parent, data) {
+		var key = this.fnId(data);
+		var isSelected = this.selectionModel[key];
+
+		var result;
+		if(isSelected) {
+			result = $$(ns.CheckItem, {parent: parent, data:data, label: data.label, isSelected: isSelected});
+		} else {
+			result = $$(ns.CheckItem, {parent: parent, data:data, label: data.label});
+		}
+		
+		return result;
+	};
+	
+	
+	/*
+	ns.checkItemFactory = function(parent, data, selectionModel) {
+		
+		
+		return $$(ns.CheckItem, {parent: parent, data:data, label: data.label, selectionModel});
+	};*/					
 
 	
 	/*
@@ -129,6 +178,13 @@
 		this.postProcessor = postProcessor;
 	};
 	
+	/**
+	 * Return the wrapped model
+	 */
+	ns.PostProcessorModel.prototype.getModel = function() {
+		return this.model;
+	};
+	
 	ns.PostProcessorModel.prototype.fetchData = function() {
 			
 		var result = $.Deferred();
@@ -149,14 +205,6 @@
 		return result;
 	};
 	
-
-	ns.isNode = function(candidate) {
-		return candidate && (candidate instanceof sparql.Node);
-	};
-	
-	ns.isUri = function(candidate) {
-		return ns.isNode(candidate) && candidate.isUri();		
-	};
 	
 	
 	/**
@@ -172,13 +220,13 @@
 	
 	
 	ns.PostProcessorLabels.prototype.process = function(deferred, collection) {
-		var rawUriStrs = _.map(collection, function(item) { return ns.isUri(item.data) ? item.data.value : null; });
+		var rawUriStrs = _.map(collection, function(item) { return sparql.Node.isUri(item.data) ? item.data.value : null; });
 		var uriStrs = _.filter(rawUriStrs, function(x) { return !(!x); });
 		
 		var labelTask = this.labelFetcher.fetch(uriStrs);
 		
 		_.each(collection, function(item) {
-			if(!item.label && ns.isNode(item.data) && !item.data.isUri()) {
+			if(!item.label && sparql.Node.isNode(item.data) && !item.data.isUri()) {
 				item.label = "" + item.data.value;
 			}
 		});
@@ -187,7 +235,7 @@
 		$.when(labelTask).then(function(response) {
 			
 			_.each(collection, function(item) {
-				if(!ns.isUri(item.data) || !item || item.label) {
+				if(!sparql.Node.isUri(item.data) || !item || item.label) {
 					return;
 				}
 					
@@ -386,6 +434,7 @@
 	});
 	
 	
+
 	ns.ListModelExecutor = function(executor, limit, offset, searchString) {
 		this.executor = executor;
 		this.limit = limit;
@@ -394,6 +443,13 @@
 	};
 	
 	ns.ListModelExecutor.prototype.fetchData = function() {
+		if(!this.executor) {
+			var result = $.Deferred();
+			result.resolve([]);
+			return result.promise();
+		}
+		
+		
 		var options = {limit: this.limit, offset: this.offset, distinct: true};
 		console.log("Options", options);
 		
@@ -406,6 +462,10 @@
 	
 	ns.ListModelExecutor.prototype.getExecutor = function() {
 		return this.executor;
+	};
+	
+	ns.ListModelExecutor.prototype.setExecutor = function(executor) {
+		this.executor = executor;
 	};
 	
 	ns.updatePageCount = function(paginator, subExecutor, limit) {
@@ -425,13 +485,135 @@
 		});		
 	};
 	
+	
+	/**
+	 * A widget for browsing data based on an executor
+	 * 
+	 */
+	ns.ExecutorListWidget = function(model, itemRenderer, labelFetcher) {
+		this.itemRenderer = itemRenderer;
+		this.labelFetcher = labelFetcher;
+		
+		//this.model = new ListModelExecutor(model, limit);
+		this.listView = ns.createListWidgetSparql(null, itemRenderer);
+		//this.listWidget = listWidget;
+
+		this.setModel(model);
+		
+		
+		this.bindEvents();
+	};
+	
+	ns.ExecutorListWidget.prototype.bindEvents = function() {
+
+		var result = this.listView;
+				
+		
+		//var result = ns.createListWidgetSparql(postModel, itemRenderer);
+
+					
+	
+		var paginatorModel = result.getPaginator().getModel(); 
+
+		
+		var self = this;
+		
+		result.getTextWidget().bind("change-text", function(ev, text) {
+			var model = self.getModel();
+			var executor = self.getModel().getExecutor();
+			
+			model.searchString = text;
+			
+			var subExecutor = executor.filterRegex(model.searchString, "i");
+			
+			ns.updatePageCount(result.getPaginator(), subExecutor, model.limit);
+			
+			result.getListWidget().refresh();
+		});
+		
+		result.getPaginator().bind("change-page", function(ev, page) {
+			var model = self.getModel();
+			var paginatorModel = self.getView().getPaginator().getModel();
+
+			
+			var limit = model.limit;
+			
+			var offset = limit ? (page - 1) * limit : 0;
+			
+			model.offset = offset;
+			paginatorModel.setCurrentPage(page);
+			
+			//alert("offest" + offset);
+			//paginatorModel.setCurrentPage(page);
+			
+			result.getPaginator().refresh();
+			result.getListWidget().refresh();
+		});
+	};
+	
+	ns.ExecutorListWidget.prototype.getView = function() {
+		return this.listView;
+	};
+
+	
+	ns.ExecutorListWidget.prototype.getModel = function() {
+		return this.model;
+	};
+
+	ns.ExecutorListWidget.prototype.setModel = function(model) {
+		if(!model) {
+			model =  new ns.ListModelExecutor(null, 50);
+		}
+		
+		this.model = model;
+		var m = this.wrapModel(model);
+
+		this.listView.getListWidget().setModel(m);
+	};
+	
+
+	/* Use .getModel().setExecutor(model) instead
+	ns.ExecutorListWidget.prototype.setExecutor = function(executor) {
+		return this.model.setExecutor(executor);
+	};
+
+	ns.ExecutorListWidget.prototype.getExecutor = function() {
+		return this.model.getExecutor();
+	};
+	*/
+	
+	ns.ExecutorListWidget.prototype.setLabelFetcher = function(labelFetcher) {
+		this.labelFetcher = labelFetcher;
+		
+		var m = this.wrapModel(this.model);
+		this.listView.getListWidget().setModel(m);
+	};
+	
+	ns.ExecutorListWidget.prototype.wrapModel = function(model) {
+		//var executor = model.getExecutor();
+		var postProcessor = new ns.PostProcessorLabels(this.labelFetcher);
+		var result = new ns.PostProcessorModel(model, postProcessor);
+
+		return result;
+	};
+	
+	
+	ns.ExecutorListWidget.prototype.refresh = function() {
+		
+	};
+	
+	/*
 	ns.createExecutorList = function(model, itemRenderer, labelFetcher) {
 
 		var executor = model.getExecutor();
 		var postProcessor = new ns.PostProcessorLabels(labelFetcher);
 		var postModel = new ns.PostProcessorModel(model, postProcessor);
-			
+
+		
+		
 		var result = ns.createListWidgetSparql(postModel, itemRenderer);
+
+					
 	
 		var paginatorModel = result.getPaginator().getModel(); 
 
@@ -465,7 +647,7 @@
 		result.getListWidget().bind("click", function(ev, payload) {
 			alert("bar");
 		});
-		*/
+		* /
 		
 		ns.updatePageCount(result.getPaginator(), executor, model.limit);
 
@@ -474,10 +656,11 @@
 		
 		return result;
 	};
+	*/
 	
 	
-	ns.createListWidgetSparql = function(model, itemFactory) {
-		var listWidget = ns.createListWidget(model, itemFactory);
+	ns.createListWidgetSparql = function(model, itemRenderer) {
+		var listWidget = ns.createListWidget(model, itemRenderer);
 
 		var result = $$(ns.ListWidgetSparql);
 		result.setListWidget(listWidget);

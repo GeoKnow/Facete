@@ -64,6 +64,14 @@
 	ns.AppController = function(options) {
 		this.sparqlService = null;
 
+		/*
+		 * Backend configuration
+		 */
+		
+		// The label for referring to the base of navigation.
+		this.rootNavigationLabel = "home";
+		
+				
 		
 		var conf = options.queryGenerator;
 		
@@ -325,11 +333,27 @@
 			
 			var path = payload.model.get("path");
 			
+			var widget = payload;
+			
 			var executor = self.executor.navigateToPath(path);
-			var executorModel = new widgets.ListModelExecutor(executor, 50);
+			//var executorModel = new widgets.ListModelExecutor(executor, 50);
 
 			widget = payload.getFacetValues();
-			widget.setModel(executorModel);
+			console.log("Widget is", widget);
+			
+			//var viewModel = new widgets.ListModelExecutor(executor, 50);
+
+			widget.setLabelFetcher(self.labelFetcher);
+			widget.getModel().limit = 10;
+			widget.getModel().setExecutor(executor);
+			//widget.setModel(viewModel);
+			
+			
+			widget.getView().getListWidget().bind("selected", function(ev, item) {
+				alert("boo");
+			});
+			
+			//widget.setModel(executorModel);
 			widget.refresh();
 			
 			//var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
@@ -365,7 +389,7 @@
 				constraints.add(constraint);
 			} else {
 				constraints.remove(constraint);
-			}
+			}			
 		});
 		
 
@@ -440,8 +464,41 @@
 	 * 
 	 * 
 	 */
-	ns.AppController.prototype.loadStartTab = function() {
+	ns.AppController.prototype.updateGraphs = function() {
+		// TODO Make this acutally work
+		//console.log("data is", this.graphSelectionModel);
+		var uris = _.filter(this.graphSelectionModel, function(item) { return sparql.Node.isUri(item.data); });
 		
+		//console.log("uris", uris);
+		var defaultGraphs = _.map(uris, function(uri) { return uri.data.value; });
+		
+		// Flush the caches
+		// FIXME Add support for caching when graphs (or other state properties) change
+		this.hashToCache = {};
+		
+		//console.log("New defaultGraphs", defaultGraphs);
+		this.sparqlService.setDefaultGraphs(defaultGraphs);
+		this.repaint();
+	};
+	
+	
+	ns.AppController.prototype.updateStartingPoint = function() {
+		// The twist here is, that the label of the starting point depends on the selected language.
+		
+		
+		
+	};
+	
+	
+	ns.AppController.prototype.loadStartTab = function() {
+
+		
+		this.classSelectionModel = {};
+		this.graphSelectionModel = {};
+
+		var self = this;
+
+
 		{
 	    	var driverVar = sparql.Node.v("c");
 	    	var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
@@ -451,18 +508,28 @@
 	    	
 			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 
-			var executorModel = new widgets.ListModelExecutor(executor, 50);
-			
-			var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
-						
-			listWidget.getListWidget().bind("click", function(ev, payload) {
-				alert(payload.checked + " " + payload.item.model.get("label"));
+			var viewModel = new widgets.ListModelExecutor(executor, 50);
+			var renderer = new widgets.RendererCheckItem(this.classSelectionModel, function(data) { return "" + data.data; });
+			var executorWidget = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
+				
+			executorWidget.getView().getListWidget().bind("selected", function(ev, payload) {
+
+				var data = payload.item.model.get("data").data;
+				if(payload.checked) {
+					self.graphSelectionModel[data] = {data: data, isSelected: true};
+				} else {
+					delete self.graphSelectionModel[data];
+				}
+				 				
+				// FIXME This is hacky: We should depend on a model/collection event - not on a view one. 
+				self.updateGraphs();
 			});
 	
-			$$.document.append(listWidget, $("#ssb-graph-selection"));
+			$$.document.append(executorWidget.getView(), $("#ssb-graph-selection"));
 			
-			listWidget.getListWidget().refresh();
+			executorWidget.getView().getListWidget().refresh();
 		}
+
 
 		
 		{
@@ -471,20 +538,30 @@
 	    	var driver = new facets.Driver(driverElement, driverVar);
 	
 	    	var queryGenerator = new widgets.QueryGenerator(driver);
-	    	
 			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 
-			var executorModel = new widgets.ListModelExecutor(executor, 50);
 			
-			var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
-						
-			listWidget.getListWidget().bind("click", function(ev, payload) {
-				alert(payload.checked + " " + payload.item.model.get("label"));
+			var viewModel = new widgets.ListModelExecutor(executor, 50);
+			var renderer = new widgets.RendererCheckItem(this.classSelectionModel, function(data) { return "" + data.data; });
+			var executorWidget = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
+				
+			executorWidget.getView().getListWidget().bind("selected", function(ev, payload) {
+
+				var data = payload.item.model.get("data").data;
+				if(payload.checked) {
+					self.classSelectionModel[data] = {data: data, isSelected: true};
+				} else {
+					delete self.classSelectionModel[data];
+				}
+				 
+				console.log("classSelection:" , self.classSelectionModel);
+				
+				
 			});
 	
-			$$.document.append(listWidget, $("#ssb-class-selection"));
+			$$.document.append(executorWidget.getView(), $("#ssb-class-selection"));
 			
-			listWidget.getListWidget().refresh();
+			executorWidget.getView().getListWidget().refresh();
 		}
 
 

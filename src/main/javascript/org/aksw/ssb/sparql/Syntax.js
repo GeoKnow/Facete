@@ -115,6 +115,15 @@
 		}*/
 	};
 	
+	ns.Node.isNode = function(candidate) {
+		return candidate && (candidate instanceof ns.Node);
+	};
+	
+	ns.Node.isUri = function(candidate) {
+		return ns.Node.isNode(candidate) && candidate.isUri();		
+	};
+
+	
 	ns.Node.parse = function(str) {
 		var str = str.trim();
 		

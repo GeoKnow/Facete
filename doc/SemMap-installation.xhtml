@@ -25,12 +25,7 @@
 					<a href="#prereq">Prerequisites</a>
 					<ul>
 						<li><a href="#external-deps-services">External Dependencies</a></li>
-					</ul>
-					<ul>
 						<li><a href="#external-deps-tools">Install required tools</a></li>
-					</ul>
-					<ul>
-						<li><a href="#apache-config">Configure Apache</a></li>
 					</ul>				
 				</li>
 				<li><a href="#semmap-deploy">Deploy SemMap</a></li>
@@ -38,7 +33,9 @@
 				<ul>
 					<li><a href="#semmap-install-archive">Install SemMap from Archive</a></li>
 					<li><a href="#semmap-install-github">Install SemMap from Github</a></li>
-					<li><a href="#semmap-configure">Install SemMap from Github</a></li>
+					<li><a href="#semmap-configure">Configure SemMap</a></li>
+					<li><a href="#apache-config">Configure Apache</a></li>
+					<li><a href="#semmap-access">Access SemMap with the Browser</a></li>
 				</ul>
 				</li>
 				<li><a href="#troubleshooting">Troubleshooting</a></li>
@@ -55,7 +52,9 @@
 			<h3>Introduction</h3>
 This document contains an installation and configuration manual for the SemMap application as part of the EC Open Data Portal.
 SemMap is an application enabling faceted browsing of spatial RDF data that is accessible via a SPARQL endpoint.
-The manual is written for a RedHad system. Several steps of the deployment of SemMap and its dependencies require sudo rights.
+The manual is written for a RedHad system. The File und URL path names used in this document are intended to be aligned with
+those of the production system.
+Several steps of the deployment of SemMap and its dependencies require sudo rights.
 		</div>
 
 			<h3>Prerequisites</h3>
@@ -103,44 +102,36 @@ GoogleMaps/GoogleMaps API is likely to be integrated in the future as an alterna
 	</li>
 </ul>
 
-		
-			<h4 id="apache-config">Configure Apache</h4>
-Apache needs to be configured so that SemMap can access the Virtuoso (cross site scripting)
-Add the following snippet to the apache config (the lines starting with # are comments and can therfore be omitted):
-<pre>
-        # Prevent opening up the server for proxy requests.
-        # NEVER enable this unless you know what you are doing.
-        ProxyRequests Off 
-
-        # Allow (reverse) proxying
-        &lt;Proxy *&gt; 
-            Order allow,deny 
-            allow from all 
-        &lt;/Proxy&gt; 
-
-        # Reverse proxy for SemMap to the Virtuoso SPARQL endpoint. Adjust as needed.
-        ProxyPass /SemMap/sparql http://localhost:8890/sparql retry=0 
-        ProxyPassReverse /SemMap/sparql http://localhost:8890/sparql 
-</pre>
 		</div>
 		
 		
 		<div>
 			<h3 id="semmap-deploy">Deploy SemMap</h3>
 		
-			<h4 id="semmap-install-archive">Installing SemMap from archive</h4>
+			<h4 id="semmap-install-archive">Installing SemMap from Archive</h4>
 By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
-<ul>
+<ol>
+	<li>
+		Create the target Web directory
+		<pre>mkdir -p /applications/ecodp/users/system/semmap</pre>
+	</li>
 	<li>
 		Extract the archive:
 		<pre>tar -zxvf SemMap.tar.gz</pre>
 		The will create the directory <span class="pre">SpatialSemanticBrowsingWidgets</span>.
 	</li>
 	<li>
-		Copy this folder to the Web directory, for example:
-		<pre>mv SpatialSemanticBrowsingWidgets /var/www</pre>
+		Copy this folder to the Web directory:
+		<pre>mv SpatialSemanticBrowsingWidgets /applications/ecodp/users/system/semmap</pre>
+		The target folder should now directly contain the <span class="pre">index.php</span> file, i.e. <span class="pre">.../semmap/index.php</span>
+		<span class="todo">Imprecise: Like this, we would copy SpatialSemanticBrowsingWidgets into the semmap folder.</span>
 	</li>
-</ul>					
+	<li>
+		Security Enhanced Linux (SE-Linux) is enabled by default on Red Hat, which means, that all files of SemMap must be declared as webcontent to it.
+		Use the following command to do this: 
+		<pre>chcon -R -t httpd_sys_content_t /applications/ecodp/users/system/semmap</pre>
+	</li>	
+</ol>					
 
 			<h4 id="semmap-install-github">Install SemMap from Github</h4>
 			
@@ -165,7 +156,9 @@ By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
 		<pre>make deploy</pre>
 		See <a href="#makefile-targets">Makefile targets</a> for details on this command.
 	</li>
-	
+	<li>
+		Continue with step 3 of the section <a href="#semmap-install-archive">Installing SemMap from Archive</a>.
+	</li>
 </ul>
 
 		<h4 id="semmap-configure">Configuring SemMap</h4>
@@ -191,6 +184,44 @@ By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
 	</li>
 </ul>
 
+
+			<h4 id="apache-config">Configure Apache</h4>
+			There are two things that must be configured in apache:
+			(a) the directory that contains SemMap must be made available at a URL path, and
+			(b) a reverse proxy to a SPARQL endpoint must be configured in order to prevent cross site scripting requests problems.
+<pre>
+    Alias /open-data/apps/semmap /applications/ecodp/users/system/semmap
+
+    &lt;Directory /applications/ecodp/users/system/semmap&gt;
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+    &lt;/Directory&gt;
+</pre>
+			
+Apache needs to be configured so that SemMap can access the Virtuoso (cross site scripting)
+Add the following snippet to the apache config (the lines starting with # are comments and can therfore be omitted):
+<pre>
+        # Prevent opening up the server for proxy requests.
+        # NEVER enable this unless you know what you are doing.
+        ProxyRequests Off 
+
+        # Allow (reverse) proxying
+        &lt;Proxy *&gt; 
+            Order allow,deny 
+            allow from all 
+        &lt;/Proxy&gt; 
+
+        # Reverse proxy for SemMap to the Virtuoso SPARQL endpoint. Adjust as needed.
+        ProxyPass /SemMap/sparql http://localhost:8890/sparql retry=0 
+        ProxyPassReverse /SemMap/sparql http://localhost:8890/sparql 
+</pre>
+
+		After having made the changes, run <pre>sudo service httpd reload</pre> to apply them.
+		
+			<h4 id="semmap-access">Access SemMap with the Browser</h4>		
+		When visiting the URL <span class="pre">http://{{hostname}}/open-data/apps/semmap</span> the application should show up.
 		</div>
 
 <span class="todo">Add a defaultState parameter for pre-configuration of map center and facet selection.</span>

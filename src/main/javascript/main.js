@@ -51,6 +51,9 @@
 			result.wgsPoint = jsonRdf.value; // boolean
 			self.checkReady(result, sparqlService);
 		}).fail(function() {
+			
+			alert("Error communicating with backend. Probably the configured SPARQL endpoint is down?");
+			
 			result.wgsPoint = false;
 			self.checkReady(result, callback);
 		});

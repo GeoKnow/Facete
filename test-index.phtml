@@ -31,16 +31,10 @@
 
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/backend/SparqlServiceVirtuoso.js"></script>
+		src="src/main/javascript/org/aksw/ssb/backend/SparqlServiceHttp.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/backend/ssb.backend.delay.js"></script>
-    
-	<script type="text/javascript"
-		src="src/main/javascript/backend/ssb.backend.virtuoso.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/backend/utils.sparql.js"></script>
+		src="src/main/javascript/org/aksw/ssb/backend/SparqlServicePaginator.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/sparql/Syntax.js"></script>
@@ -84,8 +78,6 @@
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/collections/LabelCollection.js"></script>
 
-	<script type="text/javascript" 
-		src="src/main/javascript/ssb.utils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/utils/LabelFetcher.js"></script>
@@ -240,11 +232,12 @@
 			
 		};
 
+		/*
 		$(document).ready(function() {
 
 			testExecutioner();	
 	
-		});
+		});*/
 		
 		
 		/*
@@ -296,7 +289,7 @@
     	
 	    $(document).ready(function() {
 
-    		var skip = true;
+    		var skip = false;
     		
     		if(skip) {
         		return;
@@ -317,9 +310,9 @@
 	    	
 	    	query.isResultStar = true;
 	    	query.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)])); 
-			query.limit = 10000;
+			query.limit = 200000;
 	    	
-	    	var tmp = new backend.SparqlServiceVirtuoso("http://localhost/sparql", "");
+	    	var tmp = new backend.SparqlServiceHttp("http://localhost/sparql", "");
 			var service = new backend.SparqlServicePaginator(tmp, 1000);
 
 	    	$.when(service.executeSelect(query)).then(function(talisRdfJson) {

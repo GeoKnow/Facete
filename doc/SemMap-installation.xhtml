@@ -113,7 +113,7 @@ By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
 <ol>
 	<li>
 		Create the target Web directory
-		<pre>mkdir -p /applications/ecodp/users/system/semmap</pre>
+		<pre>mkdir -p /applications/ecodp/users/ecodp/www/semmap</pre>
 	</li>
 	<li>
 		Extract the archive:
@@ -122,14 +122,14 @@ By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
 	</li>
 	<li>
 		Copy this folder to the Web directory:
-		<pre>mv SpatialSemanticBrowsingWidgets /applications/ecodp/users/system/semmap</pre>
+		<pre>mv SpatialSemanticBrowsingWidgets /applications/ecodp/users/ecodp/www/semmap</pre>
 		The target folder should now directly contain the <span class="pre">index.php</span> file, i.e. <span class="pre">.../semmap/index.php</span>
 		<span class="todo">Imprecise: Like this, we would copy SpatialSemanticBrowsingWidgets into the semmap folder.</span>
 	</li>
 	<li>
 		Security Enhanced Linux (SE-Linux) is enabled by default on Red Hat, which means, that all files of SemMap must be declared as webcontent to it.
 		Use the following command to do this: 
-		<pre>chcon -R -t httpd_sys_content_t /applications/ecodp/users/system/semmap</pre>
+		<pre>chcon -R -t httpd_sys_content_t /applications/ecodp/users/ecodp/www/semmap</pre>
 	</li>	
 </ol>					
 
@@ -190,9 +190,9 @@ By default, the archive is named <span class="pre">SemMap.tar.gz</span>.
 			(a) the directory that contains SemMap must be made available at a URL path, and
 			(b) a reverse proxy to a SPARQL endpoint must be configured in order to prevent cross site scripting requests problems.
 <pre>
-    Alias /open-data/apps/semmap /applications/ecodp/users/system/semmap
+    Alias /open-data/apps/semmap  /applications/ecodp/users/ecodp/www/semmap
 
-    &lt;Directory /applications/ecodp/users/system/semmap&gt;
+    &lt;Directory /applications/ecodp/users/ecodp/www/semmap&gt;
         Options Indexes FollowSymLinks
         AllowOverride All
         Order allow,deny

@@ -91,5 +91,5 @@
 		console.error("Not implemented yet");
 	};
 
-})();
+})(jQuery);
 

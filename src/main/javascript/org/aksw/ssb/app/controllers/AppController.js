@@ -496,7 +496,15 @@
 		this.classSelectionModel = {};
 		this.graphSelectionModel = {};
 
+		
 		var self = this;
+
+		$(this.graphSelectionModel).bind("change", function() {
+
+			self.updateGraphs();
+			
+		});
+		
 
 
 		{
@@ -521,8 +529,9 @@
 					delete self.graphSelectionModel[data];
 				}
 				 				
+				$(self.graphSelectionModel).trigger("change", self.graphSelectionModel);
+				
 				// FIXME This is hacky: We should depend on a model/collection event - not on a view one. 
-				self.updateGraphs();
 			});
 	
 			$$.document.append(executorWidget.getView(), $("#ssb-graph-selection"));

@@ -41,13 +41,15 @@
 	};
 	
 	
-	ns.FacetSwitcherItemFactory = function() {		
+	ns.FacetSwitcherItemFactory = function(selectionModel) {
+		this.selectionModel = selectionModel;
 	};
 	
 	ns.FacetSwitcherItemFactory.prototype.create = function(parent, data) {
 		
-		//console.log("HACK ID", ns.hackId(data));
-		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
+		
+		console.log("Facet values:", data);
+		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, selectionModel: this.selectionModel, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
 	};					
 
 
@@ -85,8 +87,10 @@
 				    	// TODO Seems to not really work here
 				    	this.view.$('a:first').tab('show');
 	
-						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory());
-						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory());
+				    	var selectionModel = {};
+				    	
+						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel));
+						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel));
 	
 	
 						/*
@@ -134,10 +138,25 @@
 					var self = this;
 					container.bind("clickFacetValues", function(ev, payload) {
 						self.trigger("clickFacetValues", payload);
+
+						/*
+						widget = payload.getFacetValues();
+						if(!widget) {
+							widget = payload.createFacetValues();
+						}
+						
+						widget.getView().getListWidget().bind("selected", function(ev, item) {
+							container.trigger("clickConstraints", item);
+						});
+						*/
+						
 					});
 					
-					container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
+					//container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
 					container.bind("pivot", function(ev, payload) { self.trigger("pivot", payload); });
+					
+					container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
+					
 				},
 			}
 		);
@@ -183,7 +202,7 @@
 					this.getParent().trigger("pivot", this);
 				},
 				
-				'click div:eq(0) span': function() {
+				'click div > span': function() {
 					var facetValues = this.getFacetValues();
 					facetValues.getView().view.$().toggle();
 					
@@ -211,8 +230,18 @@
 				//var facetValues = $$(ns.FacetValueItem);
 				
 				//var facetValues = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetValueItemFactory);
-				var facetValues = new widgets.ExecutorListWidget(null, widgets.checkItemFactory);
+				//var facetValues = new widgets.ExecutorListWidget(null, widgets.checkItemFactory);
 				
+				// TODO: The selection must be visible from the outside...
+				//this.selection = {};
+				
+				var selectionModel = this.getSelectionModel();
+				
+				var executor = null; // There is no executor yet, but we may use null as a placeholder
+				var viewModel = new widgets.ListModelExecutor(executor, 50);
+				var renderer = new widgets.RendererCheckItem(selectionModel, function(data) { return "" + data.data; });
+				var facetValues = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
+
 				
 				// TODO How to get our new ListWidget here
 				
@@ -221,7 +250,14 @@
 				
 				// Bind events
 				var self = this;
-				//facetValues.bind("clickConstraint", function(ev, payload) { self.getParent().trigger("clickConstraint", payload); });
+				facetValues.getView().getListWidget().bind("selected", function(ev, payload) {
+					// Small HACK to pass on path information - maybe its not even a hack
+					payload.path = self.model.get("path");
+					
+					//alert("" +payload.path);
+					
+					self.getParent().trigger("clickConstraint", payload);
+				});
 				
 				facetValues.getView().view.$().hide();
 				
@@ -234,12 +270,22 @@
 			setFacetValues: function(facetValues) {
 				this.model.set({facetValues: facetValues});
 			},
+			/*
+			getFacetValues: function() {
+				var result = this.model.get("facetValues");
+
+				return result;
+			},*/
+			
 			getFacetValues: function() {
 				/* Note: the facetValues container is created on access */
 				var result = this.model.get("facetValues");
 				
 				return result ? result : this.createFacetValues();				
 			},
+			getSelectionModel: function() {
+				return this.model.get("selectionModel");
+			}
 		});
 	
 

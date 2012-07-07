@@ -8,12 +8,11 @@
 (function($) {
 			
 	var ns = Namespace("org.aksw.ssb.backend");
-	
+
 	/*
 	 * SparqlServiceHttp
 	 * 
-	 */	
-	
+	 */
 	ns.SparqlServiceHttp = function(serviceUrl, defaultGraphUris) {
 		this.serviceUrl = serviceUrl;
 		

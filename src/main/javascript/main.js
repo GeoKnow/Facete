@@ -94,7 +94,8 @@
 		
 		// LGD-TEST
 		//var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
-		var subvention = sparql.Node.uri("http://diadem.cs.ox.ac.uk/ontologies/real-estate#House");
+		//var subvention = sparql.Node.uri("http://diadem.cs.ox.ac.uk/ontologies/real-estate#House");
+		var subvention = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
 		
 		//var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
 		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);

@@ -22,36 +22,54 @@
 				//var model = this.model.get("selected");
 				alert("test");
 			}
-			
-	
 		},
 		
 	});
 	
 	
-	ns.CheckItem = $$({}, '<li>'
+	ns.CheckItem = $$({
+		view: { format: '<li>'
 					//+ '<form action="">'
 					+ '<input type="checkbox" data-bind="isEnabled"/><span data-bind="label"/>'
 					//+ '<span data-bind="label"/>'
 					//+ '</form>'
-					+ '</li>',
-					{
-						create: function() {
-							if(this.model.get("isSelected")) {
-								this.view.$("> input").attr("checked", "true");
-							}
-						},
-						'click input': function() {
-							var parent = this.model.get("parent");
-							
-							var checked = this.view.$(":checked").length == 1;
-							
-							parent.trigger("selected", {isChild: true, item: this, checked: checked});
-						}
-					}
-				);
+					+ '</li>'
+		},
+		controller: {
+			create: function() {
+				if(this.model.get("isSelected")) {
+					this.view.$("> input").attr("checked", "true");
+				}
+			},
+			'click input': function() {							
+				var checked = this.isSelected();
+				// Trigger event on this
+				this.trigger("selected", {isChild: true, item: this, checked: checked});
+
+				// Then trigger on the parent
+				var parent = this.model.get("parent");
+				parent.trigger("selected", {isChild: true, item: this, checked: checked});
+			}
+		},
+		getParent: function() {
+			return this.model.get("parent");
+		},
+		isSelected: function() {
+			return this.view.$(":checked").length == 1;
+		}
+	});
 
 	
+	/**
+	 * TODO Actually this is not a pure renderer, but more of a widget factory.
+	 * (widget = model+view+controller stack): Clicking the checkbox automatically
+	 * updates the selection model.
+	 * 
+	 * 
+	 * @param selectionModel
+	 * @param fnId
+	 * @returns {ns.RendererCheckItem}
+	 */
 	ns.RendererCheckItem = function(selectionModel, fnId) {
 		this.selectionModel = selectionModel;
 		this.fnId = fnId;
@@ -61,12 +79,30 @@
 		var key = this.fnId(data);
 		var isSelected = this.selectionModel[key];
 
+		console.log("key", key);
+		
 		var result;
 		if(isSelected) {
 			result = $$(ns.CheckItem, {parent: parent, data:data, label: data.label, isSelected: isSelected});
 		} else {
 			result = $$(ns.CheckItem, {parent: parent, data:data, label: data.label});
 		}
+	
+		var self = this;
+		result.bind("selected", function(ev, payload) {
+			//alert("boox");
+			//var data = payload.item.model.get("data").data;
+			id = self.fnId(data);
+			if(payload.checked) {
+				self.selectionModel[id] = {data: data, isSelected: true};
+			} else {
+				delete self.selectionModel[id];
+			}
+
+			// We need to bind on the selection model as to update the view if it changes
+			// TODO Don't bind to the model directly but use a set of functions to accomplish that
+			$(self.selectionModel).trigger("change", self.selectionModel);
+		});
 		
 		return result;
 	};
@@ -430,6 +466,10 @@
 		},
 		getModel: function() {
 			return this.getListWidget().getModel();
+		},
+		refresh: function() {
+			this.getListWidget().refresh();
+			this.getPaginator().refresh();
 		}
 	});
 	
@@ -520,15 +560,10 @@
 		
 		result.getTextWidget().bind("change-text", function(ev, text) {
 			var model = self.getModel();
-			var executor = self.getModel().getExecutor();
 			
 			model.searchString = text;
-			
-			var subExecutor = executor.filterRegex(model.searchString, "i");
-			
-			ns.updatePageCount(result.getPaginator(), subExecutor, model.limit);
-			
-			result.getListWidget().refresh();
+
+			self.refresh();
 		});
 		
 		result.getPaginator().bind("change-page", function(ev, page) {
@@ -549,6 +584,18 @@
 			result.getPaginator().refresh();
 			result.getListWidget().refresh();
 		});
+	};
+
+	ns.ExecutorListWidget.prototype.refresh = function() {
+		var model = this.getModel();
+		var executor = model.getExecutor();
+		var view = this.getView();
+		
+		var subExecutor = executor.filterRegex(model.searchString, "i");
+		
+		ns.updatePageCount(view.getPaginator(), subExecutor, model.limit);
+		
+		view.getListWidget().refresh();		
 	};
 	
 	ns.ExecutorListWidget.prototype.getView = function() {
@@ -597,10 +644,12 @@
 		return result;
 	};
 	
-	
+	/*
 	ns.ExecutorListWidget.prototype.refresh = function() {
+
+		this.getView().refresh();
 		
-	};
+	};*/
 	
 	/*
 	ns.createExecutorList = function(model, itemRenderer, labelFetcher) {

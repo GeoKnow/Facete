@@ -349,9 +349,23 @@
 			//widget.setModel(viewModel);
 			
 			
+			// Note: Binding of the clickConstraint event is done in the facetbox widget
+			/*
 			widget.getView().getListWidget().bind("selected", function(ev, item) {
-				alert("boo");
-			});
+				/ *
+				console.log("item", item);
+				
+				var parent = item.item.getParent();
+				var path = parent.model.get("path");
+				console.log("path", path);* /
+				
+				
+				
+				
+				//var path = item.item.model.get("path");
+				//alert("boo");
+				//console.log("boo", path);
+			});*/
 			
 			//widget.setModel(executorModel);
 			widget.refresh();
@@ -376,25 +390,43 @@
 		
 		this.facetBox.bind("clickConstraint", function(ev, payload) {
 
-			var path = payload.model.get("path");
-			var facetValue = payload.model.get("node");
-			var constraints = self.constraints;
+			var path = payload.path;
+
+			//console.log("payload", payload.item);
+			var item = payload.item;
+			
+			var facetValue = item.model.get("data").data;
+
+			//console.log("facetValue", facetValue);
+			
+			var constraints = self.queryGeneratorGeo.getConstraints();
+
+			//var constraints = self.constraints;
 
 			var constraint = new facets.ConstraintEquals(path,
-					new sparql.NodeValue(facetValue.node));
+					new sparql.NodeValue(facetValue));
 
+			//console.log("Setting constraint", constraint);
+			
 			//var isEnabled = !this.model.get("isEnabled");
 			// console.log("Enabled:", isEnabled, id);
-			if (payload.isEnabled()) {
+			if (item.isSelected()) {
+				//alert("boo");
 				constraints.add(constraint);
 			} else {
 				constraints.remove(constraint);
 			}			
+			
+			//alert("Constraints", self.constraints);
 		});
 		
 
 		this.facetBox.bind("pivot", function(ev, payload) {
-			alert("Pivot");
+			//console.log(payload.model.get("data"));
+			var path = payload.model.get("data").path;
+			//alert("" + path);
+			self.setNavigationPath(path);
+			//alert("Pivot");
 		});
 		
 		
@@ -411,7 +443,6 @@
 		
 		// React to changes of the constraints
 		$(constraints).bind("change", function(ev, data) {
-			
 			
 			
 			self.repaint();
@@ -465,18 +496,25 @@
 	 * 
 	 */
 	ns.AppController.prototype.updateGraphs = function() {
-		// TODO Make this acutally work
-		//console.log("data is", this.graphSelectionModel);
-		var uris = _.filter(this.graphSelectionModel, function(item) { return sparql.Node.isUri(item.data); });
 		
-		//console.log("uris", uris);
-		var defaultGraphs = _.map(uris, function(uri) { return uri.data.value; });
+		
+		console.log("data is", this.graphSelectionModel);
+		
+		var nodes = _.map(this.graphSelectionModel, function(item) {
+			// Pitfall: Attaching jQuery events to an object adds new keys
+			// So if we do it that way, our code must be able to deal with it.
+			return item && item.data ? item.data.data : null;
+		});
+
+		var uris = _.filter(nodes, function(node) { return sparql.Node.isUri(node); });
+		
+		var defaultGraphs = _.map(uris, function(uri) { return uri.value; });
 		
 		// Flush the caches
 		// FIXME Add support for caching when graphs (or other state properties) change
 		this.hashToCache = {};
 		
-		//console.log("New defaultGraphs", defaultGraphs);
+		console.log("New defaultGraphs", defaultGraphs);
 		this.sparqlService.setDefaultGraphs(defaultGraphs);
 		this.repaint();
 	};
@@ -501,6 +539,8 @@
 
 		$(this.graphSelectionModel).bind("change", function() {
 
+			//alert("test");
+			console.log("self.graphSelectionModel", self.graphSelectionModel);
 			self.updateGraphs();
 			
 		});
@@ -509,7 +549,8 @@
 
 		{
 	    	var driverVar = sparql.Node.v("c");
-	    	var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+	    	var driverElement = queryUtils.createElementGetNamedGraphs(driverVar);
 	    	var driver = new facets.Driver(driverElement, driverVar);
 	
 	    	var queryGenerator = new widgets.QueryGenerator(driver);
@@ -517,11 +558,13 @@
 			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 
 			var viewModel = new widgets.ListModelExecutor(executor, 50);
-			var renderer = new widgets.RendererCheckItem(this.classSelectionModel, function(data) { return "" + data.data; });
+			var renderer = new widgets.RendererCheckItem(this.graphSelectionModel, function(data) { return "" + data.data; });
 			var executorWidget = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
 				
+			/*
 			executorWidget.getView().getListWidget().bind("selected", function(ev, payload) {
 
+				/*
 				var data = payload.item.model.get("data").data;
 				if(payload.checked) {
 					self.graphSelectionModel[data] = {data: data, isSelected: true};
@@ -530,13 +573,14 @@
 				}
 				 				
 				$(self.graphSelectionModel).trigger("change", self.graphSelectionModel);
-				
+				* /
 				// FIXME This is hacky: We should depend on a model/collection event - not on a view one. 
-			});
+			})*/;
 	
 			$$.document.append(executorWidget.getView(), $("#ssb-graph-selection"));
 			
-			executorWidget.getView().getListWidget().refresh();
+			//executorWidget.getView().getListWidget().refresh();
+			executorWidget.refresh();
 		}
 
 
@@ -943,7 +987,8 @@
 		//var collection = [];
 		_.each(facets, function(item) {
 			// Note: Facets must all be URIs, but better check
-			var isPivotable = false;
+			var isPivotable = true;
+			//var isPivotable = false;
 
 			if(item.node.isUri()) {
 				var str = item.node.value;

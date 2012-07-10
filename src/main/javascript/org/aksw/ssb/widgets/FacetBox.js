@@ -41,15 +41,23 @@
 	};
 	
 	
-	ns.FacetSwitcherItemFactory = function(selectionModel) {
+	/**
+	 * 
+	 * 
+	 * @param selectionModel Which facet constraints have been selected
+	 * @param visibilityModel For which facets the values are shown
+	 * @returns {ns.FacetSwitcherItemFactory}
+	 */
+	ns.FacetSwitcherItemFactory = function(selectionModel, visibilityModel) {
 		this.selectionModel = selectionModel;
+		this.visibilityModel = visibilityModel;
 	};
 	
 	ns.FacetSwitcherItemFactory.prototype.create = function(parent, data) {
 		
 		
 		console.log("Facet values:", data);
-		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, selectionModel: this.selectionModel, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
+		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, selectionModel: this.selectionModel, visibilityModel: this.visibilityModel, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
 	};					
 
 
@@ -83,13 +91,12 @@
 			                $(this).tab('show');
 			            });
 	
-					    // Enable the first tab
-				    	// TODO Seems to not really work here
-	
+				    	
+				    	var visibilityModel = {};				    	
 				    	var selectionModel = {};
 				    	
-						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel));
-						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel));
+						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel, visibilityModel));
+						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel, visibilityModel));
 	
 	
 						/*
@@ -107,6 +114,7 @@
 						this.bindEvents(outgoing);
 						this.bindEvents(incoming);
 
+						// FIXME Not sure why there has to be this hack in the AppController which toggles the tabs before the content shows up
 				    	this.view.$('a:first').tab('show');
 
 						/*
@@ -140,6 +148,9 @@
 					container.bind("clickFacetValues", function(ev, payload) {
 						self.trigger("clickFacetValues", payload);
 
+						
+						console.log("status open", payload);
+						
 						/*
 						widget = payload.getFacetValues();
 						if(!widget) {
@@ -184,7 +195,21 @@
 			
 			controller: {
 				create: function() {
-					console.log("Sigh", this.view.$("> div:eq(0) span"));
+					//console.log("Sigh", this.view.$("> div:eq(0) span"));
+
+					// TODO [HACK] It does not feel right to have this event fired here.
+					// Although a callback for fetching data might make sense... although I dont hollywood patterns in UI
+					var visibilityModel = this.getVisibilityModel();
+					var pathStr = "" + this.model.get("path");
+					
+					
+					if(visibilityModel && pathStr && visibilityModel[pathStr]) {
+						var facetValues = this.getFacetValues();
+						facetValues.getView().view.$().show();
+						console.log("Retained state", visibilityModel, pathStr);
+						this.getParent().trigger("clickFacetValues", this);
+					}
+					
 				},
 				
 				'mouseenter div': function() {					
@@ -206,6 +231,18 @@
 				'click div > span': function() {
 					var facetValues = this.getFacetValues();
 					facetValues.getView().view.$().toggle();
+
+					var isFacetValuesVisible = facetValues.getView().view.$().is(":visible"); 
+					
+					var visibilityModel = this.getVisibilityModel();
+					var pathStr = "" + this.model.get("path");
+					
+					if(isFacetValuesVisible) {
+						visibilityModel[pathStr] = true;
+					} else {
+						delete visibilityModel[pathStr];
+					}
+
 					
 					this.getParent().trigger("clickFacetValues", this);
 				},
@@ -286,6 +323,9 @@
 			},
 			getSelectionModel: function() {
 				return this.model.get("selectionModel");
+			},
+			getVisibilityModel: function() {
+				return this.model.get("visibilityModel");
 			}
 		});
 	

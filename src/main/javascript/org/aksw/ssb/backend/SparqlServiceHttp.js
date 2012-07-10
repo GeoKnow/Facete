@@ -60,7 +60,6 @@
 	
 	ns.SparqlServiceHttp.prototype.executeSelect = function(queryString, callback) {
 		return this.executeAny(queryString, callback);
-		
 	};
 	
 	ns.SparqlServiceHttp.prototype.executeAsk = function(queryString, callback) {
@@ -69,6 +68,11 @@
 	
 	// TODO What to return: RdfJson vs RdfQuery
 	ns.SparqlServiceHttp.prototype.executeConstruct = function(queryString, callback) {
+		return this.executeAny(queryString, callback);
+	};
+	
+	
+	ns.SparqlServiceHttp.prototype.executeDescribe = function(queryString, callback) {
 		return this.executeAny(queryString, callback);
 	};
 

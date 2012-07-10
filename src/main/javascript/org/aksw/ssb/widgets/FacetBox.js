@@ -85,7 +85,6 @@
 	
 					    // Enable the first tab
 				    	// TODO Seems to not really work here
-				    	this.view.$('a:first').tab('show');
 	
 				    	var selectionModel = {};
 				    	
@@ -107,7 +106,9 @@
 						
 						this.bindEvents(outgoing);
 						this.bindEvents(incoming);
-	
+
+				    	this.view.$('a:first').tab('show');
+
 						/*
 						var tabContent = this.view.$("> div");
 						console.log("tabContent", tabContent);

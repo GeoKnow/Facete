@@ -193,8 +193,10 @@
 		var resourceStrs = _.map(resources, function(x) { return x.value; });
 		//var labels = labelFetcher.fetch(resourceStrs);
 		
-		return labelFetcher.fetch(resourceStrs).pipe(function(uriToLabel) {
+		return labelFetcher.fetch(resourceStrs).pipe(function(labelInfo) {
 
+			var uriToLabel = labelInfo.uriToLabel;
+			
 			var list = [];
 			_.each(uriToLabel, function(label, uriStr) {
 				list.push({uri: sparql.Node.uri(uriStr), label: label});

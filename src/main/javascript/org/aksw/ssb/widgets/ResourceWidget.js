@@ -29,9 +29,9 @@
 	};
 	*/
 	
-	ns.executeDescribe = function(sparqlService, nodes, callback) {
+	ns.executeDescribe = function(sparqlService, nodes) {
 		var query = queryUtils.createDescribeQueryNodes(nodes);
-		var promise = sparqlService.executeConstruct(query.toString(), callback);
+		var promise = sparqlService.executeConstruct(query.toString());
 		return promise;
 	};
 
@@ -62,14 +62,22 @@
 						//console.log("setNodes called");
 						
 						var sparqlService = this.model.get('sparqlService');
-						ns.executeDescribe(sparqlService, nodes, function(talisJson) {
+						var describeTask = ns.executeDescribe(sparqlService, nodes);
+						$.when(describeTask).then(function(talisJson) {
 							//console.log("Describe callback called", talisJson);
 							
 							var uris = ns.collectUris(talisJson);							
 							var uriStrs = _.keys(uris);
+														
 							
+							// TODO Reuse existing label fetcher
 							var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
-							labelFetcher.fetch(uriStrs, false, function(uriToLabel) {
+							var labelFetchTask = labelFetcher.fetch(uriStrs, false);
+							
+							$.when(labelFetchTask).then(function(labelInfo) {
+								var uriToLabel = labelInfo.uriToLabel;
+								//console.log("uriToLabel", uriToLabel);
+								
 								var html = ns.generateHtml(talisJson, uriToLabel);
 								self.view.$().html(html);
 								

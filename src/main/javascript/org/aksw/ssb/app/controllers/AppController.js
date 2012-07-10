@@ -432,8 +432,18 @@
 		
 		//facetbox.createFacetBox(); 
 		//this.facetbox = facetbox.createFacetBox(this.facetConfig, queryGenerator, basePath, facetBoxBackend, callbacks);
+    	//$('#tabs a:eq(3)').tab('show');
+
 		$$.document.append(this.facetBox, "#tabs-content-facets");
 		
+//    	$('#tabs a:first').tab('show');
+
+		// TODO [HACK] Not sure why we need this hack of switching tabs
+		// But without it, the facets do not show from the start; only after switching the incoming/outgoing tabs
+		this.facetBox.view.$('a:eq(1)').tab('show');
+		this.facetBox.view.$('a:first').tab('show');
+		
+		//$(window).resize();
 		
 		
 		this.constraintWidget = facetbox.createConstraintList(constraints);
@@ -1517,7 +1527,6 @@
 						// TODO We need the query element and the geom variable
 						var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
 						
-						
 						var widget = widgets.createResourceListWidget(backend, {onClick: function(uri) { self.showDescription([uri]); $("#box-facts").show(); }});
 						
 						if(self.prevResWidget) {
@@ -1794,7 +1803,6 @@
 		Dispatcher.fireEvent("selection", uriStr);
 		
 		console.log("Clicked: " + uriStr);
-
  
 		//var node = sparql.Node.parse(uriStr);
 		node = sparql.Node.uri(uriStr);

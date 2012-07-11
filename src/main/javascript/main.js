@@ -88,22 +88,45 @@
 	function createFacetConfigFts(sparqlService) {
 		//testBounds();
 		
-		var s = sparql.Node.v("s");
-		var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");				
-		var node = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
 		
-		// LGD-TEST
-		//var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
-		//var subvention = sparql.Node.uri("http://diadem.cs.ox.ac.uk/ontologies/real-estate#House");
-		var subvention = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
+		var driver = null;
+		var pathManager = null;
+
+		console.log("Config is", config);
 		
-		//var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
-		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
-		
-		var driver = new facets.Driver(driverElement, s);
-		
-		var pathManager = new facets.PathManager("s");
-	
+		if(config.query || config.variable) {
+			// The query string is assumed to be a SELECT query. Surround with {} to
+			// turn it into a SPARQL element.
+			var queryString = "{ " + config.query + " }";
+			
+			var vName = config.variable;
+			var v = sparql.Node.v(vName);
+			
+
+			//var query = new sparql.Query();
+			//query.elements.push(new sparql.ElementString(queryString, [v]));
+			//query.projectVars.add(v);
+			
+			var driverElement = new sparql.ElementString(queryString, [v]);
+			driver = new facets.Driver(driverElement, s);
+			pathManager = new facets.PathManager(vName);			
+			
+		} else {
+			var s = sparql.Node.v("s");
+			var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");				
+			var node = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
+			
+			// LGD-TEST
+			//var subvention = sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/Subvention");
+			//var subvention = sparql.Node.uri("http://diadem.cs.ox.ac.uk/ontologies/real-estate#House");
+			var subvention = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
+			
+			//var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
+			var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
+			
+			driver = new facets.Driver(driverElement, s);
+			pathManager = new facets.PathManager("s");
+		}
 		
 		var baseStr = "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs";	
 

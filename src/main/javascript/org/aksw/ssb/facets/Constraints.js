@@ -212,6 +212,48 @@
 	
 	
 	/*
+	 * VariableConstraint
+	 * 
+	 * TODO Refactor the constraint classes to make them
+	 */
+	ns.VariableConstraint = function(variable, constraint) {
+		this.variable = variable;
+		this.constraint = constraint;
+	};
+
+	ns.VariableConstraint.prototype.getVariable = function() {
+		return this.variable;
+	};
+
+	ns.VariableConstraint.prototype.getConstraint = function() {
+		return this.constraint;
+	};
+
+	
+	/*
+	 * PathConstraint
+	 * 
+	 * TODO: Make the constraint objects generic, and use the path constraint
+	 * to combine it with paths
+	 *  
+	 */
+
+	ns.PathConstraint = function(path, constraint) {
+		this.path = path;
+		this.constraint = constraint;
+	};
+
+	ns.PathConstraint.prototype.getPath = function() {
+		return this.path;
+	};
+
+	ns.PathConstraint.prototype.getConstraint = function() {
+		return this.constraint;
+	};
+
+	
+	
+	/*
 	 * Exists
 	 * 
 	 * A constraint that requires some path to exist

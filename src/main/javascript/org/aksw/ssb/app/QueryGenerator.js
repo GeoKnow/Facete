@@ -304,6 +304,10 @@
 		// TODO Not sure how components should declare that
 	};
 	
+	ns.QueryGenerator.prototype.getConstraints = function() {
+		return this.constraints;
+	};
+	
 	ns.QueryGenerator.prototype.setNavigationPath = function(path) {
 		this.navigationPath = path;
 	};

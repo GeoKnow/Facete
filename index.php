@@ -18,6 +18,15 @@
     // A JSON object representing the current state (lat/long, facets, etc)
     $state = isset($_REQUEST['state']) ? $_REQUEST['state'] : null;
     
+    
+    /*
+     * Parameters for setting a custom driver
+     * 
+     */
+    $query = isset($_REQUEST['query']) ? $_REQUEST['query'] : null;
+    $var = isset($_REQUEST['var']) ? $_REQUEST['var'] : null;
+    
+    
     //$sparqlServiceUrl = "http://localhost/sparql";
 
     // LGD-TEST
@@ -128,8 +137,11 @@
     <script type="text/javascript"
 		src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
 
-	<script type="text/javascript"
-		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+ 	<script type="text/javascript"
+ 		src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script>
+
+<!-- 	<script type="text/javascript" -->
+<!-- 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script> -->
 
 	<!-- Configuration files -->
 	<script type="text/javascript"
@@ -317,6 +329,7 @@
 	         * Default values will be overridden.
 	         */
 			var config = Namespace("org.aksw.ssb.config");
+
 			
 			var urlArgs = {};
             urlArgs.sparqlServiceUrl = '<?php echo $sparqlServiceUrl ?>';
@@ -330,6 +343,11 @@
             
             urlArgs.lang = '<?php echo $locale ?>';
 
+
+			urlArgs.query = '<?php echo $query ?>';
+			urlArgs.variable = '<?php echo $var ?>';
+
+
             // Only add entries with non-null and non-empty-string values to 'override' 
             var override = {};
 			$.each(urlArgs, function(key, value) {
@@ -340,7 +358,7 @@
 					}
 				}
 			});
-
+			
             _.extend(config, override);
 
             //alert("Final configuration: " + JSON.stringify(config));

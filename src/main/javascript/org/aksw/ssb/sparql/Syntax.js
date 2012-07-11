@@ -300,14 +300,40 @@
 		return result;
 	};
 	
+		
 	
-	ns.ElementString = function(value) {
+	/**
+	 * An element that injects a string "as is" into a query.
+	 * 
+	 */
+	ns.ElementString = function(value, varsMentioned) {
 		this.value = value;
+		this.varsMentioned = varsMentioned ? varsMentioned : [];
 	};
 	
 	ns.ElementString.prototype.toString = function() {
 		return this.value;
 	};
+
+	ns.ElementString.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementString(this.value, this.varsMentioned);
+	};
+	
+	ns.ElementString.prototype.getVarsMentioned = function() {
+		return this.varsMentioned;
+	};
+	
+
+	/*
+	ns.ElementSubQueryString = function(value) {
+		this.value = value;
+	};
+	
+	ns.ElementSubQueryString = function(value) {
+		
+	}
+	*/
+	
 	
 	ns.ElementSubQuery = function(query) {
 		this.query = query;

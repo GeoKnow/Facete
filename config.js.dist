@@ -8,9 +8,12 @@
 	
 	var config = Namespace("org.aksw.ssb.config");
 	
+	// FIXME maybe move to something like config.backend.sparql.{serviceUrl, defaultGraphUris}
 	config.sparqlServiceUrl = "http://localhost/sparql";
 	config.defaultGraphUris = [];
 	
+	
+	config.openlayers.tileServerUrl = "";
 	
 	config.odp = {};	
 	config.odp.apiUrl = "http://localhost/open-data/api/";

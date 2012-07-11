@@ -274,8 +274,8 @@
 		
 		
 		// Facet box
-		var queryGenerator = this.queryGeneratorGeo;
-		var constraints = queryGenerator.getConstraints();
+		var queryGeneratorGeo = this.queryGeneratorGeo;
+		var constraints = queryGeneratorGeo.getConstraints();
 		
 		//var facetConfig = new facetbox.FacetConfig(1001, 10001);
 		this.facetConfig = new facetbox.FacetConfig(1001, null);
@@ -402,7 +402,9 @@
 			var constraints = self.queryGeneratorGeo.getConstraints();
 
 			//var constraints = self.constraints;
-
+			console.log("path is", path);
+			
+			
 			var constraint = new facets.ConstraintEquals(path,
 					new sparql.NodeValue(facetValue));
 
@@ -453,7 +455,6 @@
 		
 		// React to changes of the constraints
 		$(constraints).bind("change", function(ev, data) {
-			
 			
 			self.repaint();
 			

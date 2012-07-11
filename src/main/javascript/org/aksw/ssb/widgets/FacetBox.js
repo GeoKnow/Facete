@@ -382,12 +382,16 @@
 		var result = $$({
 			idToItem : {},
 			constraints : constraints
-		}, '<div>' + '<ol></ol>' + '</div>', {
+		}, //'<div>' + '<ol></ol>' + '</div>',
+			'<ol></ol>',
+		{
 			addItem : function(constraintId, constraint) {
 
 				var idToItem = this.model.get("idToItem");
 				var constraints = this.model.get("constraints");
 
+				console.log("idToItem", idToItem, constraints);
+				
 				var item = idToItem[constraintId];
 				var model = {
 					constraints : constraints,

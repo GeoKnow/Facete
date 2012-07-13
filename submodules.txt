@@ -1,6 +1,0 @@
-git submodule add git://github.com/AKSW/RDFauthor.git lib/RDFauthor/current
-git submodule add git://github.com/FortAwesome/Font-Awesome.git lib/Font-Awesome/current
-
-git submodule add https://github.com/FortAwesome/Font-Awesome.git lib/Font-Awesome/current
-git submodule add https://github.com/AKSW/RDFauthor.git lib/RDFauthor/current
-

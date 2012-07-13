@@ -272,7 +272,7 @@
 		*/
 		
 		
-		var sparqlService = new backend.SparqlServiceHttp(config.sparqlServiceUrl, config.defaultGraphUris);
+		var sparqlService = new backend.SparqlServiceHttp(config.sparqlServiceUri, config.defaultGraphUris, config.sparqlProxyServiceUri, config.sparqlProxyParamName);
 		
 		
 		var autoConfigurator = new ns.AutoConfig(ns.init);

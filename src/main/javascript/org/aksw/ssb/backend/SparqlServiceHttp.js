@@ -8,15 +8,75 @@
 (function($) {
 			
 	var ns = Namespace("org.aksw.ssb.backend");
+	
 
 	/*
+	ns.DerefHttpDirect = function(serviceUrl) {
+		this.serviceUrl = serviceUrl;
+	};
+	
+	ns.DerefHttpDirect.prototype.deref = function(args) {
+		var parts = _.map(args, function(value, key) {
+			return key + "=" + encodeURIComponent(value);
+		});
+		
+		var queryPart = parts.join("&");
+		
+		return $.post(this.serviceUrl, queryPart);		
+	};
+	
+	
+	ns.SparqlServiceBase = function() {
+	};
+	
+	ns.SparqlServiceBase.prototype.executeAny = prototype(query) {
+		this.service.deref(query);
+	};
+	
+	ns.SparqlServiceBase.prototype.executeSelect = function(query) {
+		return this.executeAny(query);
+	};
+	
+	ns.SparqlServiceBase.prototype.executeAsk = function(query) {
+		return this.executeAny(query);
+	};
+	
+	// TODO What to return: RdfJson vs RdfQuery
+	ns.SparqlServiceBase.prototype.executeConstruct = function(query) {
+		return this.executeAny(query);
+	};
+	
+	
+	ns.SparqlServiceBase.prototype.executeDescribe = function(query) {
+		return this.executeAny(query);
+	};
+
+
+		
+	
+	ns.SparqlServiceHttpProxy = function(proxyServiceUrl, remoteServiceUrl, defaultGrapUris) {
+		this.proxyServiceUrl = proxyServiceUrl;
+		this.remoteServiceUrl = remoteServiceUrl;
+		this.defaultGraphUris = defaultGraphUris;
+	};
+	*/
+	
+	
+	
+	/**
 	 * SparqlServiceHttp
 	 * 
+	 * @param extraArgs: A set of additional arguments to pass via the query string
 	 */
-	ns.SparqlServiceHttp = function(serviceUrl, defaultGraphUris) {
-		this.serviceUrl = serviceUrl;
+	ns.SparqlServiceHttp = function(serviceUri, defaultGraphUris, proxyServiceUri, proxyParamName) {
+		this.serviceUri = serviceUri;
+		
+		this.proxyServiceUri = proxyServiceUri;
+		this.proxyParamName = proxyParamName ? proxyParamName : "service-uri"; 
 		
 		this.setDefaultGraphs(defaultGraphUris);
+		
+		//this.extraArgs = extraArgs; 
 	};
 	
 	
@@ -28,52 +88,47 @@
 		return this.defaultGraphUris;
 	};
 	
-	ns.SparqlServiceHttp.prototype.executeAny = function(queryString, callback) {
+	ns.SparqlServiceHttp.prototype.executeAny = function(query) {
+		
+		// Force the query into a string
+		var queryString = "" + query;
+		
 		if(!queryString) {
 			console.error("Empty queryString - should not happen");
 		}
+
+		var options = {};
+		var serviceUri = this.serviceUri;
 		
-		var result = ns.executeQuery(this.serviceUrl, this.defaultGraphUris, queryString);
+		if(this.proxyServiceUri) {
+			options[this.proxyParamName] = serviceUri;
+			serviceUri = this.proxyServiceUri;
+		}
 		
-		/* Callback is deprecated cause promise pwns.
-		if(callback) {
-			result.done(function(data) {
-				if(callback.success) {
-					callback.success(data);
-				} else {
-					callback(data);
-				}
-			});
-			
-			if(callback.failure) {
-				result.error(function() {
-					callback.failure();
-				});
-			}
-		}	
-		*/		
+		
+		var result = ns.executeQuery(serviceUri, this.defaultGraphUris, queryString, options);
 			
 		return result;
 	};
 	
 	
 	
-	ns.SparqlServiceHttp.prototype.executeSelect = function(queryString, callback) {
-		return this.executeAny(queryString, callback);
+	ns.SparqlServiceHttp.prototype.executeSelect = function(query) {
+		return this.executeAny(query);
 	};
 	
-	ns.SparqlServiceHttp.prototype.executeAsk = function(queryString, callback) {
-		return this.executeAny(queryString, callback);
+	ns.SparqlServiceHttp.prototype.executeAsk = function(query) {
+		return this.executeAny(query);
 	};
 	
 	// TODO What to return: RdfJson vs RdfQuery
-	ns.SparqlServiceHttp.prototype.executeConstruct = function(queryString, callback) {
-		return this.executeAny(queryString, callback);
+	ns.SparqlServiceHttp.prototype.executeConstruct = function(query) {
+		return this.executeAny(query);
 	};
 	
 	
-	ns.SparqlServiceHttp.prototype.executeDescribe = function(queryString, callback) {
-		return this.executeAny(queryString, callback);
+	ns.SparqlServiceHttp.prototype.executeDescribe = function(query) {
+		return this.executeAny(query);
 	};
 
 	
@@ -94,6 +149,13 @@
 	ns.SparqlServiceDelay.prototype.executeAsk = function(queryString, callback) {
 		return delegate.executeAsk(queryString, callback);
 	};
+
+	
+
+
+	
+	
+
 	
 	
 	/**
@@ -104,9 +166,14 @@
 	 * @param callback
 	 * @param format
 	 */
-	ns.executeQuery = function(baseURL, defaultGraphUris, query, callback, format) {
-		if(!format) {
-			format="application/json";
+	ns.executeQuery = function(baseURL, defaultGraphUris, query, options) {
+		if(!options) {
+			options = {};
+		}
+		
+		if(!options.format) {
+			// FIXME Should not modify options object
+			options.format="application/json";
 		}
 		
 		/*
@@ -122,8 +189,11 @@
 		});
 		
 		params.push({key: "query", value: query});
-		params.push({key: "format", value: format});
+		//params.push({key: "format", value: format});
 	
+		_.each(options, function(v, k) {
+			params.push({key: k, value: v});
+		});
 		
 		var querypart="";
 		_.each(params, function(param) {
@@ -131,7 +201,8 @@
 			querypart+=param.key+"="+encodeURIComponent(param.value)+"&";
 		});
 
-		return $.post(baseURL, querypart, callback);
+		//return $.post(baseURL, querypart);
+		return $.ajax(baseURL + "?" + querypart);
 	};
 
 })(jQuery);

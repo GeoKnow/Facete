@@ -9,7 +9,10 @@
     $locale = isset($_GET["lang"]) ? $_GET["lang"] : $defaultLanguage;
     
     // begins with http -> absolute, else relative
-    $sparqlServiceUrl = isset($_REQUEST['endpoint']) ? $_REQUEST['endpoint'] : null;
+    $sparqlServiceUri = isset($_REQUEST['service-uri']) ? $_REQUEST['service-uri'] : null;
+
+
+    //$sparqlServiceUri = isset($_REQUEST['endpoint']) ? $_REQUEST['endpoint'] : null;
     
     // Empty means use it all
     // FIXME Support multiple default graphs
@@ -27,7 +30,10 @@
     $var = isset($_REQUEST['var']) ? $_REQUEST['var'] : null;
     
     
-    //$sparqlServiceUrl = "http://localhost/sparql";
+    
+    
+    
+    //$sparqlServiceUri = "http://localhost/sparql";
 
     // LGD-TEST
     //$endpoint = "http://localhost/lgd/sparql";
@@ -332,7 +338,7 @@
 
 			
 			var urlArgs = {};
-            urlArgs.sparqlServiceUrl = '<?php echo $sparqlServiceUrl ?>';
+            urlArgs.sparqlServiceUri = '<?php echo $sparqlServiceUri ?>';
             var defaultGraphUri = '<?php echo $defaultGraphUri ?>'.trim();
 			if(defaultGraphUri.length > 0) {
 				urlArgs.defaultGraphUris = [defaultGraphUri];

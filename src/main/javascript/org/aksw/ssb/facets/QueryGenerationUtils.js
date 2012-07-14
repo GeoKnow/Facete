@@ -718,7 +718,7 @@
 	ns.createElementGeomLonLat = function(geomVar, lonVar, latVar) {
 		var triples = [];
 		
-		triples.push(new sparql.Triple(geomVar, geo.long, lonVar));
+		triples.push(new sparql.Triple(geomVar, geo.lon, lonVar));
 		triples.push(new sparql.Triple(geomVar, geo.lat, latVar));
 		
 		var result = new sparql.ElementTriplesBlock(triples);
@@ -730,7 +730,7 @@
 	/**
 	 * Select ?geomVar ?lonVar ?latVar { element . }
 	 * 
-	 * Assumes that the geo-triples (geo:{long,lat}) are present.
+	 * Assumes that the geo-triples (geo:{lon,lat}) are present.
 	 */
 	ns.createQueryGeomLonLatElement = function(element, geomVar, lonVar, latVar) {
 		var result = new sparql.Query();

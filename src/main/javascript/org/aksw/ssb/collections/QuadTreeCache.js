@@ -469,11 +469,13 @@
 				
 				_.each(geomToPoint, function(point, uri) {
 					var s = sparql.Node.uri(uri);
-					var oLon = sparql.Node.typedLit(point.x, xsd.double);
-					var oLat = sparql.Node.typedLit(point.x, xsd.double);
+					var oLon = sparql.Node.typedLit(point.x, xsd.xdouble.value);
+					var oLat = sparql.Node.typedLit(point.y, xsd.xdouble.value);
 					
-					var lonTriple = "" + s + " " + geo.long + " " + oLon; 
+					var lonTriple = "" + s + " " + geo.lon + " " + oLon; 
 					var latTriple = "" + s + " " + geo.lat + " " + oLat;
+					
+					//alert(lonTriple + " ---- " + latTriple);
 					
 					databank.add(lonTriple);
 					databank.add(latTriple);

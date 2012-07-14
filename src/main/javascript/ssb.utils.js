@@ -310,8 +310,8 @@ if(!String.prototype.hashCode) {
 		var hash = 0;
 		if (this.length == 0) return hash;
 		for (var i = 0; i < this.length; i++) {
-			char = this.charCodeAt(i);
-			hash = ((hash<<5)-hash)+char;
+			var ch = this.charCodeAt(i);
+			hash = ((hash<<5)-hash)+ch;
 			hash = hash & hash; // Convert to 32bit integer
 		}
 		return hash;

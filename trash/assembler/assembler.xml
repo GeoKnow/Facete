@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<assembler>
+	<scripts>
+		<script>
+			<fileName>combined.js</fileName>
+			<includes>
+				<include>lib/namespacedotjs/a28da387ce/Namespace.js</include>
+				<include>config.js</include>
+				<include>lib/gettext/0.08/lib/Gettext.js</include>
+				<include>lib/jquery/1.7.2/jquery-1.7.2.js</include>
+				<include>lib/jquery-ui/1.8.16/ui/jquery-ui.js</include>
+				<include>lib/underscore/1.3.1/underscore.js</include>
+				<include>lib/backbone/0.5.3/backbone.js</include>
+				<include>lib/twitter-bootstrap/2.0.3/bootstrap.js</include>
+				<include>lib/agility/current/agility.js</include>
+				<include>lib/Crypt.js/3.0.2/components/core-min.js</include>
+				<include>lib/Crypt.js/3.0.2/components/enc-utf16-min.js</include>
+				<include>lib/Crypt.js/3.0.2/components/enc-base64-min.js</include>
+				<include>lib/open-layers/2.10/OpenLayers.js</include>
+				<include>lib.json-template/0.85.json-template.js</include>
+				<include>lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js</include>
+				<include>lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js</include>
+
+				<!-- Configuration files -->
+				<include>src/main/javascript/ssb.namespacePrefixes.js</include>
+
+				<!-- The actual spatial semantic browsing widgets -->
+				<include>src/main/javascript/org/aksw/ssb/collections/QuadTree.js</include>
+				<include>src/main/javascript/ssb.utils.js</include>
+				<include>src/main/javascript/Dispatcher.js</include>
+				<include>src/main/javascript/org/aksw/ssb/collections/MultiMap.js</include>
+				<include>src/main/javascript/org/aksw/ssb/collections/MultiGraph.js</include>
+				<include>src/main/javascript/org/aksw/ssb/collections/LabelCollection.js</include>
+				<include>src/main/javascript.jsonrdf-extraction-utils.js</include>
+				<include>src/main/javascript/facet-controller.js</include>
+				<include>src/main/javascript/jquery.ssb.instances.js</include>
+				<include>src/main/javascript/jquery.ssb.map.js</include>
+				<include>src/main/javascript/jquery.ssb.search.js</include>
+				<include>src/main/javascript/org/aksw/ssb/backend/SparqlServiceHttp.js</include>
+				<include>src/main/javascript/org/aksw/ssb/backend/SparqlServicePaginator.js</include>
+				<include>src/main/javascript/org/aksw/ssb/sparql/Syntax.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/xsd.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/rdf.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/rdfs.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/owl.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/wgs84.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/geovocab.js</include>
+				<include>src/main/javascript/org/aksw/ssb/vocabs/appvocab.js</include>
+				<include>src/main/javascript/org/aksw/ssb/facets/Facets.js</include>
+				<include>src/main/javascript/org/aksw/ssb/facets/Constraints.js</include>
+				<include>src/main/javascript/org/aksw/ssb/facets/QueryGenerationUtils.js</include>
+				<include>src/main/javascript/org/aksw/ssb/facets/QueryExecutionUtils.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/QueryGenerator.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/QueryExecutor.js</include>
+				<include>src/main/javascript/org/aksw/ssb/utils/StringUtils.js</include>
+				<include>src/main/javascript/org/aksw/ssb/utils/LabelFetcher.js</include>
+				<include>src/main/javascript/org/aksw/ssb/utils/GeomPointFetcher.js</include>
+				<include>src/main/javascript/org/aksw/ssb/utils/RdfQuery.js</include>
+				<include>src/main/javascript/org/aksw/ssb/utils/Tali.json.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/ListWidgetBase.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/PaginatorWidget.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/ListWidgetSparql.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/FacetBox.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/ResourceWidget.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/ResourceListWidget.js</include>
+				<include>src/main/javascript/org/aksw/ssb/widgets/BreadcrumbWidget.js</include>
+				<include>src/main/javascript/org/aksw/ssb/app/controllers/AppController.js</include>
+				<include>src/main/javascript/org/aksw/ssb/app/QueryGenerator.js</include>
+				<include>src/main/javascript/org/aksw/ssb/collections/QuadTreeModel.js</include>
+				<include>src/main/javascript/org/aksw/ssb/collections/QuadTreeCache.js</include>
+				<include>src/main/javascript/org/aksw/ssb/utils/QueryCache.js</include>
+				<include>src/main/javascript/org/aksw/ssb/plugins/RDFauthor.js</include>
+				<include>src/main/javascript/org/aksw/ssb/experiments/FacetNavigator.js</include>
+
+
+				<!-- Layouting for this (p)HTML file -->
+				<include>src/main/javascript/org/aksw/ssb/app/Layout.js</include>
+
+
+				<!-- OpenDataPortal specify layouting (header bar translations) -->
+				<include>src/main/javascript/org/aksw/ssb/app/Layout-Odp.js</include>
+			</includes>
+		</script>
+	</scripts>
+</assembler>
+

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.aksw</groupId>
+	<artifactId>semmap</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	<name>SemMap</name>
+	<packaging>js</packaging>
+	<description>A JavaScript application for facetted browsing of geospatial RDF data.</description>
+
+	<organization>
+		<name>University of Leizpig</name>
+		<url>http://informatik.uni-leipzig.de</url>
+	</organization>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- <jslint.maven.plugin.version>1.0.1-SNAPSHOT</jslint.maven.plugin.version> -->
+		<!-- <jslint.options>browser,cap,debug,devel,evil,fragment,laxbreak,on</jslint.options> -->
+		<!-- <jslint.predef /> -->
+		<jslint.source.dir>${basedir}/src/main/javascript</jslint.source.dir>
+
+	</properties>
+
+	<!-- <dependencies> -->
+	<!-- <dependency> -->
+	<!-- <groupId>org.codehaus.mojo</groupId> -->
+	<!-- <artifactId>jquery-amd</artifactId> -->
+	<!-- <version>1.7.1-alpha-1</version> -->
+	<!-- <type>js</type> -->
+	<!-- </dependency> -->
+	<!-- <dependency> -->
+	<!-- <groupId>org.codehaus.mojo</groupId> -->
+	<!-- <artifactId>jquery-ui-amd</artifactId> -->
+	<!-- <version>1.8.16-alpha-1</version> -->
+	<!-- <type>js</type> -->
+	<!-- </dependency> -->
+	<!-- </dependencies> -->
+
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javascript-maven-plugin</artifactId>
+				<version>2.0.0-alpha-1</version>
+			</extension>
+		</extensions>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jslint-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<configuration>
+					 <src>${jslint.source.dir}</src>
+				</configuration>
+				
+				<executions>
+					<execution>
+						<goals>
+							<goal>jslint</goal>
+							<goal>test-jslint</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- <plugin> -->
+			<!-- <groupId>org.codehaus.mojo</groupId> -->
+			<!-- <artifactId>javascript-maven-plugin</artifactId> -->
+			<!-- <version>2.0.0-alpha-1</version> -->
+			<!-- <extensions>true</extensions> -->
+
+			<!-- <configuration> -->
+			<!-- <descriptor> -->
+			<!-- ${basedir}/src/assembler/assembler.xml -->
+			<!-- </descriptor> -->
+			<!-- <compressor>jsmin</compressor> -->
+			<!-- </configuration> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>compress</id> -->
+			<!-- <phase>package</phase> -->
+			<!-- <goals> -->
+			<!-- <goal>attach-compressed</goal> -->
+			<!-- </goals> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.codehaus.mojo</groupId> -->
+			<!-- <artifactId>maven-javascript-plugin</artifactId> -->
+			<!-- <extensions>true</extensions> -->
+			<!-- <version>2.0.0-alpha-1</version> -->
+
+			<!-- <configuration> -->
+			<!-- <descriptor>${basedir}/src/assembler/assembler.xml</descriptor> -->
+			<!-- </configuration> -->
+
+			<!-- </plugin> -->
+
+
+			<!-- <plugin> -->
+			<!-- <groupId>org.codehaus.mojo</groupId> -->
+			<!-- <artifactId>jslint-maven-plugin</artifactId> -->
+			<!-- <version>1.0.2-SNAPSHOT</version> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <goals> -->
+			<!-- <goal>jslint</goal> -->
+			<!-- <goal>test-jslint</goal> -->
+			<!-- </goals> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-assembly-plugin</artifactId> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>dist</id> -->
+			<!-- <goals> -->
+			<!-- <goal>single</goal> -->
+			<!-- </goals> -->
+			<!-- <phase>package</phase> -->
+			<!-- <configuration> -->
+			<!-- <descriptors> -->
+			<!-- <descriptor>src/main/assembly/assembly.xml</descriptor> -->
+			<!-- </descriptors> -->
+			<!-- </configuration> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+
+		</plugins>
+	</build>
+
+	<!-- FIXME: Temporary declaration of Codehaus repos until this moves to 
+		Maven Central -->
+	<!-- <repositories> -->
+	<!-- <repository> -->
+	<!-- <id>snapshots</id> -->
+	<!-- <url>https://nexus.codehaus.org/content/repositories/snapshots/</url> -->
+	<!-- <releases> -->
+	<!-- <enabled>false</enabled> -->
+	<!-- </releases> -->
+	<!-- <snapshots> -->
+	<!-- <enabled>true</enabled> -->
+	<!-- </snapshots> -->
+	<!-- </repository> -->
+	<!-- </repositories> -->
+
+	<!-- <pluginRepositories> -->
+	<!-- <pluginRepository> -->
+	<!-- <id>snapshots</id> -->
+	<!-- <url>https://nexus.codehaus.org/content/repositories/snapshots/</url> -->
+	<!-- <releases> -->
+	<!-- <enabled>false</enabled> -->
+	<!-- </releases> -->
+	<!-- <snapshots> -->
+	<!-- <enabled>true</enabled> -->
+	<!-- </snapshots> -->
+	<!-- </pluginRepository> -->
+
+	<!-- <pluginRepository> -->
+	<!-- <id>releases</id> -->
+	<!-- <url>https://nexus.codehaus.org/content/repositories/releases/</url> -->
+	<!-- <releases> -->
+	<!-- <enabled>true</enabled> -->
+	<!-- </releases> -->
+	<!-- <snapshots> -->
+	<!-- <enabled>false</enabled> -->
+	<!-- </snapshots> -->
+	<!-- </pluginRepository> -->
+	<!-- </pluginRepositories> -->
+</project>

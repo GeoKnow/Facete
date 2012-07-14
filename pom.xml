@@ -1,71 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.aksw.linkedgeodata</groupId>
-	<artifactId>browser</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<name>oss.sonatype.org</name>
-			<id>oss.sonatype.org</id>
-			<url>http://oss.sonatype.org/content/groups/public</url>
-		</pluginRepository>
-	</pluginRepositories>
+	<groupId>org.aksw</groupId>
+	<artifactId>semmap</artifactId>
+	<version>0.1-SNAPSHOT</version>
+	<name>SemMap</name>
+	<!-- <packaging>js</packaging> -->
+	<description>A JavaScript application for facetted browsing of geospatial RDF data.</description>
+
+	<organization>
+		<name>University of Leizpig</name>
+		<url>http://informatik.uni-leipzig.de</url>
+	</organization>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/javascript</directory>
-				<!-- <filtering>true</filtering> -->
-			</resource>
-		</resources>
+
 		<plugins>
 			<plugin>
+				<groupId>com.samaxes.maven</groupId>
+				<artifactId>minify-maven-plugin</artifactId>
+				<version>1.5.2-SNAPSHOT</version>
 
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>yuicompressor-maven-plugin</artifactId>
-				<version>1.3.0</version>
 				<executions>
 					<execution>
-						<id>compress-js</id>
+						<id>default-minify</id>
+						<phase>process-resources</phase>
+						
+						<configuration>
+							<!-- 
+							The sucky thing is, that the basedir for the css and js folder is
+							src/main/webapp. For now I hacked it with symbolic links...
+							
+							 -->
+						
+							<jsSourceDir>js</jsSourceDir>
+							<cssSourceDir>css</cssSourceDir>
+
+							<cssSourceFiles>
+<!-- 								<param>lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css</param>  -->
+<!--     							<param>lib/Font-Awesome/current/css/font-awesome.css</param> -->
+<!--             					<param>lib/jquery-ui/1.8.16/themes/base/jquery-ui.css</param> -->
+        						<param>style.css</param>
+							</cssSourceFiles>
+							<cssFinalFile>SemMap.css</cssFinalFile>
+
+							<jsSourceFiles>
+<!-- 								<param>lib/namespacedotjs/a28da387ce/Namespace.js</param> -->
+<!-- 								<param>lib/gettext/0.08/lib/Gettext.js</param> -->
+<!-- 								<param>lib/jquery/1.7.2/jquery-1.7.2.js</param> -->
+<!-- 								<param>lib/jquery-ui/1.8.16/ui/jquery-ui.js</param> -->
+<!-- 								<param>lib/underscore/1.3.1/underscore.js</param> -->
+<!-- 								<param>lib/backbone/0.5.3/backbone.js</param> -->
+<!-- 								<param>lib/twitter-bootstrap/2.0.3/js/bootstrap.js</param> -->
+<!-- 								<param>lib/agility/current/agility.js</param> -->
+<!-- 								<param>lib/CryptoJS/3.0.2/components/core-min.js</param> -->
+<!-- 								<param>lib/CryptoJS/3.0.2/components/enc-utf16-min.js</param> -->
+<!-- 								<param>lib/CryptoJS/3.0.2/components/enc-base64-min.js</param> -->
+<!-- 								<param>lib/open-layers/2.10/OpenLayers.js</param> -->
+<!-- 								<param>lib/json-template/0.85/json-template.js</param> -->
+<!-- 								<param>lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js</param> -->
+<!-- 								<param>lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js</param> -->
+
+<!-- 								<param>config.js</param> -->
+
+								<!-- Configuration files -->
+								<param>ssb.namespacePrefixes.js</param>
+
+								<!-- The actual spatial semantic browsing widgets -->
+								<param>org/aksw/ssb/collections/QuadTree.js</param>
+								<param>ssb.utils.js</param>
+								<param>Dispatcher.js</param>
+								<param>org/aksw/ssb/collections/MultiMap.js</param>
+								<param>org/aksw/ssb/collections/MultiGraph.js</param>
+								<param>org/aksw/ssb/collections/LabelCollection.js</param>
+								<param>jsonrdf-extraction-utils.js</param>
+								<param>facet-controller.js</param>
+								<param>jquery.ssb.instances.js</param>
+								<param>jquery.ssb.map.js</param>
+								<param>jquery.ssb.search.js</param>
+								<param>org/aksw/ssb/backend/SparqlServiceHttp.js</param>
+								<param>org/aksw/ssb/backend/SparqlServicePaginator.js</param>
+								<param>org/aksw/ssb/sparql/Syntax.js</param>
+								<param>org/aksw/ssb/vocabs/xsd.js</param>
+								<param>org/aksw/ssb/vocabs/rdf.js</param>
+								<param>org/aksw/ssb/vocabs/rdfs.js</param>
+								<param>org/aksw/ssb/vocabs/owl.js</param>
+								<param>org/aksw/ssb/vocabs/wgs84.js</param>
+								<param>org/aksw/ssb/vocabs/geovocab.js</param>
+								<param>org/aksw/ssb/vocabs/appvocab.js</param>
+								<param>org/aksw/ssb/facets/Facets.js</param>
+								<param>org/aksw/ssb/facets/Constraints.js</param>
+								<param>org/aksw/ssb/facets/QueryGenerationUtils.js</param>
+								<param>org/aksw/ssb/facets/QueryExecutionUtils.js</param>
+								<param>org/aksw/ssb/widgets/QueryGenerator.js</param>
+								<param>org/aksw/ssb/widgets/QueryExecutor.js</param>
+								<param>org/aksw/ssb/utils/StringUtils.js</param>
+								<param>org/aksw/ssb/utils/LabelFetcher.js</param>
+								<param>org/aksw/ssb/utils/GeomPointFetcher.js</param>
+								<param>org/aksw/ssb/utils/RdfQuery.js</param>
+								<param>org/aksw/ssb/utils/TalisJson.js</param>
+								<param>org/aksw/ssb/widgets/ListWidgetBase.js</param>
+								<param>org/aksw/ssb/widgets/PaginatorWidget.js</param>
+								<param>org/aksw/ssb/widgets/ListWidgetSparql.js</param>
+								<param>org/aksw/ssb/widgets/FacetBox.js</param>
+								<param>org/aksw/ssb/widgets/ResourceWidget.js</param>
+								<param>org/aksw/ssb/widgets/ResourceListWidget.js</param>
+								<param>org/aksw/ssb/widgets/BreadcrumbWidget.js</param>
+								<param>org/aksw/ssb/app/controllers/AppController.js</param>
+								<param>org/aksw/ssb/app/QueryGenerator.js</param>
+								<param>org/aksw/ssb/collections/QuadTreeModel.js</param>
+								<param>org/aksw/ssb/collections/QuadTreeCache.js</param>
+								<param>org/aksw/ssb/utils/QueryCache.js</param>
+								<param>org/aksw/ssb/plugins/RDFauthor.js</param>
+								<param>org/aksw/ssb/experiments/FacetNavigator.js</param>
+
+
+								<!-- Layouting for this (p)HTML file -->
+								<param>org/aksw/ssb/app/Layout.js</param>
+
+
+								<!-- OpenDataPortal specify layouting (header bar translations) -->
+								<param>org/aksw/ssb/app/Layout-Odp.js</param>
+							</jsSourceFiles>
+							<jsFinalFile>SemMap.js</jsFinalFile>
+
+						</configuration>
 						<goals>
-							<goal>compress</goal>
+							<goal>minify</goal>
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<webappDirectory>
-						${project.build.directory}/minimized
-					</webappDirectory>
-					<nosuffix>true</nosuffix>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
-
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>gr.abiss.mvn.plugins</groupId>
-				<artifactId>maven-jstools-plugin</artifactId>
-				<version>0.7</version>
-				<configuration>
-					<jsDir>src/main/javascript</jsDir>
-					<includePrivate>true</includePrivate>
-					<includeUndocumented>true</includeUndocumented>
-				</configuration>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>jslint</report>
-							<report>jsdoc</report>
-						</reports>
-					</reportSet>
-				</reportSets>
-			</plugin>
-		</plugins>
-	</reporting>
 
 </project>

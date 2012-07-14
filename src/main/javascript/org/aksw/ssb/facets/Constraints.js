@@ -386,7 +386,8 @@
 	 */
 	ns.ConstraintWgs84.Factory = function(path) {
 		this.path = path ? path : new facets.Path();
-		this.pathX = path.copyAppendStep(new facets.Step(geo.long.value)); //new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.long.value);
+		
+		this.pathX = path.copyAppendStep(new facets.Step(geo.lon.value)); //new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.long.value);
 		this.pathY = path.copyAppendStep(new facets.Step(geo.lat.value)); ///new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.lat.value);
 		
 		//this.breadcrumbY = breadcrumbY;
@@ -471,12 +472,12 @@
 	
 	
 	ns.createWgsFilter = function(varX, varY, bounds, castNode) {
-		var long = new sparql.ExprVar(varX);
+		var lon = new sparql.ExprVar(varX);
 		var lat = new sparql.ExprVar(varY);
 		
 		// Cast the variables if requested
 		if(castNode) {
-			long = new sparql.E_Cast(long, castNode);
+			lon = new sparql.E_Cast(lon, castNode);
 			lat = new sparql.E_Cast(lat, castNode);
 		}
 		
@@ -487,7 +488,7 @@
 
 		var result = //new sparql.ElementFilter(
 		  new sparql.E_LogicalAnd(
-            new sparql.E_LogicalAnd(new sparql.E_GreaterThan(long, xMin), new sparql.E_LessThan(long, xMax)),
+            new sparql.E_LogicalAnd(new sparql.E_GreaterThan(lon, xMin), new sparql.E_LessThan(lon, xMax)),
             new sparql.E_LogicalAnd(new sparql.E_GreaterThan(lat, yMin), new sparql.E_LessThan(lat, yMax))
 		  );
 		//);

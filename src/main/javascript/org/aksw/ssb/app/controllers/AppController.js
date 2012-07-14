@@ -936,7 +936,7 @@
 		var geomToX = {};
 		var geomToY = {};
 		
-		rdf.where("?geom " + geo.long + " ?x .").each(function() {
+		rdf.where("?geom " + geo.lon + " ?x .").each(function() {
 			geomToX[this.geom.value] = this.x.value;
 		});
 		

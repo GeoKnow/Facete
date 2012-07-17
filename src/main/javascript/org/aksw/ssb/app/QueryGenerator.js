@@ -33,6 +33,45 @@
 		this.options = options;
 	};
 			
+	ns.QueryGeneratorGeo.prototype.copyExcludeConstraint = function(path) {
+		return new ns.QueryGeneratorGeo(
+			this.queryGenerator.copyExcludeConstraint(path),
+			this.geoConstraintFactory,
+			this.options
+		);
+	};
+	
+	ns.QueryGeneratorGeo.prototype.navigateToPath = function(path) {
+		return new ns.QueryGeneratorGeo(
+			this.queryGenerator.navigateToPath(path),
+			this.geoConstraintFactory,
+			this.options
+		);
+	};
+
+	/**
+	 * Create a shallow copy of this object.
+	 * 
+	 * @returns {ns.QueryGenerator}
+	 */
+/*
+	ns.QueryGeneratorGeo.prototype.clone = function() {
+			return new ns.QueryGeneratorGeo(
+				this.queryGenerator.clone(),
+				this.geoConstraintFactory.clone(),
+				this.options); // TODO Clone options
+	};
+*/
+	
+	ns.QueryGeneratorGeo.prototype.copy = function(overrides) {
+			return new ns.QueryGeneratorGeo(
+				this.queryGenerator.copy(overrides),
+				this.geoConstraintFactory,
+				this.options); // TODO Clone options
+	};
+	
+
+	
 	/*
 	 * Pass-Through methods
 	 * 

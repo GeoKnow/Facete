@@ -329,63 +329,92 @@
 		
 		this.facetBox.bind("clickFacetValues", function(ev, payload) {
 			
-			console.log("PAYLOAD", payload.model);
+			//console.log("PAYLOAD", payload.model);
 			
 			var path = payload.model.get("path");
 			
 			var widget = payload;
 			
-			var executor = self.executor.navigateToPath(path);
-			//var executorModel = new widgets.ListModelExecutor(executor, 50);
+			
+			var queryGeneratorGeoTmp = self.queryGeneratorGeo.navigateToPath(path);
+			var queryGeneratorGeo = queryGeneratorGeoTmp.copyExcludeConstraint(path);
 
-			widget = payload.getFacetValues();
-			console.log("Widget is", widget);
-			
-			//var viewModel = new widgets.ListModelExecutor(executor, 50);
+			var task = self.fetchGeoms(queryGeneratorGeo, self.viewState.bounds);
+			$.when(task).then(function(geomIndex) {
 
-			widget.setLabelFetcher(self.labelFetcher);
-			widget.getModel().limit = 10;
-			widget.getModel().setExecutor(executor);
-			//widget.setModel(viewModel);
-			
-			
-			// Note: Binding of the clickConstraint event is done in the facetbox widget
-			/*
-			widget.getView().getListWidget().bind("selected", function(ev, item) {
-				/ *
-				console.log("item", item);
-				
-				var parent = item.item.getParent();
-				var path = parent.model.get("path");
-				console.log("path", path);* /
-				
-				
-				
-				
-				//var path = item.item.model.get("path");
-				//alert("boo");
-				//console.log("boo", path);
-			});*/
-			
-			//widget.setModel(executorModel);
-			widget.refresh();
-			
-			//var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+				var uriStrs = geomIndex.visibleGeoms;
+				var uris = _.map(uriStrs, function(str) { return sparql.Node.uri(str); });
 
-			/*
-			$.when(executor.fetchValuesCounted(null, {limit: 10})).then(function(data) {
+				console.log("GeomUris", uris);
 
-				// TODO Fetch labels - Create some utility methods that create the models from the default result formats {node, count}
-				_.each(data, function(item) {
-					item.path = path;
-					item.label = item.node.value;
-					item.countStr = item.count;
-				});
+//				alert("uris are:" + uris.length);
+
+				var queryGenerator = queryGeneratorGeo.forGeoms(uris);		
+				var executor = new widgets.QueryExecutor(self.sparqlService, queryGenerator);
+
+
+	/*
+				var executorTmp = self.executor.navigateToPath(path);
+				var executor = executorTmp.copyExcludeConstraints([path]);
+		
+				console.log("Excluded", path, executor.queryGenerator.constraints.idToConstraints.entries);
+				console.log("Excluded Q", "" + executor.queryGenerator.createQueryValues());
+	*/
+				//var executorModel = new widgets.ListModelExecutor(executor, 50);
+
+				widget = payload.getFacetValues();
+				//console.log("Widget is", widget);
+			
+				//var viewModel = new widgets.ListModelExecutor(executor, 50);
+
+				widget.setLabelFetcher(self.labelFetcher);
+				widget.getModel().limit = 10;
+				widget.getModel().setExecutor(executor);
+				//widget.setModel(viewModel);
+			
+			
+				// Note: Binding of the clickConstraint event is done in the facetbox widget
+				/*
+				widget.getView().getListWidget().bind("selected", function(ev, item) {
+					/ *
+					console.log("item", item);
 				
-				var widget = payload.getFacetValues();
-				widget.getModel().setData(data);
+					var parent = item.item.getParent();
+					var path = parent.model.get("path");
+					console.log("path", path);* /
+				
+				
+				
+				
+					//var path = item.item.model.get("path");
+					//alert("boo");
+					//console.log("boo", path);
+				});*/
+			
+				//widget.setModel(executorModel);
 				widget.refresh();
-			});*/
+			
+				//var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
+
+				/*
+				$.when(executor.fetchValuesCounted(null, {limit: 10})).then(function(data) {
+
+					// TODO Fetch labels - Create some utility methods that create the models from the default result formats {node, count}
+					_.each(data, function(item) {
+						item.path = path;
+						item.label = item.node.value;
+						item.countStr = item.count;
+					});
+				
+					var widget = payload.getFacetValues();
+					widget.getModel().setData(data);
+					widget.refresh();
+				});*/
+
+
+			});
+
+
 		});
 		
 		this.facetBox.bind("clickConstraint", function(ev, payload) {
@@ -825,11 +854,38 @@
 		
 	};
 
-	ns.AppController.prototype.refresh = function(olBounds, delay) {		
+
+
+	ns.AppController.prototype.fetchGeoms = function(queryGeneratorGeo, bounds) {
+		var task = this.fetchNodesGeo(queryGeneratorGeo, bounds);
+
+		var result = $.Deferred();
+
 		var self = this;
-		
-		// We are dealing with quad-tree-bounds here
-		var bounds = toQuadTreeBounds(olBounds);
+		$.when(task).then(function(nodes) {
+			var geomIndex = ns.indexGeoms(nodes, bounds);
+
+			var tmp = {
+				bounds: bounds,
+				nodes: nodes,
+				visibleGeoms: geomIndex.visibleGeoms,
+				geomToPoint: geomIndex.geomToPoint};
+
+			result.resolve(tmp);
+
+		}).fail(function() {
+			result.fail();
+		});
+
+		return result.promise();
+	};
+	
+	
+	/**
+	 * TODO Factory out into a separate object
+	 * 
+	 */
+	ns.AppController.prototype.fetchNodesGeo = function(queryGeneratorGeo, bounds) {
 		//console.log("Refresh bounds", bounds);
 
 		// TODO Check if another refresh request is running.
@@ -839,8 +895,8 @@
 		var disableConstraints = true;
 
 
-		console.log("Constraints", this.queryGeneratorGeo.getConstraints());
-		var queryGenerator = this.queryGeneratorGeo.forGlobal();
+		console.log("Constraints", queryGeneratorGeo.getConstraints());
+		var queryGenerator = queryGeneratorGeo.forGlobal();
 		
 		
 		var baseElement = queryGenerator.createDriverValues().getElement();
@@ -852,14 +908,81 @@
 		
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
-			var backendFactory = new qtc.BackendFactory(this.sparqlService, this.queryGeneratorGeo);
+			var backendFactory = new qtc.BackendFactory(this.sparqlService, queryGeneratorGeo);
 			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPointFetcher);
 			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
 			this.hashToCache[hash] = cacheEntry;
 		}
 		
-		var promise = cacheEntry.load(bounds);
-		//console.log(promise);
+		var result = cacheEntry.load(bounds);
+		return result;
+	};
+	
+
+    /**
+     * Given bounds and a set of quat tree nodes, this method
+     * Creates a map resource->geometry and also determines which resources are visible
+     */
+	ns.indexGeoms = function(nodes, bounds) {
+		var globalGeomToPoint = {};
+		var visibleGeoms = [];
+
+		for(var i = 0; i < nodes.length; ++i) {
+			var node = nodes[i];
+
+			var nodeBounds = node.getBounds();
+			
+			var databank = node.data.graph;
+			var geomToPoint = node.data.geomToPoint ? node.data.geomToPoint : ns.extractGeomsWgs84(databank);
+
+			
+			//console.debug("geomToPoint", geomToPoint);
+			//console.debug("Databank for node ", i, databank);
+			
+			// Attach the info to the node, so we reuse it the next time
+			node.data.geomToPoint = geomToPoint;
+			
+			_.extend(globalGeomToPoint, geomToPoint);
+
+			var geoms = _.keys(geomToPoint);
+		
+		
+			// If the node is completely in the bounds, we can skip the boundary check
+			if(bounds.contains(nodeBounds)) {
+			
+				visibleGeoms.push.apply(visibleGeoms, geoms);
+			
+			} else if(bounds.isOverlap(nodeBounds)) {
+		
+				//for(var geom in geoms) {
+				for(var j = 0; j < geoms.length; ++j) {
+					var geom = geoms[j];
+					var point = geomToPoint[geom];
+				
+					//console.log("point is: ", geomToPoint);
+				
+					if(bounds.containsPoint(point)) {
+						visibleGeoms.push(geom);
+					}
+				}
+			
+			}
+		}
+
+		return {geomToPoint: globalGeomToPoint, visibleGeoms: visibleGeoms};
+    }
+
+	
+	
+	ns.AppController.prototype.refresh = function(olBounds) {		
+		var self = this;
+		
+		// We are dealing with quad-tree-bounds here
+		var bounds = toQuadTreeBounds(olBounds);
+		//console.log("Refresh bounds", bounds);
+
+		var promise = this.fetchNodesGeo(this.queryGeneratorGeo, bounds);
+		
 		$.when(promise).then(function(nodes) {
 			if(!nodes) {
 				console.debug("Update was in progress");
@@ -868,8 +991,8 @@
 			
 			//console.debug("Loaded " + nodes.length + " nodes");
 			//console.debug("Nodes are:", nodes);
-			self.updateViews(new ns.ViewState(nodes, bounds));		
-		});		
+			self.updateViews(new ns.ViewState(nodes, bounds));
+		});
 	};
 		
 	ns.AppController.prototype.repaint = function() {
@@ -1105,8 +1228,7 @@
 			return;
 		}
 		
-		var queryGenerator = this.queryGeneratorGeo.forGeoms(uris);
-		
+		var queryGenerator = this.queryGeneratorGeo.forGeoms(uris);		
 		this.executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 		
 		
@@ -1197,7 +1319,7 @@
 		return result;
 	};
 	
-	
+
 
 	
 	ns.AppController.prototype.updateViews = function(newState) {
@@ -1205,8 +1327,6 @@
 		// TODO Somehow make this work (by magic is would be fine)
 		// TODO Facet counts are updated as a reaction to fetching the new state
 		//this.updateFacetCounts(newState.bounds, newState.nodes);
-		
-		
 		
 		// node       1      2
 		// change  
@@ -1216,16 +1336,18 @@
 		
 		var oldVisibleGeoms = this.viewState.visibleGeoms;
 		
-		var nodes = newState.nodes; 
+		var nodes = newState.nodes;
 		var bounds = newState.bounds;
 		
 		this.viewState = newState;
 		
-		var visibleGeoms = [];
-		var globalGeomToPoint = {};
+		var nodeIndex = ns.indexGeoms(nodes, bounds);
+		var globalGeomToPoint = nodeIndex.geomToPoint;
+		var visibleGeoms = nodeIndex.visibleGeoms;
 		
 		this.viewState.visibleGeoms = visibleGeoms;
 		
+/*
 		// Get all geometries from the databanks
 		for(var i = 0; i < nodes.length; ++i) {
 			var node = nodes[i];
@@ -1267,6 +1389,7 @@
 				
 			}
 		}
+*/
 		
 		//console.debug("Number of visible geoms", visibleGeoms.length);
 

@@ -29,6 +29,18 @@
 	
 	
 	/**
+	 * Creates a new executor with constraints on the given paths excluded
+	 * 
+	 */
+	ns.QueryExecutor.prototype.copyExcludeConstraints = function(paths) {
+		var tmp = this.queryGenerator.copyExcludeConstraints(paths);
+		
+		var result = new ns.QueryExecutor(this.sparqlService, tmp);
+		
+		return result;
+	};
+	
+	/**
 	 * Convenience method for filtering the current set of resources by a label
 	 * 
 	 * @param regexStr

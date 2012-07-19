@@ -434,9 +434,17 @@
 	};
 
 	ns.ElementGroup.prototype.toString = function() {
-		return this.elements.join(" . ");
+		//return this.elements.join(" . ");
+		return ns.joinElements(" . ", this.elements);
 	};
+		
 	
+	ns.joinElements = function(separator, elements) {
+		var strs = _.map(elements, function(element) { return "" + element; });
+		var filtered = _.filter(strs, function(str){ return str.length != 0; });
+		
+		return filtered.join(separator);
+	};
 	
 	ns.E_In = function(variable, nodes) {
 		this.variable = variable;
@@ -550,6 +558,7 @@
 	
 	ns.E_Equals.prototype.eval = function(binding) {
 		// TODO Evaluate the expression
+		;
 	};
 
 	ns.E_GreaterThan = function(left, right) {
@@ -896,13 +905,13 @@
 		var distinctStr = this.distinct ? "Distinct " : "";
 		
 		//console.log("Elements: ", this.elements);
-		var result = "Select " + distinctStr + this.toStringProjection() + " {" + this.elements.join(" . ") + "} " + this.toStringOrderBy() + this.toStringLimitOffset();
+		var result = "Select " + distinctStr + this.toStringProjection() + " {" + ns.joinElements(" . ", this.elements) + "} " + this.toStringOrderBy() + this.toStringLimitOffset();
 		
 		return result;		
 	};
 
 	ns.Query.prototype.toStringConstruct = function() {
-		var result = "Construct " + this.constructTemplate + " {" + this.elements.join(" . ") + "}" + this.toStringOrderBy() + this.toStringLimitOffset();
+		var result = "Construct " + this.constructTemplate + " {" + ns.joinElements(" . ", this.elements) + "}" + this.toStringOrderBy() + this.toStringLimitOffset();
 		
 		return result;
 	};

@@ -36,6 +36,9 @@
 	
 	ns.QueryFactory.prototype.createQueryGeomCount = function(maxCount) {		
 		var result = queryUtils.createCountQuery(this.element, maxCount, this.geomVar, this.countVar);
+		
+		console.log("FFS", result);
+		
 		return result;
 	};
 

@@ -331,7 +331,7 @@
 	};
 	
 	ns.ConstraintEquals.prototype.toString = function() {
-		return "" + this.path+ " = " + this.nodeValue;
+		return "" + this.path + " = " + this.nodeValue;
 	};
 	
 	ns.ConstraintEquals.prototype.createConstraintElement = function(pathManager) {

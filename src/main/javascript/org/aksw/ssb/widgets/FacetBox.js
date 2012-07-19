@@ -63,8 +63,13 @@
 
 	ns.facetBoxId = 1;
 	
-	ns.createFacetBox = function() {
+	ns.createFacetBox = function(selectionModel) {
 	
+		if(!selectionModel) {
+			throw "No selectionModel for facetBox provided";
+		}
+
+		
 		var id1 = "fb-tabs-" + (ns.facetBoxId++);
 		var id2 = "fb-tabs-" + (ns.facetBoxId++);
 		
@@ -93,7 +98,7 @@
 	
 				    	
 				    	var visibilityModel = {};				    	
-				    	var selectionModel = {};
+				    	//var selectionModel = {};
 				    	
 						var outgoing = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel, visibilityModel));
 						var incoming = widgets.createListWidget(new widgets.ListModelCollection(), new ns.FacetSwitcherItemFactory(selectionModel, visibilityModel));
@@ -269,10 +274,7 @@
 				
 				//var facetValues = widgets.createListWidget(new widgets.ListModelCollection(), ns.FacetValueItemFactory);
 				//var facetValues = new widgets.ExecutorListWidget(null, widgets.checkItemFactory);
-				
-				// TODO: The selection must be visible from the outside...
-				//this.selection = {};
-				
+								
 				var selectionModel = this.getSelectionModel();
 				
 				var executor = null; // There is no executor yet, but we may use null as a placeholder
@@ -376,54 +378,120 @@
 	});	
 	
 	
+	/*
+	ns.ConstraintItem = $$({
+		parent : null,
+		constraints : null,
+		constraintId : null,
+		label : ""
+	}, '<li><span data-bind="label" /></li>', '& span { cursor:pointer; }', {
+		'click span' : function() {
+			
+			//alert("weee");
+			
+			var constraintId = this.model.get("constraintId");
+			var constraints = this.model.get("constraints");
+			
+			constraints.remove(constraintId);
+			// this.destroy();
+			var parent = this.model.get("parent");
+			parent.controller.removeItem(constraintId);
+		}
+	});
+	*/
 	
-	ns.createConstraintList = function(constraints) {
+	ns.ConstraintItem = $$({
+		parent : null,
+		constraints : null,
+		constraintId : null,
+		label : ""
+	}, '<li><span data-bind="label" /></li>', '& span { cursor:pointer; }', {
+		'click span' : function() {
+			
+			//alert("weee");
+			
+			var constraintId = this.model.get("constraintId");
+			var constraints = this.model.get("constraints");
+			
+			//constraints.remove(constraintId);
+			// this.destroy();
+			var parent = this.model.get("parent");
+			//parent.controller.removeItem(constraintId);
+			parent.trigger("itemSelected", this);
+		}
+	});
+	
+	
+
+	
+	ns.createConstraintList = function(constraintSelectionModel) { //constraints) {
 
 		var result = $$({
-			idToItem : {},
-			constraints : constraints
-		}, //'<div>' + '<ol></ol>' + '</div>',
-			'<ol></ol>',
-		{
-			addItem : function(constraintId, constraint) {
-
-				var idToItem = this.model.get("idToItem");
-				var constraints = this.model.get("constraints");
-
-				console.log("idToItem", idToItem, constraints);
-				
-				var item = idToItem[constraintId];
-				var model = {
-					constraints : constraints,
-					constraintId : constraintId,
-					constraint : constraint,
-					label : constraint.toString(),
-					parent : this
-				};
-				if (item) {
-					item.model.set(model);
-				} else {
-					item = $$(ns.ConstraintItem, model);
-					idToItem[constraintId] = item;
-					this.append(item, "ol:first");
-				}
+			view: {
+				format: '<ol></ol>'
 			},
+			model: {
+				idToItem : {},
+				constraints: constraintSelectionModel
+				//constraints : constraints
+			},
+			controller: {
+				addItem : function(constraintId, constraint) {
 
-			removeItem : function(constraintId) {
-				var idToItem = this.model.get("idToItem");
+					var idToItem = this.model.get("idToItem");
+					var constraints = this.model.get("constraints");
 
-				if (constraintId in idToItem) {
+					console.log("idToItem", idToItem, constraints);
+					
 					var item = idToItem[constraintId];
+					var model = {
+						constraints : constraints,
+						constraintId : constraintId,
+						constraint : constraint,
+						label : constraint.toString(),
+						parent : this
+					};
 					if (item) {
-						item.destroy();
+						item.model.set(model);
+					} else {
+						item = $$(ns.ConstraintItem, model);
+						idToItem[constraintId] = item;
+						this.append(item); //, "ol:first");
+						//alert("here");
 					}
+				},
 
-					delete idToItem[constraintId];
+				removeItem : function(constraintId) {
+					var idToItem = this.model.get("idToItem");
+
+					if (constraintId in idToItem) {
+						var item = idToItem[constraintId];
+						if (item) {
+							item.destroy();
+						}
+
+						delete idToItem[constraintId];
+					}
+				},
+				
+				removeAll: function() {
+					this.each(function(i, child) {
+						child.destroy();
+					});
 				}
+				
 			}
-
 		});
 
+		
+		$(constraintSelectionModel).bind("change", function(ev, payload) {
+			
+			result.controller.removeAll();
+			
+			
+			
+		});	
+		
 		return result;
 	};
 

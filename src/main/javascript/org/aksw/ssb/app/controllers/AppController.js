@@ -323,7 +323,66 @@
 		
 		//config, queryGenerator, basePath, backend, callbacks
 		//this.facetBox = $$(facetbox.FacetBox); //widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.hackId);
-		this.facetBox = facetbox.createFacetBox();
+		
+		/*
+		 * The model for keeping track of selected constraints
+		 * 
+		 */
+		
+		//this.constraintSelectionModel = backbone.Collection();
+		
+		
+		this.constraintSelectionModel = {};
+		
+		
+
+		$(this.constraintSelectionModel).bind("change", function(ev, selectionModel) {
+			
+			//console.log("Break");
+			
+			// TODO: The widgets that depend on the model need to update themselves!!!
+			self.constraintWidget.refresh();
+			
+			
+			
+/*
+			var path = payload.path;
+
+			//console.log("payload", payload.item);
+			var item = payload.item;
+			
+			var facetValue = item.model.get("data").data;
+
+			//console.log("facetValue", facetValue);
+			
+			var constraints = self.queryGeneratorGeo.getConstraints();
+
+			//var constraints = self.constraints;
+			console.log("path is", path);
+			
+			
+			var constraint = new facets.ConstraintEquals(path,
+					new sparql.NodeValue(facetValue));
+
+			//console.log("Setting constraint", constraint);
+			
+			//var isEnabled = !this.model.get("isEnabled");
+			// console.log("Enabled:", isEnabled, id);
+			if (item.isSelected()) {
+				//alert("boo");
+				constraints.add(constraint);
+			} else {
+				constraints.remove(constraint);
+			}			
+*/
+			
+		});
+		
+		
+		
+		
+		
+		this.facetBox = facetbox.createFacetBox(this.constraintSelectionModel);
 		
 		this.facetBox.view.$().autoHeight();
 		
@@ -351,16 +410,6 @@
 
 				var queryGenerator = queryGeneratorGeo.forGeoms(uris);		
 				var executor = new widgets.QueryExecutor(self.sparqlService, queryGenerator);
-
-
-	/*
-				var executorTmp = self.executor.navigateToPath(path);
-				var executor = executorTmp.copyExcludeConstraints([path]);
-		
-				console.log("Excluded", path, executor.queryGenerator.constraints.idToConstraints.entries);
-				console.log("Excluded Q", "" + executor.queryGenerator.createQueryValues());
-	*/
-				//var executorModel = new widgets.ListModelExecutor(executor, 50);
 
 				widget = payload.getFacetValues();
 				//console.log("Widget is", widget);
@@ -393,25 +442,6 @@
 			
 				//widget.setModel(executorModel);
 				widget.refresh();
-			
-				//var listWidget = widgets.createExecutorList(executorModel, widgets.checkItemFactory, this.labelFetcher);
-
-				/*
-				$.when(executor.fetchValuesCounted(null, {limit: 10})).then(function(data) {
-
-					// TODO Fetch labels - Create some utility methods that create the models from the default result formats {node, count}
-					_.each(data, function(item) {
-						item.path = path;
-						item.label = item.node.value;
-						item.countStr = item.count;
-					});
-				
-					var widget = payload.getFacetValues();
-					widget.getModel().setData(data);
-					widget.refresh();
-				});*/
-
-
 			});
 
 
@@ -477,7 +507,30 @@
 		//$(window).resize();
 		
 		
-		this.constraintWidget = facetbox.createConstraintList(constraints);
+		//this.constraintWidget = facetbox.createConstraintList(this.constraintSelectionModel); //constraints);
+		
+		
+		var ListModelConstraints = function(constraints) {
+			this.constraints = constraints;
+		};
+		
+		ListModelConstraints.prototype.fetchData = function() {
+			var result = _.map(constraints.idToConstraints.entries, function(constraints, id) {
+				var tmp = {data: constraints, id: id, label: id};
+				
+				console.log("Constraint Entry", tmp);
+				
+				return tmp;
+			});
+			
+			return result;
+		};
+		
+		
+		var constraintListModel = new ListModelConstraints(constraints);
+		var constraintItemRenderer = new widgets.RendererCheckItem(this.constraintSelectionModel, function(x) { return x.id; });
+		this.constraintWidget = widgets.createListWidget(constraintListModel, constraintItemRenderer);
+
 		
 		$$.document.append(self.constraintWidget, $("#ssb-constraints"));
 		
@@ -488,6 +541,7 @@
 			self.repaint();
 			
 			console.log("change-event", data);
+			
 			
 			_.each(data.added, function(entry) {
 				self.constraintWidget.controller.addItem(entry.key, entry.value);
@@ -654,7 +708,8 @@
 	
 			$$.document.append(executorWidget.getView(), $("#ssb-class-selection"));
 			
-			executorWidget.getView().getListWidget().refresh();
+			//executorWidget.getView().getListWidget().refresh();
+			executorWidget.refresh();
 		}
 
 
@@ -970,7 +1025,7 @@
 		}
 
 		return {geomToPoint: globalGeomToPoint, visibleGeoms: visibleGeoms};
-    }
+    };
 
 	
 	
@@ -1660,7 +1715,7 @@
 						self.prevResWidget = widget;
 						
 						
-						var resourceListBox = $("#box-resources")
+						var resourceListBox = $("#box-resources");
 						$$.document.append(widget, resourceListBox);
 						resourceListBox.show();
 						//widget.view.$().show();
@@ -1945,14 +2000,14 @@
 		if(this.selectedFeature === feature) {
 			this.selectedFeature = null;
 			
-			this.setInstances(this.viewState.visibleGeoms, this.viewState.geomToFeatures, this.viewState.idToLabel)
+			this.setInstances(this.viewState.visibleGeoms, this.viewState.geomToFeatures, this.viewState.idToLabel);
 			//this.instanceWidget.refresh();
 
 			return;
 		}
 		
 		if(this.selectedFeature) {
-			this.setInstances([uriStr], this.viewState.geomToFeatures, this.viewState.idToLabel)
+			this.setInstances([uriStr], this.viewState.geomToFeatures, this.viewState.idToLabel);
 		}
 		//this.instanceWidget.refresh();
 

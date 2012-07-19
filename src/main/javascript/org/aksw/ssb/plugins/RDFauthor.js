@@ -49,17 +49,17 @@ ns.populateRDFauthor = function(data, protect, resource, graph) {
                 var newObjectSpec = {
                     value : value,
                     type: String(objSpec.type).replace('typed-', '')
-                }
+                };
 
                 if (objSpec.value) {
                     if (objSpec.type == 'typed-literal') {
                         newObjectSpec.options = {
                             datatype: objSpec.datatype
-                        }
+                        };
                     } else if (objSpec.lang) {
                         newObjectSpec.options = {
                             lang: objSpec.lang
-                        }
+                        };
                     }
                 }
 

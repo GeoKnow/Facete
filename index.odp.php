@@ -149,9 +149,6 @@
 <!-- 	<script type="text/javascript" -->
 <!-- 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script> -->
 
-	<!-- Configuration files -->
-	<script type="text/javascript"
-		src="src/main/javascript/ssb.namespacePrefixes.js"></script>
 
 	<!-- The actual spatial semantic browsing widgets -->
 	<script type="text/javascript"
@@ -459,6 +456,7 @@
             });
             $("#tabs-types").click ( function () {
                 $("#tabs-instances-content").hide ();
+
                 $("#tabs-facets-content").hide ();
                 $("#tabs-places-content").hide ();
                 

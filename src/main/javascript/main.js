@@ -79,7 +79,23 @@
 		
 		alert(a.isOverlap(b));
 		alert(b.isOverlap(a));
-	}
+	};
+
+	function createFallbackDriver() {
+
+		var fallbackDriver = null;
+		var s = sparql.Node.v("s");
+		var p = sparql.Node.v("p");
+		var o = sparql.Node.v("o");
+		
+		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
+
+		pathManager = new facets.PathManager("s");
+		
+		result = new facets.Driver(driverElement, s);
+
+		return result;
+	};
 	
 	/**
 	 * Currently hard wired configuration of the facets for the financial transparency system
@@ -89,7 +105,7 @@
 		//testBounds();
 		
 		
-		var driver = null;
+		var driver = config.driver;
 		var pathManager = null;
 
 		console.log("Config is", config);
@@ -109,9 +125,11 @@
 			
 			var driverElement = new sparql.ElementString(queryString, [v]);
 			driver = new facets.Driver(driverElement, s);
-			pathManager = new facets.PathManager(vName);			
-			
-		} else {
+			pathManager = new facets.PathManager(vName); 
+		}
+		
+		/*
+		else {
 			var s = sparql.Node.v("s");
 			var a = sparql.Node.uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");				
 			var node = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
@@ -127,17 +145,29 @@
 			driver = new facets.Driver(driverElement, s);
 			pathManager = new facets.PathManager("s");
 		}
+		*/
 		
-		var baseStr = "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs";	
+		
+		
+		
+		//var baseStr = "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs";	
 
+		
+		// TODO I think the system should work if the driver is left on null
+		// Alternatively, the driver must be set to the triples of the geoPath
+		var fallbackDriver = createFallbackDriver(); // null
+		
+		var driver = config.driver ? config.driver : fallbackDriver;
+		var geoPath = config.geoPath ? config.geoPath : new facets.Path();
+		var navigationPath = config.navigationPath ? config.navigationPath : new facets.Path();
 		
 		
 		
 		// LGD-TEST
-		var baseStr = "";
+		//var baseStr = "";
 		
-		var geoPath = facets.Path.fromString(baseStr);
-		var navigationPath = facets.Path.fromString("");
+		//var geoPath = facets.Path.fromString(baseStr);
+		//var navigationPath = facets.Path.fromString("");
 		
 		
 		//var pathStrX = baseStr + " " + geo.long.value;

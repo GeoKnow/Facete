@@ -137,7 +137,10 @@
 		var oldDriver = this.createDriverValues();
 		
 		var group = new sparql.ElementGroup();
-		group.elements.push(oldDriver.getElement());
+		
+		if(oldDriver && oldDriver.getElement()) {
+			group.elements.push(oldDriver.getElement());
+		}
 		
 		var geoElement = this._createGeoElement();
 		if(geoElement.triples.length > 0) {
@@ -189,7 +192,11 @@
 		var inferredDriver = this.getInferredDriver();
 		
 		var tmpElement = new sparql.ElementGroup();
-		tmpElement.elements.push(inferredDriver.element);
+		
+		if(inferredDriver && inferredDriver.element) {
+			tmpElement.elements.push(inferredDriver.element);
+		}
+		
 		tmpElement.elements.push(filter);
 				
 		var newElement;
@@ -210,8 +217,14 @@
 			newElement = tmpElement; 
 		}
 		
+		var resultDriver = null;
+		
+		if(inferredDriver) {
+			resultDriver = new facets.Driver(newElement, inferredDriver.getVariable());
+		} 
+		
 		var result = new widgets.QueryGenerator(
-				new facets.Driver(newElement, inferredDriver.getVariable()),
+				resultDriver, 
 				this.getNavigationPath(),
 				this.getFocusPath(),
 				this.getConstraints(),

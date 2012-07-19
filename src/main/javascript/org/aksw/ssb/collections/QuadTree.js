@@ -21,7 +21,7 @@
 	
 	ns.QuadTree.prototype.getRootNode = function() {
 		return this.node;
-	}
+	};
 	
 	/**
 	 * Retrieve the node that completely encompasses the given bounds

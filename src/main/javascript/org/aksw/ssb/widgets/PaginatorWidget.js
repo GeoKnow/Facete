@@ -119,7 +119,7 @@
 	ns.PaginatorModel = function(options) {
 		this.maxSlotCount = 7;
 		this.currentPage = 1;
-		this.pageCount = 10;
+		this.pageCount = 1;
 		
 		this.maxContextCount = 5; // Number of boxes around the current location
 		this.minStartCount = 1;

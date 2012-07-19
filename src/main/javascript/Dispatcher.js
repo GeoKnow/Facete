@@ -1,3 +1,5 @@
+
+// TODO Rename to EventBus
 var Dispatcher = {
     register: function(event, context, functionName) {
     	if(context) {

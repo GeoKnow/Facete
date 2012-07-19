@@ -70,9 +70,10 @@
 	 * @param fnId
 	 * @returns {ns.RendererCheckItem}
 	 */
-	ns.RendererCheckItem = function(selectionModel, fnId) {
+	ns.RendererCheckItem = function(selectionModel, fnId, agilityItem) {
 		this.selectionModel = selectionModel;
 		this.fnId = fnId;
+		this.agilityItem = agilityItem ? agilityItem : ns.CheckItem;
 	};
 	
 	ns.RendererCheckItem.prototype.create = function(parent, data) {
@@ -83,9 +84,9 @@
 		
 		var result;
 		if(isSelected) {
-			result = $$(ns.CheckItem, {parent: parent, data:data, label: data.label, isSelected: isSelected});
+			result = $$(this.agilityItem, {parent: parent, data:data, label: data.label, isSelected: isSelected});
 		} else {
-			result = $$(ns.CheckItem, {parent: parent, data:data, label: data.label});
+			result = $$(this.agilityItem, {parent: parent, data:data, label: data.label});
 		}
 	
 		var self = this;
@@ -510,7 +511,7 @@
 	
 	ns.updatePageCount = function(paginator, subExecutor, limit) {
 		
-		$.when(subExecutor.fetchCountValues()).then(function(info) {
+		$.when(subExecutor.fetchCountValues(null, {distinct: true})).then(function(info) {
 			var itemCount = info.count;
 			//var limit = model.limit;
 			

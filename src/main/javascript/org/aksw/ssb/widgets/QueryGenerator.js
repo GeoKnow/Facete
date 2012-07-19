@@ -31,10 +31,13 @@
 		//this.parent = parent;
 		
 		this.driver = driver;
+		
+		var driverVariableName = (this.driver && this.driver.variable) ? driver.variable.value : "s"; 
+		
 		this.navigationPath = navigationPath ? navigationPath : new facets.Path();
 		this.focusPath = focusPath ? focusPath : new facets.Path();
 		this.constraints = constraints ? constraints : new facets.ConstraintCollection();
-		this.pathManager = pathManager ? pathManager : new facets.PathManager(driver.variable.value);
+		this.pathManager = pathManager ? pathManager : new facets.PathManager(driverVariableName);
 		
 		//this.fixedConstraints = fixedConstraints ? fixedConstraints : ne
 		
@@ -170,14 +173,21 @@
 			var elements = [];
 
 			// Add base driver element
-			elements.push(this.driver.element);
+			if(this.driver && this.driver.element) {
+				elements.push(this.driver.element);
+			}
+			
+			
 			elements.push(new sparql.ElementTriplesBlock(navigationTriples));
 			
 			element = new sparql.ElementGroup(elements);
 		} else {
-			element = this.driver.element;
+			element = (this.driver && this.driver.element) ? this.driver.element : null;
 		}
 
+		if(!element) {
+			return null;
+		}
 		
 		var variable = navigationBreadcrumb.getTargetVariable(); //sparql.Node.v(navigationBreadcrumb.targetNode.variable);				
 		var result = new facets.Driver(element, variable);
@@ -255,7 +265,9 @@
 		var elements = [];
 
 		// Add driver element
-		elements.push(this.driver.element);
+		if(this.driver && this.driver.element) {
+			elements.push(this.driver.element);
+		}
 		
 		// Add facet constraints
 		this._appendConstraintElement(elements, options);
@@ -281,7 +293,7 @@
 		var result = new sparql.ElementGroup(elements); 
 		
 		//console.log("NavigationTriples", navigationTriples);
-		console.log("elements", elements);
+		console.log("Created elements", elements);
 		
 		return result;
 	};
@@ -327,7 +339,7 @@
 		
 		var result = new facets.Driver(element, variable);
 		
-		return result;		
+		return result;
 	};
 	
 	ns.QueryGenerator.prototype.createQueryCountValues = function(countVar, sampleLimit, options) {

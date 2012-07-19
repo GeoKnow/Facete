@@ -12,7 +12,7 @@
 	 *   
 	 */
 	ns.UriAbbreviator.prototype.abbreviateUri = function(uri) {
-	}
+	};
 	
 	
 	
@@ -24,7 +24,7 @@
 	 */
 	ns.listNamespaces = function(uri) {
 		uri.split("#");
-	}
+	};
 	
 		
 		

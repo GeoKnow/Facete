@@ -365,7 +365,7 @@
 		//var result = sparqlService.executeSelect(query.toString()).pipe(function()
 		
 		return result;
-	}
+	};
 	
 	/**
 	 * 

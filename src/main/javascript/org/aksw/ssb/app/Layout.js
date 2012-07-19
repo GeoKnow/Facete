@@ -205,10 +205,13 @@ var ns = {};
 		$("#ssb-tabs-start-content").autoHeight();
 		
 		
+		var languageSwitcherSelector = "#edit-lang-dropdown-select";		
+		var element = $(languageSwitcherSelector); 
 		
-		$("#language-switcher").change(function() {
+		
+		$(element).change(function() {
 				
-			var lang = $("#language-switcher").val();
+			var lang = $(element).val();
 
 			var href = "src/main/resources/i18n/" + lang + "/LC_MESSAGES/messages.po";
 

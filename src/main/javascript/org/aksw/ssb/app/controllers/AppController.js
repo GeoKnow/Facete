@@ -2033,34 +2033,41 @@
 		
 		var searchValue = encodeURI($('#search-field').val());
 	
-		var url = "src/main/php/search_proxy.php?query=" + searchValue;
+		//var url = "src/main/php/search_proxy.php?query=" + searchValue;
+		
+		var url = "http://nominatim.openstreetmap.org/search?format=json&q=" + searchValue;
+		
 		//console.log(url);
-		$.ajax(url, {
-			failure: function() {notify("Something went wrong"); },
-			success: function(response) {
+		var promise = $.ajax(url, {dataType: "json"});
+		
+		$.when(promise).then(function(response) {				
+			var json = response;
+			
+			//console.log("displayName", json);
+
+			
+			var items = [];
+			for(var i = 0; i < json.length; ++i) {
 				
-				var json = response;
-				
-				var items = [];
-				for(var i = 0; i < json.length; ++i) {
-					
-					var item = json[i];				
-					
-					var nameParts = item.display_name.split(",");
+				var item = json[i];				
 									
-					var tmp = {
-							name: nameParts[0],
-							description: nameParts[1],
-							lonlat: new OpenLayers.LonLat(item.lon, item.lat)
-					};
-					
-					
-					items.push(tmp);
-				}
 				
-				$("#searchResults").data("ssb_search").setItems(items);
-				$("#searchResults").slideDown("slow");
+				var nameParts = item.display_name.split(",");
+								
+				var tmp = {
+						name: nameParts[0],
+						description: nameParts[1],
+						lonlat: new OpenLayers.LonLat(item.lon, item.lat)
+				};
+				
+				
+				items.push(tmp);
 			}
+			
+			$("#searchResults").data("ssb_search").setItems(items);
+			$("#searchResults").slideDown("slow");
+		}).fail(function() {
+			alert("Error communicating with the place name search service");
 		});
 	};
 	

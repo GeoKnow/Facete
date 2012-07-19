@@ -51,14 +51,14 @@
 		
 		ns.ajax(urlGetLanguages).pipe(function(json) {
 			
-			
-			var lang = $("#language-switcher").val();
-
-			
 			// TODO get any currently selected language
-			var languageSwitcherSelector = "#language-switcher";
+			var languageSwitcherSelector = "#edit-lang-dropdown-select";
 			
 			var element = $(languageSwitcherSelector); 			
+			var lang = $(element).val();
+
+			
+			
 			element.children().remove();
 			
 			$.each(json, function(key, value) {

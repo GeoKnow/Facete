@@ -90,6 +90,18 @@
 	
 	ns.SparqlServiceHttp.prototype.executeAny = function(query) {
 		
+		// TODO Make this a switch
+		if(true) {
+			if(query.flatten) {
+				var before = query;
+				query = before.flatten();
+				
+				console.log("FLATTEN BEFORE: " + before, before);
+				console.log("FLATTEN AFTER:"  + query, query);
+			}
+		}
+		
+		
 		// Force the query into a string
 		var queryString = "" + query;
 		

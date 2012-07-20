@@ -63,6 +63,10 @@
 		this.idToConstraints = multimap; 
 	};
 	
+	ns.ConstraintCollection.prototype.clear = function() {
+		this.idToConstraints.clear();
+	};
+	
 	ns.ConstraintCollection.prototype.clone = function() {
 		//return this.idToConstraints.clone();
 		return new ns.ConstraintCollection(this.idToConstraints.clone());

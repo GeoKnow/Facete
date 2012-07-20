@@ -55,7 +55,7 @@
 			alert("Error communicating with backend. Probably the configured SPARQL endpoint is down?");
 			
 			result.wgsPoint = false;
-			self.checkReady(result, callback);
+			self.checkReady(result, null);
 		});
 		
 	};

@@ -82,7 +82,6 @@
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
 
-	<script type="text/javascript" src="config.js"></script>
 
 
         <script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
@@ -107,7 +106,7 @@
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
 
-        <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
+        <script type="text/javascript" src="lib/backbone/0.9.2/backbone.js"></script>
 
         <script type="text/javascript"
             src="lib/twitter-bootstrap/2.0.3/js/bootstrap.js"></script>
@@ -193,6 +192,7 @@
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/sparql/Syntax.js"></script>
 
+
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/vocabs/xsd.js"></script>
 
@@ -219,6 +219,8 @@
 
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/facets/Constraints.js"></script>
+
+	<script type="text/javascript" src="config.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/javascript/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>

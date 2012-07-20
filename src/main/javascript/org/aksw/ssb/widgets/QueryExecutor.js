@@ -24,7 +24,7 @@
 	};
 	
 	ns.QueryExecutor.prototype.getNavigationPath = function() {
-		this.queryGenerator.getNavigationPath();
+		return this.queryGenerator.getNavigationPath();
 	};
 	
 	

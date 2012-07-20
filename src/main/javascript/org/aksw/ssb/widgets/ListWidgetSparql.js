@@ -58,7 +58,86 @@
 			return this.view.$(":checked").length == 1;
 		}
 	});
+	
+	
+	ns.ItemViewLabel = Backbone.View.extend({
+		tagName: 'li',
+		
+		events: {
+			'click span': function() {
+				$(this.parent).trigger("click", {isChild: true, item: this, model: this.model});				
+			}
+		},
+		
+		initialize: function() {
+			this.parent = this.options.parent;
+			
+			if(!parent) {
+				console.error("No parent container provided");
+			}
+			
+			
+			this.model.bind('change', this.render, this);
+			this.model.bind('remove', this.unrender, this);
+		},
+	
+	    render: function() {
+	        $(this.el).html('<span style="cursor: pointer;">' + "Label " + this.model.get('label') + '</span>');
+	        return this; // for chainable calls, like .render().el
+	    },
+	    
+	    unrender: function() {
+	    	$(this.el).remove();
+	    },
+	});
+	
 
+	ns.RendererItemView = function(selectionModel, fnId, ctor) {
+		this.selectionModel = selectionModel;
+		this.fnId = fnId ? fnId : function(x) { return x.id; };
+		this.ctor = ctor;
+	};
+	
+	ns.RendererItemView.prototype.create = function(parent, model) {
+		var id = this.fnId(model);
+		
+		var result = new this.ctor({parent: parent, model: model});
+		
+		return result;
+	};
+		/*
+		var key = this.fnId(data);
+		var isSelected = this.selectionModel[key];
+
+		console.log("key", key);
+		
+		var result;
+		if(isSelected) {
+			result = new this.ctor({model: model});
+		} else {
+			result = $$(this.agilityItem, {parent: parent, data:data, label: data.label});
+		}
+	
+		var self = this;
+		result.bind("selected", function(ev, payload) {
+			//alert("boox");
+			//var data = payload.item.model.get("data").data;
+			id = self.fnId(data);
+			if(payload.checked) {
+				self.selectionModel[id] = {data: data, isSelected: true};
+			} else {
+				delete self.selectionModel[id];
+			}
+
+			// We need to bind on the selection model as to update the view if it changes
+			// TODO Don't bind to the model directly but use a set of functions to accomplish that
+			$(self.selectionModel).trigger("change", self.selectionModel);
+		});
+		
+		return result;
+		*/
+	
+	
 	
 	/**
 	 * TODO Actually this is not a pure renderer, but more of a widget factory.
@@ -107,6 +186,71 @@
 		
 		return result;
 	};
+
+	
+	
+	
+	
+	ns.RendererCheckItemBackbone = function(selectionCollection, fnId, agilityItem) {
+		this.selectionCollection = selectionCollection;
+		this.fnId = fnId ? fnId : function(x) { return x.id; }; // Return the id attribute by default
+		this.agilityItem = agilityItem ? agilityItem : ns.CheckItem;
+	};
+	
+	ns.RendererCheckItemBackbone.prototype.create = function(parent, model) {
+		var key = this.fnId(model);
+		console.log("RendererCheckItemBackbone key", this);
+		
+		var selectionModel = this.selectionCollection.get(key);
+		var isSelected = !selectionModel || selectionModel.get("isSelected");
+		
+
+		
+		var result;
+		if(isSelected) {
+			result = $$(this.agilityItem, {parent: parent, data:model, label: data.label, isSelected: isSelected});
+		} else {
+			result = $$(this.agilityItem, {parent: parent, data:model, label: data.label});
+		}
+	
+		var self = this;
+		result.bind("selected", function(ev, payload) {
+			//alert("boox");
+			//var data = payload.item.model.get("data").data;
+			id = self.fnId(data);
+
+			var model = self.selectionCollection.get(id);
+
+			if(payload.checked) {
+				var modelData = {data: data, isSelected: true};
+				
+				if(model) {
+					model.set(modelData);
+				} else {
+					model = new ns.SelectionModel(modelData);					
+					self.selectionCollection.add(model);
+				}
+			} else {
+				//delete self.selectionModel[id];
+				if(model) {
+					model.destroy();
+				}
+			}
+
+			// We need to bind on the selection model as to update the view if it changes
+			// TODO Don't bind to the model directly but use a set of functions to accomplish that
+			//$(self.selectionModel).trigger("change", self.selectionModel);
+		});
+		
+		return result;
+	};
+	
+
+	
+	
+	
+	
+	
 	
 	
 	/*

@@ -24,6 +24,18 @@
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
+	
+	ns.ConstraintModel = Backbone.Model.extend({
+		defaults: {
+			value: null
+	    }
+	});
+	
+	ns.ConstraintCollection = Backbone.Collection.extend({
+		model: ns.ConstraintModel
+	});
+	
+
 
 	/**
 	 * A view state consists of the visible bounds, the corresponding
@@ -210,7 +222,29 @@
 
 	};
 	
+	
+	ns.AppController.prototype.updateConstraints = function() {
+		var self = this;
 		
+		var cs = this.queryGeneratorGeo.getConstraints();
+		cs.clear();
+		
+		this.constraints.each(function(item) {
+			
+			var c = item.get("value");
+			
+			//alert("" + typeof(item) + " " + JSON.stringify(item));
+			//alert("" + item.value);
+			//console.log("dammit", item);
+			cs.add(c);
+		});
+
+		
+		
+		//self.constraintWidget.refresh();
+	};
+
+	
 	ns.AppController.prototype.initWidgets = function() {
 
 		
@@ -329,60 +363,48 @@
 		 * 
 		 */
 		
-		//this.constraintSelectionModel = backbone.Collection();
+		
+				
+		//this.constraintSelectionModel = {};
+		this.constraintSelectionModel = new widgets.SelectionCollection();
 		
 		
-		this.constraintSelectionModel = {};
+		this.constraints = new ns.ConstraintCollection();
+
 		
+		this.constraints.on("add", function(item) {
+			self.updateConstraints();
+		});
 		
-
-		$(this.constraintSelectionModel).bind("change", function(ev, selectionModel) {
-			
-			//console.log("Break");
-			
-			// TODO: The widgets that depend on the model need to update themselves!!!
-			self.constraintWidget.refresh();
-			
-			
-			
-/*
-			var path = payload.path;
-
-			//console.log("payload", payload.item);
-			var item = payload.item;
-			
-			var facetValue = item.model.get("data").data;
-
-			//console.log("facetValue", facetValue);
-			
-			var constraints = self.queryGeneratorGeo.getConstraints();
-
-			//var constraints = self.constraints;
-			console.log("path is", path);
-			
-			
-			var constraint = new facets.ConstraintEquals(path,
-					new sparql.NodeValue(facetValue));
-
-			//console.log("Setting constraint", constraint);
-			
-			//var isEnabled = !this.model.get("isEnabled");
-			// console.log("Enabled:", isEnabled, id);
-			if (item.isSelected()) {
-				//alert("boo");
-				constraints.add(constraint);
-			} else {
-				constraints.remove(constraint);
-			}			
-*/
-			
+		this.constraints.on("remove", function(item) {
+			self.updateConstraints();
 		});
 		
 		
+		/*
+		//this.col = new SelectionModel();
+		
+		this.col.bind("add", function(item) {
+			alert("" + item);
+		});
+		
+		console.log("Sigh", this.col);
+		
+		this.col.add(new SelectionItem({isSelected: true}));
+		this.col.add(new SelectionItem());
+		*/
 		
 		
 		
-		this.facetBox = facetbox.createFacetBox(this.constraintSelectionModel);
+		
+		
+		
+		
+		
+		
+		var tmpSelMod = {};
+
+		this.facetBox = facetbox.createFacetBox(tmpSelMod); //this.constraintSelectionModel);
 		
 		this.facetBox.view.$().autoHeight();
 		
@@ -467,15 +489,20 @@
 			var constraint = new facets.ConstraintEquals(path,
 					new sparql.NodeValue(facetValue));
 
+			var id = "" + constraint;
+			var model = new ns.ConstraintModel({id: id, value: constraint});
+			
 			//console.log("Setting constraint", constraint);
 			
 			//var isEnabled = !this.model.get("isEnabled");
 			// console.log("Enabled:", isEnabled, id);
 			if (item.isSelected()) {
 				//alert("boo");
-				constraints.add(constraint);
+				//constraints.add(constraint);
+				self.constraints.add(model);
 			} else {
-				constraints.remove(constraint);
+				self.constraints.remove(id);
+				//constraints.remove(constraint);
 			}			
 			
 			//alert("Constraints", self.constraints);
@@ -485,8 +512,17 @@
 		this.facetBox.bind("pivot", function(ev, payload) {
 			//console.log(payload.model.get("data"));
 			var path = payload.model.get("data").path;
+			
+			var currentPath = self.executor.getNavigationPath();
+			//this.queryGeneratorGeo.setNavigationPath(path);
+			if(!currentPath) {
+				currentPath = new facets.Path();
+			}
+			
+			var concat = currentPath.concat(path);
+			
 			//alert("" + path);
-			self.setNavigationPath(path);
+			self.setNavigationPath(concat);
 			//alert("Pivot");
 		});
 		
@@ -510,6 +546,19 @@
 		//this.constraintWidget = facetbox.createConstraintList(this.constraintSelectionModel); //constraints);
 		
 		
+
+		/*
+		var ListModelBackbone = function(backboneCollection) {
+			this.backboneCollection = backboneCollection;
+		};
+		
+		ListModelBackbone.prototype.fetchData = function() {
+			return this.backboneCollection;
+		};
+		*/
+		
+		
+		
 		var ListModelConstraints = function(constraints) {
 			this.constraints = constraints;
 		};
@@ -527,15 +576,27 @@
 		};
 		
 		
-		var constraintListModel = new ListModelConstraints(constraints);
-		var constraintItemRenderer = new widgets.RendererCheckItem(this.constraintSelectionModel, function(x) { return x.id; });
-		this.constraintWidget = widgets.createListWidget(constraintListModel, constraintItemRenderer);
-
 		
-		$$.document.append(self.constraintWidget, $("#ssb-constraints"));
+		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelectionModel, null, widgets.ItemViewLabel);
+		this.constraintWidget = new widgets.ListView({el: $("#ssb-constraints"), collection: this.constraints, itemRenderer: constraintItemRenderer});
+		
+		
+		$(this.constraintWidget).bind("click", function(ev, payload) {
+			
+			var id = payload.model.get("id");
+			self.constraints.remove(id);
+			//self.constraintSelectionModel.remove(id);
+			
+			//payload.model.destroy();
+			//console.log("moooo", payload);
+			//alert("got it" + JSON.stringify(payload));
+		});
+		
+		//$$.document.append(self.constraintWidget, $("#ssb-constraints"));
 		
 		
 		// React to changes of the constraints
+		/*
 		$(constraints).bind("change", function(ev, data) {
 			
 			self.repaint();
@@ -555,6 +616,7 @@
 			
 			
 		});
+		*/
 		
 		
 		// Do layout
@@ -1220,7 +1282,12 @@
 	ns.AppController.prototype.updateFacetsRecDir = function(executor, view, isInverse, path) {
 		
 		var self = this;
-		$.when(executor.fetchValuesCounted(), executor.fetchPivotFacets()).then(function(facetCollection, pivotFacets) {
+		
+		//var pivotFacets = executor.fetchPivotFacets();
+		var pivotFacetsTask = $.Deferred();
+		pivotFacetsTask.resolve({});
+		
+		$.when(executor.fetchValuesCounted(), pivotFacetsTask).then(function(facetCollection, pivotFacets) {
 			
 			var promise = ns.postProcessFacets(facetCollection, pivotFacets, self.labelFetcher);
 			
@@ -2019,7 +2086,7 @@
 		}
         
         // Show fact box
-        $("#box-facts").show ();
+        $("#box-facts").show();
 	};
 	
 	

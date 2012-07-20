@@ -88,6 +88,10 @@
 	ns.Node.fromJson = function(talisJson) {
 		var result = new ns.Node();
 		
+		if(!talisJson || typeof(talisJson.type) === 'undefined') {
+			throw "Invalid node";
+		}
+		
 		var type;
 		switch(talisJson.type) {
 		case 'bnode': type = 0; break;
@@ -300,6 +304,9 @@
 		return result;
 	};
 	
+	ns.ElementNamedGraph.prototype.flatten = function() {
+		return new ns.ElementNamedGraph(this.element.flatten(), this.namedGraphNode);
+	};
 		
 	
 	/**
@@ -323,6 +330,9 @@
 		return this.varsMentioned;
 	};
 	
+	ns.ElementString.prototype.flatten = function() {
+		return this;
+	};
 
 	/*
 	ns.ElementSubQueryString = function(value) {
@@ -343,6 +353,14 @@
 		return "{ " + this.query + " }";
 	};
 
+	ns.ElementSubQuery.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementSubQuery(this.query.copySubstitute(fnNodeMap));
+	};
+	
+	ns.ElementSubQuery.prototype.flatten = function() {
+		return new ns.ElementSubQuery(this.query.flatten());
+	};
+	
 	ns.ElementFilter = function(expr) {
 		this.expr = expr;
 	};
@@ -353,6 +371,10 @@
 
 	ns.ElementFilter.prototype.getVarsMentioned = function() {
 		return [];
+	};
+	
+	ns.ElementFilter.prototype.flatten = function() {
+		return this;
 	};
 	
 	ns.ElementFilter.prototype.toString = function() {
@@ -367,9 +389,18 @@
 		return this.optionalPart.getVarsMentioned();
 	};
 
+	ns.ElementOptional.prototype.copySubstitute = function(fnNodeMap) {
+		return new ns.ElementOptional(this.optionalPart.copySubstitute(fnNodeMap));
+	};
+	
+	ns.ElementOptional.prototype.flatten = function() {
+		return new ns.ElementOptional(this.optionalPart.flatten());
+	};
+	
 	ns.ElementOptional.prototype.toString = function() {
 		return "Optional {" + element + "}";
 	};
+	
 	
 	ns.ElementUnion = function(elements) {
 		this.elements = elements ? elements : [];
@@ -383,6 +414,18 @@
 		return result;
 	};
 
+	ns.ElementUnion.prototype.copySubstitute = function(fnNodeMap) {
+		var tmp = _.map(this.elements, function(element) { return element.copySubstitute(fnNodeMap); });
+		
+		return new ns.ElementUnion(tmp);		
+	};
+	
+	ns.ElementUnion.prototype.flatten = function() {
+		var tmp = _.map(this.elements, function(element) { return element.flatten(); });
+		
+		return new ns.ElementUnion(tmp);
+	};
+	
 	ns.ElementUnion.prototype.toString = function() {
 		return "{" + this.elements.join("} Union {") + "}";
 	};
@@ -390,6 +433,10 @@
 	
 	ns.ElementTriplesBlock = function(triples) {
 		this.triples = triples ? triples : [];
+	};
+	
+	ns.ElementTriplesBlock.prototype.getTriples = function() {
+		return this.triples;
 	};
 
 	ns.ElementTriplesBlock.prototype.addTriples = function(otherTriples) {
@@ -413,6 +460,10 @@
 		return result;
 	};
 
+	ns.ElementTriplesBlock.prototype.flatten = function() {
+		return this;
+	};
+	
 	ns.ElementTriplesBlock.prototype.toString = function() {
 		return this.triples.join(" . ");
 	};
@@ -439,6 +490,57 @@
 	};
 		
 	
+	ns.ElementGroup.prototype.flatten = function() {
+		var processed = _.map(this.elements, function(element) { return element.flatten(); });
+
+		if(processed.length === 1) {
+			return processed[0];
+		} else {
+			return new ns.ElementGroup(ns.flattenElements(processed));
+		}
+	};
+	
+	
+	
+	/**
+	 * Bottom up
+	 * - Merge ElementTripleBlocks
+	 * - Merge ElementGroups
+	 */
+	ns.flattenElements = function(elements) {
+		var result = [];
+		
+		var triples = [];
+		
+		var tmps = [];
+		_.each(elements, function(item) {
+			if(item instanceof ns.ElementGroup) {
+				tmps.push.apply(tmps, item.elements);
+			} else {
+				tmps.push(item);
+			}
+		});
+		
+		_.each(tmps, function(item) {
+			if(item instanceof ns.ElementTriplesBlock) {
+				triples.push.apply(triples, item.getTriples());
+			} else {
+				result.push(item);
+			}
+		});		
+
+		if(triples.length > 0) {			
+			var ts = ns.uniqTriples(triples);
+			
+			result.unshift(new ns.ElementTriplesBlock(ts));
+		}
+		
+		console.log("INPUT ", elements);
+		console.log("OUTPUT ", result);
+		
+		return result;
+	};
+	
 	ns.joinElements = function(separator, elements) {
 		var strs = _.map(elements, function(element) { return "" + element; });
 		var filtered = _.filter(strs, function(str){ return str.length != 0; });
@@ -447,6 +549,8 @@
 	};
 	
 	ns.E_In = function(variable, nodes) {
+		//console.log("E_IN", variable);
+		
 		this.variable = variable;
 		this.nodes = nodes;
 	};
@@ -456,7 +560,7 @@
 	};
 	
 	ns.E_In.prototype.copySubstitute = function(fnNodeMap) {		
-		return new ns.E_In(variable.copySubstitue(fnNodeMap), this.nodes.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+		return new ns.E_In(this.variable.copySubstitute(fnNodeMap), this.nodes.map(function(x) { return x.copySubstitute(fnNodeMap); }));
 	};
 	
 	ns.E_In.prototype.toString = function() {
@@ -507,7 +611,7 @@
 	ns.E_Str = function(subExpr) {
 		this.subExpr = subExpr; 
 	};
-	
+		
 	ns.E_Str.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.E_Str(this.subExpr.copySubstitute(fnNodeMap));
 	};
@@ -526,7 +630,7 @@
 		this.pattern = pattern;
 		this.flags = flags;
 	};
-	
+		
 	ns.E_Regex.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.E_Regex(this.expr.copySubstitute(fnNodeMap), this.pattern, this.flags);
 	};
@@ -778,7 +882,24 @@
 		return result;
 	};
 	
-	
+	ns.VarExprList.prototype.toString = function() {
+		var arr = [];
+		var projEntries = this.entries();
+		for(var i = 0; i < projEntries.length; ++i) {
+			var entry = projEntries[i];
+			var v = entry.v;
+			var expr = entry.expr;
+		
+			if(expr) {
+				arr.push("(" + expr + " As " + v + ")");
+			} else {
+				arr.push("" + v);				
+			}			
+		}
+		
+		var result = arr.join(" ");
+		return result;
+	};
 	
 	ns.Query = function() {
 		this.type = 0; // select, construct, ask, describe
@@ -810,8 +931,20 @@
 		return this.copySubstitute(ns.fnIdentity);
 	};
 	
+	ns.Query.prototype.flatten = function() {
+		var result = this.clone();
+
+		var tmp = _.map(result.elements, function(element) { return element.flatten(); });
+
+		var newElements = ns.flattenElements(tmp);
+		
+		result.elements = newElements;
+
+		return result;
+	};
+	
 	ns.Query.prototype.copySubstitute = function(fnNodeMap) {
-		result = new ns.Query();
+		var result = new ns.Query();
 		result.type = this.type;
 		result.distinct = this.distinct;
 		result.reduced = this.reduced;
@@ -820,6 +953,9 @@
 		result.offset = this.offset;
  
 		result.projectVars = this.projectVars.copySubstitute(fnNodeMap);
+
+		//console.log("PROJECTION  " + this.projectVars + " --- " + result.projectVars);
+
 		/*
 		for(key in this.projection) {
 			var value = this.projection[key]; 
@@ -838,10 +974,11 @@
 			result.order.push(this.order[i].copySubstitute(fnNodeMap));
 		}
 
-		for(var i = 0; i < this.elements.length; ++i) {
-			result.elements.push(this.elements[i].copySubstitute(fnNodeMap));
-		}
+		result.elements = _.map(this.elements, function(element) { return element.copySubstitute(fnNodeMap); });		
 
+		//console.log("CLONE ORIG " + this);
+		//console.log("CLONE RES " + result);
+		
 		return result;
 	};
 	
@@ -852,29 +989,14 @@
 		
 		}
 	};
-	
-	
+
+		
 	ns.Query.prototype.toStringProjection = function() {
 		if(this.isResultStar) {
 			return "*";
 		}
 
-		var arr = [];
-		var projEntries = this.projectVars.entries();
-		for(var i = 0; i < projEntries.length; ++i) {
-			var entry = projEntries[i];
-			var v = entry.v;
-			var expr = entry.expr;
-		
-			if(expr) {
-				arr.push("(" + expr + " As " + v + ")");
-			} else {
-				arr.push("" + v);				
-			}			
-		}
-		
-		var result = arr.join(" ");
-		return result;
+		return "" + this.projectVars;		
 	};
 
 	

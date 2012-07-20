@@ -272,9 +272,9 @@ a:active {
     font-size: 28px;
     left: 240px;
     line-height: 1.2;
-    position: relative;
+    position: absolute;
     text-transform: uppercase;
-    top: -70px;
+    top: 65px;
 }
 
 #header-headline {
@@ -291,8 +291,10 @@ a:active {
     font-size: 21px;
     left: 240px;
     line-height: 1.2;
-    position: relative;
-    top: -65px;
+    position: absolute;
+    top: 104px;
+/*     width: 500px; */
+	margin: 0px;
 }
 
 /* .container { */

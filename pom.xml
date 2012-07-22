@@ -33,12 +33,6 @@
 						<phase>process-resources</phase>
 						
 						<configuration>
-							<!-- 
-							The sucky thing is, that the basedir for the css and js folder is
-							src/main/webapp. For now I hacked it with symbolic links...
-							
-							 -->
-						
 							<jsSourceDir>js</jsSourceDir>
 							<cssSourceDir>css</cssSourceDir>
 

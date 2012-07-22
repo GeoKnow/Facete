@@ -1,5 +1,13 @@
 (function($) {
 	
+	/*
+	 * Disable Backbone sync
+	 */
+	Backbone.sync = function(method, model, options) { 
+		options.success();
+	};
+	
+
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 		
@@ -104,6 +112,7 @@
 		//this.selectedFeature = undefined;
 			
 		// The active language
+		// TODO Make sure this can be removed.
 		this.activeLanguage = "fr";
 	
 
@@ -365,18 +374,29 @@
 		
 		
 				
-		//this.constraintSelectionModel = {};
-		this.constraintSelectionModel = new widgets.SelectionCollection();
+		//this.constraintSelections = {};
+		this.constraintSelections = new widgets.SelectionCollection();
 		
 		
 		this.constraints = new ns.ConstraintCollection();
 
 		
-		this.constraints.on("add", function(item) {
+		this.constraints.bind("add", function(model) {
+			var id = model.id;
+
+			self.constraintSelections.add(new widgets.SelectionModel({id: id, isSelected: true}));
+			
 			self.updateConstraints();
 		});
 		
-		this.constraints.on("remove", function(item) {
+		this.constraints.bind("remove", function(model) {
+			var id = model.id;
+			
+			var model = self.constraintSelections.get(id);
+			if(model) {
+				model.destroy();
+			}
+			
 			self.updateConstraints();
 		});
 		
@@ -402,9 +422,9 @@
 		
 		
 		
-		var tmpSelMod = {};
+		//var tmpSelMod = {};
 
-		this.facetBox = facetbox.createFacetBox(tmpSelMod); //this.constraintSelectionModel);
+		this.facetBox = facetbox.createFacetBox(this.constraintSelections); //tmpSelMod); //this.constraintSelections);
 		
 		this.facetBox.view.$().autoHeight();
 		
@@ -543,7 +563,7 @@
 		//$(window).resize();
 		
 		
-		//this.constraintWidget = facetbox.createConstraintList(this.constraintSelectionModel); //constraints);
+		//this.constraintWidget = facetbox.createConstraintList(this.constraintSelections); //constraints);
 		
 		
 
@@ -577,7 +597,7 @@
 		
 		
 		
-		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelectionModel, null, widgets.ItemViewLabel);
+		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelections, null, widgets.ItemViewLabel);
 		this.constraintWidget = new widgets.ListView({el: $("#ssb-constraints"), collection: this.constraints, itemRenderer: constraintItemRenderer});
 		
 		
@@ -585,7 +605,7 @@
 			
 			var id = payload.model.get("id");
 			self.constraints.remove(id);
-			//self.constraintSelectionModel.remove(id);
+			//self.constraintSelections.remove(id);
 			
 			//payload.model.destroy();
 			//console.log("moooo", payload);

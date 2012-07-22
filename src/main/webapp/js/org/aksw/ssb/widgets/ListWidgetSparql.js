@@ -38,7 +38,7 @@
 		controller: {
 			create: function() {
 				if(this.model.get("isSelected")) {
-					this.view.$("> input").attr("checked", "true");
+					this.view.$("> input").attr("checked", true);
 				}
 			},
 			'click input': function() {							
@@ -54,11 +54,82 @@
 		getParent: function() {
 			return this.model.get("parent");
 		},
+		setSelected: function(value) {			
+			this.view.$("> input").attr("checked", value);
+		},
 		isSelected: function() {
 			return this.view.$(":checked").length == 1;
-		}
+		},
+		setSelectionModel: function(newModel) {
+			
+			// Unbind from old model (if it exists)
+			var oldModel = this.getSelectionModel();
+			if(oldModel) {
+				oldModel.unbind("change:isSelected", this.setSelected, this);
+			}
+			
+			// Bind to new model
+			if(newModel) {
+				newModel.bind("change:isSelected", this.setSelected, this);
+				// TODO: We have to bind on the destroy event too
+
+				//alert("booo");
+			} else {
+				// If there is no model, uncheck
+				this.setSelected(false);
+			}
+			
+			//newModel.bind();
+		},
+		getSelectionModel: function() {
+			return this.model.get("selectionModel");
+		},
 	});
 	
+	
+
+	
+
+	ns.ItemViewCheckbox = Backbone.View.extend({
+		tagName: 'li',
+		
+		events: {
+			'click span': function() {
+				$(this.parent).trigger("click", {isChild: true, item: this, model: this.model});				
+			}
+		},
+		
+		initialize: function() {
+			this.parent = this.options.parent;
+			
+			if(!parent) {
+				console.error("No parent container provided");
+			}
+			
+			
+			this.model.bind('change', this.render, this);
+			this.model.bind('remove', this.unrender, this);
+		},
+	
+	    render: function() {
+	    	var label = this.model.get("label");
+	    	var state = this.model.get("isSelected");
+	
+	    	var stateStr = state ? "checked" : "";
+	    	
+	        $(this.el).html('<input type="checkbox" checked="' + stateStr + '"/><span>' + label + '</span>');
+	        return this;
+	    },
+	    
+	    unrender: function() {
+	    	$(this.el).remove();
+	    },
+	    
+	    destroy: function() {
+	    	this.unrender();
+	    }
+	});
+
 	
 	ns.ItemViewLabel = Backbone.View.extend({
 		tagName: 'li',
@@ -144,6 +215,8 @@
 	 * (widget = model+view+controller stack): Clicking the checkbox automatically
 	 * updates the selection model.
 	 * 
+	 * TODO On the other hand, the selectionModel is being listened so that the checkbox state can be updated accordingly on change 
+	 * 
 	 * 
 	 * @param selectionModel
 	 * @param fnId
@@ -153,10 +226,12 @@
 		this.selectionModel = selectionModel;
 		this.fnId = fnId;
 		this.agilityItem = agilityItem ? agilityItem : ns.CheckItem;
+		
 	};
 	
 	ns.RendererCheckItem.prototype.create = function(parent, data) {
 		var key = this.fnId(data);
+
 		var isSelected = this.selectionModel[key];
 
 		console.log("key", key);
@@ -167,6 +242,7 @@
 		} else {
 			result = $$(this.agilityItem, {parent: parent, data:data, label: data.label});
 		}
+		
 	
 		var self = this;
 		result.bind("selected", function(ev, payload) {
@@ -177,7 +253,7 @@
 				self.selectionModel[id] = {data: data, isSelected: true};
 			} else {
 				delete self.selectionModel[id];
-			}
+			}	
 
 			// We need to bind on the selection model as to update the view if it changes
 			// TODO Don't bind to the model directly but use a set of functions to accomplish that
@@ -195,34 +271,121 @@
 		this.selectionCollection = selectionCollection;
 		this.fnId = fnId ? fnId : function(x) { return x.id; }; // Return the id attribute by default
 		this.agilityItem = agilityItem ? agilityItem : ns.CheckItem;
+
+		this.idToView = {};
+		
+		
+		var self = this;
+		this.selectionCollection.bind("add", this.addSelectionModel, this);
+		this.selectionCollection.bind("remove", this.removeSelectionModel, this);
+		
+		
+		/*
+		this.selectionCollection.bind("change:isSelected", function(model) {
+
+			alert("Got event");
+			
+			var id = self.fnId(model);
+			
+			var view = self.idToView[id];
+			if(view) {
+				view.setSelected(model.get("isSelected"));
+			}
+		});
+		*/
+
 	};
 	
-	ns.RendererCheckItemBackbone.prototype.create = function(parent, model) {
-		var key = this.fnId(model);
-		console.log("RendererCheckItemBackbone key", this);
+	ns.RendererCheckItemBackbone.prototype.addSelectionModel = function(model) {
+		var id = model.id;
 		
-		var selectionModel = this.selectionCollection.get(key);
-		var isSelected = !selectionModel || selectionModel.get("isSelected");
+		//alert("SelectionModel added: " + id);
 		
 
+		var view = this.idToView[id];
 		
+		if(view) {
+			view.setSelectionModel(model);
+		}
+	};
+	
+	ns.RendererCheckItemBackbone.prototype.removeSelectionModel = function(model) {
+		var id = model.id;
+		//alert("SelectionModel removed: " + id);
+
+		
+		var view = this.idToView[id];
+		
+		if(view) {
+			//alert("got a view");
+			view.setSelectionModel(null);
+		}		
+		
+	};
+	
+	
+	
+	/**
+	 * TODO Clarify on whether the id must be part of the model or whether it may be derived with a function
+	 * 
+	 * 
+	 * @param parent
+	 * @param model
+	 * @returns
+	 */
+	ns.RendererCheckItemBackbone.prototype.create = function(parent, model) {
+		var id = this.fnId(model);
+
+		if(typeof(id) === 'undefined' || id === null) {
+			console.error("Model without id");
+		}
+		
+		var path = model;
+		//console.warn("Model is: ", model);
+		
+		//console.log("RendererCheckItemBackbone id: ", id);
+		
+		var selectionModel = this.selectionCollection.get(id);
+		var isSelected = selectionModel && selectionModel.get("isSelected") ? true : false;
+		
+		// OnAdd -> setSelected(true); OnRemove -> setSelected(false)
+
+		var data = model;
+		var agilityModel = {parent: parent, data:model, label: data.label, isSelected: isSelected};
+		
+		
+		
+		var result = this.idToView[id];
+		if(!result) {
+			result = $$(this.agilityItem);// {parent: parent, data:model, label: data.label, isSelected: isSelected});
+			
+			result.setSelectionModel(selectionModel);
+			
+			this.idToView[id] = result;
+		}
+		
+		result.model.set(agilityModel);
+		
+		/*
 		var result;
 		if(isSelected) {
 			result = $$(this.agilityItem, {parent: parent, data:model, label: data.label, isSelected: isSelected});
 		} else {
 			result = $$(this.agilityItem, {parent: parent, data:model, label: data.label});
 		}
-	
+		*/
+		
+		
 		var self = this;
 		result.bind("selected", function(ev, payload) {
 			//alert("boox");
 			//var data = payload.item.model.get("data").data;
-			id = self.fnId(data);
+			//id = self.fnId(data);
 
 			var model = self.selectionCollection.get(id);
 
 			if(payload.checked) {
-				var modelData = {data: data, isSelected: true};
+				var modelData = {id: id, data: data, isSelected: true};
 				
 				if(model) {
 					model.set(modelData);

@@ -1,6 +1,10 @@
 (function($) {
 	
 	var widgets = Namespace("org.aksw.ssb.widgets");
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	var facets = Namespace("org.aksw.ssb.facets");
+
+	
 	var ns = Namespace("org.aksw.ssb.widgets.facetbox");
 
 	
@@ -279,7 +283,22 @@
 				
 				var executor = null; // There is no executor yet, but we may use null as a placeholder
 				var viewModel = new widgets.ListModelExecutor(executor, 50);
-				var renderer = new widgets.RendererCheckItem(selectionModel, function(data) { return "" + data.data; });
+				
+				
+				var self = this;
+				var idFn = function(model) {
+					var path = self.getPath();
+					var nodeValue = new sparql.NodeValue(model.data);
+					
+					var constraint = new facets.ConstraintEquals(path, nodeValue);
+					
+					var result = "" + constraint;
+					
+					return constraint;
+				};
+				
+				
+				var renderer = new widgets.RendererCheckItemBackbone(selectionModel, idFn);
 				var facetValues = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
 
 				
@@ -289,7 +308,6 @@
 				
 				
 				// Bind events
-				var self = this;
 				facetValues.getView().getListWidget().bind("selected", function(ev, payload) {
 					// Small HACK to pass on path information - maybe its not even a hack
 					payload.path = self.model.get("path");
@@ -328,6 +346,9 @@
 			},
 			getVisibilityModel: function() {
 				return this.model.get("visibilityModel");
+			},
+			getPath: function() {
+				return this.model.get("path");
 			}
 		});
 	

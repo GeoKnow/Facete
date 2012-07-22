@@ -151,154 +151,154 @@
 
 	<!-- The actual spatial semantic browsing widgets -->
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/QuadTree.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTree.js"></script>
     
 	<script type="text/javascript" 
-		src="src/main/javascript/ssb.utils.js"></script>
+		src="src/main/webapp/js/ssb.utils.js"></script>
 
 	<script type="text/javascript" 
-		src="src/main/javascript/Dispatcher.js"></script>
+		src="src/main/webapp/js/Dispatcher.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/MultiMap.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/MultiMap.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/MultiGraph.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/MultiGraph.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/LabelCollection.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/LabelCollection.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jsonrdf-extraction-utils.js"></script>
+		src="src/main/webapp/js/jsonrdf-extraction-utils.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/facet-controller.js"></script>
+		src="src/main/webapp/js/facet-controller.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jquery.ssb.instances.js"></script>
+		src="src/main/webapp/js/jquery.ssb.instances.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jquery.ssb.map.js"></script>
+		src="src/main/webapp/js/jquery.ssb.map.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jquery.ssb.search.js"></script>
+		src="src/main/webapp/js/jquery.ssb.search.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/backend/SparqlServiceHttp.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/backend/SparqlServiceHttp.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/backend/SparqlServicePaginator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/backend/SparqlServicePaginator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/sparql/Syntax.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/sparql/Syntax.js"></script>
 
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/xsd.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/xsd.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/rdf.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/rdf.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/rdfs.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/rdfs.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/owl.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/owl.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/wgs84.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/wgs84.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/geovocab.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/geovocab.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/appvocab.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/appvocab.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/Facets.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/Constraints.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/Constraints.js"></script>
 
 	<script type="text/javascript" src="config.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/QueryExecutionUtils.js"></script>
-
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/QueryGenerator.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/QueryExecutor.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/StringUtils.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/LabelFetcher.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/GeomPointFetcher.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/RdfQuery.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/TalisJson.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/PaginatorWidget.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ListWidgetSparql.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/FacetBox.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ResourceWidget.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ResourceListWidget.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryExecutionUtils.js"></script>
 
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/controllers/AppController.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryGenerator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/QueryGenerator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/GeomPointFetcher.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/RdfQuery.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/TalisJson.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/PaginatorWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetSparql.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/FacetBox.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ResourceWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ResourceListWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
+
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/controllers/AppController.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/QueryGenerator.js"></script>
 		
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/QuadTreeModel.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeModel.js"></script>
 		
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/QuadTreeCache.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeCache.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/QueryCache.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/utils/QueryCache.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/plugins/RDFauthor.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
 		
 		
 	<!-- Layouting for this (p)HTML file-->
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/app/Layout.js"></script>
 
 
 	<!-- OpenDataPortal specify layouting (header bar translations)-->
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/Layout-Odp.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/app/Layout-Odp.js"></script>
 
 
 
@@ -391,8 +391,8 @@
         
         </script>
 
-	<!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
-	<script type="text/javascript" src="src/main/javascript/main.js"></script>
+	<!-- <script type="text/javascript" src="src/main/webapp/js/main.js"></script>  -->
+	<script type="text/javascript" src="src/main/webapp/js/main.js"></script>
 	
 	<script type="text/javascript">
 

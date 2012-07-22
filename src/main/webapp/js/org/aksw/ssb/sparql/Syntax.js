@@ -535,8 +535,8 @@
 			result.unshift(new ns.ElementTriplesBlock(ts));
 		}
 		
-		console.log("INPUT ", elements);
-		console.log("OUTPUT ", result);
+		//console.log("INPUT ", elements);
+		//console.log("OUTPUT ", result);
 		
 		return result;
 	};

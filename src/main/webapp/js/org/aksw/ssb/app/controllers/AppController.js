@@ -1794,7 +1794,12 @@
 						// TODO We need the query element and the geom variable
 						var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
 						
-						var widget = widgets.createResourceListWidget(backend, {onClick: function(uri) { self.showDescription([uri]); $("#box-facts").show(); }});
+						var widget = widgets.createResourceListWidget(backend, {
+							onClick: function(uri) {
+								self.showDescription([uri]);
+								$("#box-facts").show();								
+							}
+						});
 						
 						if(self.prevResWidget) {
 							self.prevResWidget.destroy();

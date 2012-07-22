@@ -434,8 +434,13 @@
             });
 
 
-			$("#box-facts").position({of: $("#map")});
-			$("#box-resources").position({of: $("#map")});
+
+
+			//$("#box-facts").position({of: $("#map")});
+			//$("#box-resources").position({of: $("#main")});
+
+
+
 			//$("#box-resources").position({of: $("#map"));
 			
 			//$("#box-facts").resizable();

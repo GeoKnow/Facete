@@ -222,6 +222,31 @@ var ns = {};
 			//insertParam("lang", lang);
 		});
 
+
+		
+		//$(window).resize(function() {
+
+
+			$('#box-resources').position({
+				my: 'left top',
+				at: 'left top',
+				offset: '60 70',
+				of: $('#map')
+//				offset: '60 70',
+//				of: $('#main')
+			});
+
+			$('#box-facts').position({
+				my: 'right top',
+				at: 'right top',
+				offset: '0 70',
+				of: $('#map')
+//				offset: '0 70',
+//				of: $('#main')
+			});
+			
+		//});
+		
 		
 		
 		// Trigger a resize event for doing the layout

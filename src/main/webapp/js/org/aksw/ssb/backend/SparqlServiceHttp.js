@@ -96,8 +96,8 @@
 				var before = query;
 				query = before.flatten();
 				
-				console.log("FLATTEN BEFORE: " + before, before);
-				console.log("FLATTEN AFTER:"  + query, query);
+				//console.log("FLATTEN BEFORE: " + before, before);
+				//console.log("FLATTEN AFTER:"  + query, query);
 			}
 		}
 		

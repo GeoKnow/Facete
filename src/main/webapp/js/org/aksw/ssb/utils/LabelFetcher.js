@@ -130,7 +130,7 @@
 			
 			var lr = self.cacheLookup(lookups, includeAllUris);
 			var map = lr.entries;
-			console.log("LabelCache", self.cache);
+			//console.log("LabelCache", self.cache);
 			//mergeMapsInPlace(result, map);
 			_.extend(result, map);
 			

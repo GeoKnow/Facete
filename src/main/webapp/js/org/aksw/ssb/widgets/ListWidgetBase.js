@@ -52,7 +52,7 @@
 		parent.each(function(index, child) {
 			
 			var id = child.model.get("id");
-			console.log("Child id is", id);
+			//console.log("Child id is", id);
 			
 			result[id] = child;
 		});
@@ -133,7 +133,7 @@
 		},
 		*/
 		addItem: function(item) {
-			console.log("Item is", item);
+			//console.log("Item is", item);
 			this.append(item);//, this.getContainerElement());
 		},
 		removeItem: function(item) {
@@ -197,14 +197,14 @@
 				var data = keyToData[key];
 				
 				if(item) {
-					console.log("Update", item, "with", data);
+					//console.log("Update", item, "with", data);
 					item.model.set(data);
 					//item.setData(data);
 					item.view.sync();
 				} else {
 					item = self.getItemRenderer().create(self, data);
 					
-					console.log("Append", item);
+					//console.log("Append", item);
 					self.append(item);//, self.getContainerElement());
 				}
 			});
@@ -215,7 +215,7 @@
 		refresh: function() {
 			var listModel = this.getModel();
 			
-			console.log("listModel", listModel);
+			//console.log("listModel", listModel);
 			if(!listModel || !listModel.fetchData) {
 				return;
 			}

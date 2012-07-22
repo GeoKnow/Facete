@@ -293,7 +293,7 @@
 		var result = new sparql.ElementGroup(elements); 
 		
 		//console.log("NavigationTriples", navigationTriples);
-		console.log("Created elements", elements);
+		//console.log("Created elements", elements);
 		
 		return result;
 	};

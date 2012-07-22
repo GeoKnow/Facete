@@ -558,7 +558,7 @@
 	
 	ns.Breadcrumb.prototype.createTriplesStepFacets = function(generator, step, startVar, endVar) {
 		
-		console.log("Generator:", generator);
+		//console.log("Generator:", generator);
 		var s = startVar;
 		var p = endVar;
 		var o = sparql.Node.v(generator.next()); // TODO Create a new unique var name

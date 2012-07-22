@@ -70,10 +70,11 @@
 			
 			// Bind to new model
 			if(newModel) {
+				this.setSelected(newModel.get("isSelected"));
+				
 				newModel.bind("change:isSelected", this.setSelected, this);
 				// TODO: We have to bind on the destroy event too
 
-				//alert("booo");
 			} else {
 				// If there is no model, uncheck
 				this.setSelected(false);
@@ -234,7 +235,7 @@
 
 		var isSelected = this.selectionModel[key];
 
-		console.log("key", key);
+		//console.log("key", key);
 		
 		var result;
 		if(isSelected) {
@@ -334,7 +335,7 @@
 	 * @returns
 	 */
 	ns.RendererCheckItemBackbone.prototype.create = function(parent, model) {
-		var id = this.fnId(model);
+		var id = "" + this.fnId(model);
 
 		if(typeof(id) === 'undefined' || id === null) {
 			console.error("Model without id");
@@ -348,23 +349,38 @@
 		var selectionModel = this.selectionCollection.get(id);
 		var isSelected = selectionModel && selectionModel.get("isSelected") ? true : false;
 		
+		if(!selectionModel && isSelected) {
+			var modelData = {id: id, data: data, isSelected: true};
+			selectionModel = new ns.SelectionModel(modelData);
+		}
+		
 		// OnAdd -> setSelected(true); OnRemove -> setSelected(false)
 
 		var data = model;
 		var agilityModel = {parent: parent, data:model, label: data.label, isSelected: isSelected};
 		
 		
-		
 		var result = this.idToView[id];
+		
+		
+		//console.debug("Selection state: ", "" + id, result, isSelected, _.keys(this.idToView).length, selectionModel);
+		
 		if(!result) {
 			result = $$(this.agilityItem);// {parent: parent, data:model, label: data.label, isSelected: isSelected});
 			
+
 			result.setSelectionModel(selectionModel);
-			
+
 			this.idToView[id] = result;
 		}
-		
+
+
 		result.model.set(agilityModel);
+
+		if(selectionModel) {
+			selectionModel.set({isSelected: isSelected});
+		}
+
 		
 		/*
 		var result;
@@ -799,7 +815,7 @@
 		
 		
 		var options = {limit: this.limit, offset: this.offset, distinct: true};
-		console.log("Options", options);
+		//console.log("Options", options);
 		
 		var subExecutor = this.executor.filterRegex(this.searchString, "i");
 		

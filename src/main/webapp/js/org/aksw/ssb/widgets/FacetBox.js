@@ -60,7 +60,7 @@
 	ns.FacetSwitcherItemFactory.prototype.create = function(parent, data) {
 		
 		
-		console.log("Facet values:", data);
+		//console.log("Facet values:", data);
 		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, selectionModel: this.selectionModel, visibilityModel: this.visibilityModel, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
 	};					
 

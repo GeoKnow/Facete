@@ -416,7 +416,7 @@
 	
 	ns.fetchList = function(sparqlService, query, variable) {
 		var result = sparqlService.executeSelect(query).pipe(function(data) {
-			console.debug("fetchList got data:", "" + query, data);
+			//console.debug("fetchList got data:", "" + query, data);
 			var list = _.map(data.results.bindings, function(binding) {
 				var item = binding[variable.value];
 				var node = sparql.Node.fromJson(item);

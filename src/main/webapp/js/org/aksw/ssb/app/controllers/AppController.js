@@ -251,6 +251,7 @@
 		
 		
 		//self.constraintWidget.refresh();
+		self.repaint();
 	};
 
 	
@@ -1842,10 +1843,10 @@
 			$(targetElement).children().remove();
 
 			
-			console.log("TEST target", targetElement);
+			//console.log("TEST target", targetElement);
 			
 			var agility = $.data(targetElement, "agility");
-			console.log("TEST set", agility);
+			//console.log("TEST set", agility);
 			if(agility) {
 				console.log("Destroying");
 				agility.destroy();
@@ -1855,7 +1856,7 @@
 			$.data(targetElement, "agility", list);
 			
 			var verify = $.data(targetElement, "agility");
-			console.log("TEST Verify", verify);
+			//console.log("TEST Verify", verify);
 			
 			//targetElement.html(htmlStr);
 		});

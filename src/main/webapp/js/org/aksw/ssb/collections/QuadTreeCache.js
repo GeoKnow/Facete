@@ -37,7 +37,7 @@
 	ns.QueryFactory.prototype.createQueryGeomCount = function(maxCount) {		
 		var result = queryUtils.createCountQuery(this.element, maxCount, this.geomVar, this.countVar);
 		
-		console.log("FFS", result);
+		//console.log("Query [GeomCount]", result);
 		
 		return result;
 	};
@@ -145,7 +145,7 @@
 	ns.Backend.prototype.fetchGeomCount = function(maxCount) {
 		var query = this.queryFactory.createQueryGeomCount(maxCount);
 		
-		console.debug("geomcountquery " + query);
+		//console.debug("Query [GeomCount] " + query);
 		
 		var result = queryUtils.fetchInt(this.sparqlService, query.toString(), this.queryFactory.countVar);
 		return result;

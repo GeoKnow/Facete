@@ -358,12 +358,16 @@
 		return result;
 	};
 
-	ns.QueryGenerator.prototype.filterRegex = function(regexStr, flags, path) {
-		if(!path) {
-			path = new facets.Path([new facets.Step(rdfs.label.value)]);
+	ns.QueryGenerator.prototype.filterRegex = function(regexStr, flags, relativePath) {
+		if(!relativePath) {
+			relativePath = new facets.Path([new facets.Step(rdfs.label.value)]);
 		}
 		
-		var constraint = new facets.ConstraintRegex(path, regexStr, flags);
+		var basePath = this.getNavigationPath();
+		var absolutePath = basePath.concat(relativePath);
+		
+		
+		var constraint = new facets.ConstraintRegex(absolutePath, regexStr, flags);
 		
 		var result = this.clone();
 		

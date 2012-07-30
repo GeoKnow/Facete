@@ -91,31 +91,47 @@ $.widget("ui.ssb_map", {
 		
 		
 		
-		this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
-	    this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
+		//this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
+	    //this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
 
 	    
 	    // uncomment	    
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
-		this.map.addLayers([mapnikLayer, this.boxLayer, this.vectorLayer, this.markerLayer]);
+		this.map.addLayers([mapnikLayer, this.boxLayer]); //, this.vectorLayer]); //, this.markerLayer]);
 		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 	    
 		var self = this;
 		this.selectFeatureController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
-			onSelect: function(feature) {
-				
-				var vector = feature; // Note: We assume a vector feature - might have to check in the future
 
+			onSelect: function(feature) {
+								
+				var vector = feature; // Note: We assume a vector feature - might have to check in the future				
 				var geometry = feature.geometry;
-				var bounds = geometry.bounds;
 				
-				var newBounds = bounds.scale(0.5);
 				
-				self.map.zoomToExtent(newBounds, true);
+				if(geometry instanceof OpenLayers.Geometry.Point) {
+					
+						//OpenLayers.Event.stop(event);
+						//console.log("aoeu", feature);
+						var data = feature.data;
+					
+						self._trigger("onMarkerClick", event, data);
+						
+					
+				} else {
 				
+				
+					var bounds = geometry.bounds;
+					
+					var newBounds = bounds.scale(0.5);
+					
+					self.map.zoomToExtent(newBounds, true);
+				}				
 			}
 		});
+		
+		this.selectFeatureController.handlers.feature.stopDown = false;
 		
 		this.map.addControl(this.selectFeatureController);
 		this.selectFeatureController.activate();
@@ -178,13 +194,18 @@ $.widget("ui.ssb_map", {
 	 * @param lonlat
 	 */
 	addItem: function(id, lonlat, visible) {
+		
+		
+		
+		
 		var feature = this.createMarker(lonlat, id);
 		this.nodeToFeature.put(id, feature);
 		//console.log("Adding feature/marker");
 		//console.log(feature);
 		
 		if(visible) {
-			this.markerLayer.addMarker(feature.marker);
+			/////this.markerLayer.addMarker(feature.marker);
+			this.boxLayer.addFeatures(feature);
 		}
 	},
 	
@@ -195,9 +216,11 @@ $.widget("ui.ssb_map", {
 		}
 		
 		if(value) {
-			this.markerLayer.addMarker(feature.marker);
+			/////this.markerLayer.addMarker(feature.marker);
+			this.boxLayer.addFeatures(feature);
 		} else {
-			this.markerLayer.removeMarker(feature.marker);
+			/////this.markerLayer.removeMarker(feature.marker);
+			this.boxLayer.removeFeatures(feature);
 		}
 	},
 	
@@ -225,7 +248,8 @@ $.widget("ui.ssb_map", {
 		$.each(ids, function(i, id) {
 			var feature = self.nodeToFeature.entries[id];
 			if(feature) {
-				self.markerLayer.removeMarker(feature.marker);
+				//self.markerLayer.removeMarker(feature.marker);
+				self.boxLayer.removeFeatures(feature);
 				delete self.nodeToFeature[id];
 			}			
 		});
@@ -269,7 +293,7 @@ $.widget("ui.ssb_map", {
 		var orig_px_max = this.map.getPixelFromLonLat(orig_ll_max);
 		console.log("mmi orig_px", orig_px_min, orig_px_max);
 		
-		var border_px = 20;
+		var border_px = 10;
 		
 		var border_px_min = new OpenLayers.Pixel(orig_px_min.x + border_px, orig_px_min.y - border_px);
 		var border_px_max = new OpenLayers.Pixel(orig_px_max.x - border_px, orig_px_max.y + border_px);
@@ -329,11 +353,11 @@ $.widget("ui.ssb_map", {
 		
 		// Vector layer
         box = new OpenLayers.Feature.Vector(b.toGeometry(), {}, {
-        	fillColor: "#0080ff",
-        	fillOpacity: 0.4,
+        	fillColor: "#8080ff",
+        	fillOpacity: 0.2,
         	strokeLinecap: "round",
         	strokeWidth: 1, 
-        	strokeColor: "#0050a0",
+        	strokeColor: "#7070ff",
         	pointRadius: 12,
         	//fill: false,
         	//externalGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
@@ -341,7 +365,7 @@ $.widget("ui.ssb_map", {
         	//graphicWidth: 100,
         	//graphicHeight: 100
         	label: "Click to zoom",
-        	fontColor: "#ffffff",
+        	fontColor: "#8080ff", //"#ffffff",
         	fontWeight: "bold",
         	//backgroundGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
         	//backgroundHeight: 100,
@@ -469,6 +493,39 @@ $.widget("ui.ssb_map", {
 	},
 	
 	createMarker: function(point, nodeId) {
+		var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+        
+		var style_image = OpenLayers.Util.extend({
+			externalGraphic: config.markerUrlDefault,
+        	graphicOpacity: 1.0, //0.8,
+        	graphicWidth: 25,
+        	graphicHeight: 25,
+        	graphicYOffset: -25
+			
+		}, layer_style);
+		
+		
+		/*
+		var style_blue = OpenLayers.Util.extend({}, layer_style);
+        style_blue.strokeColor = "blue";
+        style_blue.fillColor = "blue";
+        style_blue.graphicName = "star";
+        style_blue.pointRadius = 10;
+        style_blue.strokeWidth = 3;
+        style_blue.rotation = 45;
+        style_blue.strokeLinecap = "butt";
+        */
+        
+        var tPoint = point.clone().transform(this.map.displayProjection, this.map.projection);
+        
+        var pt = new OpenLayers.Geometry.Point(tPoint.lon, tPoint.lat);
+        var result = new OpenLayers.Feature.Vector(pt, {point: point, nodeId: nodeId}, style_image);
+        
+        return result;
+	},
+	
+	
+	createMarkerOld: function(point, nodeId) {
 		//console.log("Creating marker: " + point);
 		
 		var types = this.nodeToTypes.get(nodeId);

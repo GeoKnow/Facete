@@ -468,6 +468,12 @@
 			
 			var path = payload.model.get("path");
 			
+			//var relativePath = payload.model.get("path");			
+			//var basePath = self.queryGeneratorGeo.getNavigationPath();
+			//var path = basePath.concat(relativePath);
+			
+			
+			
 			var widget = payload;
 			
 			
@@ -1047,6 +1053,7 @@
 
 		var self = this;
 		$.when(task).then(function(nodes) {
+			
 			var geomIndex = ns.indexGeoms(nodes, bounds);
 
 			var tmp = {
@@ -1080,7 +1087,7 @@
 
 
 		console.log("Constraints", queryGeneratorGeo.getConstraints());
-		var queryGenerator = queryGeneratorGeo.forGlobal();
+		var queryGenerator = queryGeneratorGeo.forGlobal({disableConstraints: disableConstraints});
 		
 		
 		var baseElement = queryGenerator.createDriverValues().getElement();
@@ -1108,6 +1115,16 @@
      * Creates a map resource->geometry and also determines which resources are visible
      */
 	ns.indexGeoms = function(nodes, bounds) {
+
+		if(!nodes) {
+			// FIXME undefined 'nodes' happens, if there was an empty set of geometries or
+			// a query failed. this should be trapped at a different location than here
+			console.warn("No nodes to index, should not happen; using workaround");
+			
+			nodes = [];
+		}
+
+		
 		var globalGeomToPoint = {};
 		var visibleGeoms = [];
 
@@ -1434,10 +1451,11 @@
 		
 		
 		if(true) {
-			console.warn("Facets disabled", uris);
+			//console.warn("Facets disabled", uris);
 			return;
 		}
 		
+		// TODO Remove below
 		var self = this;
 		var driver = queryUtils.createFacetQueryCountVisibleGeomNested(this.queryGenerator, uris);
 		
@@ -2046,7 +2064,15 @@
 		    //self.vectorLayer.addFeatures([polygonFeature]);
 		}
 	};
+	
+	ns.AppController.prototype.enableHighlight = function(feature) {
 		
+	};
+	
+	ns.AppController.prototype.disableHighlight = function(feature) {
+	};
+	
+	/*
 	ns.AppController.prototype.enableHighlight = function(feature) {
 		var icon = feature.marker.icon;
 		
@@ -2067,6 +2093,7 @@
 		icon.setSize(size);
 		icon.setUrl(config.markerUrlDefault);		
 	};
+	*/
 		
 	ns.AppController.prototype.onInstanceUnhover = function(uriStr) {
 		this.clearHighlight();

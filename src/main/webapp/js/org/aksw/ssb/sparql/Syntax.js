@@ -581,7 +581,13 @@
 	};
 	
 	ns.E_In.prototype.toString = function() {
-		return "(" + this.variable + " In (" + this.nodes.join(", ") + "))";
+		
+		if(!this.nodes || this.nodes.length === 0) {
+			// 
+			return "FALSE";
+		} else {		
+			return "(" + this.variable + " In (" + this.nodes.join(", ") + "))";
+		}
 	};
 	
 	

@@ -271,6 +271,9 @@
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
 
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ConstraintWidget.js"></script>
+
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/app/controllers/AppController.js"></script>

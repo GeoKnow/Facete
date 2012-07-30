@@ -326,12 +326,22 @@
 
 	
 	/*
-	 * Equals 
+	 * Equals
+	 * 
+	 * FIXME Maybe the nodeValue should be generalized to expr
 	 */
 	
 	ns.ConstraintEquals = function(path, nodeValue) {
 		this.path = path;
 		this.nodeValue = nodeValue;
+	};
+	
+	ns.ConstraintEquals.prototype.getPath = function() {
+		return this.path;
+	};
+	
+	ns.ConstraintEquals.prototype.getNodeValue = function() {
+		return this.nodeValue;
 	};
 	
 	ns.ConstraintEquals.prototype.toString = function() {

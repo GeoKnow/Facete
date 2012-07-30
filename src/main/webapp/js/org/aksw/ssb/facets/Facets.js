@@ -179,6 +179,7 @@
 	*/
 
 	
+	/* TODO Not used
 	ns.PathManager.prototype.toTriplesRec = function(node, path) {
 		var result = [];
 		
@@ -202,6 +203,7 @@
 		
 		return result;
 	};
+	*/
 	
 	
 	/**
@@ -298,9 +300,17 @@
 	ns.Step = function(propertyName, isInverse) {
 		this.type = "property";
 		this.propertyName = propertyName;
-		this.isInverse = isInverse;
+		this._isInverse = isInverse;
 	};
-
+	
+	ns.Step.prototype.getPropertyName = function() {
+		return this.propertyName;
+	};
+	
+	ns.Step.prototype.isInverse = function() {
+		return this._isInverse;
+	};
+	
 	ns.Step.fromString = function(str) {
 		if(str.startsWith("<")) {
 			return new ns.Step(str.substring(1), true);
@@ -315,7 +325,7 @@
 	};
 	
 	ns.Step.prototype.toString = function() {
-		if(this.isInverse) {
+		if(this._isInverse) {
 			return "<" + this.propertyName;
 		} else {
 			return this.propertyName;
@@ -544,7 +554,7 @@
 		var o = endVar;
 		
 		// Swap subject-object if inverse step
-		if(step.isInverse) {
+		if(step.isInverse()) {
 			var tmp = s;
 			s = o;
 			o = tmp;

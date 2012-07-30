@@ -78,6 +78,23 @@
 		this.datatype = datatype;
 	};
 	
+	ns.Node.prototype.getValue = function() {
+		return this.value;
+	};
+	
+	ns.Node.prototype.getType = function() {
+		return this.type;
+	};
+	
+	ns.Node.prototype.getLanguage = function() {
+		return this.language;
+	};
+	
+	ns.Node.prototype.getDatatype = function() {
+		return this.datatype;
+	};
+	
+	
 	ns.Node.Type = {};
 	ns.Node.Type.Variable = -1;
 	ns.Node.Type.BlankNode = 0;
@@ -763,6 +780,10 @@
 	
 	ns.NodeValue = function(node) {
 		this.node = node;
+	};
+	
+	ns.NodeValue.prototype.getNode = function() {
+		return this.node;
 	};
 	
 	// Jena-style compatibility

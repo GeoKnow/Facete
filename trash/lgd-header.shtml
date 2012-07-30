@@ -1,8 +1,11 @@
-	    	<img src="src/main/resources/images/linkedgeodata-big-neutral.svg" id="header-logo"/>
+		<div id="header">
+
+			<img src="src/main/resources/images/linkedgeodata-big-neutral.svg"
+				id="header-logo" />
 			<div id="header-headline">
-			    <a href="">Spatial Semantic Browser</a>
+				<a href="">Spatial Semantic Browser</a>
 			</div>
-			<div id="header-abstract">
-			    Exploring: Financial Transparancy System @ http://localhost/fts/sparql
-			</div>
+			<div id="header-abstract"></div>
 			<div id="header-blueblock">&nbsp;</div>
+
+		</div>

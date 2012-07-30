@@ -1,6 +1,6 @@
 (function($) {
 	
-
+	var stringUtils = Namespace("org.aksw.ssb.utils.strings");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
@@ -132,6 +132,26 @@
 	});
 
 	
+	/**
+	 * Returns a key from the model based on the binding.
+	 * 
+	 * 
+	 */
+	ns.getModelValue = function(model, key, binding) {
+		var b = binding ? binding[key] : null;
+		var result;
+
+		if(b) {
+			if(typeof b === 'function') {
+				return b(model);
+			} else {				
+				return model.get(b);
+			}
+		} else {
+			return model.get(key);
+		}
+	};
+	
 	ns.ItemViewLabel = Backbone.View.extend({
 		tagName: 'li',
 		
@@ -154,7 +174,12 @@
 		},
 	
 	    render: function() {
-	        $(this.el).html('<span style="cursor: pointer;">' + "Label " + this.model.get('label') + '</span>');
+	    	var label = ns.getModelValue(this.model, "label", this.options.binding);
+	    	
+	    	
+	        $(this.el).html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
+	        // $(this.el).html('<span style="cursor: pointer;">' + "Label " + this.model.get("label") + '</span>');
+	        
 	        return this; // for chainable calls, like .render().el
 	    },
 	    
@@ -164,16 +189,17 @@
 	});
 	
 
-	ns.RendererItemView = function(selectionModel, fnId, ctor) {
+	ns.RendererItemView = function(selectionModel, fnId, ctor, binding) {
 		this.selectionModel = selectionModel;
 		this.fnId = fnId ? fnId : function(x) { return x.id; };
 		this.ctor = ctor;
+		this.binding = binding; // A mapping form model attributes to render attributes
 	};
 	
 	ns.RendererItemView.prototype.create = function(parent, model) {
 		var id = this.fnId(model);
 		
-		var result = new this.ctor({parent: parent, model: model});
+		var result = new this.ctor({parent: parent, model: model, binding: this.binding});
 		
 		return result;
 	};

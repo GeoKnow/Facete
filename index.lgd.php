@@ -62,7 +62,7 @@
 <!--         <link rel='stylesheet' type='text/css' -->
 <!--             href='lib/dynatree/1.2.0_rc1/src/skin/ui.dynatree.css'> -->
         
-        <link rel="stylesheet" type="text/css" href="src/main/resources/css/style.css" />
+        <link rel="stylesheet" type="text/css" href="src/main/webapp/css/style.css" />
 
         <link rel="stylesheet" type="text/css"
             href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" />
@@ -82,7 +82,6 @@
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
 
-	<script type="text/javascript" src="config.js"></script>
 
 
         <script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
@@ -107,7 +106,7 @@
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
 
-        <script type="text/javascript" src="lib/backbone/0.5.3/backbone.js"></script>
+        <script type="text/javascript" src="lib/backbone/0.9.2/backbone.js"></script>
 
         <script type="text/javascript"
             src="lib/twitter-bootstrap/2.0.3/js/bootstrap.js"></script>
@@ -149,160 +148,160 @@
 <!-- 	<script type="text/javascript" -->
 <!-- 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script> -->
 
-	<!-- Configuration files -->
-	<script type="text/javascript"
-		src="src/main/javascript/ssb.namespacePrefixes.js"></script>
 
 	<!-- The actual spatial semantic browsing widgets -->
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/QuadTree.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTree.js"></script>
     
 	<script type="text/javascript" 
-		src="src/main/javascript/ssb.utils.js"></script>
+		src="src/main/webapp/js/ssb.utils.js"></script>
 
 	<script type="text/javascript" 
-		src="src/main/javascript/Dispatcher.js"></script>
+		src="src/main/webapp/js/Dispatcher.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/MultiMap.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/MultiMap.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/MultiGraph.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/MultiGraph.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/LabelCollection.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/LabelCollection.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jsonrdf-extraction-utils.js"></script>
+		src="src/main/webapp/js/jsonrdf-extraction-utils.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/facet-controller.js"></script>
+		src="src/main/webapp/js/facet-controller.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jquery.ssb.instances.js"></script>
+		src="src/main/webapp/js/jquery.ssb.instances.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jquery.ssb.map.js"></script>
+		src="src/main/webapp/js/jquery.ssb.map.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/jquery.ssb.search.js"></script>
+		src="src/main/webapp/js/jquery.ssb.search.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/backend/SparqlServiceHttp.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/backend/SparqlServiceHttp.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/backend/SparqlServicePaginator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/backend/SparqlServicePaginator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/sparql/Syntax.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/sparql/Syntax.js"></script>
+
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/xsd.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/xsd.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/rdf.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/rdf.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/rdfs.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/rdfs.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/owl.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/owl.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/wgs84.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/wgs84.js"></script>
     
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/geovocab.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/geovocab.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/vocabs/appvocab.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/vocabs/appvocab.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/Facets.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/Constraints.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/Constraints.js"></script>
+
+	<script type="text/javascript" src="config.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/facets/QueryExecutionUtils.js"></script>
-
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/QueryGenerator.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/QueryExecutor.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/StringUtils.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/LabelFetcher.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/GeomPointFetcher.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/RdfQuery.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/TalisJson.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/PaginatorWidget.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ListWidgetSparql.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/FacetBox.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ResourceWidget.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/ResourceListWidget.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryExecutionUtils.js"></script>
 
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/controllers/AppController.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryGenerator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/QueryGenerator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/GeomPointFetcher.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/RdfQuery.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/TalisJson.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/PaginatorWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetSparql.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/FacetBox.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ResourceWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ResourceListWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/BreadcrumbWidget.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ConstraintWidget.js"></script>
+
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/controllers/AppController.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/QueryGenerator.js"></script>
 		
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/QuadTreeModel.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeModel.js"></script>
 		
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/collections/QuadTreeCache.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeCache.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/utils/QueryCache.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/utils/QueryCache.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/plugins/RDFauthor.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/experiments/FacetNavigator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
 		
 		
 	<!-- Layouting for this (p)HTML file-->
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/Layout.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/app/Layout.js"></script>
 
 
 	<!-- OpenDataPortal specify layouting (header bar translations)-->
 	<script type="text/javascript"
-		src="src/main/javascript/org/aksw/ssb/app/Layout-Odp.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/app/Layout-Odp.js"></script>
 
 
 
@@ -395,8 +394,8 @@
         
         </script>
 
-	<!-- <script type="text/javascript" src="src/main/javascript/main.js"></script>  -->
-	<script type="text/javascript" src="src/main/javascript/main.js"></script>
+	<!-- <script type="text/javascript" src="src/main/webapp/js/main.js"></script>  -->
+	<script type="text/javascript" src="src/main/webapp/js/main.js"></script>
 	
 	<script type="text/javascript">
 
@@ -438,8 +437,13 @@
             });
 
 
-			$("#box-facts").position({of: $("#map")});
-			$("#box-resources").position({of: $("#map")});
+
+
+			//$("#box-facts").position({of: $("#map")});
+			//$("#box-resources").position({of: $("#main")});
+
+
+
 			//$("#box-resources").position({of: $("#map"));
 			
 			//$("#box-facts").resizable();
@@ -462,6 +466,7 @@
             });
             $("#tabs-types").click ( function () {
                 $("#tabs-instances-content").hide ();
+
                 $("#tabs-facets-content").hide ();
                 $("#tabs-places-content").hide ();
                 
@@ -488,18 +493,143 @@
 
 
 	<div id="wrapper">
+		<div id="header" class="header">
 
-		<div id="header">
+			<div id="header-language">
+				<div class="region region-header-language">
+					<div id="block-lang-dropdown-language"
+						class="block block-lang-dropdown">
 
-			<img src="src/main/resources/images/linkedgeodata-big-neutral.svg"
+
+						<div class="content">
+							<form action="/open-data/" method="post" id="lang-dropdown-form"
+								accept-charset="UTF-8">
+								<div>
+									<div
+										class="form-item form-type-select form-item-lang-dropdown-select">
+										<select style="width: 140px"
+											class="lang-dropdown-select-element form-select"
+											id="edit-lang-dropdown-select" name="lang_dropdown_select"><option
+												value="bg">Български (bg)</option>
+											<option value="cs">čeština (cs)</option>
+											<option value="da">dansk (da)</option>
+											<option value="de">Deutsch (de)</option>
+											<option value="el">ελληνικά (el)</option>
+											<option value="en" selected="selected">English (en)</option>
+											<option value="es">español (es)</option>
+											<option value="et">eesti keel (et)</option>
+											<option value="fi">suomi (fi)</option>
+											<option value="fr">français (fr)</option>
+											<option value="ga">Gaeilge (ga)</option>
+											<option value="hu">magyar (hu)</option>
+											<option value="it">Italiano (it)</option>
+											<option value="lt">lietuvių kalba (lt)</option>
+											<option value="lv">latviešu valoda (lv)</option>
+											<option value="mt">Malti (mt)</option>
+											<option value="nl">Nederlands (nl)</option>
+											<option value="pl">polski (pl)</option>
+											<option value="pt">português (pt)</option>
+											<option value="ro">română (ro)</option>
+											<option value="sk">slovenčina (sk)</option>
+											<option value="sl">slovenščina (sl)</option>
+											<option value="sv">svenska (sv)</option>
+										</select>
+
+									</div>
+									<input type="hidden" name="bg" value="/open-data/bg" /> <input
+										type="hidden" name="cs" value="/open-data/cs" /> <input
+										type="hidden" name="da" value="/open-data/da" /> <input
+										type="hidden" name="de" value="/open-data/de" /> <input
+										type="hidden" name="el" value="/open-data/el" /> <input
+										type="hidden" name="en" value="/open-data/" /> <input
+										type="hidden" name="es" value="/open-data/es" /> <input
+										type="hidden" name="et" value="/open-data/et" /> <input
+										type="hidden" name="fi" value="/open-data/fi" /> <input
+										type="hidden" name="fr" value="/open-data/fr" /> <input
+										type="hidden" name="ga" value="/open-data/ga" /> <input
+										type="hidden" name="hu" value="/open-data/hu" /> <input
+										type="hidden" name="it" value="/open-data/it" /> <input
+										type="hidden" name="lt" value="/open-data/lt" /> <input
+										type="hidden" name="lv" value="/open-data/lv" /> <input
+										type="hidden" name="mt" value="/open-data/mt" /> <input
+										type="hidden" name="nl" value="/open-data/nl" /> <input
+										type="hidden" name="pl" value="/open-data/pl" /> <input
+										type="hidden" name="pt" value="/open-data/pt" /> <input
+										type="hidden" name="ro" value="/open-data/ro" /> <input
+										type="hidden" name="sk" value="/open-data/sk" /> <input
+										type="hidden" name="sl" value="/open-data/sl" /> <input
+										type="hidden" name="sv" value="/open-data/sv" />
+									<noscript>
+										<span> <input type="submit" id="edit-submit" name="op"
+											value="Go" class="form-submit" />
+										</span>
+									</noscript>
+									<input type="hidden" name="form_build_id"
+										value="form-RpEpyK4TSCcjk3DP9PeLVzO7QEeXQf0mDY5kgd5rshM" /> <input
+										type="hidden" name="form_id" value="lang_dropdown_form" />
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="header-menu">
+				<div class="region region-header-menu">
+					<div id="block-menu-menu-service-menu" class="block block-menu">
+
+
+						<div class="content">
+							<ul class="menu">
+<!-- 								<li class="first leaf"><a href="/open-data/user/login" title="">-&gt;CMS</a></li> -->
+<!--								<li class="first leaf"><a id="org.ec.odp.ssb.ui.label.legal-notice" href="http://ec.europa.eu/geninfo/legal_notices_en.htm" title="">Legal Notice</a></li> -->
+<!--								<li class="leaf"><a href="/open-data/contact" title=""><span id="org.ec.odp.ssb.ui.label.contact">Contact</span></a></li> -->
+<!--								<li class="last leaf"><a href="http://ec.europa.eu/geninfo/query/search_en.html" title=""><span id="org.ec.odp.ssb.ui.label.search">Search</span></a></li> -->
+							</ul>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div class="logo">
+				<a id="logo" rel="Home" title="Home" href="/open-data/"> <img
+					alt="Home"
+					src="src/main/resources/images/linkedgeodata-big-neutral.svg" />
+				</a>
+			</div>
+			<div id="header-title">
+				<a href="/open-data/" title="Home">SemMap Spatial Browser</a>
+
+			</div>
+			<div id="header-subtitle"></div>
+
+			<!--
+			<img src="src/main/resources/images/logo_european_commision.gif"
 				id="header-logo" />
 			<div id="header-headline">
-				<a href="">Spatial Semantic Browser</a>
+				<a href="">Open Data Portal</a>
 			</div>
-			<div id="header-abstract"></div>
+			<div id="header-abstract">Spatial Browser</div>
+			<div id="header-menu-right">
+				<select name="lang" id="language-switcher">
+					<option value="#">Čeština</option>
+					<option value="#">Dansk</option>
+					<option value="de">Deutsch</option>
+					<option value="#">Ελληνικά</option>
+					<option value="en" selected="selected">English</option>
+					<option value="#">Eesti</option>
+					<option value="#">Español</option>
+					<option value="#">Français</option>
+					<option value="#">Gaeilge</option>
+				</select>
+			</div>
 			<div id="header-blueblock">&nbsp;</div>
 
+-->
 		</div>
+
+
+
 
 		<div id="main" style="position:relative; width: 100%; height: 100%">
 			<!-- <div class="row-fluid" style="height:100%"> -->

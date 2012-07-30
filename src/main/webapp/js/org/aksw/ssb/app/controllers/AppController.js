@@ -35,7 +35,9 @@
 	
 	ns.ConstraintModel = Backbone.Model.extend({
 		defaults: {
-			value: null
+			value: null,
+			/*label: "" // FIXME As there could be many ways for crafting constraint labels, 
+				//associating a label only makes sense for view-models;*/  
 	    }
 	});
 	
@@ -378,9 +380,34 @@
 		//this.constraintSelections = {};
 		this.constraintSelections = new widgets.SelectionCollection();
 		
+		//this.constraintSelections
+		
+		
+		
 		
 		this.constraints = new ns.ConstraintCollection();
 
+		
+		// Fetch labels
+		var constraintTextBuilder = new widgets.ConstraintTextBuilder(this.labelFetcher);
+
+		
+		this.constraints.bind("add", function(model) {
+			
+			constraint = model.get("value");
+			var task = constraintTextBuilder.fetchSimpleText(constraint);
+			$.when(task).then(function(labelStr) {
+				
+				model.set({simpleLabel: labelStr});
+				
+			}).fail(function() {
+				console.error("Error fetching label for model: ", model);
+				//alert("Error fetching label for " + model.get("id"));
+			});
+			
+			
+		});
+		
 		
 		this.constraints.bind("add", function(model) {
 			var id = model.id;
@@ -596,9 +623,22 @@
 			return result;
 		};
 		
+				
+				
 		
+		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelections, null, widgets.ItemViewLabel, {
+			label: "simpleLabel"
+			/*
+			label: function(model) {
+				//console.log("AOEU", model); return "" + model.id;
+				
+				constraint = model.get("value");
+				var result = constraintTextBuilder.fetchSimpleText(constraint);
+				
+				return result;
+			}*/
+		});
 		
-		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelections, null, widgets.ItemViewLabel);
 		this.constraintWidget = new widgets.ListView({el: $("#ssb-constraints"), collection: this.constraints, itemRenderer: constraintItemRenderer});
 		
 		
@@ -1751,8 +1791,10 @@
 		
 		
 		//var uriStrs = _.keys(geomToFeatureCount);
-		this.labelFetcher.fetch(visibleGeoms).pipe(function(uriToLabel) {
+		this.labelFetcher.fetch(visibleGeoms).pipe(function(labelInfo) {
 
+			var uriToLabel = labelInfo.uriToLabel;
+			
 			
 			var list = $$({}, "<div><ul></ul></div>", '& span { cursor:pointer; }', {});
 			

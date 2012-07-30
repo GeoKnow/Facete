@@ -641,16 +641,19 @@
 				<div id="tabs" style="height: 100%; width: 100%; padding-right:0px;">
 
 					<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs">
-						<li id="tabs-header-start"><a href="#tabs-content-start"><span
-								id="org.aksw.ssb.ui.label.start-tab">Start</span> </a></li>
+
+						<li id="tabs-header-places"><a href="#tabs-content-places"><span
+								id="org.aksw.ssb.ui.label.places-tab">Places</span> </a></li>
 
 						<li id="tabs-header-instances"><a href="#tabs-content-instances"><span
 								id="org.aksw.ssb.ui.label.instances-tab">Instances</span> </a></li>
 						<li id="tabs-header-facets"><a href="#tabs-content-facets"><span
 								id="org.aksw.ssb.ui.label.facets-tab">Facets</span> </a></li>
 						<!-- 	                <li id="tabs-header-types"><a href="#tabs-content-types"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></li> -->
-						<li id="tabs-header-places"><a href="#tabs-content-places"><span
-								id="org.aksw.ssb.ui.label.places-tab">Places</span> </a></li>
+
+						<li id="tabs-header-start"><a href="#tabs-content-start"><span
+								id="org.aksw.ssb.ui.label.start-tab">Config</span> </a></li>
+
 					</ul>
 					<!--             </div> -->
 

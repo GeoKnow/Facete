@@ -18,6 +18,9 @@
  */
 (function($) {
 
+	var config = Namespace("org.aksw.ssb.config");
+	
+	
 $.widget("ui.ssb_map", {
 
 	// TODO: Add _init method for backward compatibility
@@ -211,13 +214,57 @@ $.widget("ui.ssb_map", {
 		var limit = new OpenLayers.Bounds(-179.999, -85.0, 179.999, 85.0);
 
 		
-		var b = new OpenLayers.Bounds(
+		var newBounds = new OpenLayers.Bounds(
 				Math.max(bounds.left, limit.left),
 				Math.max(bounds.bottom, limit.bottom),
 				Math.min(bounds.right, limit.right),
-				Math.min(bounds.top, limit.top));
+				Math.min(bounds.top, limit.top));	
 		
-		b.transform(this.map.displayProjection, this.map.projection);
+		
+		// Example: Convert the input WGS84 to EPSG:900913
+		newBounds.transform(this.map.displayProjection, this.map.projection);
+		
+		
+		// a = original lonlat, b = screen space, c = modified lonlal
+		var orig_ll_min = new OpenLayers.LonLat(newBounds.left, newBounds.bottom);
+		var orig_ll_max = new OpenLayers.LonLat(newBounds.right, newBounds.top); 
+		console.log("mmi orig_ll", orig_ll_min, orig_ll_max);
+				
+		
+		//aMin.transform(this.map.displayProjection, this.map.projection);
+		var orig_px_min = this.map.getPixelFromLonLat(orig_ll_min);		
+		var orig_px_max = this.map.getPixelFromLonLat(orig_ll_max);
+		console.log("mmi orig_px", orig_px_min, orig_px_max);
+		
+		var border_px = 5;
+		
+		var border_px_min = new OpenLayers.Pixel(orig_px_min.x + border_px, orig_px_min.y - border_px);
+		var border_px_max = new OpenLayers.Pixel(orig_px_max.x - border_px, orig_px_max.y + border_px);
+		console.log("mmi border_px", border_px_min, border_px_max);
+		
+//		border_px_min = orig_px_min;
+//		border_px_max = orig_px_max;
+		
+		
+		var border_ll_min = this.map.getLonLatFromPixel(border_px_min);
+		var border_ll_max = this.map.getLonLatFromPixel(border_px_max);
+		console.log("mmi border_ll", border_ll_min, border_ll_max);
+		
+		var b = new OpenLayers.Bounds(
+				border_ll_min.lon,
+				border_ll_min.lat,
+				Math.max(border_ll_min.lon, border_ll_max.lon),
+				Math.max(border_ll_min.lat, border_ll_max.lat));
+
+		//console.log("aoeu compare before", newBounds, "after", b);
+		
+		//b.transform(this.map.displayProjection, this.map.projection);
+		
+		/*
+		var x = b.clone();
+		x = x.transform(this.map.displayProjection, this.map.projection);
+		console.log("aoeu x", x);
+		*/
 		
 		
 		/*
@@ -242,8 +289,31 @@ $.widget("ui.ssb_map", {
 		this.boxLayer.addMarker(box);
 		*/
 		
+		
+//		var styleMap = new OpenLayers.StyleMap({
+//    		fillColor: "#080080ff"
+//    	});
+		
 		// Vector layer
-        box = new OpenLayers.Feature.Vector(b.toGeometry());
+        box = new OpenLayers.Feature.Vector(b.toGeometry(), {}, {
+        	fillColor: "#0080ff",
+        	fillOpacity: 0.4,
+        	strokeLinecap: "round",
+        	strokeWidth: 1, 
+        	strokeColor: "#0050a0",
+        	pointRadius: 12,
+        	//fill: false,
+        	//externalGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
+        	//graphicOpacity: 0.4,
+        	//graphicWidth: 100,
+        	//graphicHeight: 100
+        	label: "Click to zoom",
+        	fontColor: "#ffffff",
+        	fontWeight: "bold",
+        	//backgroundGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
+        	//backgroundHeight: 100,
+        	//backgroundWidth: 100
+        });
         this.boxLayer.addFeatures(box);
 
 		this.idToBox[id] = box;
@@ -377,7 +447,7 @@ $.widget("ui.ssb_map", {
 		var iconUrl = type ? this.schemaIcons.get(type) : null;
 		
 		if(!iconUrl || iconUrl == "(missing icon)") {
-			iconUrl = "src/main/resources/icons/markers/marker.png";//"http://www.openlayers.org/dev/img/marker.png";
+			iconUrl = config.markerUrlDefault; //"src/main/resources/icons/markers/marker.png";//"http://www.openlayers.org/dev/img/marker.png";
 		}
 		
 		//point = new OpenLayers.LonLat(-1, 52);

@@ -1,5 +1,8 @@
 (function($) {
 	
+	
+	
+	
 	/*
 	 * Disable Backbone sync
 	 */
@@ -29,6 +32,9 @@
 
 	
 	var collections = Namespace("org.aksw.ssb.collections");
+
+	
+	var config = Namespace("org.aksw.ssb.config");
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
@@ -2046,8 +2052,8 @@
 		
 		// FIXME Update the position when changing the size
 		// FIXME Make the handling of the icons nicer
-		if(icon.url === "src/main/resources/icons/markers/marker.png") {
-			icon.setUrl("src/main/resources/icons/markers/marker-gold.png");
+		if(icon.url === config.markerUrlDefault) {
+			icon.setUrl(config.markerUrlSelected);
 		}
 		
 		var size = new OpenLayers.Size(icon.size.w + 15, icon.size.h + 15);
@@ -2059,7 +2065,7 @@
 		var icon = feature.marker.icon;
 		var size = new OpenLayers.Size(icon.size.w - 15, icon.size.h - 15);
 		icon.setSize(size);
-		icon.setUrl("src/main/resources/icons/markers/marker.png");		
+		icon.setUrl(config.markerUrlDefault);		
 	};
 		
 	ns.AppController.prototype.onInstanceUnhover = function(uriStr) {

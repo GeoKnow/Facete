@@ -67,6 +67,8 @@ $.widget("ui.ssb_map", {
 	    		numZoomLevels: 19,
 	    		units: 'm',
 
+	    		
+	    		
 	            
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
@@ -87,8 +89,11 @@ $.widget("ui.ssb_map", {
 		//this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
 		this.boxLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
 		
+		
+		
 		this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
 	    this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
+
 	    
 	    // uncomment	    
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
@@ -96,6 +101,34 @@ $.widget("ui.ssb_map", {
 		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 	    
+		var self = this;
+		this.selectFeatureController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
+			onSelect: function(feature) {
+				
+				var vector = feature; // Note: We assume a vector feature - might have to check in the future
+
+				var geometry = feature.geometry;
+				var bounds = geometry.bounds;
+				
+				var newBounds = bounds.scale(0.5);
+				
+				self.map.zoomToExtent(newBounds, true);
+				
+			}
+		});
+		
+		this.map.addControl(this.selectFeatureController);
+		this.selectFeatureController.activate();
+
+		
+
+//		beforefeaturehighlighted	Triggered before a feature is highlighted
+//		featurehighlighted	Triggered when a feature is highlighted
+//		featureunhighlighted	Triggered when a feature is unhighlighted
+//		boxselectionstart	Triggered before box selection starts
+//		boxselectionend	Triggered after box selection ends
+		
+		this.map.events.register("boxselectionstart", null, function(event) {alert("yay"); });
 	    
 	    //this.map.addLayers([this.markerLayer]);
 
@@ -236,7 +269,7 @@ $.widget("ui.ssb_map", {
 		var orig_px_max = this.map.getPixelFromLonLat(orig_ll_max);
 		console.log("mmi orig_px", orig_px_min, orig_px_max);
 		
-		var border_px = 5;
+		var border_px = 20;
 		
 		var border_px_min = new OpenLayers.Pixel(orig_px_min.x + border_px, orig_px_min.y - border_px);
 		var border_px_max = new OpenLayers.Pixel(orig_px_max.x - border_px, orig_px_max.y + border_px);

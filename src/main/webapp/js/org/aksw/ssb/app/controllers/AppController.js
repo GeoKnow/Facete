@@ -1185,6 +1185,9 @@
 		var promise = this.fetchNodesGeo(this.queryGeneratorGeo, bounds);
 		
 		$.when(promise).then(function(nodes) {
+			
+			// TODO Properly check if an old request is running
+			// and schedule the next request
 			if(!nodes) {
 				console.debug("Update was in progress");
 				return;

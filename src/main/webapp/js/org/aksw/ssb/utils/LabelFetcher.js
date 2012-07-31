@@ -9,12 +9,24 @@
 	var ns = Namespace("org.aksw.ssb.utils");
 	
 	
-	ns.LabelFetcher = function(sparqlService, langs, fetchAllLangs, cache) {
+	/**
+	 * 
+	 * @param sparqlService
+	 * @param langs
+	 * @param fetchAllLangs
+	 * @param cache
+	 * @param prefixResolver An object that can obtain prefixes for uris. Only used as a fallback if no other label could be obtained for a uri.
+	 * @returns {ns.LabelFetcher}
+	 */
+	ns.LabelFetcher = function(sparqlService, langs, fetchAllLangs, cache, prefixResolver) {
 		this.langs = langs ? langs : ['en', ''];
 		this.fetchAllLangs = fetchAllLangs ? fetchAllLangs : true;
 		this.sparqlService = sparqlService;
 		
-		this.cache = cache ? cache : ns.LabelFetcher.defaultCache;		
+		this.cache = cache ? cache : ns.LabelFetcher.defaultCache;
+		
+		
+		this.prefixResolver = prefixResolver;
 	};
 	
 	// A cache instance that is shared among label fetcher instances
@@ -65,7 +77,7 @@
 	};
 	
 	// TODO uris = String[]. Maybe this should be sparql.Node[]
-	ns.LabelFetcher.prototype.fetch = function(uris, includeAllUris, callback) {
+	ns.LabelFetcher.prototype.fetch = function(uris, includeAllUris) {
 	
 		//var uriStrs = _.map(uris, function(uri) { return uri.value; });
 		
@@ -76,9 +88,9 @@
 		lookups = filterUrisValidate(lookups);
 	
 		if(lookups.length == 0) {
-			if(callback) {				
-				callback(result);
-			}
+//			if(callback) {				
+//				callback(result);
+//			}
 			defer = $.Deferred();
 			defer.resolve({uris: uris, uriToLabel: result});
 			//defer.promise();
@@ -134,13 +146,16 @@
 			//mergeMapsInPlace(result, map);
 			_.extend(result, map);
 			
-			if(callback) {
-				callback(result);
-			}
 			
 			return {uris: uris, uriToLabel: result};
 		});	
-	
+
+		
+		// TODO Use the prefix resolver on all URIs that still have no label
+		//if(!)
+		
+		
+		
 		return deferred.promise();
 	};
 	

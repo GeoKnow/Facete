@@ -56,7 +56,7 @@
 		<link rel="stylesheet" href="lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" /> 
 
 
-    	<link rel="stylesheet" href="lib/Font-Awesome/current/css/font-awesome.css">
+<!--    	<link rel="stylesheet" href="lib/Font-Awesome/current/css/font-awesome.css"> -->
     
     
 <!--         <link rel='stylesheet' type='text/css' -->
@@ -723,17 +723,18 @@
 
 
 	<div id="box-resources">
-		<div style="font-size: 24px;">
+<!--		<div style="font-size: 24px;"> -->
 			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
 			<i id="box-resources-closebutton-img" class="icon-remove-sign"></i>
-		</div>
+<!--		</div> -->
 	</div>
 
 	<div id="box-facts">
-		<div style="font-size: 24px;">
+<!--		<div style="font-size: 24px;"> -->
 			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
 			<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
-		</div>
+
+<!--		</div> -->
 	</div>
 
 

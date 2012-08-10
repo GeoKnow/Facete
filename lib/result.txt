@@ -1,0 +1,231 @@
+agility:
+--------------------------------------------------
+balazarbrothers - 3D puzzle game
+gargoyle-free - graphical player for Interactive Fiction games
+libcrypt-eksblowfish-perl - Perl module implementing the Eksblowfish block cipher
+backbone:
+--------------------------------------------------
+graphviz - rich set of graph drawing tools
+libssm-dev - macromolecular superposition library
+libssm0 - macromolecular superposition library
+libwaili-dev - WAILI is a wavelet transform library (develop. files)
+libwaili1c2 - WAILI is a wavelet transform library
+mrt - Multi-threaded Routing Toolkit (BGP4+/BGP/RIPng/RIP2)
+onesixtyone - fast and simple SNMP scanner
+open.app - GNUstep open tool
+sdr - An Mbone Conference Scheduling and Booking System (SDR)
+CryptoJS:
+--------------------------------------------------
+dynatree:
+--------------------------------------------------
+Font-Awesome:
+--------------------------------------------------
+gettext:
+--------------------------------------------------
+autopoint - The autopoint program from GNU gettext
+autotools-dev - Update infrastructure for config.{guess,sub} files
+dh-translations - debhelper extension for translation support
+gettext - GNU Internationalization utilities
+gettext-base - GNU Internationalization utilities for the base system
+gettext-doc - Documentation for GNU gettext
+gettext-el - Emacs po-mode for editing gettext .po files
+libgtksourceview2.0-common - common files for the GTK+ syntax highlighting widget
+libintl-perl - Uniforum message translations system compatible i18n library
+liblocale-gettext-perl - Using libc functions for internationalization in Perl
+pkgbinarymangler - strips translations and alters maintainers during build
+po-debconf - tool for managing templates file translations with gettext
+po4a - tools for helping translation of documentation
+python-levenshtein - extension for computing string similarities and edit distances
+backup-manager - command-line backup tool
+deborphan - program that can find unused packages, e.g. libraries
+gettext-kde - version of gettext used by KDE
+gtranslator - PO-file editor for the GNOME Desktop
+libgettext-activerecord-ruby - GetText localization for Ruby programs using ActiveRecord
+libgettext-activerecord-ruby-common - GetText localization for Ruby programs using ActiveRecord
+libgettext-activerecord-ruby1.8 - GetText localization for Ruby programs using ActiveRecord
+libgettext-activerecord-ruby1.9.1 - GetText localization for Ruby programs using ActiveRecord
+libgettext-ant-tasks-java - Java classes for internationalization (i18n) - Ant tasks
+libgettext-commons-java - Java classes for internationalization (i18n)
+libgettext-ocaml - OCaml internationalization shared library
+libgettext-ocaml-dev - OCaml internationalization library
+libgettext-rails-ruby - Gettext support for Rails >= 2.3
+libgettext-rails-ruby-doc - Gettext support for Rails 2.3
+libgettext-rails-ruby1.8 - Gettext support for Rails >= 2.3
+libgettext-ruby-util - Gettext utilities for ruby (dummy package)
+libgettext-ruby1.8 - Gettext for ruby1.8
+libgettext-ruby1.9.1 - Gettext for ruby1.9.1
+libgtksourceview-3.0-common - common files for the GTK+ syntax highlighting widget
+libgtksourceview-common - common files for the GTK+ syntax highlighting widget
+libintl-gettext-ruby - Gettext wrapper for Ruby
+libintl-gettext-ruby1.8 - Gettext wrapper for Ruby 1.8
+libintl-xs-perl - Uniforum message translations system compatible i18n library
+liblocale-maketext-gettext-perl - Perl module bridging gettext and Maketext localization frameworks
+liblocale-maketext-lexicon-perl - lexicon-handling backends for Locale::Maketext
+liblocale-msgfmt-perl - pure Perl reimplementation of msgfmt
+liblocale-po-perl - Locale::PO perl module
+libmsgcat-perl - Locale::Msgcat perl module
+monodevelop - Development Environment for GNOME
+php-gettext - read gettext MO files directly, without requiring anything other than PHP
+poedit - gettext catalog editor
+poedit-dbg - gettext catalog editor (debug)
+pointerize - Internationalization utilities, based on gettext
+potool - A program to aid manipulation of gettext po files
+python-django-rosetta - Eases the translation process of your Django projects
+python-polib - Python library to parse and manage gettext catalogs
+python-pybabel - tools for internationalizing Python applications
+python-zope.app.locales - Zope locale extraction and management utilities
+python-zope.i18n - Zope Internationalization Support
+qt3-dev-tools-compat - Conversion utilities for Qt3 development
+smarty-gettext - Gettext plugin enabling internationalization in Smarty
+ssft - Shell Scripts Frontend Tool
+kdesdk-strigi-plugins - software development file format plugins for Strigi Desktop Search
+libapache2-mod-php5 - server-side, HTML-embedded scripting language (Apache 2 module)
+php5-cgi - server-side, HTML-embedded scripting language (CGI binary)
+php5-cli - command-line interpreter for the php5 scripting language
+poxml - tools for translating DocBook XML files with gettext
+python-distutils-extra - enhancements to the Python build system
+libapache2-mod-php5filter - server-side, HTML-embedded scripting language (apache 2 filter module)
+php5-fpm - server-side, HTML-embedded scripting language (FPM-CGI binary)
+python3-distutils-extra - enhancements to the Python3 build system
+gritter:
+--------------------------------------------------
+jgrowl:
+--------------------------------------------------
+jPaginate:
+--------------------------------------------------
+jquery:
+--------------------------------------------------
+libjs-jquery - JavaScript library for dynamic web applications
+django-ajax-selects - Django library for editing fields with autocomplete
+jplayer - jQuery plugin that plays and controls audio files in a webpage
+jpoker - javascript online poker client
+libhpricot-ruby - fast, enjoyable HTML parser
+libhpricot-ruby1.8 - fast, enjoyable HTML parser (Ruby 1.8)
+libhpricot-ruby1.9.1 - fast, enjoyable HTML parser (Ruby 1.9.1)
+libjs-flot - plotting library for jQuery
+libjs-jquery-ui - JavaScript UI library for dynamic web applications
+libjs-jquery-ui-docs - Documentation for JQuery-UI
+python-django-dajax - easy to use ajax library for django
+python-pyquery - jQuery-like library for python
+trac-datefieldplugin - Add custom date fields to Trac tickets
+jquery-ui:
+--------------------------------------------------
+libjs-jquery-ui - JavaScript UI library for dynamic web applications
+libjs-jquery-ui-docs - Documentation for JQuery-UI
+trac-datefieldplugin - Add custom date fields to Trac tickets
+json-template:
+--------------------------------------------------
+namespacedotjs:
+--------------------------------------------------
+open-layers:
+--------------------------------------------------
+prototype:
+--------------------------------------------------
+libfacile-ocaml-dev - functional constraint library implemented in Objective Caml
+nasm - General-purpose x86 assembler
+python-twisted-words - Chat and Instant Messaging
+apcalc - Arbitrary precision calculator (original name: calc)
+apcalc-common - Arbitrary precision calculator (common files)
+cagibi - cache/proxy daemon for SSDP used with UPnP
+cl-ironclad - Cryptography package for ANSI Common Lisp
+cproto - utilities to generate C function prototypes from C source code
+dicomscope - The OFFIS DICOM Viewer
+ggz-utils - GGZ Gaming Zone: utilities
+happstack - Haskell web framework
+ketm - old school 2D-scrolling shooter
+ketm-data - graphics and audio data for ketm
+libappframework-java - Swing Application Framework API
+libappframework-java-doc - Swing Application Framework API
+libclass-prototyped-perl - Fast prototype-based OO programming in Perl
+libdbd-anydata-perl - perl DBI driver for files and data structures
+libedfmt0 - The ERESI debug format library
+libedfmt0-dev - The ERESI debug format library
+libffcall1-dev - Foreign Function Call Libraries (development files)
+libghc6-happstack-data-dev - Happstack web framework, data utilities package - GHC 6 libraries
+libghc6-happstack-data-doc - Happstack web framework, data utilities package - documentation
+libghc6-happstack-data-prof - Happstack web framework, data utilities package - GHC 6 profiling libraries
+libghc6-happstack-dev - Haskell web framework - GHC 6 libraries
+libghc6-happstack-doc - Haskell web framework - documentation
+libghc6-happstack-ixset-dev - Happstack web framework, indexing engine - GHC 6 libraries
+libghc6-happstack-ixset-doc - Happstack web framework, indexing engine - documentation
+libghc6-happstack-ixset-prof - Happstack web framework, indexing engine - GHC 6 profiling libraries
+libghc6-happstack-prof - Haskell web framework - GHC 6 profiling libraries
+libghc6-happstack-server-dev - Happstack web framework, HTTP server - GHC 6 libraries
+libghc6-happstack-server-doc - Happstack web framework, HTTP server - documentation
+libghc6-happstack-server-prof - Happstack web framework, HTTP server - GHC 6 profiling libraries
+libghc6-happstack-state-dev - Happstack web framework, distributed state layer - GHC 6 libraries
+libghc6-happstack-state-doc - Happstack web framework, distributed state layer - documentation
+libghc6-happstack-state-prof - Happstack web framework, distributed state layer - GHC 6 profiling libraries
+libghc6-happstack-util-dev - Happstack web framework, utilities package - GHC 6 libraries
+libghc6-happstack-util-doc - Happstack web framework, utilities package - documentation
+libghc6-happstack-util-prof - Happstack web framework, utilities package - GHC 6 profiling libraries
+libhpricot-ruby - fast, enjoyable HTML parser
+libhpricot-ruby1.8 - fast, enjoyable HTML parser (Ruby 1.8)
+libhpricot-ruby1.9.1 - fast, enjoyable HTML parser (Ruby 1.9.1)
+libhtml-prototype-perl - module to generate HTML and Javascript for the Prototype library
+libjs-cropper - JavaScript image cropper UI
+libjs-edit-area - a free javascript editor for source code
+libjs-flotr - plotting library for the Prototype Framework
+libjs-protoaculous - A compressed library containing both prototype and scriptaculous
+libjs-prototype - JavaScript Framework for dynamic web applications
+libjs-scriptaculous - JavaScript library for dynamic web applications
+libparse-method-signatures-perl - Perl module to parse Perl6-like method signatures
+libperl6-export-perl - Implements the Perl 6 'is export(...)' trait
+libsignatures-perl - Perl module for subroutine signatures with no source filter
+libterralib1-dev - A C++ library for Geographical Information Systems -- development package
+libterralib1-doc - A C++ library for Geographical Information Systems -- documentation package
+libterralib1c2a - A C++ library for Geographical Information Systems
+lisaac - Object-oriented language base on prototype
+lisaac-common - Arch-independent part for lisaac
+lisaac-doc - Documentation for lisaac
+lisaac-mode - Emacs mode for editing Lisaac programs
+nordugrid-arc-nox-client - ARC prototype clients
+packagekit-gnome - graphical distribution neutral software management tools
+protoize - Create/remove ANSI prototypes from C code
+python-django-dajax - easy to use ajax library for django
+shapetools - Configuration and Release management using AtFS
+uisp - Micro In-System Programmer for Atmel's AVR MCUs
+w3-dtd-mathml - Mathematical Markup Language V2.0 DTD
+yocto-reader - web based RSS reader
+quadtree:
+--------------------------------------------------
+RDFauthor:
+--------------------------------------------------
+rdfquery:
+--------------------------------------------------
+result.txt:
+--------------------------------------------------
+search-package.sh:
+--------------------------------------------------
+sparql:
+--------------------------------------------------
+librasqal2 - Rasqal RDF query library
+rasqal-utils - Rasqal RDF Query utilities
+redland-utils - Redland Resource Description Framework (RDF) Utility programs
+virtuoso-nepomuk - transitional package for virtuoso-minimal
+libarc-php - Flexible RDF system for semantic web and PHP practitioners
+libsemweb1.0-cil - Semantic Web/RDF library
+monodoc-semweb-manual - compiled XML documentation for SemWeb
+python-sparqlwrapper - SPARQL endpoint interface to Python
+tracker-utils - metadata database, indexer and search tool - commandline tools
+virtuoso-opensource - high-performance database
+virtuoso-vad-isparql - high-performance database - iSPARQL module
+virtuoso-vad-sparqldemo - high-performance database - SPARQL demo module
+w3-recs - Recommendations of the World Wide Web Consortium (W3C)
+sparqlify - A SPARQL->SQL rewriter for relational databases.
+SparqlProxyPHP:
+--------------------------------------------------
+twitter-bootstrap:
+--------------------------------------------------
+underscore:
+--------------------------------------------------
+libcatalyst-action-rest-perl - module for automatic REST method dispatching
+libmoosex-getopt-perl - Moose extension for processing command line options
+libstring-camelcase-perl - Perl module to convert stringt to and from CamelCase
+ttf-aenigma - 465 free TrueType fonts by Brian Kent
+amoeba - fast-paced, polished OpenGL demonstration by Excess
+amoeba-data - Fast-paced, polished OpenGL demonstration by Excess (data)
+webr3-rdf:
+--------------------------------------------------
+webr3-rdf-interfaces:
+--------------------------------------------------

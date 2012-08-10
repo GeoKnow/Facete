@@ -1,0 +1,4 @@
+lib usr/share/semmap
+src usr/share/semmap
+index.php usr/share/semmap
+debian/conf/apache2/*   etc/semmap

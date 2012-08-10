@@ -1,0 +1,18 @@
+Source: semmap
+Section: web
+Priority: extra
+#Maintainer: Sebastian Tramp <tramp@informatik.uni-leipzig.de>
+Maintainer: Claus Stadler <cstadler@informatik.uni-leipzig.de>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Vcs-Browser: https://github.com/AKSW/SpatialSemanticBrowsingWidgets
+
+Package: semmap
+Architecture: all
+Depends: virtuoso-opensource-6.1, apache2, php5 | libapache2-mod-php5,${misc:Depends}
+Description: javascript-based browser for spatial semantic data
+ This browser application is able to visualize spatial semantic data
+ from a SPARQL endpoint on a map.
+ .
+ This package is part of the LOD2 Technology Stack.
+

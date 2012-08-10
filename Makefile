@@ -3,6 +3,9 @@ wdDirname = $(shell dirname $(wd))
 wdBasename = $(shell basename $(wd))
 tarGzFile = /tmp/SemMap.tar.gz
 
+dpkgDir = "debian/"
+debFile = "debian/semmap_all.deb"
+
 
 clean-deps:
 	rm -rf lib/twitter-bootstrap/current
@@ -29,4 +32,15 @@ deploy-sparql-proxy: deploy
 # Reset the configuration files
 reset:
 	cp config.js.dist config.js
+
+#debuild:
+#	cd $(dpkgDir); \
+#        debuild
+
+# Build and install on system
+#debinst: debuild
+#       The '-' in front of the command causes make to ignore any errors (i.e. its exit code)
+#        -sudo apt-get -y remove semmap
+#        sudo dpkg -i "$(debFile)"
+
 

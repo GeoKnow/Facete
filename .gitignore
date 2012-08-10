@@ -14,3 +14,10 @@ config.js
 *.tar.gz
 
 index.php
+
+debian/semmap
+debian/semmap.debhelper.log
+debian/semmap.postinst.debhelper
+debian/semmap.prerm.debhelper
+debian/semmap.substvars
+

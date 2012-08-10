@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 semmap (0.9.0) lod2; urgency=low
 
   * complete rewrite of the browser
@@ -7,9 +6,6 @@ semmap (0.9.0) lod2; urgency=low
 
 
 semmap (0.8.2) lod2; urgency=low
-=======
-spatial-semantic-browser (0.8.2) lod2; urgency=low
->>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
 
   * fix missing js resources
   * add usage of parameter endpoint (default: /sparql)
@@ -17,11 +13,7 @@ spatial-semantic-browser (0.8.2) lod2; urgency=low
 
  -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Fri, 27 Jan 2012 15:03:59 +0100
 
-<<<<<<< HEAD
 semmap (0.8.1) lod2; urgency=low
-=======
-spatial-semantic-browser (0.8.1) lod2; urgency=low
->>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
 
   * removed unused libs
   * correct usage of licenses
@@ -29,11 +21,7 @@ spatial-semantic-browser (0.8.1) lod2; urgency=low
 
  -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Thu, 26 Jan 2012 10:03:59 +0100
 
-<<<<<<< HEAD
 semmap (0.8) lod2; urgency=low
-=======
-spatial-semantic-browser (0.8) lod2; urgency=low
->>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
 
   * initial version
 

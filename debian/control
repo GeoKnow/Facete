@@ -1,24 +1,13 @@
-<<<<<<< HEAD
 Source: semmap
 Section: web
 Priority: extra
 #Maintainer: Sebastian Tramp <tramp@informatik.uni-leipzig.de>
 Maintainer: Claus Stadler <cstadler@informatik.uni-leipzig.de>
-=======
-Source: spatial-semantic-browser
-Section: web
-Priority: extra
-Maintainer: Sebastian Tramp <tramp@informatik.uni-leipzig.de>
->>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.9.1
 Vcs-Browser: https://github.com/AKSW/SpatialSemanticBrowsingWidgets
 
-<<<<<<< HEAD
 Package: semmap
-=======
-Package: spatial-semantic-browser
->>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
 Architecture: all
 Depends: virtuoso-opensource-6.1, apache2, php5 | libapache2-mod-php5,${misc:Depends}
 Description: javascript-based browser for spatial semantic data

@@ -1,0 +1,4 @@
+lib usr/share/spatial-semantic-browser
+src usr/share/spatial-semantic-browser
+index.php usr/share/spatial-semantic-browser
+debian/conf/apache2/*   etc/spatial-semantic-browser

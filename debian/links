@@ -1,0 +1,5 @@
+<<<<<<< HEAD
+/etc/semmap/apache.conf /etc/apache2/conf.d/semmap
+=======
+/etc/spatial-semantic-browser/apache.conf /etc/apache2/conf.d/spatial-semantic-browser
+>>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af

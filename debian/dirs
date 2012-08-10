@@ -1,0 +1,7 @@
+<<<<<<< HEAD
+var/cache/semmap
+var/log/semmap
+=======
+var/cache/spatial-semantic-browser
+var/log/spatial-semantic-browser
+>>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af

@@ -1,0 +1,40 @@
+<<<<<<< HEAD
+semmap (0.9.0) lod2; urgency=low
+
+  * complete rewrite of the browser
+
+ -- Claus Stadler <cstadler@informatik.uni-leipzig.de>  Fri, 10 Aug 2012 22:23:31 +0100
+
+
+semmap (0.8.2) lod2; urgency=low
+=======
+spatial-semantic-browser (0.8.2) lod2; urgency=low
+>>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
+
+  * fix missing js resources
+  * add usage of parameter endpoint (default: /sparql)
+  * add usage of parameter default-graph-uri
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Fri, 27 Jan 2012 15:03:59 +0100
+
+<<<<<<< HEAD
+semmap (0.8.1) lod2; urgency=low
+=======
+spatial-semantic-browser (0.8.1) lod2; urgency=low
+>>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
+
+  * removed unused libs
+  * correct usage of licenses
+  * fix lintian new-package-should-close-itp-bug :-)
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Thu, 26 Jan 2012 10:03:59 +0100
+
+<<<<<<< HEAD
+semmap (0.8) lod2; urgency=low
+=======
+spatial-semantic-browser (0.8) lod2; urgency=low
+>>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af
+
+  * initial version
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Wed, 25 Jan 2012 10:03:59 +0100

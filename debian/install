@@ -1,0 +1,11 @@
+<<<<<<< HEAD
+lib usr/share/semmap
+src usr/share/semmap
+index.php usr/share/semmap
+debian/conf/apache2/*   etc/semmap
+=======
+lib usr/share/spatial-semantic-browser
+src usr/share/spatial-semantic-browser
+index.php usr/share/spatial-semantic-browser
+debian/conf/apache2/*   etc/spatial-semantic-browser
+>>>>>>> af63e70507d17b9f709497f33d1b88b72268e8af

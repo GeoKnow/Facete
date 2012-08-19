@@ -96,12 +96,74 @@ $.widget("ui.ssb_map", {
 
 	    
 	    // uncomment	    
+
+		// TODO Make it easy to exchange the URL pattern
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+		//var mapnikLayer = new OpenLayers.Layer.OSM.Local("Mapnik");
 		this.map.addLayers([mapnikLayer, this.boxLayer]); //, this.vectorLayer]); //, this.markerLayer]);
 		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 	    
 		var self = this;
+		
+
+		var report = function() {
+			//alert("test");
+		};
+		
+		//OpenLayers.Feature.Vector.style['temporary']['fillColor'] = '#8080a0';
+		var hoverStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style["default"]);
+		OpenLayers.Util.extend(hoverStyle, {
+			fillColor: '#8080ff',
+        	fillOpacity: 0.4,
+        	strokeLinecap: "round",
+        	strokeWidth: 1, 
+        	strokeColor: "#5050a0",
+        	pointRadius: 12,
+        	label: "Click to zoom",
+        	fontColor: "#8080ff", //"#ffffff",
+        	fontWeight: "bold",
+
+		});
+
+		
+		this.highlightController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
+            hover: true,
+            highlightOnly: true,
+            //renderIntent: "temporary",
+            selectStyle: hoverStyle,
+
+
+            eventListeners: {
+                beforefeaturehighlighted: function(event) {
+
+                	var feature = event.feature;
+                	
+                	var geometry = feature.geometry;
+    				    				
+    				if(geometry instanceof OpenLayers.Geometry.Point) {
+    					
+    					// Seems like we can abort the highlight by returning false here.
+    					// However, a cleaner solution would be to keep MII-boxes and features in separate layers
+                    	return false;
+    				}
+                	
+                },
+                /*
+                featurehighlighted: report,
+                featureunhighlighted: report
+                */
+
+            }
+        });
+		
+		this.highlightController.handlers.feature.stopDown = false;
+		this.map.addControl(this.highlightController);
+		this.highlightController.activate();
+
+		
+		
+		
 		this.selectFeatureController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
 
 			onSelect: function(feature) {
@@ -116,6 +178,7 @@ $.widget("ui.ssb_map", {
 						//console.log("aoeu", feature);
 						var data = feature.data;
 					
+						var event = null;
 						self._trigger("onMarkerClick", event, data);
 						
 					
@@ -123,19 +186,36 @@ $.widget("ui.ssb_map", {
 				
 				
 					var bounds = geometry.bounds;
-					
+										
 					var newBounds = bounds.scale(0.5);
 					
-					self.map.zoomToExtent(newBounds, true);
+					var currentZoom = self.map.getZoom();
+					
+					self.map.zoomToExtent(newBounds, false);
+
+					
+					// Zoom-in (increase the zoom level) if zoomToExtent did not do that already  
+					var newZoom = self.map.getZoom();					
+					if(newZoom >= currentZoom) {
+						var nextZoom = newZoom + 1;
+						
+						var numZoomLevels = self.map.getNumZoomLevels();
+						if(nextZoom < numZoomLevels) {
+							self.map.zoomTo(nextZoom);
+						}
+					}
+					
+
 				}				
 			}
 		});
 		
-		this.selectFeatureController.handlers.feature.stopDown = false;
-		
+		this.selectFeatureController.handlers.feature.stopDown = false;		
 		this.map.addControl(this.selectFeatureController);
 		this.selectFeatureController.activate();
 
+		
+		
 		
 
 //		beforefeaturehighlighted	Triggered before a feature is highlighted
@@ -144,7 +224,7 @@ $.widget("ui.ssb_map", {
 //		boxselectionstart	Triggered before box selection starts
 //		boxselectionend	Triggered after box selection ends
 		
-		this.map.events.register("boxselectionstart", null, function(event) {alert("yay"); });
+		//this.map.events.register("boxselectionstart", null, function(event) {alert("yay"); });
 	    
 	    //this.map.addLayers([this.markerLayer]);
 
@@ -205,7 +285,7 @@ $.widget("ui.ssb_map", {
 		
 		if(visible) {
 			/////this.markerLayer.addMarker(feature.marker);
-			this.boxLayer.addFeatures(feature);
+			this.boxLayer.addFeatures([feature]);
 		}
 	},
 	
@@ -217,10 +297,10 @@ $.widget("ui.ssb_map", {
 		
 		if(value) {
 			/////this.markerLayer.addMarker(feature.marker);
-			this.boxLayer.addFeatures(feature);
+			this.boxLayer.addFeatures([feature]);
 		} else {
 			/////this.markerLayer.removeMarker(feature.marker);
-			this.boxLayer.removeFeatures(feature);
+			this.boxLayer.removeFeatures([feature]);
 		}
 	},
 	
@@ -249,7 +329,7 @@ $.widget("ui.ssb_map", {
 			var feature = self.nodeToFeature.entries[id];
 			if(feature) {
 				//self.markerLayer.removeMarker(feature.marker);
-				self.boxLayer.removeFeatures(feature);
+				self.boxLayer.removeFeatures([feature]);
 				delete self.nodeToFeature[id];
 			}			
 		});
@@ -352,7 +432,7 @@ $.widget("ui.ssb_map", {
 //    	});
 		
 		// Vector layer
-        box = new OpenLayers.Feature.Vector(b.toGeometry(), {}, {
+        var box = new OpenLayers.Feature.Vector(b.toGeometry(), {}, {
         	fillColor: "#8080ff",
         	fillOpacity: 0.2,
         	strokeLinecap: "round",
@@ -371,7 +451,10 @@ $.widget("ui.ssb_map", {
         	//backgroundHeight: 100,
         	//backgroundWidth: 100
         });
-        this.boxLayer.addFeatures(box);
+        
+        //box = new OpenLayers.Feature.Vector(b.toGeometry());
+        
+        this.boxLayer.addFeatures([box]);
 
 		this.idToBox[id] = box;
 	},
@@ -380,7 +463,7 @@ $.widget("ui.ssb_map", {
 		var box = this.idToBox[id];
 		if(box) {
 			//this.boxLayer.removeMarker(box);
-			this.boxLayer.removeFeatures(box);
+			this.boxLayer.removeFeatures([box]);
 		}
 	},
 

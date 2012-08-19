@@ -1,10 +1,12 @@
 wd = $(shell pwd)
 wdDirname = $(shell dirname $(wd))
 wdBasename = $(shell basename $(wd))
-tarGzFile = /tmp/SemMap.tar.gz
+tarGzFile = /tmp/semmap.tar.gz
 
 dpkgDir = "debian/"
 debFile = "debian/semmap_all.deb"
+
+odpGit = ~/Documents/OpenDataPortal/git
 
 
 clean-deps:
@@ -24,6 +26,8 @@ deploy: clean-deps
 	git clone git://github.com/arturadib/agility.git lib/agility/current
 	git clone git://github.com/FortAwesome/Font-Awesome.git lib/Font-Awesome/current
 	git clone git://github.com/AKSW/RDFauthor.git lib/RDFauthor/current
+	# Switch RDFauthor to develop
+	#git checkout develop
 
 # Additionally deploys a SPARQL proxy. For security this is disabled by default
 deploy-sparql-proxy: deploy
@@ -32,6 +36,13 @@ deploy-sparql-proxy: deploy
 # Reset the configuration files
 reset:
 	cp config.js.dist config.js
+
+# Create a zip and move it to the ODP git - this target is just for my local machine ~ Claus
+odpgit: zip
+	cp semmap.tar.gz $(odpGit)/sources/redhat-deployment/semmap/semmap.tar.gz
+	
+	
+	
 
 #debuild:
 #	cd $(dpkgDir); \

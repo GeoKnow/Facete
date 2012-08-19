@@ -44,10 +44,10 @@
     <head xmlns:update="http://ns.aksw.org/update/">
     
         <!-- rdfAuthor config. TODO Make endpoints configurable -->
-        <link about="" rel="update:defaultGraph" href="http://localhost/spatial" class="Resource">
+        <link about="" rel="update:sourceGraph" href="http://example.org/geo" class="Resource" /> 
+        <link about="" rel="update:defaultGraph" href="http://example.org/geo" class="Resource" />
 		<link about="http://localhost/spatial" rel="update:queryEndpoint" href="http://localhost/sparql" />
 		<link about="http://localhost/spatial" rel="update:updateEndpoint" href="http://localhost/sparql" />
-        <link about="" rel="update:sourceGraph" href="http://localhost/spatial" class="Resource"> 
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
@@ -221,6 +221,7 @@
 		src="src/main/webapp/js/org/aksw/ssb/facets/Constraints.js"></script>
 
 	<script type="text/javascript" src="config.js"></script>
+
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>

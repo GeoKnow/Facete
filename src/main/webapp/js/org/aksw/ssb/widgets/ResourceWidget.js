@@ -81,40 +81,60 @@
 								var html = ns.generateHtml(talisJson, uriToLabel);
 								self.view.$().html(html);
 								
-								console.log("Status of rdfAuthor-Namespace: ", rdfAuthor);
-								rdfAuthor.loadRDFauthor(function() {
-                  console.log(talisJson);
-                  // grab first object key
-                  for (var subjectUri in talisJson) {break;};
-                  console.log(subjectUri);
-                  rdfAuthor.populateRDFauthor(talisJson, false, subjectUri, selectedGraph.URI);
-                  RDFauthor.setOptions({
-                      viewOptions: { type: 'popover' },
-                      saveButtonTitle: 'Save Resource',
-                      useSPARQL11: true,
-                      cancelButtonTitle: 'Cancel',
-                      title: 'Edit ' + subjectUri,  
-                      autoParse: false, 
-                      showPropertyButton: true, 
-                      onSubmitSuccess: function (responseData) {
-                          // called on submit
-                          // do something
-                      },
-                      onCancel: function () {
-                          // called on cancel
-                          // do something;
-                      }
-                 });
-                 //RDFauthor.start();
-                });
+								self.view.$(".ssb_edit").click(function(event) {
+									
+									ns.loadRDFauthor(talisJson);
+									//var element = $(event.srcElement);
+									//console.log("ffs", $(element.parent(), "> a:eq(1)");
+									//alert("test"); console.log("ffs", event.srcElement);
+								});
 							});
-						});						
+						});	
 					}
-				});
-
+				}
+			);
 		
 		return result;
 	};
+
+	
+	ns.loadRDFauthor = function(talisJson) {
+		console.log("Status of rdfAuthor-Namespace: ", rdfAuthor);
+		//console.log(talisJson);
+		// grab first object key
+
+		var subjectUri = null;
+		for (subjectUri in talisJson) {
+			break;
+		}
+
+		ns.loadResourceEditor(subjectUri, talisJson);
+	};
+	
+	ns.loadResourceEditor = function(subjectUri, talisJson) {
+		
+		rdfAuthor.loadRDFauthor(function() {
+		
+			console.log(subjectUri);
+			rdfAuthor.populateRDFauthor(talisJson, false, subjectUri, selectedGraph.URI);
+			RDFauthor.setOptions({
+				viewOptions: { type: 'popover' },
+				saveButtonTitle: 'Save Resource',
+				useSPARQL11: true,
+				cancelButtonTitle: 'Cancel',
+				title: 'Edit ' + subjectUri,  
+				autoParse: false, 
+				showPropertyButton: true, 
+				onSubmitSuccess: function (responseData) {
+					// Clear or renew caches of the modified resource 
+				},
+				onCancel: function () {
+				}
+			});
+			RDFauthor.start();
+		});
+	};
+	
 	
 	ns.collectUris =  function(talisJson) {
 		var uris = {};
@@ -173,7 +193,8 @@
 			
 			//var rdfaAboutStr = "about='" + s + "'";
 
-			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a></td></tr>';
+			var editStr = ' <a class="ssb_edit">(edit)</a>';
+			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a>' + editStr + '</td></tr>';
 
 			/*
 			html += '<div class="box-facts-content-line">' + 

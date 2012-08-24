@@ -46,8 +46,8 @@
         <!-- rdfAuthor config. TODO Make endpoints configurable -->
         <link about="" rel="update:sourceGraph" href="http://example.org/geo" class="Resource" /> 
         <link about="" rel="update:defaultGraph" href="http://example.org/geo" class="Resource" />
-		<link about="http://fintrans.publicdata.eu/ec/" rel="update:queryEndpoint" href="http://localhost/sparql" />
-		<link about="http://fintrans.publicdata.eu/ec/" rel="update:updateEndpoint" href="http://localhost/sparql" />
+		<link about="http://fp7-pp.publicdata.eu/" rel="update:queryEndpoint" href="http://localhost/sparql" />
+		<link about="http://fp7-pp.publicdata.eu/" rel="update:updateEndpoint" href="http://localhost/sparql" />
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
@@ -318,7 +318,7 @@
 	<script type="text/javascript">
         
         var selectedGraph = {
-            URI: "http://fintrans.publicdata.eu/ec/",
+            URI: "http://fp7-pp.publicdata.eu/",
             title: "",
             editable: true
         }

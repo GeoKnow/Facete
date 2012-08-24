@@ -72,7 +72,7 @@ $.widget("ui.ssb_map", {
 	            
 	        	controls: [
 	    					new OpenLayers.Control.MouseDefaults(),
-//	    					new OpenLayers.Control.LayerSwitcher(),
+	    					new OpenLayers.Control.LayerSwitcher(),
 	    					//new OpenLayers.Control.PanZoomBar(),
 	    					new OpenLayers.Control.PanZoom(),
 	    					new OpenLayers.Control.MousePosition(),
@@ -87,9 +87,10 @@ $.widget("ui.ssb_map", {
 		//this.map.
 		
 		//this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
+		this.featureLayer    = new OpenLayers.Layer.Vector("Features", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
+
 		this.boxLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
-		this.featureLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
-		
+
 		
 		
 		//this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
@@ -101,7 +102,13 @@ $.widget("ui.ssb_map", {
 		// TODO Make it easy to exchange the URL pattern
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
 		//var mapnikLayer = new OpenLayers.Layer.OSM.Local("Mapnik");
-		this.map.addLayers([mapnikLayer, this.boxLayer, this.featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
+		//this.map.addLayers([mapnikLayer, this.featureLayer, this.boxLayer]); //, this.vectorLayer]); //, this.markerLayer]);
+		//this.map.addLayers([mapnikLayer, this.featureLayer]);
+		//this.map.addLayers([mapnikLayer, this.featureLayer, this.boxLayer]);
+
+		this.map.addLayers([mapnikLayer, this.featureLayer, this.boxLayer]);
+		
+		
 		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 	    
@@ -128,13 +135,14 @@ $.widget("ui.ssb_map", {
 		});
 
 		
-		this.highlightController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
+		this.highlightController = new OpenLayers.Control.SelectFeature([this.boxLayer], {
             hover: true,
             highlightOnly: true,
             //renderIntent: "temporary",
             selectStyle: hoverStyle,
 
 
+            /*
             eventListeners: {
                 beforefeaturehighlighted: function(event) {
 
@@ -155,25 +163,51 @@ $.widget("ui.ssb_map", {
                 featureunhighlighted: report
                 */
 
-            }
+            //}
         });
 		
-		this.highlightController.handlers.feature.stopDown = false;
-		this.map.addControl(this.highlightController);
-		this.highlightController.activate();
-
 		
 		
-		
-		this.selectFeatureController = new OpenLayers.Control.SelectFeature([this.boxLayer, this.featureLayer], {
-
+		this.selectBoxController = new OpenLayers.Control.SelectFeature([this.boxLayer], {
 			onSelect: function(feature) {
-								
+				
 				var vector = feature; // Note: We assume a vector feature - might have to check in the future				
 				var geometry = feature.geometry;
+
+				var bounds = geometry.bounds;
 				
+				var newBounds = bounds.scale(0.5);
 				
-				if(geometry instanceof OpenLayers.Geometry.Point) {
+				var currentZoom = self.map.getZoom();
+				
+				self.map.zoomToExtent(newBounds, false);
+
+				
+				// Zoom-in (increase the zoom level) if zoomToExtent did not do that already  
+				var newZoom = self.map.getZoom();					
+				if(newZoom >= currentZoom) {
+					var nextZoom = newZoom + 1;
+					
+					var numZoomLevels = self.map.getNumZoomLevels();
+					if(nextZoom < numZoomLevels) {
+						self.map.zoomTo(nextZoom);
+					}
+				}
+			}				
+		});
+		
+		
+		this.selectFeatureController = new OpenLayers.Control.SelectFeature([this.featureLayer], {
+
+			onSelect: function(feature) {
+		
+				alert("woo");
+				/*
+				var vector = feature; // Note: We assume a vector feature - might have to check in the future				
+				var geometry = feature.geometry;
+				*/
+				
+//				if(geometry instanceof OpenLayers.Geometry.Point) {
 					
 						//OpenLayers.Event.stop(event);
 						//console.log("aoeu", feature);
@@ -183,39 +217,33 @@ $.widget("ui.ssb_map", {
 						self._trigger("onMarkerClick", event, data);
 						
 					
-				} else {
+//				} else {
 				
-				
-					var bounds = geometry.bounds;
-										
-					var newBounds = bounds.scale(0.5);
-					
-					var currentZoom = self.map.getZoom();
-					
-					self.map.zoomToExtent(newBounds, false);
-
-					
-					// Zoom-in (increase the zoom level) if zoomToExtent did not do that already  
-					var newZoom = self.map.getZoom();					
-					if(newZoom >= currentZoom) {
-						var nextZoom = newZoom + 1;
-						
-						var numZoomLevels = self.map.getNumZoomLevels();
-						if(nextZoom < numZoomLevels) {
-							self.map.zoomTo(nextZoom);
-						}
-					}
-					
-
-				}				
 			}
 		});
 		
+		
 		this.selectFeatureController.handlers.feature.stopDown = false;		
-		this.map.addControl(this.selectFeatureController);
-		this.selectFeatureController.activate();
+		this.selectBoxController.handlers.feature.stopDown = false;
+		this.highlightController.handlers.feature.stopDown = false;
+
+		this.selectFeatureController.handlers.feature.stopUp = false;		
+		this.selectBoxController.handlers.feature.stopUp = false;
+		this.highlightController.handlers.feature.stopUp = false;
+
+		this.selectFeatureController.handlers.feature.stopClick = false;
+		this.selectBoxController.handlers.feature.stopClick = false;
+		this.highlightController.handlers.feature.stopClick = false;
 
 		
+		this.map.addControl(this.selectBoxController);
+		this.map.addControl(this.highlightController);
+		this.map.addControl(this.selectFeatureController);
+
+		this.selectFeatureController.activate();
+		this.highlightController.activate();
+		this.selectBoxController.activate();
+
 		
 		
 

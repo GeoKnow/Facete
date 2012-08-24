@@ -992,39 +992,31 @@
 		Dispatcher.register("selection", null, function(ev, uri) {
 			
 			// TODO FFS Why did I use select rather than construct here?
-			fetchStatementsBySubject(self.sparqlService, [uri], {				
-				failure: function() { Console.err("Error executing Sparql query"); },
-				success: function(jsonRdf) {
-				
-					//self.facts.setData(uri, [jsonRdf]);
-					//$("#facts").slideDown("slow");
-					
-					
-					
-					// If there are any same as links, try to fetch something from
-					// additional sources (e.g. DBpedia)
-					console.log(jsonRdf);
-					//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
-					var tags = extractTags(jsonRdf);
-					
-					objects = "owl:sameAs" in tags ? tags["owl:sameAs"] : [];
-					
-					for(prefix in self.prefixToService) {
-						var service = self.prefixToService[prefix];
-					
-						for(var i = 0; i < objects.length; ++i) {
-							
-							var object = objects[i]; //.value;
-							if(object.startsWith(prefix)) {
-								fetchStatementsBySubject(service, [object], function(jsonRdf2) {
-									//self.facts.setData(uri, [jsonRdf, jsonRdf2]);
-								});
+			$.when(queryUtils.fetchStatementsBySubjects(self.sparqlService, [uri]))
+				.then(function(jsonRdf) {													
+						// If there are any same as links, try to fetch something from
+						// additional sources (e.g. DBpedia)
+						console.log(jsonRdf);
+						//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
+						var tags = extractTags(jsonRdf);
+						
+						objects = "owl:sameAs" in tags ? tags["owl:sameAs"] : [];
+						
+						for(prefix in self.prefixToService) {
+							var service = self.prefixToService[prefix];
+						
+							for(var i = 0; i < objects.length; ++i) {
+								
+								var object = objects[i]; //.value;
+								if(object.startsWith(prefix)) {
+									fetchStatementsBySubject(service, [object], function(jsonRdf2) {
+										//self.facts.setData(uri, [jsonRdf, jsonRdf2]);
+									});
+								}
+								
 							}
-							
 						}
-					}
-				}
-			});
+				});
 		});
 
 	};

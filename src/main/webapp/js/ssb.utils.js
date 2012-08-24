@@ -216,26 +216,6 @@ function extractTagsCore(result, json)
 }
 
 
-function isValidUri(str) {
-	//return !str.contains('+');
-	return str.startsWith("http://");
-}
-
-
-function filterUrisValidate(uris) {
-	var result = [];
-	
-	for(var i = 0; i < uris.length; ++i) {
-		var uri = uris[i];
-		
-		if(isValidUri(uri)) {
-			result.push(uri);
-		}
-	}
-	
-	return result;
-}
-
 function namespaceUri(uri) {
 	return namespaceUri(uri, ssb_reverseNamespacePrefixes);
 }
@@ -265,22 +245,6 @@ function notify(title, text)
 }
 
 
-function fetchStatementsBySubject(service, uris, callback) {		
-	
-	uris = filterUrisValidate(uris);
-	
-	if(uris.length == 0) {
-		return;
-	}
-	
-	console.log("Fetching statements for (<" + uris.join('> , <') + ">)");	
-	var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uris.join(">,<") + ">)) . }";
-
-	service.executeSelect(queryString, {
-		failure: callback.failure,
-		success: callback.success	
-	});	
-};
 
 function fetchStatementsByObject(service, uris, callback) {		
 	

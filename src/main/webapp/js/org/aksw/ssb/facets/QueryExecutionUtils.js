@@ -1,5 +1,7 @@
 (function($) {
 
+	var uriUtils = Namespace("org.aksw.ssb.utils.uris");
+
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 	var labelUtils = Namespace("org.aksw.ssb.utils");
@@ -7,6 +9,37 @@
 	
 	// TODO Possible separate namespaces for query generation and execution
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils"); 
+
+	ns.createEmptyResultSet = function(vars) {
+		var result = $.Deferred();
+		result.resolve(ns.createEmptyJsonResultSet(vars));
+		
+		return result.promise();
+	};
+	
+	ns.createEmptyJsonResultSet = function(vars) {
+		var result = { "head": { "link": [], "vars": vars },
+				  "results": { "distinct": false, "ordered": true, "bindings": [ ] } };
+		
+		return result;
+	};
+	
+	
+	ns.fetchStatementsBySubjects = function(service, uriStrs) {		
+		
+		uriStrs = uriUtils.filterUrisValidate(uriStrs);
+		
+		if(uriStrs.length == 0) {
+			var result = ns.createEmptyResultSet(["s"]);
+			return result;
+		}
+		
+		console.log("Fetching statements for (<" + uriStrs.join('> , <') + ">)");	
+		var queryString = "Select ?s ?p ?o { ?s ?p ?o . Filter(?s In (<" + uriStrs.join(">,<") + ">)) . }";
+
+		var result = service.executeSelect(queryString);
+		return result;
+	};
 
 
 	ns.fetchClasses = function(sparqlService) {

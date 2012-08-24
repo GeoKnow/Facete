@@ -6,6 +6,8 @@
  */
 (function($) {
 
+	var config = Namespace("org.aksw.ssb.config");
+	
 	var stringUtils = Namespace("org.aksw.ssb.utils.strings");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var labelUtils = Namespace("org.aksw.ssb.utils");
@@ -83,7 +85,11 @@
 								
 								self.view.$(".ssb_edit").click(function(event) {
 									
-									ns.loadRDFauthor(talisJson);
+									console.log("RDFAUTHOR", config.rdfauthorTestJson);
+									ns.loadRDFauthor(config.rdfauthorTestJson);
+									//ns.loadRDFauthor(talisJson);
+									
+									
 									//var element = $(event.srcElement);
 									//console.log("ffs", $(element.parent(), "> a:eq(1)");
 									//alert("test"); console.log("ffs", event.srcElement);
@@ -111,6 +117,9 @@
 		ns.loadResourceEditor(subjectUri, talisJson);
 	};
 	
+	/**
+	 * TODO: Change
+	 */
 	ns.loadResourceEditor = function(subjectUri, talisJson) {
 		
 		rdfAuthor.loadRDFauthor(function() {

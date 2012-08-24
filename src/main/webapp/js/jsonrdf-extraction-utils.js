@@ -1,5 +1,5 @@
 var JsonRdfExtractionUtils = {
-	
+		
 	extractPoints: function(str) {
 		var values = str.split(/\s+/g);
 		/*
@@ -42,7 +42,9 @@ var JsonRdfExtractionUtils = {
 
 	
 	parsePoint: function(str) {
-		if(str.toLowerCase().trim().startsWith("point")) {
+		var strings = Namespace("org.aksw.ssb.utils.strings");
+		
+		if(strings.startsWith(str.toLowerCase().trim(), "point")) {
 			var start = str.indexOf("(");
 			var end   = str.indexOf(")");
 			

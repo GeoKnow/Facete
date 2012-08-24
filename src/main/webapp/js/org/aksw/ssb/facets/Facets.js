@@ -9,6 +9,8 @@
  */
 (function($) {
 
+	var strings = Namespace("org.aksw.ssb.strings");
+	
 	var ns = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 
@@ -312,7 +314,7 @@
 	};
 	
 	ns.Step.fromString = function(str) {
-		if(str.startsWith("<")) {
+		if(strings.startsWith(str, "<")) {
 			return new ns.Step(str.substring(1), true);
 		} else {
 			return new ns.Step(str, false);

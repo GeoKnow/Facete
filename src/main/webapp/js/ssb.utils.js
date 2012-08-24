@@ -6,6 +6,7 @@
 	 * http://stackoverflow.com/questions/280634/endswith-in-javascript
 	 * 
 	 */
+/*
 	if (!String.prototype.hasOwnProperty("endsWith")) {
 	    String.prototype.endsWith = function(suffix) {
 	        return this.indexOf(suffix, this.length - suffix.length) !== -1;
@@ -17,7 +18,7 @@
 			return this.indexOf(prefix) == 0;
 		};
 	}
-	
+*/
 	
 
 /**

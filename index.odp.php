@@ -106,6 +106,10 @@
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
 
+        <script type="text/javascript"
+            src="lib/underscore.string/current/dist/underscore.string.min.js"></script>
+
+
         <script type="text/javascript" src="lib/backbone/0.9.2/backbone.js"></script>
 
         <script type="text/javascript"
@@ -238,6 +242,9 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>

@@ -1,5 +1,6 @@
 (function($) {
 
+	var uriUtils = Namespace("org.aksw.ssb.utils.uris");
 	var collections = Namespace("org.aksw.ssb.collections");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var qt = Namespace("org.aksw.ssb.collections.QuadTree");
@@ -85,7 +86,7 @@
 		var result = lookupResult.entries;	
 		var lookups = lookupResult.notFound;
 	
-		lookups = filterUrisValidate(lookups);
+		lookups = uriUtils.filterUrisValidate(lookups);
 	
 		if(lookups.length == 0) {
 //			if(callback) {				

@@ -202,7 +202,7 @@
 			
 			//var rdfaAboutStr = "about='" + s + "'";
 
-			var editStr = ' <a class="ssb_edit">(edit)</a>';
+			var editStr = ' <a class="ssb_edit" href="#">(edit)</a>';
 			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a>' + editStr + '</td></tr>';
 
 			/*

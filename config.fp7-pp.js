@@ -47,8 +47,8 @@
 	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 	
 
-	var driver = null;
-	var geoPathStr = "";
+	//var driver = null;
+	//var geoPathStr = "";
 
 	config.driver = driver; 
 	config.navigationPath = null;

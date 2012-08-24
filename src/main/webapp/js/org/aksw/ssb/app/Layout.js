@@ -205,6 +205,13 @@ var ns = {};
 		$("#ssb-tabs-start-content").autoHeight();
 		
 		
+
+		$("#tabs-content-search").autoHeight();
+		$("#ssb-tabs-search").autoHeight();
+		$("#ssb-tabs-search-content").autoHeight();
+		
+		
+		
 		var languageSwitcherSelector = "#edit-lang-dropdown-select";		
 		var element = $(languageSwitcherSelector); 
 		

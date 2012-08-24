@@ -431,6 +431,13 @@
 		    // Enable the first tab
 	    	$('#ssb-tabs-start a:first').tab('show');
 
+
+	    	$('#ssb-tabs-search > ul > li > a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+			$('#ssb-tabs-search a:first').tab('show');
+
 		    
 	    	//$(".collapse").collapse();
 	    	
@@ -650,8 +657,8 @@
 
 					<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs">
 
-						<li id="tabs-header-places"><a href="#tabs-content-places"><span
-								id="org.aksw.ssb.ui.label.places-tab">Places</span> </a></li>
+						<li id="tabs-header-search"><a href="#tabs-content-search"><span
+								id="org.aksw.ssb.ui.label.search-tab">Search</span> </a></li>
 
 						<li id="tabs-header-instances"><a href="#tabs-content-instances"><span
 								id="org.aksw.ssb.ui.label.instances-tab">Instances</span> </a></li>
@@ -689,26 +696,46 @@
 
 						<div id="tabs-content-instances" class="tab-pane"></div>
 						<div id="tabs-content-facets" class="tab-pane"></div>
-						<div id="tabs-content-places" class="tab-pane">
+
+						<div id="tabs-content-search" class="tab-pane">
 							<!--                 <div>  -->
-							<div class="tabdiv" id="places-tab">
-								<div>
-									<form id="box-places-searchform"
-										action="javascript: doSearch();">
-										<input type="text" id="search-field" name="search-field"
-											value="" autocomplete="off" style="width: 200px;" /> <input
-											type="image" src="src/main/resources/images/search.png"
-											class="ssb-icon" />
-									</form>
-									<p style="font-size: 11px;">
-										powered by <a href="http://nominatim.openstreetmap.org"
-											target="_blank">Nominatim</a>
-									</p>
+
+							<div id="ssb-tabs-search" class="tab-content">
+								<ul class="nav nav-tabs ssb-nav-tabs">
+									<li><a href="#ssb-place-search"><span
+											id="org.aksw.ssb.ui.label.place-search-tab">Places</span>
+									</a></li>
+									<li><a href="#ssb-resource-search"><span
+											id="org.aksw.ssb.ui.label.resource-search-tab">Resources</span>
+									</a></li>
+								</ul>
+								<div id="ssb-tabs-search-content" class="tab-content">
+									<div id="ssb-place-search" class="tab-pane">
+										<form id="box-places-searchform"
+											action="javascript: doSearch();">
+											<input type="text" id="search-field" name="search-field"
+												value="" autocomplete="off" style="width: 200px;" /> <input
+												type="image" src="src/main/resources/images/search.png"
+												class="ssb-icon" />
+										</form>
+										<p style="font-size: 11px;">
+											powered by <a href="http://nominatim.openstreetmap.org"
+												target="_blank">Nominatim</a>
+										</p>
+										<div id="searchResults"></div>
+									</div>
+
+									<div id="ssb-resource-search" class="tab-pane">Test</div>
 								</div>
-								<div id="searchResults"></div>
 							</div>
-							<!--                 </div>  -->
 						</div>
+
+
+
+
+
+
+							<!--                 </div>  -->
 
 					</div>
 

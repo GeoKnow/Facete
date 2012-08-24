@@ -78,7 +78,7 @@
 							
 							$.when(labelFetchTask).then(function(labelInfo) {
 								var uriToLabel = labelInfo.uriToLabel;
-								//console.log("uriToLabel", uriToLabel);
+								console.log("uriToLabel", uriStrs, uriToLabel);
 								
 								var html = ns.generateHtml(talisJson, uriToLabel);
 								self.view.$().html(html);

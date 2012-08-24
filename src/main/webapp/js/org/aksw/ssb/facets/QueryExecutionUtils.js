@@ -29,7 +29,7 @@
 		
 		uriStrs = uriUtils.filterUrisValidate(uriStrs);
 		
-		if(uriStrs.length == 0) {
+		if(uriStrs.length === 0) {
 			var result = ns.createEmptyResultSet(["s"]);
 			return result;
 		}

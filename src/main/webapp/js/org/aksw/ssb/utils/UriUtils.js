@@ -8,7 +8,7 @@
 	// Very hacky check to avoid literals as URIs
 	ns.isValidUri = function(str) {
 		//return !str.contains('+');
-		return strings.startsWith("http://");
+		return strings.startsWith(str, "http://");
 	};
 	
 	

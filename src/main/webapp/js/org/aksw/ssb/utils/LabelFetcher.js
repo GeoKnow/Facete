@@ -88,7 +88,7 @@
 	
 		lookups = uriUtils.filterUrisValidate(lookups);
 	
-		if(lookups.length == 0) {
+		if(lookups.length === 0) {
 //			if(callback) {				
 //				callback(result);
 //			}

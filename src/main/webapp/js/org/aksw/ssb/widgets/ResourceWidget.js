@@ -86,8 +86,8 @@
 								self.view.$(".ssb_edit").click(function(event) {
 									
 									console.log("RDFAUTHOR", config.rdfauthorTestJson);
-									ns.loadRDFauthor(config.rdfauthorTestJson);
-									//ns.loadRDFauthor(talisJson);
+									//ns.loadRDFauthor(config.rdfauthorTestJson);
+									ns.loadRDFauthor(talisJson);
 									
 									
 									//var element = $(event.srcElement);

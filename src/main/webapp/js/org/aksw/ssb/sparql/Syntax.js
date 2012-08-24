@@ -13,6 +13,8 @@
 
 (function($) {
 
+	var strings = Namespace("org.aksw.ssb.utils.strings");
+
 	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
 
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
@@ -148,7 +150,7 @@
 	ns.Node.parse = function(str) {
 		var str = str.trim();
 		
-		if(str.startsWith('<') && str.endsWith('>')) {
+		if(strings.startsWith(str, '<') && strings.endsWith(str, '>')) {		
 			return ns.Node.uri(str.substring(1, str.length - 1));
 		} else {
 			throw "Node.parse not implemented for argument: " + str;

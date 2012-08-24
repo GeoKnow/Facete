@@ -88,6 +88,7 @@ $.widget("ui.ssb_map", {
 		
 		//this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
 		this.boxLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
+		this.featureLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
 		
 		
 		
@@ -100,7 +101,7 @@ $.widget("ui.ssb_map", {
 		// TODO Make it easy to exchange the URL pattern
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
 		//var mapnikLayer = new OpenLayers.Layer.OSM.Local("Mapnik");
-		this.map.addLayers([mapnikLayer, this.boxLayer]); //, this.vectorLayer]); //, this.markerLayer]);
+		this.map.addLayers([mapnikLayer, this.boxLayer, this.featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
 		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
 	    
@@ -164,7 +165,7 @@ $.widget("ui.ssb_map", {
 		
 		
 		
-		this.selectFeatureController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
+		this.selectFeatureController = new OpenLayers.Control.SelectFeature([this.boxLayer, this.featureLayer], {
 
 			onSelect: function(feature) {
 								
@@ -285,7 +286,7 @@ $.widget("ui.ssb_map", {
 		
 		if(visible) {
 			/////this.markerLayer.addMarker(feature.marker);
-			this.boxLayer.addFeatures([feature]);
+			this.featureLayer.addFeatures([feature]);
 		}
 	},
 	
@@ -297,10 +298,10 @@ $.widget("ui.ssb_map", {
 		
 		if(value) {
 			/////this.markerLayer.addMarker(feature.marker);
-			this.boxLayer.addFeatures([feature]);
+			this.featureLayer.addFeatures([feature]);
 		} else {
 			/////this.markerLayer.removeMarker(feature.marker);
-			this.boxLayer.removeFeatures([feature]);
+			this.featureLayer.removeFeatures([feature]);
 		}
 	},
 	
@@ -329,7 +330,7 @@ $.widget("ui.ssb_map", {
 			var feature = self.nodeToFeature.entries[id];
 			if(feature) {
 				//self.markerLayer.removeMarker(feature.marker);
-				self.boxLayer.removeFeatures([feature]);
+				self.featureLayer.removeFeatures([feature]);
 				delete self.nodeToFeature[id];
 			}			
 		});

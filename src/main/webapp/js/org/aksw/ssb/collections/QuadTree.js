@@ -457,10 +457,10 @@
 			this.subdivide();
 		}
 		
-		for(var i in this.children) {
+		for(var i = 0; i < this.children.length; ++i) {
 			var child = this.children[i];
 			
-			//console.log(child);
+			console.log("Split for ",child, bounds);
 			child.splitFor(bounds, depth, result);
 		}	
 	};

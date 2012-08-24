@@ -305,8 +305,12 @@ function jsonRdfResultSetToMapList(json, keyName, xName, yName) {
 function jsonRdfResultSetToMap(json, keyName, valueName) {
 	var result = {};
 	
-	for(var index in json.results.bindings) {
-		var item = json.results.bindings[index];
+	//for(var i in json.results.bindings) {
+	var bindings = json.results.bindings;
+	
+	for(var i = 0; i < bindings.length; ++i) {
+		
+		var item = bindings[i];
 				
 		var key = parseJsonRdfNode(item[keyName]);
 		var value = parseJsonRdfNode(item[valueName]);

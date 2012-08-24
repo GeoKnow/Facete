@@ -9,7 +9,7 @@
  */
 (function($) {
 
-	var strings = Namespace("org.aksw.ssb.strings");
+	var strings = Namespace("org.aksw.ssb.utils.strings");
 	
 	var ns = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");

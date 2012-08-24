@@ -219,6 +219,13 @@
 		src="src/main/webapp/js/org/aksw/ssb/vocabs/appvocab.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
+
+
+	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>
 
 	<script type="text/javascript"
@@ -239,12 +246,6 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>

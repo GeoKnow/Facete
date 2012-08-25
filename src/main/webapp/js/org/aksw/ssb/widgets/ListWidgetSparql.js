@@ -1,5 +1,6 @@
 (function($) {
 	
+	var backboneUtils = Namespace("org.aksw.ssb.utils.backbone");
 	var stringUtils = Namespace("org.aksw.ssb.utils.strings");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
@@ -131,27 +132,7 @@
 	    }
 	});
 
-	
-	/**
-	 * Returns a key from the model based on the binding.
-	 * 
-	 * 
-	 */
-	ns.getModelValue = function(model, key, binding) {
-		var b = binding ? binding[key] : null;
-		var result;
 
-		if(b) {
-			if(typeof b === 'function') {
-				return b(model);
-			} else {				
-				return model.get(b);
-			}
-		} else {
-			return model.get(key);
-		}
-	};
-	
 	ns.ItemViewLabel = Backbone.View.extend({
 		tagName: 'li',
 		
@@ -174,7 +155,7 @@
 		},
 	
 	    render: function() {
-	    	var label = ns.getModelValue(this.model, "label", this.options.binding);
+	    	var label = backboneUtils.getModelValue(this.model, "label", this.options.binding);
 	    	
 	    	
 	        $(this.el).html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
@@ -189,6 +170,15 @@
 	});
 	
 
+	/**
+	 * A Renderer for selectable items, such as Checkbox-items
+	 * 
+	 * @param selectionModel
+	 * @param fnId
+	 * @param ctor
+	 * @param binding
+	 * @returns {ns.RendererItemView}
+	 */
 	ns.RendererItemView = function(selectionModel, fnId, ctor, binding) {
 		this.selectionModel = selectionModel;
 		this.fnId = fnId ? fnId : function(x) { return x.id; };

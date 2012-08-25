@@ -60,15 +60,44 @@
 		return result;		
 	};
 	
-	ns.itemLabel = $$({label: ""}, '<li><span data-bind="label" /></li>');
+	ns.itemLabel = $$({label: ""}, '<li><span data-bind="label" /></li>', {
+		'click span': function() {
+
+			var parent = this.model.get("parent");
+			console.log("Triggereing click event on ", parent);
+			//alert("parent is: " + parent);
+			if(parent) {
+				parent.trigger("click", {isChild: true, item: this, data: this.model.get("data")});
+			}
+		}
+	});
 	
-	ns.RendererString = function(fnId) {
+	ns.RendererString = function(fnId, binding) {
 		this.fnId = fnId;
+		this.binding = binding;
 	};
 	
+	ns.getDataValue = function(data, key, binding) {
+		var b = binding ? binding[key] : null;
+		var result;
+
+		if(b) {
+			if(typeof b === 'function') {
+				return b(data);
+			} else {				
+				return data[b];
+			}
+		} else {
+			return data[key];
+		}
+	};
 	
 	ns.RendererString.prototype.create = function(parent, data) {
-		return $$(ns.itemLabel, {parent: parent, label: data, fnId: this.fnId});
+		var label = ns.getDataValue(data, "label", this.binding);
+		
+		var result = $$(ns.itemLabel, {parent: parent, label: label, fnId: this.fnId, data: data});
+		
+		return result;
 	};
 	
 	

@@ -34,6 +34,7 @@ var ns = {};
 	};
 	*/
 
+	
 	/**
 	 * Returns the sibling of an element excluding the element.
 	 * 
@@ -71,7 +72,7 @@ var ns = {};
 		return element.outerWidth(true);
 	};
 	
-	ns.calcDim = function(element, innerDim, outerDim) {
+	ns.calcDim = function(element, innerDim, outerDim, doLogging) {
 		var parent = element.parent();
 		var children = parent.children();
 	
@@ -79,18 +80,32 @@ var ns = {};
 		var childrenDim = 0;
 		
 		var otherSiblings = $(element).otherSiblings();
-		
+				
 		otherSiblings.each(function(i) {
 			var child = $(this);
 			
 			var childDim = child.is(":visible") ? outerDim(child) : 0;
+			
+			if(doLogging) {
+				console.log("  Other siblings: " + childDim, child);
+			}
+
+			/*
+			var childDim = outerDim(child);
+			
+			if(childDim < 0) {
+				childDim = 0;
+			}*/
+			
 			//console.log("childHeight: " + childHeight, child);
 			childrenDim += childDim;
 		});
 
 		var space = outerDim(element) - innerDim(element);
-		
+				
 		var elementDim = parentDim - childrenDim - space;
+		//console.log("ParentDim: ", parentDim, "ChildDim ", childrenDim, "Space: ", space, "Result: ", elementDim);
+
 		if(elementDim < 0) {
 			elementDim = 0;
 		}
@@ -107,22 +122,63 @@ var ns = {};
 	 * 
 	 * 
 	 */
-	$.fn.autoHeight = function() {			
+	$.fn.autoHeight = function(doLogging) {			
 		var element = $(this[0]);
 		
 		$(window).resize(function() {
-			var height = ns.calcDim(element, ns.innerHeight, ns.outerHeight);
+			var height = ns.calcDim(element, ns.innerHeight, ns.outerHeight, doLogging);
+			
+			if(doLogging) {
+				console.debug("AutoHeight: " + height, element);
+			}
+			
 			element.css("height", height + "px");
 		});		
 	};
+
+	$.fn.parentHeight = function(doLogging) {			
+		var element = $(this[0]);
+		
+		// Immediately changing styles on resize-events causes firebug to
+		// become very sluggish; hence this delay 
+		var scheduler = new Scheduler(500);
+		
+		var action = function() {
+			var parent = element.parent();
+			if(!parent) {
+				return;
+			}
+			
+			var height = parent.height();
+			
+			if(doLogging) {
+				console.debug("ParentHeight: " + height, element);
+			}
+			
+			element.css("height", height + "px");
+		};
+		
+		$(window).resize(function() {
+			scheduler.schedule(action);
+		});
+	};
+
 	
 	
 	$.fn.autoWidth = function() {
 		var element = $(this[0]);
 
-		$(window).resize(function() {
+		// Immediately changing styles on resize-events causes firebug to
+		// become very sluggish; hence this delay
+		var scheduler = new Scheduler(500);
+
+		var action = function() {
 			var width = ns.calcDim(element, ns.innerWidth, ns.outerWidth);
 			element.css("width", width + "px");
+		};
+		
+		$(window).resize(function() {
+			scheduler.schedule(action);
 		});
 		
 	};
@@ -200,17 +256,25 @@ var ns = {};
 
 		
 		$("#map").autoHeight();
-		
-		$("#ssb-tabs-start").autoHeight();
-		$("#ssb-tabs-start-content").autoHeight();
-		
+				
 		
 
-		$("#tabs-content-search").autoHeight();
-		$("#ssb-tabs-search").autoHeight();
+		$("#tabs-content-search").parentHeight();
+		$("#ssb-tabs-search").parentHeight();
 		$("#ssb-tabs-search-content").autoHeight();
 		
 		
+		$("#tabs-content-start").parentHeight();
+		$("#ssb-tabs-start").parentHeight();
+		$("#ssb-tabs-start-content").autoHeight();
+
+		/*
+    	$('.tab-content:parent > ul > li > a').each(function(index, item) {
+    		console.log("Showing ", item);
+    		$(item).tab('show');
+    		$(window).resize();
+    	});*/
+
 		
 		var languageSwitcherSelector = "#edit-lang-dropdown-select";		
 		var element = $(languageSwitcherSelector); 
@@ -259,7 +323,11 @@ var ns = {};
 		// Trigger a resize event for doing the layout
 		// Note: AppController triggers another resize event once it
 		// initialized some further widgets
-		$(window).resize();
+			
+//		setTimeout(function() {
+			$(window).resize();
+//		}, 500);
+		
 	});
 	
 	

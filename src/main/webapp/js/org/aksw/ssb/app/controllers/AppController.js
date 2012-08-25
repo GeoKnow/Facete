@@ -847,6 +847,56 @@
 			executorWidget.refresh();
 		}
 
+		// Resource search
+		{
+	    	var driverVar = sparql.Node.v("c");
+	    	var driverElement = queryUtils.createElementAnyResource(driverVar);
+	    	var driver = new facets.Driver(driverElement, driverVar);
+	
+	    	var queryGenerator = new widgets.QueryGenerator(driver);
+			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
+
+			
+			var viewModel = new widgets.ListModelExecutor(executor, 10);
+			var renderer = new widgets.RendererString(function(data) { return "" + data.data.value; }, {label: function(data) { return "" + data.label; }});
+
+			
+			var executorWidget = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
+				
+			executorWidget.getView().getListWidget().bind("click", function(ev, payload) {
+				
+				var node = payload.data.data;
+				
+				self.showDescription([node]);
+				$("#box-facts").show();
+				//console.log("payload", payload);
+				/*
+				alert("yay");
+				var data = payload.item.model.get("data").data;
+				if(payload.checked) {
+					self.classSelectionModel[data] = {data: data, isSelected: true};
+				} else {
+					delete self.classSelectionModel[data];
+				}
+				 
+				console.log("classSelection:" , self.classSelectionModel);
+				*/
+				
+				
+			});
+	
+			$$.document.append(executorWidget.getView(), $("#ssb-resource-search"));
+			
+			//executorWidget.getView().getListWidget().refresh();
+			executorWidget.refresh();
+		}
+		
+		/*
+		setTimeout(function() {
+			this.doLayout();
+		}, 1000);
+		*/
+
 
 		/*
 		{

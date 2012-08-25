@@ -78,6 +78,8 @@
 			<!-- 		<link rel="stylesheet" href="lib/jquery-ui/1.8.16/css/smoothness/jquery-ui-1.8.20.custom.css" /> -->
 <!-- 		<link rel="stylesheet" href="style.css" /> -->
 
+    
+
         <script type="text/javascript"
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
@@ -95,6 +97,14 @@
 
         <script type="text/javascript"
             src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
+
+
+    <!-- Load modificiations to existing frameworks; such as adding events to jQuery's show method -->
+<!--
+Not needed; Twitter Bootstrap fires the neccessary event already.
+	<script type="text/javascript" 
+		src="src/main/webapp/js/org/aksw/ssb/mods/jQuery.js"></script>
+		-->
 
 
 <!--         <script type="text/javascript" -->
@@ -217,6 +227,9 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/vocabs/appvocab.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/BackboneUtils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
@@ -414,6 +427,9 @@
 	    	$('#tabs > ul > li > a').click(function (e) {
                 e.preventDefault();
                 $(this).tab('show');
+                
+                // HACK We should not do excessive resize events
+                $(window).resize();
             });
 
 		    // Enable the first tab
@@ -500,6 +516,13 @@
             $("#tabs-places-content").hide ();
             $("#tabs-types-content").hide ();
         */
+                	
+        	/*
+        	$('*').live('show', function(e) {
+				$(window).resize();
+			});
+			*/
+        
 	    });
 	
 	</script>
@@ -726,7 +749,7 @@
 										<div id="searchResults"></div>
 									</div>
 
-									<div id="ssb-resource-search" class="tab-pane">Test</div>
+									<div id="ssb-resource-search" class="tab-pane"></div>
 								</div>
 							</div>
 						</div>

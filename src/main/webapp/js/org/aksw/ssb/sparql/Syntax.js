@@ -305,6 +305,20 @@
 		this.namedGraphNode = namedGraphNode;
 	};
 	
+	ns.ElementNamedGraph.prototype.getArgs = function() {
+		return [this.element];
+	};
+	
+	ns.ElementNamedGraph.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+		
+		var newElement = args[0];
+		var result = new ns.ElementNamedGraph(newElement, this.namedGraphNode);
+		return result;
+	};
+	
 	ns.ElementNamedGraph.prototype.toString = function() {
 		return "Graph " + this.namedGraphNode + " { " + this.element + " }";
 	};
@@ -335,6 +349,20 @@
 	ns.ElementString = function(value, varsMentioned) {
 		this.value = value;
 		this.varsMentioned = varsMentioned ? varsMentioned : [];
+	};
+
+	ns.ElementString.prototype.getArgs = function() {
+		return [];
+	};
+	
+	ns.ElementString.prototype.copy = function(args) {
+		if(args.length != 0) {
+			throw "Invalid argument";
+		}
+		
+		// FIXME: Should we clone the attributes too?
+		var result = new ns.String(this.value, this.varsMentioned);
+		return result;
 	};
 	
 	ns.ElementString.prototype.toString = function() {
@@ -368,6 +396,20 @@
 		this.query = query;
 	};
 	
+	ns.ElementSubQuery.prototype.getArgs = function() {
+		return [];
+	};
+	
+	ns.ElementSubQuery.prototype.copy = function(args) {
+		if(args.length != 0) {
+			throw "Invalid argument";
+		}
+		
+		// FIXME: Should we clone the attributes too?
+		var result = new ns.ElementSubQuery(query);
+		return result;
+	};
+	
 	ns.ElementSubQuery.prototype.toString = function() {
 		return "{ " + this.query + " }";
 	};
@@ -382,6 +424,20 @@
 	
 	ns.ElementFilter = function(expr) {
 		this.expr = expr;
+	};
+
+	ns.ElementFilter.prototype.getArgs = function() {
+		return [];
+	};
+	
+	ns.ElementFilter.prototype.copy = function(args) {
+		if(args.length != 0) {
+			throw "Invalid argument";
+		}
+		
+		// FIXME: Should we clone the attributes too?
+		var result = new ns.ElemenFilter(this.expr);
+		return result;
 	};
 	
 	ns.ElementFilter.prototype.copySubstitute = function(fnNodeMap) {
@@ -404,6 +460,20 @@
 		this.optionalPart = element;
 	};
 
+	ns.ElementOptional.prototype.getArgs = function() {
+		return [this.optionalPart];
+	};
+	
+	ns.ElementOptional.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+		
+		// FIXME: Should we clone the attributes too?
+		var result = new ns.ElementOptional(this.expr);
+		return result;
+	};
+	
 	ns.ElementOptional.prototype.getVarsMentioned = function() {
 		return this.optionalPart.getVarsMentioned();
 	};
@@ -425,6 +495,15 @@
 		this.elements = elements ? elements : [];
 	};
 
+	ns.ElementUnion.prototype.getArgs = function() {
+		return this.elements;
+	};
+	
+	ns.ElementUnion.prototype.copy = function(args) {		
+		var result = new ns.ElementUnion(args);
+		return result;
+	};
+	
 	ns.ElementUnion.prototype.getVarsMentioned = function() {
 		var result = [];
 		for(var i in this.elements) {
@@ -454,6 +533,19 @@
 		this.triples = triples ? triples : [];
 	};
 	
+	ns.ElementTriplesBlock.prototype.getArgs = function() {
+		return [];
+	};
+	
+	ns.ElementTriplesBlock.prototype.copy = function(args) {
+		if(args.length != 0) {
+			throw "Invalid argument";
+		}
+		
+		var result = new ns.ElementTriplesBlock(this.triples);
+		return result;
+	};
+
 	ns.ElementTriplesBlock.prototype.getTriples = function() {
 		return this.triples;
 	};
@@ -491,6 +583,15 @@
 		this.elements = elements ? elements : [];
 	};
 
+	ns.ElementGroup.prototype.getArgs = function() {
+		return this.elements;
+	};
+	
+	ns.ElementGroup.prototype.copy = function(args) {
+		var result = new ns.ElementTriplesBlock(args);
+		return result;
+	};
+	
 	ns.ElementGroup.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.ElementGroup(this.elements.map(function(x) { return x.copySubstitute(fnNodeMap); }));
 	};
@@ -629,6 +730,19 @@
 		return result;
 	};
 	
+	ns.E_Cast.prototype.getArgs = function() {
+		return [this.expr];
+	};
+	
+	ns.E_Cast.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+		
+		var result =new ns.E_Cast(args[0], this.node);
+		return result;
+	};
+	
 	ns.E_Cast.prototype.toString = function() {
 		return this.node + "(" + this.expr + ")";
 	};
@@ -643,6 +757,18 @@
 
 	ns.E_Str.prototype.getVarsMentioned = function() {
 		return this.subExpr.getVarsMentioned();
+	};
+	
+	ns.E_Str.prototype.getArgs = function() {
+		return [this.subExpr];
+	};
+	
+	ns.E_Str.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+
+		return new ns.E_Str(args[0]);
 	};
 	
 	ns.E_Str.prototype.toString = function() {
@@ -664,6 +790,21 @@
 		return this.expr.getVarsMentioned();
 	};
 	
+	ns.E_Regex.prototype.getArgs = function() {
+		return [this.expr];
+	};
+	
+	ns.E_Regex.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+
+		var newExpr = args[0];
+		var result = new ns.E_Regex(newExpr, this.pattern, this.flags);
+		return result;
+	};
+	
+	
 	ns.E_Regex.prototype.toString = function() {
 		var patternStr = this.pattern.replace("'", "\\'");
 		var flagsStr = this.flags ? ", '" + this.flags.replace("'", "\\'") + "'" : "";
@@ -679,6 +820,27 @@
 	
 	ns.E_Equals.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.E_Equals(fnNodeMap(this.left), fnNodeMap(this.right));
+	};
+	
+	
+	ns.newBinaryExpr = function(ctor, args) {
+		if(args.length != 2) {
+			throw "Invalid argument";
+		}
+
+		var newLeft = args[0];
+		var newRight = args[1];
+		
+		var result = new ctor(newLeft, newRight);
+		return result;		
+	};
+	
+	ns.E_Equals.prototype.getArgs = function() {
+		return [this.left, this.right];
+	};
+	
+	ns.E_Equals.prototype.copy = function(args) {
+		return ns.newBinaryExpr(ns.E_Equals, args);
 	};
 	
 	ns.E_Equals.prototype.toString = function() {
@@ -698,6 +860,14 @@
 	ns.E_GreaterThan.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.E_GreaterThan(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
+
+	ns.E_GreaterThan.prototype.getArgs = function() {
+		return [this.left, this.right];
+	};
+	
+	ns.E_GreaterThan.prototype.copy = function(args) {
+		return ns.newBinaryExpr(ns.E_GreaterThan, args);
+	};
 	
 	ns.E_GreaterThan.prototype.toString = function() {
 		return "(" + this.left + " > " + this.right + ")";
@@ -711,7 +881,15 @@
 	ns.E_LessThan.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.E_LessThan(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
+
+	ns.E_LessThan.prototype.getArgs = function() {
+		return [this.left, this.right];
+	};
 	
+	ns.E_LessThan.prototype.copy = function(args) {
+		return ns.newBinaryExpr(ns.E_LessThan, args);
+	};
+
 	ns.E_LessThan.prototype.toString = function() {
 		return "(" + this.left + " < " + this.right + ")";
 	};
@@ -723,6 +901,14 @@
 
 	ns.E_LogicalAnd.prototype.copySubstitute = function(fnNodeMap) {
 		return new ns.E_LogicalAnd(fnNodeMap(this.left), fnNodeMap(this.right));
+	};
+	
+	ns.E_LogicalAnd.prototype.getArgs = function() {
+		return [this.left, this.right];
+	};
+	
+	ns.E_LogicalAnd.prototype.copy = function(args) {
+		return ns.newBinaryExpr(ns.E_LogicalAnd, args);
 	};
 	
 	ns.E_LogicalAnd.prototype.toString = function() {
@@ -738,6 +924,14 @@
 		return new ns.E_LogicalOr(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
 	
+	ns.E_LogicalOr.prototype.getArgs = function() {
+		return [this.left, this.right];
+	};
+	
+	ns.E_LogicalOr.prototype.copy = function(args) {
+		return ns.newBinaryExpr(ns.E_LogicalOr, args);
+	};
+
 	ns.E_LogicalOr.prototype.toString = function() {
 		return "(" + this.left + " || " + this.right + ")";
 	};
@@ -745,6 +939,8 @@
 	
 	/**
 	 * If null, '*' will be used
+	 * 
+	 * TODO Not sure if modelling aggregate functions as exprs is a good thing to do.
 	 * 
 	 * @param subExpr
 	 * @returns {ns.E_Count}
@@ -769,6 +965,15 @@
 		return new ns.E_Distinct(this.subExpr.copySubstitute(fnNodeMap));
 	};
 	
+	ns.E_Distinct.prototype.getArgs = function() {
+		return [this.subExpr];
+	};
+	
+	ns.E_Distinct.prototype.copy = function(args) {
+		return new ns.E_Count(this.subExpr);
+	};
+
+	
 	ns.E_Distinct.prototype.toString = function() {
 		return "Distinct(" + this.subExpr +")";
 	};
@@ -781,7 +986,19 @@
 		return new ns.ExprVar(this.v.copySubstitute(fnNodeMap));
 	};
 
+
+	ns.ExprVar.prototype.getArgs = function() {
+		return [];
+	};
 	
+	ns.ExprVar.prototype.copy = function(args) {
+		if(args && args > 0) {
+			throw "Invalid argument";
+		}
+		
+		var result = new ns.ExprVar(this.v);
+	};
+
 	ns.ExprVar.prototype.toString = function() {
 		return "" + this.v;
 	};
@@ -874,7 +1091,7 @@
 	ns.VarExprList = function() {
 		this.vars = [];
 		this.varToExpr = {};
-	};
+	};	
 	
 	ns.VarExprList.prototype.add = function(v, expr) {
 		this.vars.push(v);
@@ -1068,163 +1285,6 @@
 	};
 	
 	
-	
-	ns.ResourceProvider = function(variable, fragment, service) {
-		this.variable = variable;
-		this.fragment = fragment;
-		this.service = service;
-		this.prefixes = {};
-	};
-
-
-	ns.ResourceProvider.prototype.fetch = function(callback) {
-		var queryStr = "Select * {" + this.fragment + "}"; 
-		
-		this.service.executeSelect(queryStr, callback);
-	};
-
-	ns.ResourceProvider.prototype.count = function(callback) {
-		ns.count(this.getPreambel(), this.fragment, this.service, callback);
-	};
-
-
-	ns.count = function(preambel, fragment, service, callback) {
-		var queryStr = preambel + "Select (Count(*) As ?count) {" + fragment + "}"; 
-		
-		service.executeSelect(queryStr, {
-			failure: function() { callback.failure(); },
-			success: function(json) { callback.success(json.results.bindings[0].count.value); }
-		});	
-	};
-
-	ns.getPreambel = function(prefixes, map) {	
-		var result = "";
-		for(var i in prefixes) {
-			var prefix = prefixes[i];
-			
-			var resolved = map[prefix];
-			if(resolved) {
-				result += "Prefix " + prefix + ": <" + resolved + ">\n";
-			}
-		}
-		
-		return result;
-	};
-
-	ns.ResourceProvider.prototype.getPreambel = function() {
-		var ps = ns.extractPrefixes(this.fragment);
-		return ns.getPreambel(ps, this.prefixes);
-	};
-
-	ns.ResourceProvider.prototype.list = function(callback, limit, offset) {
-		
-		var limitStr = !limit ? "" : " Limit " + limit;
-		var offsetStr = !offset ? "" : " Offset " + offset;
-		
-		var queryStr = this.getPreambel() + "Select * {" + this.fragment + "}" + limitStr + offsetStr;
-		
-		this.service.executeSelect(queryStr, callback);
-	};
-
-	/**
-	 * Check if the count of resources is greater than the given threshold 
-	 * 
-	 */
-	ns.ResourceProvider.prototype.isCountGreater = function(threshold, callback) {
-		var subQuery = "{ Select * {" + this.fragment + "} Limit " + (threshold + 1) + " }"; 
-		
-		
-		ns.count(this.getPreambel(), subQuery, this.service, {
-			failure: function() { callback.failure(); },
-			success: function(count) { callback.success(count > threshold); }
-		});
-		
-		//this.service.executeSelect(queryStr, {success: function(json) { callback.success(json.results.bindings[0].count.value); }});
-		
-	};
-
-	
-	ns.GeoResourceProvider = function(delegate, latVar, longVar, quadTree) {
-		this.delegate = delegate;
-		
-		this.latVar = latVar;
-		this.longVar = longVar;
-		this.quadTree = quadTree;
-		
-		this.bounds = null;
-	};
-
-	ns.GeoResourceProvider.prototype.setBounds = function(bounds) {
-		
-	};
-	
-	ns.fetch = function() {
-		
-		console.log("Aquiring nodes for " + this.bounds);
-		var nodes = this.quadTree.aquireNodes(this.bounds, 2);
-		
-		
-		// We need to know which 'facets/property/paths' the underlying query returns, so that we can index accordingly
-		// So fetching data can result in a query plan that yields a result set that first returns data from memory, and then the results of modified queries
-		
-		// Alternatively, we could geo-index a certain static query. But this means that whenever the facets change we have
-		// To re-index everything again.
-
-	};
-	
-	
-	
-	ns.ConstraintEquals = function(value) {
-		this.value = value;
-	};
-	
-	ns.ConstraintEquals.prototype.isSatisfiedBy = function(value) {
-		return this.value.equals(value);
-	};
-	
-	ns.ConstraintEquals.prototype.toString = function(value) {
-		return "equals(" + this.value + ")";
-	};
-	
-	
-	
-	ns.Table = function() {
-		
-	};
-	
-	ns.Table.add = function(row) {
-		
-	};
-	
-	ns.Table.addIndex = function(index) {
-		
-	};
-	
-	
-	ns.Table.select = function(colToConstraint) {
-	
-	};
-	
-	
-	
-	ns.test = function() {
-		console.log("test");
-		
-		var q = new ssb.Query();
-		
-		var ts = new ssb.ElementTriplesBlock();
-		var p = ssb.Node.v("p");
-		var t = new ssb.Triple(ssb.Node.uri("http://test.org"), p, ssb.Node.v("o"));
-		ts.triples.push(t);
-		
-		q.elements.push(t);
-		q.elements.push(new ssb.ElementFilter(new ssb.E_Equals(p, p)));
-		
-
-		console.log("Query = " + q);
-		
-		
-	};
 	
 	/**
 	 * Creates a new (compound) expressions from an array

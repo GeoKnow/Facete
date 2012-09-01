@@ -290,7 +290,7 @@
 					var path = self.getPath();
 					var nodeValue = new sparql.NodeValue(model.data);
 					
-					var constraint = new facets.ConstraintEquals(path, nodeValue);
+					var constraint = new facets.PathConstraint(path, new facets.ConstraintEquals(nodeValue));
 					
 					var result = "" + constraint;
 					

@@ -31,14 +31,16 @@
 		return result;
 	};
 	
-	ns.extractUrisFromConstraint = function(constraint) {
+	ns.extractUrisFromConstraint = function(pathConstraint) {
+		var constraint = pathConstraint.getConstraint();
+		
 		if(!(constraint instanceof facets.ConstraintEquals)) {
 			console.log("Unsupported constraint type " + typeof(constraint));
 			return [];
 		}
 		
 		// Extract all URIs from the path, and fetch their labels
-		var path = constraint.getPath(); //getText();
+		var path = pathConstraint.getPath(); //getText();
 		var result = ns.getPathUris(path);
 		
 		var nodeValue = constraint.getNodeValue();
@@ -53,8 +55,9 @@
 		return result;
 	};
 	
-	ns.ConstraintTextBuilder.createText = function(constraint, labelInfo) {
-		
+	ns.ConstraintTextBuilder.createText = function(pathConstraint, labelInfo) {
+		var constraint = pathConstraint.getConstraint();
+
 		var uriToLabel = labelInfo.uriToLabel;
 		
 		if(!(constraint instanceof facets.ConstraintEquals)) {
@@ -63,7 +66,7 @@
 		
 		var pathLabels = [];
 		
-		var path = constraint.getPath();
+		var path = pathConstraint.getPath();
 		
 		var steps = path.getSteps();
 		_.each(steps, function(step) {

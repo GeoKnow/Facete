@@ -44,10 +44,10 @@
     <head xmlns:update="http://ns.aksw.org/update/">
     
         <!-- rdfAuthor config. TODO Make endpoints configurable -->
-        <link about="" rel="update:defaultGraph" href="http://localhost/spatial" class="Resource">
-		<link about="http://localhost/spatial" rel="update:queryEndpoint" href="http://localhost/sparql" />
-		<link about="http://localhost/spatial" rel="update:updateEndpoint" href="http://localhost/sparql" />
-        <link about="" rel="update:sourceGraph" href="http://localhost/spatial" class="Resource"> 
+        <link about="" rel="update:sourceGraph" href="http://example.org/geo" class="Resource" /> 
+        <link about="" rel="update:defaultGraph" href="http://example.org/geo" class="Resource" />
+		<link about="http://fp7-pp.publicdata.eu/" rel="update:queryEndpoint" href="http://localhost/sparql" />
+		<link about="http://fp7-pp.publicdata.eu/" rel="update:updateEndpoint" href="http://localhost/sparql" />
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
@@ -78,6 +78,8 @@
 			<!-- 		<link rel="stylesheet" href="lib/jquery-ui/1.8.16/css/smoothness/jquery-ui-1.8.20.custom.css" /> -->
 <!-- 		<link rel="stylesheet" href="style.css" /> -->
 
+    
+
         <script type="text/javascript"
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
@@ -97,6 +99,14 @@
             src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
 
 
+    <!-- Load modificiations to existing frameworks; such as adding events to jQuery's show method -->
+<!--
+Not needed; Twitter Bootstrap fires the neccessary event already.
+	<script type="text/javascript" 
+		src="src/main/webapp/js/org/aksw/ssb/mods/jQuery.js"></script>
+		-->
+
+
 <!--         <script type="text/javascript" -->
 <!--             src="lib/jquery-ui/1.8.16/external/jquery.cookie.js"></script> -->
 
@@ -105,6 +115,10 @@
 
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
+
+        <script type="text/javascript"
+            src="lib/underscore.string/current/dist/underscore.string.min.js"></script>
+
 
         <script type="text/javascript" src="lib/backbone/0.9.2/backbone.js"></script>
 
@@ -215,12 +229,23 @@
 		src="src/main/webapp/js/org/aksw/ssb/vocabs/appvocab.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/BackboneUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
+
+
+	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/Constraints.js"></script>
 
 	<script type="text/javascript" src="config.js"></script>
+
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/QueryGenerationUtils.js"></script>
@@ -234,9 +259,6 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>
@@ -309,11 +331,11 @@
 	<script type="text/javascript">
         
         var selectedGraph = {
-            URI: "http://localhost/spatial",
+            URI: "http://fp7-pp.publicdata.eu/",
             title: "",
             editable: true
         }
-        var RDFAUTHOR_DEFAULT_GRAPH = "http://localhost/spatial";
+        var RDFAUTHOR_DEFAULT_GRAPH = "http://fintrans.publicdata.eu/ec/";
 		
 		RDFAUTHOR_BASE = 'lib/RDFauthor/current/'; //'http://localhost/rdfauthor';
         // RDFAUTHOR_READY_CALLBACK = function() {
@@ -405,6 +427,9 @@
 	    	$('#tabs > ul > li > a').click(function (e) {
                 e.preventDefault();
                 $(this).tab('show');
+                
+                // HACK We should not do excessive resize events
+                $(window).resize();
             });
 
 		    // Enable the first tab
@@ -422,6 +447,13 @@
 
 		    // Enable the first tab
 	    	$('#ssb-tabs-start a:first').tab('show');
+
+
+	    	$('#ssb-tabs-search > ul > li > a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+			$('#ssb-tabs-search a:first').tab('show');
 
 		    
 	    	//$(".collapse").collapse();
@@ -484,6 +516,13 @@
             $("#tabs-places-content").hide ();
             $("#tabs-types-content").hide ();
         */
+                	
+        	/*
+        	$('*').live('show', function(e) {
+				$(window).resize();
+			});
+			*/
+        
 	    });
 	
 	</script>
@@ -630,7 +669,6 @@
 
 
 
-
 		<div id="main" style="position:relative; width: 100%; height: 100%">
 			<!-- <div class="row-fluid" style="height:100%"> -->
 			<div id="ssb-navbar" style="position: absolute; top: 0px; left: 0px; width: 300px; height: 100%;">
@@ -639,8 +677,8 @@
 
 					<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs">
 
-						<li id="tabs-header-places"><a href="#tabs-content-places"><span
-								id="org.aksw.ssb.ui.label.places-tab">Places</span> </a></li>
+						<li id="tabs-header-search"><a href="#tabs-content-search"><span
+								id="org.aksw.ssb.ui.label.search-tab">Search</span> </a></li>
 
 						<li id="tabs-header-instances"><a href="#tabs-content-instances"><span
 								id="org.aksw.ssb.ui.label.instances-tab">Instances</span> </a></li>
@@ -678,26 +716,46 @@
 
 						<div id="tabs-content-instances" class="tab-pane"></div>
 						<div id="tabs-content-facets" class="tab-pane"></div>
-						<div id="tabs-content-places" class="tab-pane">
+
+						<div id="tabs-content-search" class="tab-pane">
 							<!--                 <div>  -->
-							<div class="tabdiv" id="places-tab">
-								<div>
-									<form id="box-places-searchform"
-										action="javascript: doSearch();">
-										<input type="text" id="search-field" name="search-field"
-											value="" autocomplete="off" style="width: 200px;" /> <input
-											type="image" src="src/main/resources/images/search.png"
-											class="ssb-icon" />
-									</form>
-									<p style="font-size: 11px;">
-										powered by <a href="http://nominatim.openstreetmap.org"
-											target="_blank">Nominatim</a>
-									</p>
+
+							<div id="ssb-tabs-search" class="tab-content">
+								<ul class="nav nav-tabs ssb-nav-tabs">
+									<li><a href="#ssb-place-search"><span
+											id="org.aksw.ssb.ui.label.place-search-tab">Places</span>
+									</a></li>
+									<li><a href="#ssb-resource-search"><span
+											id="org.aksw.ssb.ui.label.resource-search-tab">Resources</span>
+									</a></li>
+								</ul>
+								<div id="ssb-tabs-search-content" class="tab-content">
+									<div id="ssb-place-search" class="tab-pane">
+										<form id="box-places-searchform"
+											action="javascript: doSearch();">
+											<input type="text" id="search-field" name="search-field"
+												value="" autocomplete="off" style="width: 200px;" /> <input
+												type="image" src="src/main/resources/images/search.png"
+												class="ssb-icon" />
+										</form>
+										<p style="font-size: 11px;">
+											powered by <a href="http://nominatim.openstreetmap.org"
+												target="_blank">Nominatim</a>
+										</p>
+										<div id="searchResults"></div>
+									</div>
+
+									<div id="ssb-resource-search" class="tab-pane"></div>
 								</div>
-								<div id="searchResults"></div>
 							</div>
-							<!--                 </div>  -->
 						</div>
+
+
+
+
+
+
+							<!--                 </div>  -->
 
 					</div>
 

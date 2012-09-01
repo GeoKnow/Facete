@@ -245,7 +245,7 @@
 		var constraints = this.constraints.copyExclude(path);
 		
 		// Make the navigationPath an exists constraints
-		var constraint = new facets.ConstraintExists(path);
+		var constraint = new factes.PathConstraint(path, new facets.ConstraintExists());
 		
 		constraints.put(constraint.toString(), constraint);
 		

@@ -1,3 +1,167 @@
+	
+	ns.ResourceProvider = function(variable, fragment, service) {
+		this.variable = variable;
+		this.fragment = fragment;
+		this.service = service;
+		this.prefixes = {};
+	};
+
+
+	ns.ResourceProvider.prototype.fetch = function(callback) {
+		var queryStr = "Select * {" + this.fragment + "}"; 
+		
+		this.service.executeSelect(queryStr, callback);
+	};
+
+	ns.ResourceProvider.prototype.count = function(callback) {
+		ns.count(this.getPreambel(), this.fragment, this.service, callback);
+	};
+
+
+	ns.count = function(preambel, fragment, service, callback) {
+		var queryStr = preambel + "Select (Count(*) As ?count) {" + fragment + "}"; 
+		
+		service.executeSelect(queryStr, {
+			failure: function() { callback.failure(); },
+			success: function(json) { callback.success(json.results.bindings[0].count.value); }
+		});	
+	};
+
+	ns.getPreambel = function(prefixes, map) {	
+		var result = "";
+		for(var i in prefixes) {
+			var prefix = prefixes[i];
+			
+			var resolved = map[prefix];
+			if(resolved) {
+				result += "Prefix " + prefix + ": <" + resolved + ">\n";
+			}
+		}
+		
+		return result;
+	};
+
+	ns.ResourceProvider.prototype.getPreambel = function() {
+		var ps = ns.extractPrefixes(this.fragment);
+		return ns.getPreambel(ps, this.prefixes);
+	};
+
+	ns.ResourceProvider.prototype.list = function(callback, limit, offset) {
+		
+		var limitStr = !limit ? "" : " Limit " + limit;
+		var offsetStr = !offset ? "" : " Offset " + offset;
+		
+		var queryStr = this.getPreambel() + "Select * {" + this.fragment + "}" + limitStr + offsetStr;
+		
+		this.service.executeSelect(queryStr, callback);
+	};
+
+	/**
+	 * Check if the count of resources is greater than the given threshold 
+	 * 
+	 */
+	ns.ResourceProvider.prototype.isCountGreater = function(threshold, callback) {
+		var subQuery = "{ Select * {" + this.fragment + "} Limit " + (threshold + 1) + " }"; 
+		
+		
+		ns.count(this.getPreambel(), subQuery, this.service, {
+			failure: function() { callback.failure(); },
+			success: function(count) { callback.success(count > threshold); }
+		});
+		
+		//this.service.executeSelect(queryStr, {success: function(json) { callback.success(json.results.bindings[0].count.value); }});
+		
+	};
+
+	
+	ns.GeoResourceProvider = function(delegate, latVar, longVar, quadTree) {
+		this.delegate = delegate;
+		
+		this.latVar = latVar;
+		this.longVar = longVar;
+		this.quadTree = quadTree;
+		
+		this.bounds = null;
+	};
+
+	ns.GeoResourceProvider.prototype.setBounds = function(bounds) {
+		
+	};
+	
+	ns.fetch = function() {
+		
+		console.log("Aquiring nodes for " + this.bounds);
+		var nodes = this.quadTree.aquireNodes(this.bounds, 2);
+		
+		
+		// We need to know which 'facets/property/paths' the underlying query returns, so that we can index accordingly
+		// So fetching data can result in a query plan that yields a result set that first returns data from memory, and then the results of modified queries
+		
+		// Alternatively, we could geo-index a certain static query. But this means that whenever the facets change we have
+		// To re-index everything again.
+
+	};
+	
+	
+	/*
+	ns.ConstraintEquals = function(value) {
+		this.value = value;
+	};
+	
+	ns.ConstraintEquals.prototype.isSatisfiedBy = function(value) {
+		return this.value.equals(value);
+	};
+	
+	ns.ConstraintEquals.prototype.toString = function(value) {
+		return "equals(" + this.value + ")";
+	};
+	*/
+	
+	
+	ns.Table = function() {
+		
+	};
+	
+	ns.Table.add = function(row) {
+		
+	};
+	
+	ns.Table.addIndex = function(index) {
+		
+	};
+	
+	
+	ns.Table.select = function(colToConstraint) {
+	
+	};
+	
+	
+	
+	ns.test = function() {
+		console.log("test");
+		
+		var q = new ssb.Query();
+		
+		var ts = new ssb.ElementTriplesBlock();
+		var p = ssb.Node.v("p");
+		var t = new ssb.Triple(ssb.Node.uri("http://test.org"), p, ssb.Node.v("o"));
+		ts.triples.push(t);
+		
+		q.elements.push(t);
+		q.elements.push(new ssb.ElementFilter(new ssb.E_Equals(p, p)));
+		
+
+		console.log("Query = " + q);
+		
+		
+	};
+
+
+
+------
+
+
+
 
 		//continue;		
 		// Absolute approach

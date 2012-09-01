@@ -26,6 +26,8 @@
  */
 (function($) {
 
+	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
+	
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var geo = Namespace("org.aksw.ssb.vocabs.wgs84");
 	var collections = Namespace("org.aksw.ssb.collections");
@@ -33,7 +35,15 @@
 
 	var ns = Namespace("org.aksw.ssb.facets");
 
-	
+
+	/**
+	 * TODO Get rid of this class, I do not think there is much point in it, because the sparql syntax classes could do the same.
+	 * 
+	 * 
+	 * @param triples
+	 * @param expr
+	 * @returns {ns.ConstraintElement}
+	 */
 	ns.ConstraintElement = function(triples, expr) {
 		this.triples = triples;
 		this.expr = expr;
@@ -236,12 +246,10 @@
 	
 	/*
 	 * PathConstraint
-	 * 
-	 * TODO: Make the constraint objects generic, and use the path constraint
-	 * to combine it with paths
+	 *
+	 * Associates a path with a certain constraint
 	 *  
 	 */
-
 	ns.PathConstraint = function(path, constraint) {
 		this.path = path;
 		this.constraint = constraint;
@@ -255,6 +263,19 @@
 		return this.constraint;
 	};
 
+	ns.PathConstraint.prototype.createConstraintElement = function(pathManager) {
+		
+		var breadcrumb = new facets.Breadcrumb(pathManager, this.path);
+		var expr = this.constraint.createExpr(breadcrumb);
+
+		var triples = breadcrumb.getTriples();
+		
+		var result = new ns.ConstraintElement(triples, expr);
+		
+		return result;
+
+	};
+	
 	
 	
 	/*
@@ -262,15 +283,19 @@
 	 * 
 	 * A constraint that requires some path to exist
 	 */
-	ns.ConstraintExists = function(path) {
-		this.path = path;
+	ns.ConstraintExists = function() {
 	};
 
 	ns.ConstraintExists.prototype.toString = function() {
-		return "exists " + this.path;
+		return "exists";
 	};
 	
+	ns.ConstraintExists.prototype.createExpr = function(variable) {
+		return null;
+		//return sparql.Constants.TRUE;
+	};
 	
+	/*
 	ns.ConstraintExists.prototype.createConstraintElement = function(pathManager) {
 		var expr = null;
 		
@@ -281,6 +306,8 @@
 		
 		return result;
 	};
+	*/
+	
 	
 	/*
 	ns.ConstraintExists.prototype.getExpr = function(pathManager) {
@@ -300,16 +327,25 @@
 	 * Regex
 	 */
 
-	ns.ConstraintRegex = function(path, regexStr, flags) {
-		this.path = path;
+	ns.ConstraintRegex = function(regexStr, flags) {
 		this.regexStr = regexStr;
 		this.flags = flags;
 	};
 	
 	ns.ConstraintRegex.prototype.toString = function() {
-		return "regex(" + this.path + ", " + this.regexStr + ", " + this.flags + ")";
+		return "regex(" + this.regexStr + ", " + this.flags + ")";
 	};
 	
+	ns.ConstraintRegex.prototype.createExpr = function(breadcrumb) {
+		
+		var variable = breadcrumb.getTargetVariable();
+		var varExpr = new sparql.ExprVar(variable); 		
+		var result = new sparql.E_Regex(varExpr, this.regexStr, this.flags);
+
+		return result;
+	};
+	
+	/*
 	ns.ConstraintRegex.prototype.createConstraintElement = function(pathManager) {
 		var breadcrumb = new facets.Breadcrumb(pathManager, this.path); 
 		
@@ -323,6 +359,7 @@
 		var result = new ns.ConstraintElement(triples, expr);
 		return result;
 	};
+	*/
 
 	
 	/*
@@ -331,14 +368,16 @@
 	 * FIXME Maybe the nodeValue should be generalized to expr
 	 */
 	
-	ns.ConstraintEquals = function(path, nodeValue) {
-		this.path = path;
+	ns.ConstraintEquals = function(nodeValue) {
+		//this.path = path;
 		this.nodeValue = nodeValue;
 	};
 	
+	/*
 	ns.ConstraintEquals.prototype.getPath = function() {
 		return this.path;
 	};
+	*/
 	
 	ns.ConstraintEquals.prototype.getNodeValue = function() {
 		return this.nodeValue;
@@ -348,6 +387,16 @@
 		return "" + this.path + " = " + this.nodeValue;
 	};
 	
+	ns.ConstraintEquals.prototype.createExpr = function(breadcrumb) {
+		
+		var variable = breadcrumb.getTargetVariable();
+		var varExpr = new sparql.ExprVar(variable); 		
+		var result = new sparql.E_Equals(varExpr, this.nodeValue);
+
+		return result;
+	};
+	
+	/*
 	ns.ConstraintEquals.prototype.createConstraintElement = function(pathManager) {
 		var breadcrumb = new facets.Breadcrumb(pathManager, this.path); 
 		
@@ -361,6 +410,7 @@
 		var result = new ns.ConstraintElement(triples, expr);
 		return result;
 	};
+	*/
 
 	/*
 	ns.ConstraintEquals.prototype.getExpr = function(pathManager) {
@@ -429,7 +479,37 @@
 	};
 
 	
-	ns.ConstraintWgs84.prototype.createConstraintElement = function(pathManager, generator) {
+	ns.ConstraintWgs84.prototype.createConstraintElementNewButNotUsedYet = function(breadcrumb) {
+		var path = breadcrumb.getPath();
+		
+		var pathX = path.copyAppendStep(new facets.Step(geo.lon.value));
+		var pathY = path.copyAppendStep(new facets.Step(geo.lat.value));
+
+		// Create breadcrumbs
+		var breadcrumbX = new facets.Breadcrumb(pathManager, pathX); 
+		var breadcrumbY = new facets.Breadcrumb(pathManager, pathY);
+
+		// Create the graph pattern
+		var triplesX = breadcrumbX.getTriples();		
+		var triplesY = breadcrumbY.getTriples();
+		
+		var triples = sparql.mergeTriples(triplesX, triplesY);
+		
+		//var element = new sparql.ElementTriplesBlock(triples);
+		
+		// Create the filter
+		var vX = breadcrumbX.getTargetVariable();
+		var vY = breadcrumbY.getTargetVariable();
+		
+		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.double);
+
+		// Create the result
+		var result = new ns.ConstraintElement(triples, expr);
+
+		return result;
+	};
+	
+	ns.ConstraintWgs84.prototype.createConstraintElement = function(pathManager) {
 		// Create breadcrumbs
 		var breadcrumbX = new facets.Breadcrumb(pathManager, this.pathX); 
 		var breadcrumbY = new facets.Breadcrumb(pathManager, this.pathY);
@@ -446,7 +526,7 @@
 		var vX = breadcrumbX.getTargetVariable();
 		var vY = breadcrumbY.getTargetVariable();
 		
-		var expr = ns.createWgsFilter(vX, vY, this.bounds);
+		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.double);
 
 		// Create the result
 		var result = new ns.ConstraintElement(triples, expr);
@@ -485,6 +565,12 @@
 
 	
 	
+	/**
+	 * @param varX The SPARQL variable that corresponds to the longitude
+	 * @param varY The SPARQL variable that corresponds to the longitude
+	 * @param bounds The bounding box to use for filtering
+	 * @param castNode An optional SPAQRL node used for casting, e.g. xsd.double
+	 */
 	ns.createWgsFilter = function(varX, varY, bounds, castNode) {
 		var lon = new sparql.ExprVar(varX);
 		var lat = new sparql.ExprVar(varY);

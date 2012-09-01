@@ -407,6 +407,44 @@
 
 	
 	/**
+	 * An extension to the SPARQL classes which enables the use of paths in expressions.
+	 * 
+	 * Note that you need to translate paths to variables before firing such query
+	 * 
+	 */
+	ns.ExprPath = function(path) {
+		this.path = path;
+	};
+	
+	
+	
+	
+	ns.ExprPathTranslator = function(pathManager) {
+		this.pathManager = pathManager;
+	};
+	
+	ns.ExprPathTranslator.prototype.translateQuery = function(query) {
+		// TODO
+	};
+	
+	ns.ExprPathTranslator.prototype.translateElement = function(element) {
+		// TODO
+	};
+	
+	
+	ns.ExprPathTranslator.prototype.translateExpr = function(expr) {
+		if(expr instanceof ExprPath) {
+			var breadcrumb = new ns.Breadcrumb(this.pathManager, expr.getPath());
+			
+			var variable = breadcrumb.getTargetVariable();
+			var result = new sparql.ExprVar(variable);
+		}
+		
+		return expr;
+	};
+	
+	
+	/**
 	 * A breadcrumb is a path that has been resolved against a path manager.
 	 * 
 	 * 

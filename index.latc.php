@@ -30,27 +30,13 @@
     $var = isset($_REQUEST['var']) ? $_REQUEST['var'] : null;
     
     
-    
-    
-    
-    //$sparqlServiceUri = "http://localhost/sparql";
-
-    // LGD-TEST
-    //$endpoint = "http://localhost/lgd/sparql";
-    
-    
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
-    <head xmlns:update="http://ns.aksw.org/update/">
     
-        <!-- rdfAuthor config. TODO Make endpoints configurable -->
-        <link about="" rel="update:sourceGraph" href="http://example.org/geo" class="Resource" /> 
-        <link about="" rel="update:defaultGraph" href="http://example.org/geo" class="Resource" />
-		<link about="http://localhost/spatial" rel="update:queryEndpoint" href="http://localhost/sparql" />
-		<link about="http://localhost/spatial" rel="update:updateEndpoint" href="http://localhost/sparql" />
+    <head>
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>European Commission | Opening up European Commission</title>
+        <title>LATC Quality Assurance Dashboard</title>
         
 
 		<link rel="stylesheet" href="lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" /> 
@@ -66,6 +52,29 @@
 
         <link rel="stylesheet" type="text/css"
             href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" />
+
+
+
+		<style type="text/css">
+			.warning-icon-tiny {
+				width: 16px;
+				height: 16px;
+				float: left;
+				margin: 0 5px;
+				background-image: url("src/main/resources/images/eu/latc/warning-icon-tiny.png");
+			}
+		
+		
+			.error-icon-tiny {
+				width: 16px;
+				height: 16px;
+				float: left;
+				margin: 0 5px;
+				background-image: url("src/main/resources/images/eu/latc/error-icon-tiny.png");
+			}
+			
+		</style>
+
 
 <!--         <link rel="stylesheet" type="text/css" -->
 <!--             href="lib/jquery-ui/1.8.16/themes/base/jquery.ui.tabs.css" /> -->
@@ -130,8 +139,8 @@
 
 
 	<!-- Open Layers 2.11-rc2 -->
-	<script type="text/javascript"
-		src="lib/open-layers/2.10/OpenLayers.js"></script>
+<!--	<script type="text/javascript"
+		src="lib/open-layers/2.10/OpenLayers.js"></script> -->
 
 	<script type="text/javascript"
 		src="lib/json-template/0.85/json-template.js"></script>
@@ -142,8 +151,10 @@
     <script type="text/javascript"
 		src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
 
+<!--
  	<script type="text/javascript"
  		src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script>
+ 		-->
 
 <!-- 	<script type="text/javascript" -->
 <!-- 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script> -->
@@ -215,6 +226,16 @@
 		src="src/main/webapp/js/org/aksw/ssb/vocabs/appvocab.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/BackboneUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
+
+
+	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>
 
 	<script type="text/javascript"
@@ -235,9 +256,6 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/utils/StringUtils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>
@@ -281,6 +299,13 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/app/QueryGenerator.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/TableQueryGenerator.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/TableQueryExecutor.js"></script>
+
 		
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeModel.js"></script>
@@ -293,451 +318,633 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
+
+
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/qa-dashboard/app/controllers/AppController.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/qa-dashboard/app/main.js"></script>
 		
 		
 	<!-- Layouting for this (p)HTML file-->
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/app/Layout.js"></script>
+<!--	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/Layout.js"></script> -->
 
 
 	<!-- OpenDataPortal specify layouting (header bar translations)-->
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/app/Layout-Odp.js"></script>
+<!--	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/Layout-Odp.js"></script> -->
 
+	<script src="lib/highcharts/2.2.5/js/highcharts.js"></script>
+	<script src="lib/highcharts/2.2.5/js/modules/exporting.js"></script>
 
-
-	<!--script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script-->
+	
+	<script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/rgbcolor.js"></script>
+	<script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/canvg.js"></script> 
+	
 	<script type="text/javascript">
-        
-        var selectedGraph = {
-            URI: "http://localhost/spatial",
-            title: "",
-            editable: true
-        }
-        var RDFAUTHOR_DEFAULT_GRAPH = "http://localhost/spatial";
+
+		function divToImage(element) {
+			// Such method might already be part of canvg
+		}
+
+		function chartToImage(chartSpec, width, height) {
+
+			var s = $('body');
+			
+			// We temporarily need to add an invisible element
+			// FIXME: Maybe highchart also works with a detached element?
+			s.prepend('<div style="display:none"></div>');
+			var dummy = s.children().eq(0);
+			
+			dummy.append('<div style="display:none; width: ' + width + 'px; height: ' + height + 'px;"></div>');
+			dummy.append('<canvas style="display:none; width: 400px; height: 200px;"></canvas>');			
+
+			var container = dummy.children().eq(0);
+			var canvas = dummy.children().eq(1);
+			
+			console.log(s, dummy, container, canvas);
+
+			// TODO Copy the spec
+			chartSpec.chart.renderTo = container.get(0);
+			
+			var chart = new Highcharts.Chart(chartSpec);
+			
+			canvg(canvas.get(0), chart.getSVG());
+
+			chart.destroy();
+    						
+			var imgUrl = canvas.get(0).toDataURL("image/png");
+			
+			var result = imgUrl;
+			
+			/*
+			container.append('<img src="' + imgUrl + '"></img>');
+			
+			var result = container.children().eq(0);
+			result.detach();
+			*/ 	    
+			
+			dummy.remove();
+			
+			return result;
+		};
+
+
+		function createHistogramData() {
+			var data = [10, 20, 100, 50, 13, 29, 17, 8, 5, 2];
+			
+			var result = {
+				min: 0,
+				max: null,
+				data: data,
+				labels: createBucketLabels(data.length, 0, 1, function(low, high) {
+					var d = 0;
+					return roundNumber(low * 100, d) + ' - ' + roundNumber(high * 100, d) + '%';
+				})
+			};
+			
+			return result;
+		};
 		
-		RDFAUTHOR_BASE = 'lib/RDFauthor/current/'; //'http://localhost/rdfauthor';
-        // RDFAUTHOR_READY_CALLBACK = function() {
-            // RDFauthor.setOptions({useSPARQL11: true, viewOptions:{type: "popover"}});
-            // RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'queryEndpoint', 'http://localhost/sparql');
-            // RDFauthor.setInfoForGraph(RDFAUTHOR_DEFAULT_GRAPH, 'updateEndpoint', 'http://localhost/sparql');
+		function roundNumber(number, decimals) {
+			var result = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 			
-
-			// console.debug("[RDFauthor] Registered graphs and services", RDFauthor._graphInfo);
-        // };
-	</script>
-	
-	
-
-	<script type="text/javascript">
-	        /*
-	         * Update the config object based on the URL arguments.
-	         * Default values will be overridden.
-	         */
-			var config = Namespace("org.aksw.ssb.config");
-
+			return result;
+		};
+  
+		
+		function createBucketLabels(n, min, max, callback) {
+			var range = max - min;
+			var chunk = range / n;
 			
-			var urlArgs = {};
-            urlArgs.sparqlServiceUri = '<?php echo $sparqlServiceUri ?>';
-            var defaultGraphUri = '<?php echo $defaultGraphUri ?>'.trim();
-			if(defaultGraphUri.length > 0) {
-				urlArgs.defaultGraphUris = [defaultGraphUri];
+			var result = [];
+			for(i = 0; i < n; ++i) {
+				var low = min + chunk * i;
+				var high = min + chunk * (i + 1);
+			
+				var label = callback ? callback(low, high) : low + ' - ' + high;
+			
+				result.push(label);
 			}
-
-            var rawState = '<?php echo $state ?>';
-            urlArgs.state = $.parseJSON(rawState);
-            
-            urlArgs.lang = '<?php echo $locale ?>';
-
-
-			urlArgs.query = '<?php echo $query ?>';
-			urlArgs.variable = '<?php echo $var ?>';
-
-
-            // Only add entries with non-null and non-empty-string values to 'override' 
-            var override = {};
-			$.each(urlArgs, function(key, value) {
-				if(value) {
-					var valueStr = ("" + value).trim();
-					if(valueStr.length > 0) {
-						override[key] = value;
+			
+			return result;
+		};
+		
+		function createHistogramChartSpec(data) {
+			var result = {
+	            chart: {
+	                renderTo: null,
+	                type: 'column' //'bar'
+	            },
+	            title: {
+	                text: "Dataset Overview" // 'DBpedia LinkedGeoData Cities'
+	            },
+	            subtitle: {
+	                text: "" //"latest datasets"//'metric: ' + data.metricName //Konrad Höffner'
+	            },
+	            xAxis: {
+					categories: data.labels,
+					labels: {
+						align: 'right',
+						rotation: -45,
 					}
+	            },
+	            yAxis: {
+	                title: {
+	                    text: null
+	                }
+	            },
+	            tooltip: {
+	                formatter: function() {
+	                    return this.y +' datasets'; // this.series.name
+	                }
+	            },
+	            plotOptions: {
+					column: {
+			            groupPadding: 0,
+			            pointPadding: 0,
+			            borderWidth: 0
+    				}     
+    			},
+	            credits: {
+	                enabled: false
+	            },
+	            exporting: {
+	            	enabled: false
+	            },
+	            series: [{
+	            	name: 'precision',
+	            	showInLegend: true,
+	                data: data.data,
+	                color: '#4572A7'
+	            }, {
+	            	name: 'recall',
+	            	showInLegend: true,
+	                data: data.data,
+	                color: '#89A54E'
+	            }]
+	        };
+	        
+	        return result;
+	    };
+
+
+		function createLinksetChartSpec(data) {
+			var result = {
+	            chart: {
+	                renderTo: null,
+	                type: 'column', //'bar'
+					borderWidth: 1
+	            },
+	            title: {
+	                text: data.name // 'DBpedia LinkedGeoData Cities'
+	            },
+	            subtitle: {
+	                text: 'by: ' + data.author //Konrad Höffner'
+	            },
+	            xAxis: {
+	               	categories: ['est. precision', 'est. recall'],
+	                title: {
+	                    text: null
+	                }
+	
+	            },
+	            yAxis: {
+	                min: 0,
+	                max: 1,
+	                title: {
+	                	//enabled: false,
+	                    text: '',
+	                    align: 'high'
+	                }
+
+	            },
+	            tooltip: {
+	                formatter: function() {
+	                    return ''+
+	                        this.series.name +': '+ this.y +' millions';
+	                }
+	            },
+	            plotOptions: {
+	                bar: {
+	                    dataLabels: {
+	                        enabled: true
+	                    }
+	                }
+	            },
+	            /*
+	            legend: {
+	                layout: 'vertical',
+	                align: 'right',
+	                verticalAlign: 'top',
+	                x: -100,
+	                y: 100,
+	                floating: true,
+	                borderWidth: 1,
+	                backgroundColor: '#FFFFFF',
+	                shadow: true
+	            },*/
+	            credits: {
+	                enabled: false
+	            },
+	            exporting: {
+	            	enabled: false
+	            },
+	            series: [{
+	            	showInLegend: false,
+	                data: [data.precision],
+	                color: '#89A54E'
+	            }, {
+	            	showInLegend: false,
+	                data: [data.recall],
+	                color: '#AA4643'
+	            }]
+	        };
+	        
+	        return result;
+		};
+
+		function createNamespaceChartSpec(sourceToTargetToCount) {
+			
+			sourceToTargetToCount = {
+				'dbp': {
+					'lgd': 1000,
+					'dbp': 5,
+					'geonames': 1
+				},
+				'geonames': {
+					'lgd': 5
 				}
+			};
+			
+			/*
+			var colorIndex = 0;
+			var colorMap = {};
+			var sourceToCount = {};			
+			_.each(sourceToTargetToCount, function(s, targetToCount) {
+				
+				if(!(s in colorMap)) {
+					colorMap[s] = colorIndex++;
+				}
+				
+				var total = 0;
+				_.each(targetToCount, function(t, count) {
+				
+					if(!(t in colorMap)) {
+						colorMap[t] = colorIndex++;
+					}
+				
+				
+					total += count;
+				});
+				
+				sourceToCount[s] = total;
+			});
+			*/
+			
+			var colors = Highcharts.getOptions().colors;
+			
+
+			var data = [];
+			$.each(sourceToTargetToCount, function(s, targetToCount) {
+			
+				var color = colors[data.length];
+				
+				var total = 0;
+				var d = [];
+				var categories = [];
+				$.each(targetToCount, function(t, count) {
+					total += count;
+					
+					categories.push(t);
+					d.push(count);
+				});
+
+				var item = {
+	                y: total,
+	                color: color,
+	                drilldown: {
+	                    name: '',
+	                    categories: categories,
+	                    data: d,
+	                    color: color
+	                }
+	            };
+
+				data.push(item);				
 			});
 			
-            _.extend(config, override);
+			
+            var categories = _.keys(sourceToTargetToCount);
+            var name = 'Namespaces';
+			
+			console.log(data);
+			            
+            /*
+            data = [
+            	{
+	                y: 55.11,
+	                color: colors[0],
+	                drilldown: {
+	                    name: 'MSIE versions',
+	                    categories: ['MSIE 6.0', 'MSIE 7.0', 'MSIE 8.0', 'MSIE 9.0'],
+	                    data: [10.85, 7.35, 33.06, 2.81],
+	                    color: colors[0]
+	                }
+	            }, {
+	                y: 21.63,
+	                color: colors[1],
+	                drilldown: {
+	                    name: 'Firefox versions',
+	                    categories: ['Firefox 2.0', 'Firefox 3.0', 'Firefox 3.5', 'Firefox 3.6', 'Firefox 4.0'],
+	                    data: [0.20, 0.83, 1.58, 13.12, 5.43],
+	                    color: colors[1]
+	                }
+	            }, {
+	                y: 11.94,
+	                color: colors[2],
+	                drilldown: {
+	                    name: 'Chrome versions',
+	                    categories: ['Chrome 5.0', 'Chrome 6.0', 'Chrome 7.0', 'Chrome 8.0', 'Chrome 9.0',
+	                        'Chrome 10.0', 'Chrome 11.0', 'Chrome 12.0'],
+	                    data: [0.12, 0.19, 0.12, 0.36, 0.32, 9.91, 0.50, 0.22],
+	                    color: colors[2]
+	                }
+	            }, {
+	                y: 7.15,
+	                color: colors[3],
+	                drilldown: {
+	                    name: 'Safari versions',
+	                    categories: ['Safari 5.0', 'Safari 4.0', 'Safari Win 5.0', 'Safari 4.1', 'Safari/Maxthon',
+	                        'Safari 3.1', 'Safari 4.1'],
+	                    data: [4.55, 1.42, 0.23, 0.21, 0.20, 0.19, 0.14],
+	                    color: colors[3]
+	                }
+	            }, {
+	                y: 2.14,
+	                color: colors[4],
+	                drilldown: {
+	                    name: 'Opera versions',
+	                    categories: ['Opera 9.x', 'Opera 10.x', 'Opera 11.x'],
+	                    data: [ 0.12, 0.37, 1.65],
+	                    color: colors[4]
+	                }
+	            }
+			];
+    		*/
 
-            //alert("Final configuration: " + JSON.stringify(config));
-            
-            function insertParam(key, value)
-            {
-                key = escape(key); value = encodeURIComponent(value);
+	        // Build the data arrays
+	        var browserData = [];
+	        var versionsData = [];
+	        for (var i = 0; i < data.length; i++) {
+	    
+	            // add browser data
+	            browserData.push({
+	                name: categories[i],
+	                y: data[i].y,
+	                color: data[i].color
+	            });
+	    
+	            // add version data
+	            for (var j = 0; j < data[i].drilldown.data.length; j++) {
+	                var brightness = 0.2 - (j / data[i].drilldown.data.length) / 5 ;
+	                versionsData.push({
+	                    name: data[i].drilldown.categories[j],
+	                    y: data[i].drilldown.data[j],
+	                    color: Highcharts.Color(data[i].color).brighten(brightness).get()
+	                });
+	            }
+	        }
 
-                var kvp = document.location.search.substr(1).split('&');
+	        // Create the chart
+	        var result = {
+	            chart: {
+	                renderTo: null,
+	                type: 'pie'
+	            },
+	            title: {
+	                text: 'Namespace histogram for "owl:sameAs"'
+	            },
+	            yAxis: {
+	                title: {
+	                    text: 'Total percent market share'
+	                }
+	            },
+	            plotOptions: {
+	                pie: {
+	                    shadow: false
+	                }
+	            },
+	            tooltip: {
+	        	    valueSuffix: '%'
+	            },
+				credits: {
+	                enabled: false
+	            },
+	            exporting: {
+	            	enabled: false
+	            },
+	            series: [{
+	                name: 'Browsers',
+	                data: browserData,
+	                size: '60%',
+	                dataLabels: {
+	                    formatter: function() {
+	                        return this.y > 5 ? this.point.name : null;
+	                    },
+	                    color: 'white',
+	                    distance: -30
+	                }
+	            }, {
+	                name: 'Versions',
+	                data: versionsData,
+	                innerSize: '60%',
+	                dataLabels: {
+	                    formatter: function() {
+	                        // display only if larger than 1
+	                        return this.y > 1 ? '<b>'+ this.point.name +':</b> '+ this.y +' Links'  : null;
+	                    }
+	                }
+	            }]
+	        };
+	        
+	        return result;
+		};
 
-                var i=kvp.length; var x; while(i--) 
-                {
-                    x = kvp[i].split('=');
 
-                    if (x[0]==key)
-                    {
-                            x[1] = value;
-                            kvp[i] = x.join('=');
-                            break;
-                    }
-                }
-
-                if(i<0) {kvp[kvp.length] = [key,value].join('=');}
-
-                //this will reload the page, it's likely better to store this until finished
-                document.location.search = kvp.join('&'); 
-            }
-        
-        </script>
-
-	<!-- <script type="text/javascript" src="src/main/webapp/js/main.js"></script>  -->
-	<script type="text/javascript" src="src/main/webapp/js/main.js"></script>
-	
-	<script type="text/javascript">
 
 	    $(document).ready(function() {
-
-		    // Twitter Bootstrap's way of enabling tabs
-	    	$('#tabs > ul > li > a').click(function (e) {
-                e.preventDefault();
-                $(this).tab('show');
-            });
-
-		    // Enable the first tab
-	    	$('#tabs a:first').tab('show');
-
-
-		    // Resizing does not work currently - would be great if we could add that in the future
-			//$("#ssb-navbar").resizable();
-
-		    // Enable tabs: start
-	    	$('#ssb-tabs-start > ul > li > a').click(function (e) {
-                e.preventDefault();
-                $(this).tab('show');
-            });
-
-		    // Enable the first tab
-	    	$('#ssb-tabs-start a:first').tab('show');
-
-		    
-	    	//$(".collapse").collapse();
-	    	
-			// Make the fact box closable
-            $("#box-facts-closebutton-img").click(function () {
-                $("#box-facts").fadeOut ('slow');
-            });
-            
-			// Make the fact box closable
-            $("#box-resources-closebutton-img").click(function () {
-                $("#box-resources").fadeOut ('slow');
-            });
-
-
-
-
-			//$("#box-facts").position({of: $("#map")});
-			//$("#box-resources").position({of: $("#main")});
-
-
-
-			//$("#box-resources").position({of: $("#map"));
-			
-			//$("#box-facts").resizable();
-    		
-	    	//$("#tabs").tabs();
-		    /* 
-            $("#tabs-instances").click ( function () {
-                $("#tabs-facets-content").hide ();
-                $("#tabs-places-content").hide ();
-                $("#tabs-types-content").hide ();
-                
-                $("#tabs-instances-content").show ();
-            });
-            $("#tabs-facets").click ( function () {
-                $("#tabs-instances-content").hide ();
-                $("#tabs-types-content").hide ();
-                $("#tabs-places-content").hide ();
-                
-                $("#tabs-facets-content").show ();
-            });
-            $("#tabs-types").click ( function () {
-                $("#tabs-instances-content").hide ();
-
-                $("#tabs-facets-content").hide ();
-                $("#tabs-places-content").hide ();
-                
-                $("#tabs-types-content").show ();
-            });
-            $("#tabs-places").click ( function () {
-                $("#tabs-instances-content").hide ();
-                $("#tabs-facets-content").hide ();
-                $("#tabs-types-content").hide ();
-                
-                $("#tabs-places-content").show ();
-            });
-            
-            $("#tabs-instances-content").hide ();
-            $("#tabs-places-content").hide ();
-            $("#tabs-types-content").hide ();
-        */
-	    });
+	    	    
+	    	// This is a place for hacking
+			// Ideally nothing should go here, because scripting should go into separate files
 	
+	
+			{
+				var histogram = $('#histogram');
+				var elHistogram = histogram.get(0);
+				
+				var data = createHistogramData();
+				data.metricName = "precision";
+				
+				var chartSpec = createHistogramChartSpec(data);
+				chartSpec.chart.renderTo = elHistogram;
+				var histogramChart = new Highcharts.Chart(chartSpec);
+			}			
+			
+			
+			{
+				var chartArea = $('#namespace-chart');
+				var elChart = chartArea.get(0);
+				
+				
+				var chartSpec = createNamespaceChartSpec(data);
+				chartSpec.chart.renderTo = elChart;
+				var chart = new Highcharts.Chart(chartSpec);
+				
+				
+			}			
+
+	
+			var data = [
+				{name: 'DBpedia LinkedGeoData Airports', author: 'Konrad Höffner', precision: 0.8, recall: 0.4},
+				{name: 'DBpedia LinkedGeoData Schools', author: 'Konrad Höffner', precision: 0.75, recall: 0.7},
+				{name: 'DBpedia LinkedGeoData Lakes', author: 'Konrad Höffner', precision: 0.6, recall: 0.3},
+				{name: 'DBpedia LinkedGeoData Peaks', author: 'Konrad Höffner', precision: 0.5, recall: 0.1}
+			];
+			
+			for(var i = 0; i < data.length; ++i) {
+				var datum = data[i];
+			
+				var chartSpec = createLinksetChartSpec(datum);
+
+		        var imgUrl = chartToImage(chartSpec, 300, 200);
+		        
+		        var html =
+		        	'<div style="float: left; margin: 5px">' +
+		        	'    <img src="' + imgUrl + '" /><br />' +
+		        	'    <div class="warning-icon-tiny" /> x 4' + //'<div style="clear:both; float:left;" />' +
+		        	'    <div class="error-icon-tiny" /> x 5'+
+		        	'</div>'; 
+		        
+	        	//alert(img);
+	        
+		        $('#search-result').append(html); 
+			}
+
+	        
+	        
+	    });
+
 	</script>
 
+
+
+
     </head>
+
 <body>
 
-
 	<div id="wrapper">
-		<div id="header" class="header">
-
-			<div id="header-language">
-				<div class="region region-header-language">
-					<div id="block-lang-dropdown-language"
-						class="block block-lang-dropdown">
-
-
-						<div class="content">
-							<form action="/open-data/" method="post" id="lang-dropdown-form"
-								accept-charset="UTF-8">
-								<div>
-									<div
-										class="form-item form-type-select form-item-lang-dropdown-select">
-										<select style="width: 140px"
-											class="lang-dropdown-select-element form-select"
-											id="edit-lang-dropdown-select" name="lang_dropdown_select"><option
-												value="bg">Български (bg)</option>
-											<option value="cs">čeština (cs)</option>
-											<option value="da">dansk (da)</option>
-											<option value="de">Deutsch (de)</option>
-											<option value="el">ελληνικά (el)</option>
-											<option value="en" selected="selected">English (en)</option>
-											<option value="es">español (es)</option>
-											<option value="et">eesti keel (et)</option>
-											<option value="fi">suomi (fi)</option>
-											<option value="fr">français (fr)</option>
-											<option value="ga">Gaeilge (ga)</option>
-											<option value="hu">magyar (hu)</option>
-											<option value="it">Italiano (it)</option>
-											<option value="lt">lietuvių kalba (lt)</option>
-											<option value="lv">latviešu valoda (lv)</option>
-											<option value="mt">Malti (mt)</option>
-											<option value="nl">Nederlands (nl)</option>
-											<option value="pl">polski (pl)</option>
-											<option value="pt">português (pt)</option>
-											<option value="ro">română (ro)</option>
-											<option value="sk">slovenčina (sk)</option>
-											<option value="sl">slovenščina (sl)</option>
-											<option value="sv">svenska (sv)</option>
-										</select>
-
-									</div>
-									<input type="hidden" name="bg" value="/open-data/bg" /> <input
-										type="hidden" name="cs" value="/open-data/cs" /> <input
-										type="hidden" name="da" value="/open-data/da" /> <input
-										type="hidden" name="de" value="/open-data/de" /> <input
-										type="hidden" name="el" value="/open-data/el" /> <input
-										type="hidden" name="en" value="/open-data/" /> <input
-										type="hidden" name="es" value="/open-data/es" /> <input
-										type="hidden" name="et" value="/open-data/et" /> <input
-										type="hidden" name="fi" value="/open-data/fi" /> <input
-										type="hidden" name="fr" value="/open-data/fr" /> <input
-										type="hidden" name="ga" value="/open-data/ga" /> <input
-										type="hidden" name="hu" value="/open-data/hu" /> <input
-										type="hidden" name="it" value="/open-data/it" /> <input
-										type="hidden" name="lt" value="/open-data/lt" /> <input
-										type="hidden" name="lv" value="/open-data/lv" /> <input
-										type="hidden" name="mt" value="/open-data/mt" /> <input
-										type="hidden" name="nl" value="/open-data/nl" /> <input
-										type="hidden" name="pl" value="/open-data/pl" /> <input
-										type="hidden" name="pt" value="/open-data/pt" /> <input
-										type="hidden" name="ro" value="/open-data/ro" /> <input
-										type="hidden" name="sk" value="/open-data/sk" /> <input
-										type="hidden" name="sl" value="/open-data/sl" /> <input
-										type="hidden" name="sv" value="/open-data/sv" />
-									<noscript>
-										<span> <input type="submit" id="edit-submit" name="op"
-											value="Go" class="form-submit" />
-										</span>
-									</noscript>
-									<input type="hidden" name="form_build_id"
-										value="form-RpEpyK4TSCcjk3DP9PeLVzO7QEeXQf0mDY5kgd5rshM" /> <input
-										type="hidden" name="form_id" value="lang_dropdown_form" />
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div id="header-menu">
-				<div class="region region-header-menu">
-					<div id="block-menu-menu-service-menu" class="block block-menu">
-
-
-						<div class="content">
-							<ul class="menu">
-<!-- 								<li class="first leaf"><a href="/open-data/user/login" title="">-&gt;CMS</a></li> -->
-								<li class="first leaf"><a id="org.ec.odp.ssb.ui.label.legal-notice" href="http://ec.europa.eu/geninfo/legal_notices_en.htm" title="">Legal Notice</a></li>
-								<li class="leaf"><a href="/open-data/contact" title=""><span id="org.ec.odp.ssb.ui.label.contact">Contact</span></a></li>
-								<li class="last leaf"><a href="http://ec.europa.eu/geninfo/query/search_en.html" title=""><span id="org.ec.odp.ssb.ui.label.search">Search</span></a></li>
-							</ul>
-						</div>
-
-					</div>
-				</div>
-			</div>
-			<div class="logo">
-				<a id="logo" rel="Home" title="Home" href="/open-data/"> <img
-					alt="Home"
-					src="src/main/resources/images/logo_en.gif" />
-				</a>
-			</div>
-			<div id="header-title">
-				<a href="/open-data/" title="Home">Data Portal</a>
-
-			</div>
-			<div id="header-subtitle">The Open Data Hub of the European Union</div>
-
-			<!--
-			<img src="src/main/resources/images/logo_european_commision.gif"
-				id="header-logo" />
-			<div id="header-headline">
-				<a href="">Open Data Portal</a>
-			</div>
-			<div id="header-abstract">Spatial Browser</div>
-			<div id="header-menu-right">
-				<a id="org.ec.odp.ssb.ui.label.legal-notice" href="#">Legal Notice</a>
-				| <a href="#"><span id="org.ec.odp.ssb.ui.label.contact">Contact</span>
-				</a> | <a href="#"><span id="org.ec.odp.ssb.ui.label.search">Search</span>
-				</a> <select name="lang" id="language-switcher">
-					<option value="#">Čeština</option>
-					<option value="#">Dansk</option>
-					<option value="de">Deutsch</option>
-					<option value="#">Ελληνικά</option>
-					<option value="en" selected="selected">English</option>
-					<option value="#">Eesti</option>
-					<option value="#">Español</option>
-					<option value="#">Français</option>
-					<option value="#">Gaeilge</option>
-				</select>
-			</div>
-			<div id="header-blueblock">&nbsp;</div>
-
--->
+		<div id="header" style="height: 50px;"> <!-- style="background-color:#0080ff;" -->
+			<img style="float:left;" src="src/main/resources/images/eu/latc/latc-logo.gif" /><h1> Quality Assurance Dashboard</h1>
 		</div>
-
-
-
-
-		<div id="main" style="position:relative; width: 100%; height: 100%">
-			<!-- <div class="row-fluid" style="height:100%"> -->
-			<div id="ssb-navbar" style="position: absolute; top: 0px; left: 0px; width: 300px; height: 100%;">
-
-				<div id="tabs" style="height: 100%; width: 100%; padding-right:0px;">
-
-					<ul id="ssb-nav-tabs-header" class="nav nav-tabs ssb-nav-tabs">
-
-						<li id="tabs-header-places"><a href="#tabs-content-places"><span
-								id="org.aksw.ssb.ui.label.places-tab">Places</span> </a></li>
-
-						<li id="tabs-header-instances"><a href="#tabs-content-instances"><span
-								id="org.aksw.ssb.ui.label.instances-tab">Instances</span> </a></li>
-						<li id="tabs-header-facets"><a href="#tabs-content-facets"><span
-								id="org.aksw.ssb.ui.label.facets-tab">Facets</span> </a></li>
-						<!-- 	                <li id="tabs-header-types"><a href="#tabs-content-types"><span id="org.aksw.ssb.ui.label.types-tab">Types</span></a></li> -->
-
-						<li id="tabs-header-start"><a href="#tabs-content-start"><span
-								id="org.aksw.ssb.ui.label.start-tab">Config</span> </a></li>
-
+		
+		<div id="main">
+			
+			<!-- <div id="overview" style="width: 800px; margin: 0px auto;"> -->
+			
+				<div style="float:left">
+					<ul style="list-style-type: none; padding: 0; margin: 0;">
+						<li><input type="checkbox">precision</input></li>
+						<li><input type="checkbox">recall</input></li>
 					</ul>
-					<!--             </div> -->
-
-
-					<div id="ssb-nav-tabs-content" class="tab-content">
-
-						<div id="tabs-content-start" class="tab-pane">
-
-							<div id="ssb-tabs-start" class="tab-content">
-								<ul class="nav nav-tabs ssb-nav-tabs">
-									<li><a href="#ssb-graph-selection"><span
-											id="org.aksw.ssb.ui.label.graph-selection-tab">Graphs</span>
-									</a></li>
-									<li><a href="#ssb-class-selection"><span
-											id="org.aksw.ssb.ui.label.class-selection-tab">Classes</span>
-									</a></li>
-								</ul>
-								<div id="ssb-tabs-start-content" class="tab-content">
-									<div id="ssb-graph-selection" class="tab-pane"></div>
-									<div id="ssb-class-selection" class="tab-pane"></div>
-								</div>
-							</div>
-						</div>
-
-
-						<div id="tabs-content-instances" class="tab-pane"></div>
-						<div id="tabs-content-facets" class="tab-pane"></div>
-						<div id="tabs-content-places" class="tab-pane">
-							<!--                 <div>  -->
-							<div class="tabdiv" id="places-tab">
-								<div>
-									<form id="box-places-searchform"
-										action="javascript: doSearch();">
-										<input type="text" id="search-field" name="search-field"
-											value="" autocomplete="off" style="width: 200px;" /> <input
-											type="image" src="src/main/resources/images/search.png"
-											class="ssb-icon" />
-									</form>
-									<p style="font-size: 11px;">
-										powered by <a href="http://nominatim.openstreetmap.org"
-											target="_blank">Nominatim</a>
-									</p>
-								</div>
-								<div id="searchResults"></div>
-							</div>
-							<!--                 </div>  -->
-						</div>
-
-					</div>
-
 				</div>
-			</div>
-			<div id="ssb-main-content"
-				style="position: absolute; top: 0px; bottom: 0px; left: 300px; right: 0px;">
+				
+				<div id="histogram" style="width: 500px; height: 300px;"></div>
+			
+			<!-- </div> -->
+			
+			
+			<div id="datasets" style="width:500px;height:300px;"></div>
 
-				<div id="filtersAndMap" style="height: 100%; width: 100%;">
 
-					<div id="ssb-breadcrumb"></div>
-					<div id="ssb-constraints"></div>
-					<div id="map" style="position:relative"></div>
-				</div>
+			<div id="search-result" style="height:300px;"></div>
+
+
+			<div style="clear: both;" />
+			<br />
+
+			<hr />
+
+
+    <div class="btn-toolbar">
+    <div class="btn-group">
+     
+    <a class="btn" href="#"><i class="icon-th"></i></a>
+    <a class="btn" href="#"><i class="icon-list"></i></a>
+    </div>
+    </div>
+
+
+			<hr />
+			
+			
+			<h1>DBpedia LinkedGeoData Airport</h1>
+			<p style="padding-left: 50px; font-size: 17px;"><i>by: Konrad H&ouml;ffner</i></p>
+			
+			<div style="background-color:#FFF0BF; height: 34px; display: table; border-radius: 15px; padding: 3px;">
+				<img style="float: left; margin: 0 5px;" src="src/main/resources/images/eu/latc/warning-icon.png" />
+				<span style="color: #D1A30D; font-size: 15px; display: table-cell; vertical-align: middle;">There are less than 20 evaluated links in the positive linkset</span>
 			</div>
 
+			<div style="background-color:#FFD1D6; height: 34px; display: table; border-radius: 15px; padding: 3px;">
+				<img style="float: left; margin: 0 5px;" src="src/main/resources/images/eu/latc/error-icon.png" />
+				<span style="color: #ED2D43; font-size: 15px; display: table-cell; vertical-align: middle;">The linkset could not be parsed.</span>
+			</div>
+			
+			<div>
+				<h2>Facts</h2>
+				<table style="width: 500px;">
+					<tr><td>Number of links</td><td>1359</td></tr>					
+					<tr><td>Number of duplicate links</td><td>0</td></tr>
+					<tr><td>Revision age</td><td>179 days (Sep 26 2012)</td></tr>
+				</table>
+				
+				<div id="namespace-chart"></div>			
+			</div>
+			
+			
+			<div>
+				<h2>Evaluation Result</h2>
+				<table style="width: 500px;">
+					<tr><td>Precision</td><td>70%</td></tr>
+					<tr><td>Recall</td><td>50%</td></tr>
+				</table>
+				<a href="#">Compare with a different reference set...</a>			
+			</div>
+			
+			<div>
+				<h2>Evolution</h2>
+				The charts below show the evaluation results of prior revisions of this linkset against the latest reference sets at that time.
+				<div id="#evolution"></div>
+			</div>
+			
+			<div>
+				<h2>LOD Impact</h2>
+				These charts show the change of metrics when the link set was added to the LOD cloud.
+			</div>
+				
+			
+			
+			
 
 		</div>
+
 	</div>
-
-
-	<div id="box-resources">
-<!--		<div style="font-size: 24px;"> -->
-			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
-			<i id="box-resources-closebutton-img" class="icon-remove-sign"></i>
-<!--		</div> -->
-	</div>
-
-	<div id="box-facts">
-<!--		<div style="font-size: 24px;"> -->
-			<!--                 <img src="src/main/resources/images/cross.svg" id="box-facts-closebutton-img"/> -->
-			<i id="box-facts-closebutton-img" class="icon-remove-sign"></i>
-
-<!--		</div> -->
-	</div>
-
 
 </body>
+
 </html>

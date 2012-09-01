@@ -546,8 +546,9 @@
 			console.log("path is", path);
 			
 			
-			var constraint = new facets.ConstraintEquals(path,
-					new sparql.NodeValue(facetValue));
+			var constraint =
+				new facets.PathConstraint(path,
+						new facets.ConstraintEquals(new sparql.NodeValue(facetValue)));
 
 			var id = "" + constraint;
 			var model = new ns.ConstraintModel({id: id, value: constraint});

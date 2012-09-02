@@ -53,7 +53,7 @@
 
 	ns.TableQueryExecutor.prototype.fetchCountRows = function(sampleLimit, options) {
 		var countVar = sparql.Node.v("__c");
-		var query = this.queryGenerator.createQueryCountValues(countVar, sampleLimit, options);
+		var query = this.queryProjector.createQueryCountRows(countVar, sampleLimit, options);
 		
 		var promise = queryUtils.fetchInt(this.sparqlService, query, countVar);
 

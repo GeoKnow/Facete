@@ -116,6 +116,9 @@
 	
 	
 		
+	/**
+	 * 
+	 */
 	ns.PaginatorModel = function(options) {
 		this.maxSlotCount = 6;
 		this.currentPage = 1;

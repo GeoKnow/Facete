@@ -1,5 +1,7 @@
 (function() {
 
+	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
@@ -141,6 +143,15 @@
 		
 		var result = elementGroup.flatten();
 		
+		return result;
+	};
+	
+	ns.QueryProjector.prototype.createQueryCountRows = function(countVar, sampleLimit, options) {
+		var element = this.createElement();
+
+		countVar = countVar ? countVar : sparql.Node.v("__c");
+		var result = queryUtils.createCountQuery(element, sampleLimit, null, countVar);
+
 		return result;
 	};
 	

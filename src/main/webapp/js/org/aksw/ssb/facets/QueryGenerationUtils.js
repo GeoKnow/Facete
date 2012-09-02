@@ -551,7 +551,6 @@
 	 * 
 	 * TODO Explicitely group by groupVars; not needed for virtuoso.
 	 * 
-	 * 
 	 * If one of the groupVars equals the variable, it is omitted
 	 * 
 	 */
@@ -561,8 +560,12 @@
 		var subQuery = new sparql.Query();
 		
 		subQuery.elements.push(element); //element.copySubstitute(function(x) { return x; }));
-		
-		subQuery.projectVars.add(variable);
+
+		if(variable) {
+			subQuery.projectVars.add(variable);
+		} else {
+			subQuery.isResultStar = true;
+		}
 
 		///subQuery.projection[variable.value] = null;
 		subQuery.distinct = true;
@@ -587,7 +590,7 @@
 			}
 		}
 		
-		result.projectVars.add(outputVar, new sparql.E_Count(new sparql.ExprVar(variable)));
+		result.projectVars.add(outputVar, new sparql.E_Count()); //new sparql.ExprVar(variable)));
 		///result.projection["c"] = new sparql.E_Count(new sparql.ExprVar(variable));
 		result.elements.push(new sparql.ElementSubQuery(subQuery));
 		

@@ -185,8 +185,13 @@
 	    	
 			var executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
 
+			$.when(executor.fetchCountRows()).then(function(v) {
+				alert(v.count);
+			});
 			
 			var viewModel = new widgets.TableModelExecutor(executor, 10);
+			
+			
 			
 			var syncer = new widgets.TableModelBackboneSync(viewModel);
 			var collection = syncer.getCollection();
@@ -206,7 +211,24 @@
 			syncer.sync();
 			
 			
-			console.log("List el", listView.el);
+			var paginatorModel = new widgets.PaginatorModel();
+			
+			
+			var paginator = widgets.createPaginator(paginatorModel);//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+			//this.setPaginator(paginator);
+
+			$$.document.append(paginator, $("#list-paginator"));
+			
+			paginator.refresh();
+
+			
+			
+			
+			//console.log("List el", listView.el);
+			
+			
+			
+			
 			//$('#list').append(listView.el);
 
 			

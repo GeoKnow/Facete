@@ -327,8 +327,8 @@
 	<script src="lib/highcharts/2.2.5/js/modules/exporting.js"></script>
 
 	
-	<script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/rgbcolor.js"></script>
-	<script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/canvg.js"></script> 
+	<script type="text/javascript" src="lib/canvg/current/rgbcolor.js"></script>
+	<script type="text/javascript" src="lib/canvg/current/canvg.js"></script> 
 
 
 	<script type="text/javascript"
@@ -452,6 +452,7 @@
 			
 			<ul id="list" style="list-style: none;"></ul>
 			<div style="clear:both;" />
+			<div id="list-paginator"></div>
 			
 			<!-- <div id="overview" style="width: 800px; margin: 0px auto;"> -->
 			

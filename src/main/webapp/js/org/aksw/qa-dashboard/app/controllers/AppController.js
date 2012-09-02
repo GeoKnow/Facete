@@ -42,7 +42,7 @@
 
 	var ns = Namespace("org.aksw.qa-dashboard.app.controllers");
 
-	
+		
 	
 	ns.ItemRendererBackbone = function(viewCtor) {
 		this.viewCtor = viewCtor;
@@ -50,8 +50,6 @@
 	
 	ns.ItemRendererBackbone.prototype.create = function(model, parent) {
 		var view = new this.viewCtor({model: model});
-		
-		console.log("View", view);
 		
 		return view.render().el;
 	};
@@ -67,8 +65,8 @@
 		    initialize: function(){
 		      _.bindAll(this, 'render', 'unrender', 'remove'); // every function that uses 'this' as the current object should be in here
 
-		      this.model.bind('change', this.render);
-		      this.model.bind('remove', this.unrender);
+		      this.model.bind('change', this.render, this);
+		      this.model.bind('remove', this.unrender, this);
 		    },
 		    render: function(){
 
@@ -80,7 +78,7 @@
 		    
 		    	
 		    	var data = {
-		    		name: 'TODO',
+		    		name: this.model.get("id"),
 		    		author: 'TODO',
 		    		precision: parseFloat(this.model.get("precision").value),
 		    		recall: parseFloat(this.model.get("recall").value)
@@ -105,7 +103,7 @@
 		      $(this.el).html(html); 
 		      return this;
 		    },
-		    unrender: function(){
+		    unrender: function() {
 		      $(this.el).remove();
 		    },
 		    remove: function(){
@@ -174,7 +172,7 @@
 	    	var queryProjector = new widgets.QueryProjector(queryGenerator);
 	    	
 	    	
-	    	queryProjector.addPath(new facets.Path());
+	    	queryProjector.addPath(new facets.Path(), sparql.Node.v('id'));
 	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posEstPrecLow"), sparql.Node.v('precision'));
 	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posRec"), sparql.Node.v('recall'));
 	    	
@@ -185,10 +183,9 @@
 	    	
 			var executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
 
-			$.when(executor.fetchCountRows()).then(function(v) {
-				alert(v.count);
-			});
 			
+			var paginatorModel = new widgets.PaginatorModel();
+
 			var viewModel = new widgets.TableModelExecutor(executor, 10);
 			
 			
@@ -206,20 +203,38 @@
 			});
 	
 			
+
+			var itemsPerPage = 10;
+			$.when(executor.fetchCountRows()).then(function(countInfo) {
+				var pageCount = parseInt(countInfo.count / itemsPerPage + 0.5);
+				paginatorModel.set({pageCount: pageCount});
+			});
+			
+			paginatorModel.bind('change', function(model) {
+				var currentPage = model.get("currentPage");
+				var offset = itemsPerPage * (currentPage - 1);
+				console.log("Set offset", offset, itemsPerPage, model);
+				viewModel.setOffset(offset);
+				syncer.sync();				
+			});
+						
 			
 			
-			syncer.sync();
 			
+			var paginator = new widgets.ViewPaginator({el: null, model: paginatorModel});//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 			
-			var paginatorModel = new widgets.PaginatorModel();
+			$(paginator).bind('change-page', function(event, pageRequest) {
+				console.log('changeRequest', pageRequest);
+				paginatorModel.set({currentPage: pageRequest});
+			});
+
 			
-			
-			var paginator = widgets.createPaginator(paginatorModel);//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+			$("#list-paginator").append(paginator.render().el);
 			//this.setPaginator(paginator);
 
-			$$.document.append(paginator, $("#list-paginator"));
+			//$$.document.append(paginator, );
 			
-			paginator.refresh();
+			//paginator.refresh();
 
 			
 			

@@ -123,7 +123,15 @@
 		this.offset = offset;
 	};
 
-
+	ns.TableModelExecutor.prototype.setLimit = function(limit) {
+		this.limit = limit;
+	};
+	
+	ns.TableModelExecutor.prototype.setOffset = function(offset) {
+		this.offset = offset;
+	};
+	
+	
 	ns.TableModelExecutor.prototype.fetchData = function() {
 		if(!this.executor) {
 			var result = $.Deferred();

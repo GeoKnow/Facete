@@ -293,9 +293,8 @@
 	    	//this.collection.bind('add', this.appendItem); // collection event binder
 
 	    	this.collection.bind('add', this.addModel, this);
-	    	//this.collection.remove('remove', this.addModel, this);
-	    	
-	    	
+	    	//this.collection.remove('remove', this.unrender, this);
+	    	this.collection.bind('reset', this.clear, this);
 	    	
 	    	this.render();
 	    },
@@ -311,9 +310,7 @@
 			this.appendElement(element);
 	    },
 	    render: function() {
-	    	var self = this;
-	      
-			this.clear();
+			//this.clear();
 			
 			var self = this;
 
@@ -326,6 +323,9 @@
 				*/
 			});
 	    },
+	    unrender: function() {
+	    	$(this.el).remove();
+	    },
 	    appendElement: function(element) {
 	    	$(this.el).append(element);
 	    },
@@ -336,7 +336,7 @@
 	    	return this.options.itemRenderer;
 	    },
 	    clear: function() {
-	    	
+	    	$(this.el.children).remove();
 	    }
 	});
 	

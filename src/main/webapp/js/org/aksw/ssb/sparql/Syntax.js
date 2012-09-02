@@ -1228,6 +1228,45 @@
 		return result;
 	};
 	
+	/**
+	 * Convenience function for setting limit, offset and distinct from JSON
+	 * 
+	 * @param options
+	 */
+	ns.Query.prototype.setOptions = function(options) {
+		if(typeof options === 'undefined') {
+			return;
+		}
+		
+		if(typeof options.limit !== 'undefined') {
+			this.setLimit(options.limit);
+		}
+		
+		if(typeof(options.offset) !== 'undefined') {
+			this.setOffset(options.offset);
+		}
+
+		if(typeof(options.distinct) !== 'undefined') {
+			this.setDistinct(options.distinct);
+		}
+	};
+	
+	ns.Query.prototype.setOffset = function(offset) {
+		this.offset = offset ? offset : null;
+	};
+
+	ns.Query.prototype.setLimit = function(limit) {
+		if(limit === 0) {
+			this.limit = 0;
+		} else {
+			this.limit = limit ? limit : null;
+		}
+	};
+	
+	ns.Query.prototype.setDistinct = function(enable) {
+		this.distinct = (enable === true) ? true : false;
+	};
+
 	ns.Query.prototype.toString = function() {
 		switch(this.type) {
 		case ns.QueryType.Select: return this.toStringSelect();

@@ -584,7 +584,7 @@
 		} else if(step instanceof ns.StepFacet) {
 			return this.createTriplesStepFacets(generator, step, startVar, endVar);
 		} else {
-			console.error("Should not happen");
+			console.error("Should not happen: Step is ", step);
 		}
 	};
 	

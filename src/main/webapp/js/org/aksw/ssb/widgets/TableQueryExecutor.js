@@ -38,8 +38,14 @@
 	ns.TableQueryExecutor.prototype.fetchRows = function(options) {
 		var query = this.queryProjector.createQueryRows(options);
 		
+		/*
+		console.log(options);
+		alert("" + query);
+		throw "meh";
+		*/
+		
 		var promise = this.sparqlService.executeSelect(query).pipe(function(rs) {
-			return rs.result.bindings;
+			return rs.results.bindings;
 		});
 
 		return promise;

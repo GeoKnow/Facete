@@ -1,7 +1,11 @@
 (function() {
+
+	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+	var facets = Namespace("org.aksw.ssb.facets");
+
 	
 	var ns = Namespace("org.aksw.ssb.widgets");
-	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
+
 
 
 	/**
@@ -15,6 +19,9 @@
 		this.queryGenerator = queryGenerator;
 		
 		this.projection = new sparql.VarExprList();
+		
+		// A mapping from paths to variables
+		this.varToBreadcrumb = {};
 	};
 	
 	ns.QueryProjector.prototype.getPathManager = function() {
@@ -32,12 +39,21 @@
 	ns.QueryProjector.prototype.addPath = function(path, aliasVar) {
 		var breadcrumb = new facets.Breadcrumb(this.getPathManager(), path);
 		
+		console.log("hmmmm ", breadcrumb);
+		
 		var variable = breadcrumb.getTargetVariable();
 		//var exprVar = new sparql.ExprVar(variable);
 	
-		var aliasExprVar = aliasVar ? new sparql.ExprVar(aliasVar) : null;
+		this.varToBreadcrumb[variable.value] = breadcrumb;
 		
-		this.projection.add(variable, aliasExprVar);
+		//var aliasExprVar = aliasVar ? new sparql.ExprVar(aliasVar) : null;
+		
+		if(aliasVar) {
+			this.projection.add(aliasVar, variable);
+		} else {
+			this.projection.add(variable);
+		}
+		//this.projection.add(variable, aliasExprVar);
 	};
 
 	ns.QueryProjector.prototype.addVariable = function(variable) {
@@ -75,10 +91,11 @@
 		
 		var elementGroup = this.queryGenerator.createElement();
 		
-		var entries = this.varExprList.entries();
+		var entries = this.projection.entries();
 		
 		
 		// Collect all used paths
+		/*
 		var paths = {};
 		for(var i = 0; i < entries.length; ++i) {
 			var entry = entries[i];
@@ -108,14 +125,30 @@
 			}
 			
 		});
+		*/
+
+		_.each(this.varToBreadcrumb, function(breadcrumb) {
+			
+			var triples = breadcrumb.getTriples();
+			
+			if(triples) {
+				var element = new sparql.ElementTriplesBlock(triples);
+				elementGroup.elements.push(element);
+			}
+			
+		});
+
 		
 		var result = elementGroup.flatten();
 		
 		return result;
 	};
 	
-	ns.QueryProjector.prototype.createQueryRows = function() {
+	ns.QueryProjector.prototype.createQueryRows = function(options) {
 		var result = new sparql.Query();
+		
+		result.setOptions(options);
+		
 		
 		var elementGroup = this.createElement();
 		

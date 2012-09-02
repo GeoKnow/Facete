@@ -282,7 +282,7 @@
 
 	
 	ns.ListView = Backbone.View.extend({
-		el: $('body'), // el attaches to existing element
+		//el: $('body'), // el attaches to existing element
 		tagName: 'ul',
 	    events: {
 	    },
@@ -303,8 +303,12 @@
 			var renderer = this.getItemRenderer();	
 			
 			//console.log("Options", this.options);
-			itemView = renderer.create(this, model);
-			this.appendItem(itemView);	    	
+
+			//itemView = renderer.create(model, this);
+			//this.appendItem(itemView);	    	
+			
+			var element = renderer.create(model, this);
+			this.appendElement(element);
 	    },
 	    render: function() {
 	    	var self = this;
@@ -321,6 +325,9 @@
 				self.appendItem(itemView);
 				*/
 			});
+	    },
+	    appendElement: function(element) {
+	    	$(this.el).append(element);
 	    },
 	    appendItem: function(itemView) {
 	    	$(this.el).append(itemView.render().el);

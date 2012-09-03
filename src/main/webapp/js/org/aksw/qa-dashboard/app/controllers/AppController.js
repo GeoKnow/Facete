@@ -1,5 +1,14 @@
 (function($) {
 	
+	/**
+	 * TODO: Create sliders for numeric values:
+	 * rangeDefinition = {
+	 *     defined: {min: 0, max: 1}, // The defined range for the property
+	 *     dataset: {min: 0.1, max: 0.5}, // The range for the current dataset
+	 *     context: {min: 0.5, max: 0.6}, // The range considering the context of the current facet constraints
+	 * }
+	 * 
+	 */
 	
 	
 	
@@ -55,6 +64,20 @@
 	};
 	
 	
+	ns.ConstraintModel = Backbone.Model.extend({
+		defaults: {
+			value: null,
+			/*label: "" // FIXME As there could be many ways for crafting constraint labels, 
+				//associating a label only makes sense for view-models;*/  
+	    }
+	});
+	
+	ns.ConstraintCollection = Backbone.Collection.extend({
+		model: ns.ConstraintModel
+	});
+
+	
+	
 	ns.ItemViewLinksetThumbnail = Backbone.View.extend({
 		    tagName: 'li',
 		    attributes: {style: 'float: left'},
@@ -78,7 +101,7 @@
 		    
 		    	
 		    	var data = {
-		    		name: this.model.get("id"),
+		    		name: this.model.get("project").value,
 		    		author: 'TODO',
 		    		precision: parseFloat(this.model.get("precision").value),
 		    		recall: parseFloat(this.model.get("recall").value)
@@ -90,9 +113,11 @@
 		        
 		        var html =
 		        	'<div style="float: left; margin: 5px">' +
-		        	'    <img src="' + imgUrl + '" /><br />' +
-		        	'    <div class="warning-icon-tiny" /> x 4' + //'<div style="clear:both; float:left;" />' +
-		        	'    <div class="error-icon-tiny" /> x 5'+
+		        	'    <a href="#">' +
+		        	'        <img src="' + imgUrl + '" /><br />' +
+		        	'        <div class="warning-icon-tiny" /> x 4' + //'<div style="clear:both; float:left;" />' +
+		        	'        <div class="error-icon-tiny" /> x 5' +
+		        	'    </a>' +
 		        	'</div>'; 
 
 		    	
@@ -160,7 +185,14 @@
 			recall: 'http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posRec'
 		};
 		*/
+
+		var self = this;
+
 		
+		
+		var itemsPerPage = 4;
+
+
 		// Resource search
 		{
 	    	var driverVar = sparql.Node.v("c");
@@ -172,10 +204,24 @@
 	    	var queryProjector = new widgets.QueryProjector(queryGenerator);
 	    	
 	    	
-	    	queryProjector.addPath(new facets.Path(), sparql.Node.v('id'));
+	    	
+	    	this.queryGeneratorFacets = new widgets.QueryGenerator(driver);
+	    	this.queryGeneratorFacets.setNavigationPath(facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment"));
+	    	
+	    	var q = this.queryGeneratorFacets.createQueryValues();
+	    	console.log("Query " + q);
+	    	
+	    	
+	    	queryProjector.addPath(new facets.Path(), sparql.Node.v('project'));
 	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posEstPrecLow"), sparql.Node.v('precision'));
 	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posRec"), sparql.Node.v('recall'));
 	    	
+	    	$("#search").on("change", function(event, value) {
+	    		var text = $("#search").val();
+	    		
+	    		//console.log(event);
+	    		//alert("text " + value);
+	    	});
 	    	
 	    	
 	    	var q = queryProjector.createQueryRows();
@@ -186,7 +232,7 @@
 			
 			var paginatorModel = new widgets.PaginatorModel();
 
-			var viewModel = new widgets.TableModelExecutor(executor, 10);
+			var viewModel = new widgets.TableModelExecutor(executor, itemsPerPage);
 			
 			
 			
@@ -204,7 +250,6 @@
 	
 			
 
-			var itemsPerPage = 10;
 			$.when(executor.fetchCountRows()).then(function(countInfo) {
 				var pageCount = parseInt(countInfo.count / itemsPerPage + 0.5);
 				paginatorModel.set({pageCount: pageCount});
@@ -215,9 +260,16 @@
 				var offset = itemsPerPage * (currentPage - 1);
 				console.log("Set offset", offset, itemsPerPage, model);
 				viewModel.setOffset(offset);
-				syncer.sync();				
+				syncer.sync();
+				
+				
+				self.executor = new widgets.QueryExecutor(self.sparqlService, self.queryGeneratorFacets);
+				self.updateFacets(self.executor, self.facetBox);
 			});
 						
+
+//			self.executor = new widgets.QueryExecutor(self.sparqlService, queryGenerator);
+//			self.updateFacets();
 			
 			
 			
@@ -230,6 +282,220 @@
 
 			
 			$("#list-paginator").append(paginator.render().el);
+			
+
+			
+			/*
+			 * Facets 
+			 */
+			this.constraintSelections = new widgets.SelectionCollection();
+			
+			
+
+			/**
+			 * TODO Make this constraint collection an extension of a backbone collection with some convenience methods
+			 * 
+			 */
+			this.constraints = new ns.ConstraintCollection();
+
+			
+			var constraintItemRenderer = new widgets.RendererItemView(
+					this.constraintSelections,
+					null,
+					widgets.ItemViewLabel, {
+						label: "simpleLabel"
+					}
+			);
+			
+			this.constraintWidget = new widgets.ListView({
+				el: $("#ssb-constraints"), 
+				collection: this.constraints, 
+				itemRenderer: constraintItemRenderer
+			});
+
+			this.constraintWidget.render();
+			
+			$(this.constraintWidget).bind("click", function(ev, payload) {
+				
+				var id = payload.model.get("id");
+				self.constraints.remove(id);
+			});
+
+			
+			
+			//$("#ssb-constraints").append(this.constraintWidget.render().el);
+
+			
+			
+			// Fetch labels
+			var constraintTextBuilder = new widgets.ConstraintTextBuilder(this.labelFetcher);
+
+			
+			this.constraints.bind("add", function(model) {
+				
+				constraint = model.get("value");
+				var task = constraintTextBuilder.fetchSimpleText(constraint);
+				$.when(task).then(function(labelStr) {
+					
+					model.set({simpleLabel: labelStr});
+				
+					
+				}).fail(function() {
+					console.error("Error fetching label for model: ", model);
+					//alert("Error fetching label for " + model.get("id"));
+				});
+				
+				
+			});
+			
+			
+			this.constraints.bind("add", function(model) {
+				var id = model.id;
+
+				self.constraintSelections.add(new widgets.SelectionModel({id: id, isSelected: true}));
+				
+				self.updateConstraints();
+			});
+			
+			this.constraints.bind("remove", function(model) {
+				var id = model.id;
+				
+				var model = self.constraintSelections.get(id);
+				if(model) {
+					model.destroy();
+				}
+				
+				self.updateConstraints();
+			});
+			
+
+			
+			this.facetBox = facetbox.createFacetBox(this.constraintSelections); //tmpSelMod); //this.constraintSelections);
+			
+			this.facetBox.view.$().autoHeight();
+			
+
+			/**
+			 * This is the callback when the values of a facet should be displayed. 
+			 * 
+			 */
+			this.facetBox.bind("clickFacetValues", function(ev, payload) {
+				
+				//console.log("PAYLOAD", payload.model);
+				
+				var path = payload.model.get("path");
+				var queryGeneratorTmp = self.queryGeneratorFacets.navigateToPath(path);
+				var queryGenerator = queryGeneratorTmp.copyExcludeConstraint(path);
+
+				
+				//var relativePath = payload.model.get("path");			
+				//var basePath = self.queryGeneratorGeo.getNavigationPath();
+				//var path = basePath.concat(relativePath);
+								
+				var widget = payload;
+				
+				var executor = new widgets.QueryExecutor(self.sparqlService, queryGenerator);
+
+				/*
+				$.when(executor.fetchValues()).then(function(r) {
+					console.log("Fetched someting", r);
+				});
+				*/
+				
+				widget = payload.getFacetValues();
+				//console.log("Widget is", widget);
+			
+				//var viewModel = new widgets.ListModelExecutor(executor, 50);
+
+				widget.setLabelFetcher(self.labelFetcher);
+				widget.getModel().limit = itemsPerPage;
+				widget.getModel().setExecutor(executor);
+			
+				widget.refresh();
+			});
+
+
+			
+			this.facetBox.bind("clickConstraint", function(ev, payload) {
+
+				/* What exactly should this method do?
+				 * a) Return a specification on what do display as the facet values
+				 * { type: checklist, executor: executor } or { type:dualslider, executor: executor }
+				 * 
+				 * b) A widget to use as in the facet value area
+				 *    payload.area.set(new SparqlListWidget(executor)))
+				 */
+				
+				
+				var path = payload.path;
+
+				//console.log("payload", payload.item);
+				var item = payload.item;
+				
+				var facetValue = item.model.get("data").data;
+
+				//console.log("facetValue", facetValue);
+				
+				var constraints = self.queryGeneratorFacets.getConstraints();
+
+				//var constraints = self.constraints;
+				console.log("path is", path);
+				
+				
+				var constraint =
+					new facets.PathConstraint(path,
+							new facets.ConstraintEquals(new sparql.NodeValue(facetValue)));
+
+				var id = "" + constraint;
+				console.log("ConstraintID" + id);
+				
+				var model = new ns.ConstraintModel({id: id, value: constraint});
+				
+				//console.log("Setting constraint", constraint);
+				
+				//var isEnabled = !this.model.get("isEnabled");
+				// console.log("Enabled:", isEnabled, id);
+				if (item.isSelected()) {
+					//alert("boo");
+					//constraints.add(constraint);
+					self.constraints.add(model);
+				} else {
+					self.constraints.remove(id);
+					//constraints.remove(constraint);
+				}			
+				
+				//alert("Constraints", self.constraints);
+			});
+			
+
+			this.facetBox.bind("pivot", function(ev, payload) {
+				//console.log(payload.model.get("data"));
+				var path = payload.model.get("data").path;
+				
+				var currentPath = self.executor.getNavigationPath();
+				//this.queryGeneratorGeo.setNavigationPath(path);
+				if(!currentPath) {
+					currentPath = new facets.Path();
+				}
+				
+				var concat = currentPath.concat(path);
+				
+				//alert("" + path);
+				self.setNavigationPath(concat);
+				//alert("Pivot");
+			});
+			
+			
+			//facetbox.createFacetBox(); 
+			//this.facetbox = facetbox.createFacetBox(this.facetConfig, queryGenerator, basePath, facetBoxBackend, callbacks);
+	    	//$('#tabs a:eq(3)').tab('show');
+
+			$$.document.append(this.facetBox, "#facets");
+
+			
+
+
+			
 			//this.setPaginator(paginator);
 
 			//$$.document.append(paginator, );
@@ -305,9 +571,157 @@
 			executorWidget.refresh();
 			*/
 		}
+
 		
+		
+		// TODO [HACK] Not sure why we need this hack of switching tabs
+		// But without it, the facets do not show from the start; only after switching the incoming/outgoing tabs
+		this.facetBox.view.$('a:eq(1)').tab('show');
+		this.facetBox.view.$('a:first').tab('show');
+
 		
 	};
 	
+	
+	ns.AppController.prototype.updateFacets = function(executor, facetBox) {
+		if(!executor) {
+			console.warn("No executor set (yet)");
+			return;
+		}
+		
+		this.updateFacetsRec(executor, facetBox);
+	};
+	
+	ns.AppController.prototype.updateFacetsRec = function(executor, view) {
+		
+		var path = new facets.Path(); //executor.getNavigationPath();
+		
+		executorIncoming = executor.navigateToFacets(-1);
+		executorOutgoing = executor.navigateToFacets(1);
+		
+		this.updateFacetsRecDir(executorOutgoing, view.getOutgoing(), false, path);
+		this.updateFacetsRecDir(executorIncoming, view.getIncoming(), true, path);
+	};
+
+	ns.AppController.prototype.updateFacetsRecDir = function(executor, view, isInverse, path) {
+		
+		var self = this;
+		
+		//var pivotFacets = executor.fetchPivotFacets();
+		var pivotFacetsTask = $.Deferred();
+		pivotFacetsTask.resolve({});
+		
+		$.when(executor.fetchValuesCounted(), pivotFacetsTask).then(function(facetCollection, pivotFacets) {
+			
+			var promise = ns.postProcessFacets(facetCollection, pivotFacets, self.labelFetcher);
+			
+			$.when(promise).then(function(facetCollection) {
+				
+				_.each(facetCollection, function(item) {
+					var propertyName = item.node.value;
+					var step = new facets.Step(propertyName, isInverse);
+					item.path = path.copyAppendStep(step);
+				});
+				
+				//console.log("FacetSatus", facetCollection);
+				//view.setCollection(facetCollection);
+				view.getModel().setData(facetCollection);
+				
+				view.refresh();
+			});
+			
+		});		
+	};
+
+	
+	/* TODO Such high level function might make sense; but not sure how to realize that yet.
+	ns.AppController.prototype.updateFacets = function() {
+		if(!this.executor) {
+			console.warn("No executor set (yet)");
+			return;
+		}
+		
+		this.updateFacetsRec(this.executor, this.facetBox);
+	};
+	*/
+	
+	/**
+	 * Create the model for the facet box
+	 * 
+	 */
+	ns.postProcessFacets = function(facets, pivotFacets, labelFetcher) {
+		// Index pivot facets
+		var pivotStrs = {};
+		_.each(pivotFacets.facets, function(item) {
+			
+			if(item.isUri()) {
+				pivotStrs[item.value] = true;
+			}
+		});
+
+		// Check pivot state
+		//var collection = [];
+		_.each(facets, function(item) {
+			// Note: Facets must all be URIs, but better check
+			var isPivotable = true;
+			//var isPivotable = false;
+
+			if(item.node.isUri()) {
+				var str = item.node.value;
+				
+				if(str in pivotStrs) {
+					isPivotable = true;
+				}
+			}
+
+			item.countStr = "" + item.count;			
+			item.isPivotable = isPivotable;
+		});
+
+		
+		// Fetch labels
+		var uriStrs = [];
+		
+		_.each(facets, function(item) {
+			if(item.node.isUri()) {
+				uriStrs.push(item.node.value);
+			}
+		});
+		
+		var promise = labelFetcher.fetch(uriStrs).pipe(function(labels) {
+
+			_.each(facets, function(item) {
+				var label = labels.uriToLabel[item.node.value];
+				
+				item.label = label ? label.value : "" + item.node;
+			});
+			
+			return facets;
+		});			
+			
+		return promise;
+	};
+
+	ns.AppController.prototype.updateConstraints = function() {
+		var self = this;
+		
+		var cs = this.queryGeneratorFacets.getConstraints();
+		cs.clear();
+		
+		this.constraints.each(function(item) {
+			
+			var c = item.get("value");
+			
+			//alert("" + typeof(item) + " " + JSON.stringify(item));
+			//console.log("dammit", item);
+			cs.add(c);
+		});
+
+		
+		
+		//self.constraintWidget.refresh();
+		//self.repaint();
+	};
+
 	
 })(jQuery);

@@ -316,6 +316,10 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
 		
 		
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/LayoutUtils.js"></script>
+	
+		
 	<!-- Layouting for this (p)HTML file-->
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/app/Layout.js"></script>

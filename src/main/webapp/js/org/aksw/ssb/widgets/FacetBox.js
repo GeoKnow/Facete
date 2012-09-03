@@ -57,10 +57,10 @@
 		this.visibilityModel = visibilityModel;
 	};
 	
-	ns.FacetSwitcherItemFactory.prototype.create = function(parent, data) {
+	ns.FacetSwitcherItemFactory.prototype.create = function(data, parent) {
 		
 		
-		//console.log("Facet values:", data);
+		//console.log("Facet value data:", data);
 		return $$(ns.FacetSwitcherItem, {parent: parent, data:data, selectionModel: this.selectionModel, visibilityModel: this.visibilityModel, path: data.path, label: data.label, countStr: data.countStr, isPivotable: data.isPivotable, id: ns.fnGetId(data), fnId: ns.fnGetId});
 	};					
 
@@ -293,14 +293,16 @@
 					var constraint = new facets.PathConstraint(path, new facets.ConstraintEquals(nodeValue));
 					
 					var result = "" + constraint;
-					
+
 					return constraint;
 				};
-				
+
 				
 				var renderer = new widgets.RendererCheckItemBackbone(selectionModel, idFn);
 				var facetValues = new widgets.ExecutorListWidget(viewModel, renderer, this.labelFetcher);
 
+				
+				console.log("FacetValues viewModel", viewModel);
 				
 				// TODO How to get our new ListWidget here
 				

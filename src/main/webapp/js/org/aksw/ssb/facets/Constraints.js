@@ -276,6 +276,9 @@
 
 	};
 	
+	ns.PathConstraint.prototype.toString = function() {
+		return "" + this.path + " " + this.constraint;
+	};
 	
 	
 	/*
@@ -384,7 +387,7 @@
 	};
 	
 	ns.ConstraintEquals.prototype.toString = function() {
-		return "" + this.path + " = " + this.nodeValue;
+		return " = " + this.nodeValue;
 	};
 	
 	ns.ConstraintEquals.prototype.createExpr = function(breadcrumb) {

@@ -950,12 +950,78 @@
 	};
 
 	ns.E_Count.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.E_Count(this.subExpr.copySubstitute(fnNodeMap));
+		var subExprCopy = this.subExpr ? this.subExpr.copySubstitute(fnNodeMap) : null;
+		
+		return new ns.E_Count(subExprCopy);
 	};
 	
 	ns.E_Count.prototype.toString = function() {		
 		return "Count(" + (this.subExpr ? this.subExpr : "*") +")";
 	};
+
+
+
+	ns.E_Min = function(subExpr) {
+		this.subExpr = subExpr;
+	};
+
+	ns.E_Min.prototype.copySubstitute = function(fnNodeMap) {
+		var subExprCopy = this.subExpr ? this.subExpr.copySubstitute(fnNodeMap) : null;
+		
+		return new ns.E_Min(subExprCopy);
+	};
+	
+	ns.E_Min.prototype.getArgs = function() {
+		return [this.subExpr];
+	};
+	
+	ns.E_Min.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+
+		var newSubExpr = args[0];
+
+		var result = new ns.E_Min(newSubExpr);
+	};
+
+	ns.E_Min.prototype.toString = function() {		
+		return "Min(" + this.subExpr + ")";
+	};
+	
+
+	
+	ns.E_Max = function(subExpr) {
+		this.subExpr = subExpr;
+	};
+
+	ns.E_Max.prototype.copySubstitute = function(fnNodeMap) {
+		var subExprCopy = this.subExpr ? this.subExpr.copySubstitute(fnNodeMap) : null;
+		
+		return new ns.E_Min(subExprCopy);
+	};
+
+	ns.E_Max.prototype.getArgs = function() {
+		return [this.subExpr];
+	};
+	
+	ns.E_Max.prototype.copy = function(args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+
+		var newSubExpr = args[0];
+
+		var result = new ns.E_Max(newSubExpr);
+	};
+	
+	ns.E_Max.prototype.toString = function() {		
+		return "Max(" + this.subExpr + ")";
+	};
+
+	
+	
+	
 	
 	ns.E_Distinct = function(subExpr) {
 		this.subExpr = subExpr;

@@ -72,6 +72,12 @@
 				margin: 0 5px;
 				background-image: url("src/main/resources/images/eu/latc/error-icon-tiny.png");
 			}
+
+			a:hover img, a:focus img {
+				filter:alpha(opacity=45);
+				-moz-opacity: 0.45;
+				opacity: 0.45;
+			}			
 			
 		</style>
 
@@ -348,8 +354,8 @@
 		
 		
 	<!-- Layouting for this (p)HTML file-->
-<!--	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/app/Layout.js"></script> -->
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/LayoutUtils.js"></script>
 
 
 	<!-- OpenDataPortal specify layouting (header bar translations)-->
@@ -369,6 +375,34 @@
 
 
 	    $(document).ready(function() {
+	    	    
+	    	var mathUtils = Namespace("org.aksw.utils.math");
+	    	    
+	    	function percentageRange(low, high) {
+	    		return mathUtils.roundNumber((low * 0.1), 2) + "% - " + mathUtils.roundNumber((high * 0.1), 2) + "%"
+	    	}
+	    	    
+			$(function() {
+				$( "#slider-range" ).slider({
+					range: true,
+					min: 0,
+					max: 1000,
+					values: [0, 1],
+					slide: function(event, ui) {
+					    var low = ui.values[0];
+					    var high = ui.values[1];
+                        var label = percentageRange(low, high);
+					
+						$("#amount").val(label);
+					}
+				});
+				
+				/*
+				$("#amount").val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
+			" - $" + $( "#slider-range" ).slider( "values", 1 ) );
+			*/
+	       });
+	    	    
 	    	    
 	    	var charts = Namespace("org.aksw.qa-dashboard.charts");
 	    	    
@@ -445,16 +479,13 @@
 
 	<div id="wrapper">
 		<div id="header" style="height: 50px;"> <!-- style="background-color:#0080ff;" -->
-			<img style="float:left;" src="src/main/resources/images/eu/latc/latc-logo.gif" /><h1> Quality Assurance Dashboard</h1>
+			<img style="float:left;" src="src/main/resources/images/eu/latc/latc-logo.gif" /><h1> Quality Assurance Dashboard</h1>			
 		</div>
 		
-		<div id="main">
+		<div id="main" style="position:relative">
 			
-			<ul id="list" style="list-style: none;"></ul>
-			<div style="clear:both;" />
-			<div id="list-paginator"></div>
-			
-			<!-- <div id="overview" style="width: 800px; margin: 0px auto;"> -->
+
+			<div id="overview" style="width: 800px; margin: 0px auto; height:400px">
 			
 				<div style="float:left">
 					<ul style="list-style-type: none; padding: 0; margin: 0;">
@@ -465,113 +496,145 @@
 				
 				<div id="histogram" style="width: 500px; height: 300px;"></div>
 			
-			<!-- </div> -->
-			
-			
-			<div id="datasets" style="width:500px;height:300px;"></div>
-
-
-			<div id="search-result" style="height:300px;"></div>
-
-
-			<div style="clear: both;" />
-			<br />
-
-			<hr />
-
-
-    <div class="btn-toolbar">
-    <div class="btn-group">
-     
-    <a class="btn" href="#"><i class="icon-th"></i></a>
-    <a class="btn" href="#"><i class="icon-list"></i></a>
-    </div>
-    </div>
-
-
-			<hr />
-			
-			
-			<h1>DBpedia LinkedGeoData Airport</h1>
-			<p style="padding-left: 50px; font-size: 17px;"><i>by: Konrad H&ouml;ffner</i></p>
-			<!-- <p style="padding-left: 50px; font-size: 13px;">: <i>LATC Runtime</i></p> -->
-			
-			<br />
-			<div>
-				<table style="width: 500px;">
-					<tr><td>Number of links</td><td>1359</td></tr>					
-					<tr><td>Number of duplicate links</td><td>0</td></tr>
-					<tr><td>Revision age</td><td>62 days (May 26 2012)</td></tr>
-				</table>
-			</div>
-			<br />			
-		<!--
-			<div style="background-color:#FFF0BF; height: 34px; display: table; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
-				<img style="float: left; margin: 0 5px;" src="src/main/resources/images/eu/latc/warning-icon.png" />
-				<span style="color: #D1A30D; font-size: 15px; display: table-cell; vertical-align: middle;">There are less than 20 evaluated links in the positive linkset</span>
-			</div>
-
-			<div style="background-color:#FFD1D6; height: 34px; display: table; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
-				<img style="margin: 0 5px;" src="src/main/resources/images/eu/latc/error-icon.png" />
-				<span style="color: #ED2D43; font-size: 15px; display: table-cell; vertical-align: middle; width: 600px;">The linkset contains invalid URIs</span>
 			</div>
 			
-		-->
-			<table style="background-color:#FFF0BF; height: 38px; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
-				<tr>
-					<td style="width:40px;"><img style="margin: 0 5px;" src="src/main/resources/images/eu/latc/warning-icon.png" /></td>
-					<td><span style="color: #D1A30D; font-size: 15px; vertical-align: middle;">There are less than 20 evaluated links in the positive linkset</span></td>
-				</tr>
-			</table>
 			
 			
-			<table style="background-color:#FFD1D6; height: 38px; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
-				<tr>
-					<td style="width:40px;"><img style="margin: 0 5px;" src="src/main/resources/images/eu/latc/error-icon.png" /></td>
-					<td><span style="color: #ED2D43; font-size: 15px; vertical-align: middle;">The linkset contains invalid URIs</span></td>
-				</tr>
-			</table>
+			<div id="facets-results">
+			
+				<div id="facets" style="position:absolute;left:0px;width:300px;height:100%"></div>
+				
+				<div id="results" style="position:absolute;left:300px;right:0px;height:100%>
+					<input id="search" type="text" />
+					<div style="clear:both;"></div>
+					<div id="ssb-breadcrumb"></div>
+					<div id="ssb-constraints">Constraints</div>
+
+					
+					<ul id="list" style="list-style: none;"></ul>
+
+
+					<div style="clear:both;"></div>
+					<div id="list-paginator"></div>
+								<p>
+	<label for="amount">Price range:</label>
+	<input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" />
+</p>
+<div id="slider-range"></div>
+			
+					
+				</div>
+			
+			</div>
+
+
+
+
+<div id="datasets" style="width:500px;height:300px;"></div>
+
+
+<div id="search-result" style="height:300px;"></div>
+
+
+<div style="clear: both;" />
+<br />
+
+<hr />
+
+
+<div class="btn-toolbar">
+<div class="btn-group">
+
+<a class="btn" href="#"><i class="icon-th"></i></a>
+<a class="btn" href="#"><i class="icon-list"></i></a>
+</div>
+</div>
+
+
+<hr />
+
+
+<h1>DBpedia LinkedGeoData Airport</h1>
+<p style="padding-left: 50px; font-size: 17px;"><i>by: Konrad H&ouml;ffner</i></p>
+<!-- <p style="padding-left: 50px; font-size: 13px;">: <i>LATC Runtime</i></p> -->
+
+<br />
+<div>
+	<table style="width: 500px;">
+		<tr><td>Number of links</td><td>1359</td></tr>					
+		<tr><td>Number of duplicate links</td><td>0</td></tr>
+		<tr><td>Revision age</td><td>62 days (May 26 2012)</td></tr>
+	</table>
+</div>
+<br />			
+<!--
+<div style="background-color:#FFF0BF; height: 34px; display: table; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
+	<img style="float: left; margin: 0 5px;" src="src/main/resources/images/eu/latc/warning-icon.png" />
+	<span style="color: #D1A30D; font-size: 15px; display: table-cell; vertical-align: middle;">There are less than 20 evaluated links in the positive linkset</span>
+</div>
+
+<div style="background-color:#FFD1D6; height: 34px; display: table; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
+	<img style="margin: 0 5px;" src="src/main/resources/images/eu/latc/error-icon.png" />
+	<span style="color: #ED2D43; font-size: 15px; display: table-cell; vertical-align: middle; width: 600px;">The linkset contains invalid URIs</span>
+</div>
+
+-->
+<table style="background-color:#FFF0BF; height: 38px; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
+	<tr>
+		<td style="width:40px;"><img style="margin: 0 5px;" src="src/main/resources/images/eu/latc/warning-icon.png" /></td>
+		<td><span style="color: #D1A30D; font-size: 15px; vertical-align: middle;">There are less than 20 evaluated links in the positive linkset</span></td>
+	</tr>
+</table>
+
+
+<table style="background-color:#FFD1D6; height: 38px; border-radius: 15px; padding: 3px; margin: 3px; width: 700px;">
+	<tr>
+		<td style="width:40px;"><img style="margin: 0 5px;" src="src/main/resources/images/eu/latc/error-icon.png" /></td>
+		<td><span style="color: #ED2D43; font-size: 15px; vertical-align: middle;">The linkset contains invalid URIs</span></td>
+	</tr>
+</table>
 
 
 <!--
-			<div style="background-color:#FFD1D6; height: 34px; border-radius: 15px; padding: 3px; width: 500px;">
-				<img style="vertical-align: middle;" src="src/main/resources/images/eu/latc/error-icon.png" />
-				<span style="color: #ED2D43; font-size: 15px;">The linkset contains invalid URIs.</span>
-			</div>
+<div style="background-color:#FFD1D6; height: 34px; border-radius: 15px; padding: 3px; width: 500px;">
+	<img style="vertical-align: middle;" src="src/main/resources/images/eu/latc/error-icon.png" />
+	<span style="color: #ED2D43; font-size: 15px;">The linkset contains invalid URIs.</span>
+</div>
 -->		
-			<div>
-				<div id="namespace-chart" style="align:left;width:500px;"></div>			
-			</div>
-			
-			
-			<div>
-				<h2>Evaluation Result</h2>
-				<table style="width: 500px;">
-					<tr><td>Positive Estimated Precision</td><td>74%</td></tr>
-					<tr><td>Positive Estimated Recall</td><td>61%</td></tr>
-					<tr><td>Negative Estimated Precision</td><td>17%</td></tr>
-					<tr><td>Pegative Estimated Recall</td><td>12%</td></tr>
-				</table>
-				<a href="#">Compare with a different reference set...</a>			
-			</div>
-			
-			<div>
-				<h2>Evolution</h2>
-				The charts below show the evaluation results of prior revisions of this linkset against the latest reference sets at that time.
-				<div id="#evolution"></div>
-			</div>
-			
-			<div>
-				<h2>LOD Impact</h2>
-				These charts show the change of metrics when the link set was added to the LOD cloud.
-			</div>
-				
-			
-			
-			
+<div>
+	<div id="namespace-chart" style="align:left;width:500px;"></div>			
+</div>
+
+
+<div>
+	<h2>Evaluation Result</h2>
+	<table style="width: 500px;">
+		<tr><td>Positive Estimated Precision</td><td>74%</td></tr>
+		<tr><td>Positive Estimated Recall</td><td>61%</td></tr>
+		<tr><td>Negative Estimated Precision</td><td>17%</td></tr>
+		<tr><td>Pegative Estimated Recall</td><td>12%</td></tr>
+	</table>
+	<a href="#">Compare with a different reference set...</a>			
+</div>
+
+<div>
+	<h2>Evolution</h2>
+	The charts below show the evaluation results of prior revisions of this linkset against the latest reference sets at that time.
+	<div id="#evolution"></div>
+</div>
+
+<div>
+	<h2>LOD Impact</h2>
+	These charts show the change of metrics when the link set was added to the LOD cloud.
+</div>
+	
+
+
+
+
+</div>
 
 		</div>
-
 	</div>
 
 </body>

@@ -143,7 +143,7 @@
 		},
 		render: function() {
 			
-			console.log("Got ", this.model.attributes);
+			//console.log("Got ", this.model.attributes);
 			var html = '<a href="#">' + this.model.get("label") + '</a>';
 			$(this.el).html(html);
 			
@@ -199,7 +199,7 @@
 	ns.ViewPaginator = Backbone.View.extend({
 	    tagName: 'ul',
 	    className: 'pagination pagination-centered',
-	    attributes: {style: 'float: left'},
+	    //attributes: {style: 'float: left'},
 	    events: {
 	    },    
 	    initialize: function(){

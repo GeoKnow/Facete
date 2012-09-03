@@ -87,9 +87,18 @@
 			var offset = result.offset ? result.offset : 0;
 			var bindings = result.data;
 			
-			//var seenIds = [];
+			var destroyModels = [];
 			
-			self.collection.reset();
+			self.collection.each(function(model) {
+				destroyModels.push(model);
+			});
+			
+			// The browsing experience is better, if first the new models are added
+			// and then the old ones removed:
+			// Removal of models may cause the page to shrink, and therefore change the location the user is viewing
+			// before the new models are added
+			
+			//self.collection.reset();
 			
 			for(var i = 0; i < bindings.length; ++i) {
 				var binding = bindings[i];
@@ -97,9 +106,15 @@
 				var id = self.fnId(binding, i, offset);
 				
 				binding.id = id;
-				
+
 				self.collection.add(binding);
 			}
+
+			for(var i = 0; i < destroyModels.length; ++i) {
+				var model = destroyModels[i];
+				model.destroy();
+			}
+			
 		});
 		
 	};

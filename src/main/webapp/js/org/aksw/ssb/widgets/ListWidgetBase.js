@@ -1,5 +1,9 @@
 (function($) {
 
+	var backboneUtils = Namespace("org.aksw.ssb.utils.backbone");
+	var stringUtils = Namespace("org.aksw.ssb.utils.strings");
+
+	
 	var ns = Namespace("org.aksw.ssb.widgets");
 	
 	
@@ -191,9 +195,15 @@
 			
 			var self = this;
 			//var collection = this.getCollection();
+			var renderer = self.getItemRenderer();
+			//console.log("ListWidget, Renderer", renderer);
 			_.each(collection, function(item) {
-				var renderer = self.getItemRenderer();				
-				itemView = renderer.create(self, item);
+								
+				itemView = renderer.create(item, self);
+				
+				
+				//console.log("Rendered item ", item, itemView);
+
 				self.append(itemView);
 			});
 			
@@ -201,6 +211,8 @@
 		},
 		
 		syncView: function(keyToData) {
+			
+			console.log("[ListWidget] sync view, data: ", keyToData);
 			
 			this.syncView2(keyToData);
 			return;
@@ -254,6 +266,7 @@
 			var task = listModel.fetchData();
 			$.when(task).then(function(collection) {
 				
+				//console.log("[List Widgeht] Fetched data", collection);
 				self.syncView(collection);
 				
 			});
@@ -322,6 +335,8 @@
 				self.appendItem(itemView);
 				*/
 			});
+			
+			return this;
 	    },
 	    unrender: function() {
 	    	$(this.el).remove();
@@ -348,6 +363,7 @@
 	 * and a view+model list widget.
 	 * 
 	 */
+	/*
 	ns.ListWidgetBackbone = $$({
 		//view: { format: '<ul class="nav nav-list"></ul>', },
 		view: { format: '<ul></ul>' },
@@ -420,10 +436,14 @@
 			
 			var self = this;
 			//var collection = this.getCollection();
-			collection.each(function(item) {
-				var renderer = self.getItemRenderer();
 
-				itemView = renderer.create(self, item);
+			var renderer = this.getItemRenderer();
+			collection.each(function(item) {
+				console.log("RenderingItem: ", item);
+				
+				//console.log("ListWidgetBackbone, renderer:", renderer);
+				
+				itemView = renderer.create(item, self);
 				self.append(itemView);
 			});
 			
@@ -498,11 +518,118 @@
 		}
 		result.setCollection(collection);
 		result.refresh();
-		*/
+		* /
 			
 		return result;
 	};
+*/
+	
+	
+	
 
+	ns.ItemViewCheckbox = Backbone.View.extend({
+		tagName: 'li',
+		
+		events: {
+			'click span': function() {
+				$(this.parent).trigger("click", {isChild: true, item: this, model: this.model});				
+			}
+		},
+		
+		initialize: function() {
+			this.parent = this.options.parent;
+			
+			if(!parent) {
+				console.error("No parent container provided");
+			}
+			
+			
+			this.model.bind('change', this.render, this);
+			this.model.bind('remove', this.unrender, this);
+		},
+	
+	    render: function() {
+	    	var label = this.model.get("label");
+	    	var state = this.model.get("isSelected");
+	
+	    	var stateStr = state ? "checked" : "";
+	    	
+	        $(this.el).html('<input type="checkbox" checked="' + stateStr + '"/><span>' + label + '</span>');
+	        return this;
+	    },
+	    
+	    unrender: function() {
+	    	$(this.el).remove();
+	    },
+	    
+	    destroy: function() {
+	    	this.unrender();
+	    }
+	});
+
+
+	ns.ItemViewLabel = Backbone.View.extend({
+		tagName: 'li',
+		
+		events: {
+			'click span': function() {
+				$(this.options.parent).trigger("click", {isChild: true, item: this, model: this.model});				
+			}
+		},
+		
+		initialize: function() {
+			if(!this.options.parent) {
+				console.error("No parent container provided");
+			}
+			
+			
+			this.model.bind('change', this.render, this);
+			this.model.bind('remove', this.unrender, this);
+		},
+	
+	    render: function() {
+	    	var label = backboneUtils.getModelValue(this.model, "label", this.options.binding);
+	    	
+	    	
+	        $(this.el).html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
+	        // $(this.el).html('<span style="cursor: pointer;">' + "Label " + this.model.get("label") + '</span>');
+	        
+	        return this; // for chainable calls, like .render().el
+	    },
+	    
+	    unrender: function() {
+	    	$(this.el).remove();
+	    },
+	});
+	
+
+	/**
+	 * A Renderer for selectable items, such as Checkbox-items
+	 * 
+	 * @param selectionModel
+	 * @param fnId
+	 * @param ctor
+	 * @param binding
+	 * @returns {ns.RendererItemView}
+	 */
+	ns.RendererItemView = function(selectionModel, fnId, ctor, binding) {
+		this.selectionModel = selectionModel;
+		this.fnId = fnId ? fnId : function(x) { return x.id; };
+		this.ctor = ctor;
+		this.binding = binding; // A mapping form model attributes to render attributes
+	};
+	
+	ns.RendererItemView.prototype.create = function(model, parent) {
+		var id = this.fnId(model);
+		
+		console.debug("Rendering id: " + id);
+		
+		var itemView = new this.ctor({parent: parent, model: model, binding: this.binding});
+		
+		var result = itemView.render().el;
+		
+		return result;
+	};
 
 	
 	

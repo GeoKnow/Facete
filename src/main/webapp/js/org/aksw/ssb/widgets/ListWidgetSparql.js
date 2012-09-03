@@ -9,7 +9,7 @@
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 	
 	var ns = Namespace("org.aksw.ssb.widgets");
-
+	var widgets = ns;
 	
 
 	ns.CheckboxList = $$(ns.ListWidget, {
@@ -92,107 +92,6 @@
 
 	
 
-	ns.ItemViewCheckbox = Backbone.View.extend({
-		tagName: 'li',
-		
-		events: {
-			'click span': function() {
-				$(this.parent).trigger("click", {isChild: true, item: this, model: this.model});				
-			}
-		},
-		
-		initialize: function() {
-			this.parent = this.options.parent;
-			
-			if(!parent) {
-				console.error("No parent container provided");
-			}
-			
-			
-			this.model.bind('change', this.render, this);
-			this.model.bind('remove', this.unrender, this);
-		},
-	
-	    render: function() {
-	    	var label = this.model.get("label");
-	    	var state = this.model.get("isSelected");
-	
-	    	var stateStr = state ? "checked" : "";
-	    	
-	        $(this.el).html('<input type="checkbox" checked="' + stateStr + '"/><span>' + label + '</span>');
-	        return this;
-	    },
-	    
-	    unrender: function() {
-	    	$(this.el).remove();
-	    },
-	    
-	    destroy: function() {
-	    	this.unrender();
-	    }
-	});
-
-
-	ns.ItemViewLabel = Backbone.View.extend({
-		tagName: 'li',
-		
-		events: {
-			'click span': function() {
-				$(this.parent).trigger("click", {isChild: true, item: this, model: this.model});				
-			}
-		},
-		
-		initialize: function() {
-			this.parent = this.options.parent;
-			
-			if(!parent) {
-				console.error("No parent container provided");
-			}
-			
-			
-			this.model.bind('change', this.render, this);
-			this.model.bind('remove', this.unrender, this);
-		},
-	
-	    render: function() {
-	    	var label = backboneUtils.getModelValue(this.model, "label", this.options.binding);
-	    	
-	    	
-	        $(this.el).html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
-	        // $(this.el).html('<span style="cursor: pointer;">' + "Label " + this.model.get("label") + '</span>');
-	        
-	        return this; // for chainable calls, like .render().el
-	    },
-	    
-	    unrender: function() {
-	    	$(this.el).remove();
-	    },
-	});
-	
-
-	/**
-	 * A Renderer for selectable items, such as Checkbox-items
-	 * 
-	 * @param selectionModel
-	 * @param fnId
-	 * @param ctor
-	 * @param binding
-	 * @returns {ns.RendererItemView}
-	 */
-	ns.RendererItemView = function(selectionModel, fnId, ctor, binding) {
-		this.selectionModel = selectionModel;
-		this.fnId = fnId ? fnId : function(x) { return x.id; };
-		this.ctor = ctor;
-		this.binding = binding; // A mapping form model attributes to render attributes
-	};
-	
-	ns.RendererItemView.prototype.create = function(parent, model) {
-		var id = this.fnId(model);
-		
-		var result = new this.ctor({parent: parent, model: model, binding: this.binding});
-		
-		return result;
-	};
 		/*
 		var key = this.fnId(data);
 		var isSelected = this.selectionModel[key];
@@ -246,7 +145,7 @@
 		
 	};
 	
-	ns.RendererCheckItem.prototype.create = function(parent, data) {
+	ns.RendererCheckItem.prototype.create = function(data, parent) {
 		var key = this.fnId(data);
 
 		var isSelected = this.selectionModel[key];
@@ -316,6 +215,12 @@
 	ns.RendererCheckItemBackbone.prototype.addSelectionModel = function(model) {
 		var id = model.id;
 		
+		/*
+		if(typeof(id) === 'undefined') {
+			throw "Model does not have an id";
+		}
+		*/
+		
 		//alert("SelectionModel added: " + id);
 		
 
@@ -350,12 +255,16 @@
 	 * @param model
 	 * @returns
 	 */
-	ns.RendererCheckItemBackbone.prototype.create = function(parent, model) {
+	ns.RendererCheckItemBackbone.prototype.create = function(model, parent) {
+		
 		var id = "" + this.fnId(model);
+		console.log("RendererCheckItemBackbone Model id: ", id, this.fnId(model), model);
 
+		
 		if(typeof(id) === 'undefined' || id === null) {
 			console.error("Model without id");
 		}
+		
 		
 		var path = model;
 		//console.warn("Model is: ", model);
@@ -753,15 +662,19 @@
 			//var self = this;
 			
 			var paginatorModel = new widgets.PaginatorModel();
+
 			
-			var paginator = widgets.createPaginator(paginatorModel);//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+			var paginator = new widgets.ViewPaginator({el: null, model: paginatorModel});
+			var paginatorEl = paginator.render().el;
+			//var paginator = widgets.createPaginator(paginatorModel);//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 			this.setPaginator(paginator);
 
-			this.append(paginator);
+			this.view.$().append(paginatorEl);
+			//this.append(paginatorEl);
 			
-			paginator.refresh();
+			//paginator.refresh();
 			
-			this.setPaginator(paginator);
+			//this.setPaginator(paginator);
 			
 /*
 			var self = this;
@@ -836,6 +749,13 @@
 		var subExecutor = this.executor.filterRegex(this.searchString, "i");
 		
 		var promise = subExecutor.fetchValues(options);
+
+		/*
+		$.when(promise).then(function(x) {
+			console.log("Fetched facet data: ", x);
+		});
+		*/
+		
 		return promise;
 		//return $.Deferred();
 	};
@@ -859,9 +779,9 @@
 				pageCount = 1;
 			}
 			
-			paginator.getModel().setPageCount(pageCount);
-			paginator.refresh();
-
+			paginator.model.set({pageCount: pageCount});
+			//paginator.getModel().setPageCount(pageCount);
+			//paginator.refresh();
 		});		
 	};
 	
@@ -893,7 +813,8 @@
 
 					
 	
-		var paginatorModel = result.getPaginator().getModel(); 
+		//var paginatorModel = result.getPaginator().getModel();
+		var paginatorModel = result.getPaginator().model;
 
 		
 		var self = this;
@@ -906,22 +827,38 @@
 			self.refresh();
 		});
 		
-		result.getPaginator().bind("change-page", function(ev, page) {
-			var model = self.getModel();
-			var paginatorModel = self.getView().getPaginator().getModel();
+		
+		result.getPaginator().on('change-page', function(event, pageRequest) {
+			var paginatorModel = self.getView().getPaginator().model;
+			paginatorModel.set({currentPage: pageRequest});
+		});
+
+		
+		result.getPaginator().on("change", function(model) {
+			var page = model.get("currentPage");
+			
+			//alert(page);
+			//var offset = itemsPerPage * (currentPage - 1);
 
 			
-			var limit = model.limit;
+			var m = self.getModel();
+
+			var paginatorModel = self.getView().getPaginator().model;
+			//var paginatorModel = self.getView().getPaginator().getModel();
+
+			
+			var limit = m.limit;
 			
 			var offset = limit ? (page - 1) * limit : 0;
 			
-			model.offset = offset;
-			paginatorModel.setCurrentPage(page);
+			m.offset = offset;
+			//paginatorModel.setCurrentPage(page);
+			paginatorModel.set({currentPage: page});
 			
 			//alert("offest" + offset);
 			//paginatorModel.setCurrentPage(page);
 			
-			result.getPaginator().refresh();
+			//result.getPaginator().refresh();
 			result.getListWidget().refresh();
 		});
 	};

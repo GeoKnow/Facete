@@ -212,7 +212,7 @@
 		
 		syncView: function(keyToData) {
 			
-			console.log("[ListWidget] sync view, data: ", keyToData);
+			//console.log("[ListWidget] sync view, data: ", keyToData);
 			
 			this.syncView2(keyToData);
 			return;
@@ -622,7 +622,7 @@
 	ns.RendererItemView.prototype.create = function(model, parent) {
 		var id = this.fnId(model);
 		
-		console.debug("Rendering id: " + id);
+		//console.debug("Rendering id: " + id);
 		
 		var itemView = new this.ctor({parent: parent, model: model, binding: this.binding});
 		

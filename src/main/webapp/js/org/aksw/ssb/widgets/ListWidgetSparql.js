@@ -258,7 +258,7 @@
 	ns.RendererCheckItemBackbone.prototype.create = function(model, parent) {
 		
 		var id = "" + this.fnId(model);
-		console.log("RendererCheckItemBackbone Model id: ", id, this.fnId(model), model);
+		//console.log("RendererCheckItemBackbone Model id: ", id, this.fnId(model), model);
 
 		
 		if(typeof(id) === 'undefined' || id === null) {

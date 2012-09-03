@@ -114,7 +114,12 @@
                 text: 'by: ' + data.author //Konrad Höffner'
             },
             xAxis: {
-               	categories: ['est. precision', 'est. recall'],
+               	categories: ['precision', 'recall'],
+               	/*
+				labels: {
+					align: 'right',
+					rotation: -45,
+				},*/
                 title: {
                     text: null
                 }
@@ -123,6 +128,7 @@
             yAxis: {
                 min: 0,
                 max: 1,
+                tickInterval: 0.1,
                 title: {
                 	//enabled: false,
                     text: '',
@@ -163,13 +169,13 @@
             },
             series: [{
             	showInLegend: false,
-                data: [data.precision],
+                data: [data.precision, data.recall],
                 color: '#89A54E'
-            }, {
+            }/*, {
             	showInLegend: false,
                 data: [data.recall],
                 color: '#AA4643'
-            }]
+            }*/]
         };
         
         return result;

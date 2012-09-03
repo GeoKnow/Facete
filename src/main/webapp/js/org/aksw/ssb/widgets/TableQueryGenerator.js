@@ -41,7 +41,7 @@
 	ns.QueryProjector.prototype.addPath = function(path, aliasVar) {
 		var breadcrumb = new facets.Breadcrumb(this.getPathManager(), path);
 		
-		console.log("hmmmm ", breadcrumb);
+		//console.log("hmmmm ", breadcrumb);
 		
 		var variable = breadcrumb.getTargetVariable();
 		//var exprVar = new sparql.ExprVar(variable);

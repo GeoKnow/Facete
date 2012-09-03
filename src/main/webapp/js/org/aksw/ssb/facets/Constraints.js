@@ -219,6 +219,9 @@
 			result.elements.push(filterElement);
 		}
 		
+		
+		console.log("element", result);
+		
 		return result;
 		//console.warn("Triples:", triplesElement.triples);
 		//console.warn("Final filter:", finalFilter);
@@ -293,7 +296,7 @@
 		return "exists";
 	};
 	
-	ns.ConstraintExists.prototype.createExpr = function(variable) {
+	ns.ConstraintExists.prototype.createExpr = function(breadcrumb) {
 		return null;
 		//return sparql.Constants.TRUE;
 	};
@@ -390,11 +393,55 @@
 		return " = " + this.nodeValue;
 	};
 	
+	
+	// TODO Move to appropriate location
+	ns.numericDatatypes = {'http://www.w3.org/2001/XMLSchema#float': true, 'http://www.w3.org/2001/XMLSchema#double': true};
+	
+	ns.isNumericDatatype = function(datatype) {
+		return ns.numericDatatypes[datatype];
+	};
+	
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param breadcrumb
+	 * @returns {sparql.E_Equals}
+	 */
 	ns.ConstraintEquals.prototype.createExpr = function(breadcrumb) {
 		
 		var variable = breadcrumb.getTargetVariable();
 		var varExpr = new sparql.ExprVar(variable); 		
-		var result = new sparql.E_Equals(varExpr, this.nodeValue);
+
+		//if(this.nodeValue.datatype)
+		var result;
+		
+		var node = this.nodeValue.node;
+		var datatype = node.datatype;
+		//console.log("Datatype is ", datatype, this.nodeValue.node);
+		
+		if(ns.isNumericDatatype(datatype)) { 
+			var v = parseFloat(node.value);
+			var eps = 0.00001;
+			var min = v - eps;
+			var max = v + eps;
+			
+			var result =
+				new sparql.E_LogicalAnd(
+						new sparql.E_GreaterThan(
+								varExpr,
+								new sparql.NodeValue(sparql.Node.typedLit(min, datatype))
+						),
+						new sparql.E_LessThan(
+								varExpr,
+								new sparql.NodeValue(sparql.Node.typedLit(max, datatype))
+						)
+				);
+		} else {
+			result = new sparql.E_Equals(varExpr, this.nodeValue);
+		}
+		
 
 		return result;
 	};

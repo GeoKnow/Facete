@@ -85,7 +85,7 @@
 			var label = uriToLabel[uri];
 			var labelStr = label ? label.value : uri;
 
-			console.log("aoeu", step);
+			//console.log("aoeu", step);
 			
 			var prefix = step.isInverse() ? "<" : "";
 			

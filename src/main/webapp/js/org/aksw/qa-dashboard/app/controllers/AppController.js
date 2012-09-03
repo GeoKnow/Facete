@@ -200,8 +200,8 @@
 	    	//var driverElement = queryUtils.createElementAnyResource(driverVar);
 	    	var driver = new facets.Driver(driverElement, driverVar);
 	
-	    	var queryGenerator = new widgets.QueryGenerator(driver);
-	    	var queryProjector = new widgets.QueryProjector(queryGenerator);
+	    	this.queryGenerator = new widgets.QueryGenerator(driver);
+	    	var queryProjector = new widgets.QueryProjector(this.queryGenerator);
 	    	
 	    	
 	    	
@@ -227,17 +227,17 @@
 	    	var q = queryProjector.createQueryRows();
 	    	//alert(q.toString());
 	    	
-			var executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
+			this.executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
 
 			
-			var paginatorModel = new widgets.PaginatorModel();
+			var paginatorModel = new widgets.PaginatorModel({maxSlotCount: 15});
 
-			var viewModel = new widgets.TableModelExecutor(executor, itemsPerPage);
+			var viewModel = new widgets.TableModelExecutor(this.executor, itemsPerPage);
 			
 			
 			
-			var syncer = new widgets.TableModelBackboneSync(viewModel);
-			var collection = syncer.getCollection();
+			this.syncer = new widgets.TableModelBackboneSync(viewModel);
+			var collection = this.syncer.getCollection();
 			
 			
 			
@@ -250,7 +250,7 @@
 	
 			
 
-			$.when(executor.fetchCountRows()).then(function(countInfo) {
+			$.when(this.executor.fetchCountRows()).then(function(countInfo) {
 				var pageCount = parseInt(countInfo.count / itemsPerPage + 0.5);
 				paginatorModel.set({pageCount: pageCount});
 			});
@@ -260,11 +260,11 @@
 				var offset = itemsPerPage * (currentPage - 1);
 				console.log("Set offset", offset, itemsPerPage, model);
 				viewModel.setOffset(offset);
-				syncer.sync();
+				self.syncer.sync();
 				
 				
-				self.executor = new widgets.QueryExecutor(self.sparqlService, self.queryGeneratorFacets);
-				self.updateFacets(self.executor, self.facetBox);
+				var executor = new widgets.QueryExecutor(self.sparqlService, self.queryGeneratorFacets);
+				self.updateFacets(executor, self.facetBox);
 			});
 						
 
@@ -439,15 +439,18 @@
 				var constraints = self.queryGeneratorFacets.getConstraints();
 
 				//var constraints = self.constraints;
-				console.log("path is", path);
+				//console.log("path is", path);
 				
 				
 				var constraint =
 					new facets.PathConstraint(path,
 							new facets.ConstraintEquals(new sparql.NodeValue(facetValue)));
 
+				//var xxxx = constraint.createConstraintElement(self.queryGenerator.pathManager);
+				//alert(xxxx.getExpr());
+				
 				var id = "" + constraint;
-				console.log("ConstraintID" + id);
+				//console.log("ConstraintID" + id);
 				
 				var model = new ns.ConstraintModel({id: id, value: constraint});
 				
@@ -705,23 +708,47 @@
 	ns.AppController.prototype.updateConstraints = function() {
 		var self = this;
 		
-		var cs = this.queryGeneratorFacets.getConstraints();
-		cs.clear();
+		var csR = this.queryGenerator.getConstraints();
+		var csF = this.queryGeneratorFacets.getConstraints();
+		csF.clear();
+		csR.clear();
+		
+		
+		var assessmentPath = facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment");
 		
 		this.constraints.each(function(item) {
 			
 			var c = item.get("value");
 			
+			
+			
 			//alert("" + typeof(item) + " " + JSON.stringify(item));
 			//console.log("dammit", item);
-			cs.add(c);
+			var tmp = new facets.PathConstraint(assessmentPath.concat(c.getPath()), c.getConstraint());
+			console.log("Path is now " + tmp);
+			csR.add(tmp);
+			
+			//console.log("Tmp: ", tmp);
+			
+			csF.add(tmp);
 		});
 
 		
 		
 		//self.constraintWidget.refresh();
 		//self.repaint();
+		this.refresh();
 	};
 
+	ns.AppController.prototype.refresh = function() {
+		
+		$.when(this.executor.fetchCountRows()).then(function(countInfo) {
+			var pageCount = parseInt(countInfo.count / itemsPerPage + 0.5);
+			paginatorModel.set({pageCount: pageCount});
+		});
+		
+		this.syncer.sync();
+
+	};
 	
 })(jQuery);

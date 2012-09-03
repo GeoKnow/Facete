@@ -7,6 +7,8 @@
 	 *     dataset: {min: 0.1, max: 0.5}, // The range for the current dataset
 	 *     context: {min: 0.5, max: 0.6}, // The range considering the context of the current facet constraints
 	 * }
+	 *
+	 * TODO: We have the focus and the navigation path, but we need to separate: the resources to return, and the facets to filter
 	 * 
 	 */
 	
@@ -52,6 +54,30 @@
 	var ns = Namespace("org.aksw.qa-dashboard.app.controllers");
 
 		
+	/**
+	 * 
+	 * @param fnPromise A function that returns a promise that upon completion return the new state
+	 */
+	ns.slaveCollection = function(masterCollection, slaveCollection, fnPromise) {
+		masterCollection.on("add", function(model) {
+			
+			var clone = jQuery.extend(true, {}, model.attributes);
+
+			
+			var promise = fnPromise(clone);
+			$.when(promise).done(function(newState) {
+				// TODO Treat request order properly
+				slaveCollection.add(newState);
+				//var newState = fn(model.attributes);
+			});
+		});
+		
+		masterCollection.on("remove", function(model) {
+			// TODO Delete by id AND/OR cid
+			slaveCollection.remove(model.id);			
+		});
+	};
+	
 	
 	ns.ItemRendererBackbone = function(viewCtor) {
 		this.viewCtor = viewCtor;
@@ -101,8 +127,8 @@
 		    
 		    	
 		    	var data = {
-		    		name: this.model.get("project").value,
-		    		author: 'TODO',
+		    		name: this.model.get("projectName"),
+		    		author: this.model.get("authorName"),
 		    		precision: parseFloat(this.model.get("precision").value),
 		    		recall: parseFloat(this.model.get("recall").value)
 		    	};
@@ -164,6 +190,14 @@
 	};
 	
 	
+	ns.getLabel = function(uri, labelInfo) {
+		var label = labelInfo.uriToLabel[uri.value];
+		
+		var result = label ? label.value : "" + uri;
+		
+		return result;
+	};
+	
 	ns.AppController.prototype.loadDatasetWidget = function() {
 
 		/*
@@ -190,7 +224,7 @@
 
 		
 		
-		var itemsPerPage = 4;
+		this.itemsPerPage = 8;
 
 
 		// Resource search
@@ -215,6 +249,9 @@
 	    	queryProjector.addPath(new facets.Path(), sparql.Node.v('project'));
 	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posEstPrecLow"), sparql.Node.v('precision'));
 	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment http://qa.linkeddata.org/ontology/posRec"), sparql.Node.v('recall'));
+
+	    	queryProjector.addPath(new facets.Path.fromString("http://qa.linkeddata.org/ontology/linkset http://purl.org/dc/terms/creator"), sparql.Node.v('author'));
+
 	    	
 	    	$("#search").on("change", function(event, value) {
 	    		var text = $("#search").val();
@@ -230,9 +267,9 @@
 			this.executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
 
 			
-			var paginatorModel = new widgets.PaginatorModel({maxSlotCount: 15});
+			this.paginatorModel = new widgets.PaginatorModel({maxSlotCount: 15});
 
-			var viewModel = new widgets.TableModelExecutor(this.executor, itemsPerPage);
+			var viewModel = new widgets.TableModelExecutor(this.executor, this.itemsPerPage);
 			
 			
 			
@@ -240,25 +277,47 @@
 			var collection = this.syncer.getCollection();
 			
 			
+			var viewCollection = new Backbone.Collection();
+			
+			// Bind the viewCollection so that author and project uri are resolved
+			ns.slaveCollection(collection, viewCollection, function(data) {
+	    		
+				console.log("Slave data", data);
+				var projectUri = data["project"];
+	    		var authorUri = data["author"];
+
+	    		var uriStrs = [projectUri.value, authorUri.value];
+	    		
+	    		var promise = self.labelFetcher.fetch(uriStrs).pipe(function(labelInfo) {
+
+	    			data.projectName = ns.getLabel(projectUri, labelInfo);
+	    			data.authorName = ns.getLabel(authorUri, labelInfo);
+	    			
+	    			return data;
+	    		});
+				
+	    		return promise;
+			});
+			
 			
 			var listView = new widgets.ListView({
 				el: $("#list"),
 				attributes: {style: {'list-style': 'none'}},
-				collection: collection,
+				collection: viewCollection,
 				itemRenderer: new ns.ItemRendererBackbone(ns.ItemViewLinksetThumbnail)
 			});
 	
 			
 
 			$.when(this.executor.fetchCountRows()).then(function(countInfo) {
-				var pageCount = parseInt(countInfo.count / itemsPerPage + 0.5);
-				paginatorModel.set({pageCount: pageCount});
+				var pageCount = parseInt(countInfo.count / self.itemsPerPage + 0.5);
+				self.paginatorModel.set({pageCount: pageCount});
 			});
 			
-			paginatorModel.bind('change', function(model) {
+			this.paginatorModel.bind('change', function(model) {
 				var currentPage = model.get("currentPage");
-				var offset = itemsPerPage * (currentPage - 1);
-				console.log("Set offset", offset, itemsPerPage, model);
+				var offset = self.itemsPerPage * (currentPage - 1);
+				console.log("Set offset", offset, self.itemsPerPage, model);
 				viewModel.setOffset(offset);
 				self.syncer.sync();
 				
@@ -273,11 +332,11 @@
 			
 			
 			
-			var paginator = new widgets.ViewPaginator({el: null, model: paginatorModel});//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
+			var paginator = new widgets.ViewPaginator({el: null, model: this.paginatorModel});//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 			
 			$(paginator).bind('change-page', function(event, pageRequest) {
 				console.log('changeRequest', pageRequest);
-				paginatorModel.set({currentPage: pageRequest});
+				self.paginatorModel.set({currentPage: pageRequest});
 			});
 
 			
@@ -408,7 +467,7 @@
 				//var viewModel = new widgets.ListModelExecutor(executor, 50);
 
 				widget.setLabelFetcher(self.labelFetcher);
-				widget.getModel().limit = itemsPerPage;
+				widget.getModel().limit = self.itemsPerPage;
 				widget.getModel().setExecutor(executor);
 			
 				widget.refresh();
@@ -740,11 +799,14 @@
 		this.refresh();
 	};
 
+	
 	ns.AppController.prototype.refresh = function() {
 		
+		var self = this;
+		
 		$.when(this.executor.fetchCountRows()).then(function(countInfo) {
-			var pageCount = parseInt(countInfo.count / itemsPerPage + 0.5);
-			paginatorModel.set({pageCount: pageCount});
+			var pageCount = parseInt(countInfo.count / self.itemsPerPage + 0.5);
+			self.paginatorModel.set({pageCount: pageCount});
 		});
 		
 		this.syncer.sync();

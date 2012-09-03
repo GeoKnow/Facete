@@ -5,6 +5,11 @@
 	
 	/**
 	 * The specification of a paginator widget
+	 * 
+	 * 
+	 * [<] [1] [2] [...] [5] [-6-] [7] [...] [9] [10] [>] [>>>]
+	 * 
+	 * 
 	 */
 	ns.PaginatorModel = Backbone.Model.extend({
 		defaults: {
@@ -13,13 +18,46 @@
 			pageCount: 1,
 			
 			maxContextCount: 5, // Number of boxes around the current location
-			minStartCount: 1,
-			minEndCount: 1,
+		
+			facingForward: true, // Whether our last page select moved to a higher (true) or a lower (false) one; only needed for even context counts 
 			
-			hasMorePages: false 
+			quickJump: true, // have quick jump buttons between first-context and contex-last
+			//minStartCount: 1,
+			//minEndCount: 1,
+			
+			hasMorePages: false,
+			prev: true,
+			next:true
 		}
 	});
 	
+	
+	
+	ns.distribute = function(numSlots, maxNumFirstSlots, maxNumLastSlots, facingForward) {
+		
+		var displace = 0.25 * (!facingForward ? 1 : -1);
+		
+		var numFirstSlots =  Math.round(numSlots / 2 + displace);
+		var numLastSlots  = numSlots - numFirstSlots;
+
+		//console.log("First and last slots:" + numFirstSlots, numLastSlots);
+		//console.log("Max num First and last slots:" + maxNumFirstSlots, maxNumLastSlots);
+		
+		var carryToLast = Math.max(numFirstSlots - maxNumFirstSlots, 0);
+		//console.log("carryToLast" + carryToLast);
+		
+		numLastSlots += carryToLast;
+		numFirstSlots -= carryToLast;
+		
+		var carryToFirst = Math.max(numLastSlots - maxNumLastSlots, 0);
+		numLastSlots -= carryToFirst;
+		numFirstSlots += carryToFirst;
+
+		numFirstSlots = Math.min(numFirstSlots, maxNumFirstSlots);
+		
+		return [numFirstSlots, numLastSlots];
+	};
+
 
 	/**
 	 * Based on the specification of a paginator,
@@ -31,34 +69,103 @@
 		
 		var currentPage = spec.currentPage;
 		
-		// page indexes are zero based in here
-		var numSlots = spec.maxSlotCount - 2;			
-		var maxNumHeadSlots = currentPage - 1; // If we are on page 1, then there is 0 head pages
-		var maxNumTailSlots = spec.pageCount - currentPage; // If we are one page 10 of 10, there is 0 tail pages
+		// Compute, how many slots we need for non-context stuff
+		var numNonContextSlots = 0;
+		
+		if(spec.next) {
+			numNonContextSlots++;
+		}
 
-		var numTailSlots = Math.min(maxNumTailSlots, Math.floor((numSlots - 1) / 2));
-		var numHeadSlots = Math.min(maxNumHeadSlots, numSlots - numTailSlots - 1); // All slots that are neither tail nor current may be head
+		if(spec.prev) {
+			numNonContextSlots++;
+		}
 
-		var numRequiredSlots = Math.min(numSlots, spec.pageCount);//numHeadSlots + numTailSlots + 1;
+		if(spec.hasMorePages) {
+			numNonContextSlots++;
+		}
+		var numRequiredSlots = Math.min(spec.maxContextCount, spec.pageCount);
+	
+		var maxNumContextFirstSlots = Math.max(currentPage - 1, 0);
+		//console.log("Current page - last page", currentPage, spec.pageCount);
+		var maxNumContextLastSlots = Math.max(spec.pageCount - currentPage, 0);
+		
+		var d = ns.distribute(numRequiredSlots - 1, maxNumContextFirstSlots, maxNumContextLastSlots);
+		
+		var contextStartPage = currentPage - d[0];
+		var contextEndPage = currentPage + d[1];
 
-		//var activeSlotIndex = numHeadSlots + 1;
+
+		//console.log("Max pages, Required slots", spec.pageCount, numRequiredSlots);
+		//console.log("Paginator", "Current page: " + currentPage, "ContextStartPage: " + contextStartPage, "ContextEndPage: " + contextEndPage);
 		
 		
-		var firstPage = currentPage - numHeadSlots;
-
+		var numRemainingSlots = spec.maxSlotCount - numRequiredSlots - numNonContextSlots;
+		console.log("Remaining:" + numRemainingSlots);
+		
+		var maxNumFirstSlots = contextStartPage - 1;
+		var maxNumLastSlots = spec.pageCount - contextEndPage;
+		
+		var dist = ns.distribute(numRemainingSlots, maxNumFirstSlots, maxNumLastSlots);
+	
+		var numFirstSlots = dist[0];
+		var numLastSlots = dist[1];
+		
+		
+		var showFirstQuickJump = false;
+		var showLastQuickJump = false;
+		if(spec.quickJump) {
+			if(numFirstSlots > 1) {
+				--numFirstSlots;
+				showFirstQuickJump = true;
+			}
+			
+			if(numLastSlots > 1) {
+				--numLastSlots;
+				showLastQuickJump = true;
+			}			
+		}
+		
+				
+		
+		var lastStartPage = contextEndPage;
+		
 		var pageSlots = [];
 		
+		
 		// Prev button
-		pageSlots.push({
-			label: "<",
-			isEnabled: currentPage > 1,
-			page: currentPage -1			
-		});
+		if(spec.prev) {
+			pageSlots.push({
+				label: "<",
+				isEnabled: currentPage > 1,
+				page: currentPage -1			
+			});
+		}
 		
-		// First page button (only applies if there is more than two pages)
+		for(var i = 0; i < numFirstSlots; ++i) {
+			var page = i + 1;
+
+			pageSlots.push({
+				label: "" + page,
+				isEnabled: page != currentPage,
+				isActive: page == currentPage,
+				page: page
+			});
+		}
 		
+		if(showFirstQuickJump) {
+			pageSlots.push({
+				label: "...",
+				isEnabled: true,
+				isActive: false,
+				page: -1
+			});
+		}
+	
+		//var firstPage = contextStartPage;
+
+		// First page button (only applies if there is more than two pages)		
 		for(var i = 0; i < numRequiredSlots; ++i) {
-			var page = firstPage + i;
+			var page = contextStartPage + i;
 			
 			pageSlots.push({
 					label: "" + page,
@@ -67,13 +174,45 @@
 					page: page
 			});
 		}
-		
-		pageSlots.push({
-			label: ">",
-			isEnabled: currentPage < spec.pageCount,
-			page: currentPage + 1
-		});
 
+		if(showLastQuickJump) {
+			pageSlots.push({
+				label: "...",
+				isEnabled: true,
+				isActive: false,
+				page: -1
+			});
+		}
+
+		for(var i = 0; i < numLastSlots; ++i) {
+			var page = spec.pageCount - numLastSlots + i + 1;
+
+			pageSlots.push({
+				label: "" + page,
+				isEnabled: page != currentPage,
+				isActive: page == currentPage,
+				page: page
+			});
+		}
+		
+
+		if(spec.next) {
+			pageSlots.push({
+				label: ">",
+				isEnabled: currentPage < spec.pageCount,
+				page: currentPage + 1
+			});
+		}
+
+		if(spec.hasMorePages) {
+			pageSlots.push({
+				label: "Load more...",
+				isEnabled: true,
+				page: -2
+			});
+		}
+		
+		
 		
 		return pageSlots;
 	};

@@ -551,8 +551,8 @@
 </div>
 
 
+<div style="clear:both;height:300px"></div>
 <hr />
-
 
 <h1>DBpedia LinkedGeoData Airport</h1>
 <p style="padding-left: 50px; font-size: 17px;"><i>by: Konrad H&ouml;ffner</i></p>

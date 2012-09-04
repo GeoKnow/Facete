@@ -100,7 +100,7 @@
 		
 		
 		var numRemainingSlots = spec.maxSlotCount - numRequiredSlots - numNonContextSlots;
-		console.log("Remaining:" + numRemainingSlots);
+		//console.log("Remaining:" + numRemainingSlots);
 		
 		var maxNumFirstSlots = contextStartPage - 1;
 		var maxNumLastSlots = spec.pageCount - contextEndPage;
@@ -111,15 +111,17 @@
 		var numLastSlots = dist[1];
 		
 		
+		//console.log("aaaa ", numLastSlots, contextEndPage);
+		
 		var showFirstQuickJump = false;
 		var showLastQuickJump = false;
 		if(spec.quickJump) {
-			if(numFirstSlots > 1) {
+			if(numFirstSlots > 1 && (numFirstSlots + 1 != contextStartPage)) {
 				--numFirstSlots;
 				showFirstQuickJump = true;
 			}
 			
-			if(numLastSlots > 1) {
+			if(numLastSlots > 1 && (spec.pageCount - contextEndPage != numLastSlots)) { // && (numLastSlots + 1 != )
 				--numLastSlots;
 				showLastQuickJump = true;
 			}			

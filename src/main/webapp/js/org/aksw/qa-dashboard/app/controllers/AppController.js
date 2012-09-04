@@ -335,6 +335,13 @@
 			var paginator = new widgets.ViewPaginator({el: null, model: this.paginatorModel});//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 			
 			$(paginator).bind('change-page', function(event, pageRequest) {
+				
+				if(pageRequest == -1) {
+					var userInput = window.prompt("Jump to page:", "");
+					
+					pageRequest = parseInt(userInput);
+				}
+				
 				console.log('changeRequest', pageRequest);
 				self.paginatorModel.set({currentPage: pageRequest});
 			});

@@ -367,7 +367,10 @@
 		var absolutePath = basePath.concat(relativePath);
 		
 		
-		var constraint = new facets.ConstraintRegex(absolutePath, regexStr, flags);
+		//var constraint = new facets.ConstraintRegex(absolutePath, regexStr, flags);
+		var constraint =
+			new facets.PathConstraint(absolutePath, 
+				new facets.ConstraintRegex(regexStr, flags));
 		
 		var result = this.clone();
 		

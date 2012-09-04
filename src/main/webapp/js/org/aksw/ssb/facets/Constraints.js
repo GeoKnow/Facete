@@ -169,6 +169,8 @@
 				var c = cs[i];
 				
 				// TODO 
+				console.log("Constraint", c);
+
 				var groupId = c.path.toString();
 				
 				idToGroups.put(groupId, c);

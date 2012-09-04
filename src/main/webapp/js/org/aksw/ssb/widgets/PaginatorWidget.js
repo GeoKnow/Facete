@@ -83,7 +83,7 @@
 		if(spec.hasMorePages) {
 			numNonContextSlots++;
 		}
-		var numRequiredSlots = Math.min(spec.maxContextCount, spec.pageCount);
+		var numRequiredSlots = Math.max(Math.min(spec.maxContextCount, spec.pageCount), 1);
 	
 		var maxNumContextFirstSlots = Math.max(currentPage - 1, 0);
 		//console.log("Current page - last page", currentPage, spec.pageCount);
@@ -95,6 +95,7 @@
 		var contextEndPage = currentPage + d[1];
 
 
+		//console.log("Required slots", numRequiredSlots);
 		//console.log("Max pages, Required slots", spec.pageCount, numRequiredSlots);
 		//console.log("Paginator", "Current page: " + currentPage, "ContextStartPage: " + contextStartPage, "ContextEndPage: " + contextEndPage);
 		

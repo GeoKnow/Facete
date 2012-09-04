@@ -53,6 +53,82 @@
 
 	var ns = Namespace("org.aksw.qa-dashboard.app.controllers");
 
+
+	
+	/**
+	 * A view which supports changing the renderer of a collection,
+	 * such as switching between a thumbnail and list view.
+	 * 
+	 * TODO Switching between views may change the "itemsPerPage" constant.
+	 * 
+	 */
+	ns.MetaView = Backbone.View.extend({
+	    tagName: 'li',
+	    attributes: {style: 'float: left'},
+	    events: { 
+//	      'click span.swap':  'swap',
+//	      'click span.delete': 'remove'
+	    },    
+	    initialize: function(){
+	      _.bindAll(this, 'render', 'unrender', 'remove'); // every function that uses 'this' as the current object should be in here
+
+	      this.model.bind('change', this.render, this);
+	      this.model.bind('remove', this.unrender, this);
+	    },
+	    render: function(){
+
+		       //html = '<span style="color:black;">' + JSON.stringify(this.model.attributes) + '</span>';
+
+	    	
+//	    	var precision = parseFloat(this.model.get("precision").value);
+//	    	var recall = parseFloat(this.model.get("recall").value);
+	    
+	    	
+	    	var data = {
+	    		name: this.model.get("projectName"),
+	    		author: this.model.get("authorName"),
+	    		precision: parseFloat(this.model.get("precision").value),
+	    		recall: parseFloat(this.model.get("recall").value)
+	    	};
+
+			var chartSpec = charts.createLinksetChartSpec(data);
+
+	        var imgUrl = chartUtils.chartToImage(chartSpec, 300, 200);
+	        
+	        var html =
+	        	'<div style="float: left; margin: 5px">' +
+	        	'    <a href="#">' +
+	        	'        <img src="' + imgUrl + '" /><br />' +
+	        	'        <div class="warning-icon-tiny" /> x 4' + //'<div style="clear:both; float:left;" />' +
+	        	'        <div class="error-icon-tiny" /> x 5' +
+	        	'    </a>' +
+	        	'</div>'; 
+
+	    	
+		     //html = '<span style="color:black;">' + precision + "  " + recall + '</span>';
+
+	    	
+	    	
+	      $(this.el).html(html); 
+	      return this;
+	    },
+	    unrender: function() {
+	      $(this.el).remove();
+	    },
+	    remove: function(){
+	      this.model.destroy();
+	    }
+	});
+
+		
+		
+		
+		
+		
+		
+		
+		
+	
 		
 	/**
 	 * 
@@ -160,7 +236,7 @@
 		    remove: function(){
 		      this.model.destroy();
 		    }
-		  });
+	});
 	
 	ns.AppController = function(options) {
 		this.sparqlService = options.sparqlService;

@@ -7,6 +7,9 @@
 	var backend = Namespace("org.aksw.ssb.backend"); 	
 	var controllers = Namespace("org.aksw.qa-dashboard.app.controllers");
 
+	var backboneUtils = Namespace("org.aksw.utils.backbone"); 	
+	var core = Namespace("org.aksw.qa-dashboard.core");
+
 	var config = {};
 
 	
@@ -14,6 +17,25 @@
     	main_latc_qa();
     });
 	
+	var app = {
+			/*
+			loadMainPage: function() {
+				if(!this.mainPageLoaded) {
+					
+				}
+			}
+			
+	        showMainPage: function() {
+	        	alert("test");
+	        },*/
+	        
+	        showLinksetDetails: function(id) {
+	             core.renderDetailPage(id);
+	        }
+	};
+
+    
+    
     function main_latc_qa() {
 	
 		config.sparqlServiceUri = "http://localhost/sparql";
@@ -33,8 +55,24 @@
 	
 		
 		var appController = new controllers.AppController({sparqlService: sparqlService});
-		
+
 		appController.run();
+		
+		var AppRouter = backboneUtils.AppRouter.extend({
+	        routes: {
+	        	"": "showMainPage",
+	        	//"foo": "showLinksetDetails",
+	            "linkset/*id": "showLinksetDetails"
+	        },
+		});
+
+
+	    // Initiate the router
+	    var appRouter = new AppRouter({app: app});
+
+	    // Start Backbone history a neccesary step for bookmarkable URL's
+	    Backbone.history.start();
+
     };
 
 	

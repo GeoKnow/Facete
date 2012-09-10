@@ -37,7 +37,7 @@
 	ns.QueryFactory.prototype.createQueryGeomCount = function(maxCount) {		
 		var result = queryUtils.createCountQuery(this.element, maxCount, this.geomVar, this.countVar);
 		
-		//console.log("Query [GeomCount]", result);
+		console.log("Query [GeomCount] " + result, result);
 		
 		return result;
 	};
@@ -61,6 +61,16 @@
 		return result;
 	};
 
+	
+	
+	/**
+	 * Creates a query for the geoms,  without retrieving the feature counts
+	 */
+	ns.QueryFactory.prototype.createQueryGeoms = function() {
+		var result = queryUtils.createQuerySelect(new facets.Driver(this.element, this.geomVar));
+		return result;
+	};
+	
 	
 	/*
 	 * BackendFactory 
@@ -102,6 +112,8 @@
 	
 	ns.BackendFactory.prototype.forBounds = function(bounds, options) {
 		var queryGenerator = this.queryGeneratorGeo.forBounds(bounds, options);
+		
+		console.log("QueryGenerator for bounds: ", queryGenerator);
 		
 		var result = this.forQueryGenerator(queryGenerator);
 		return result;
@@ -161,7 +173,12 @@
 	};
 	
 
-	ns.Backend.prototype.fetchGeomToFeatureCount = function() {
+	/**
+	 * This is the default one
+	 * 
+	 * @returns
+	 */
+	ns.Backend.prototype.fetchGeomToFeatureCount__Disabled = function() {
 		var query = this.queryFactory.createQueryGeomToFeatureCount();
 
 		var self = this;
@@ -173,6 +190,27 @@
 	};
 	
 
+	/**
+	 * Version for Sparqlify
+	 */
+	ns.Backend.prototype.fetchGeomToFeatureCount = function() {
+		var query = this.queryFactory.createQueryGeoms();
+
+		var self = this;
+		var task = queryUtils.fetchList(this.sparqlService, query, this.queryFactory.geomVar); 
+		
+		var result = task.pipe(function(list) {
+			var map = {};
+			
+			for(var i = 0; i < list.length; ++i) {
+				map[list[i].value] = 1;
+			}
+			
+			return map;
+		});
+		return result;
+	};
+	
 	
 	ns.NOTHING = 0;
 	ns.ADDED = 1;

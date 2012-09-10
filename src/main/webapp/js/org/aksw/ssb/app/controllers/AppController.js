@@ -773,6 +773,30 @@
 			console.log("self.graphSelectionModel", self.graphSelectionModel);
 			self.updateGraphs();
 			
+			
+			// TODO Hack set the write graph if there is only only graph selected
+			// TODO Hack the graph selection should be sent to the event bus, and the RDFauthor adapter should listen.
+			
+			var selected = null;
+			$.each(self.graphSelectionModel, function(key, value) {
+				if(value.isSelected) {
+					if(!selected) {
+						selected = key;
+					} else {
+						selected = null;
+						return false;
+					}
+				}
+			});
+	
+			alert("selected: " + selected);
+			if(selected) {
+				//console.log("Checking:", $('link[rel="update:sourceGraph"]'));
+				$('link[rel="update:sourceGraph"]').attr({about: selected});
+				$('link[rel="update:defaultGraph"]').attr({about: selected});
+			}
+			
+			
 		});
 		
 
@@ -1132,6 +1156,7 @@
 		console.log("Constraints", queryGeneratorGeo.getConstraints());
 		var queryGenerator = queryGeneratorGeo.forGlobal({disableConstraints: disableConstraints});
 		
+		console.log("The queryGenerator is: ", queryGeneratorGeo);
 		
 		var baseElement = queryGenerator.createDriverValues().getElement();
 		//var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.driver.element;
@@ -1779,7 +1804,14 @@
 		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
 		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.uri(x); });
 		
-		this.updateFacetCountsGeom(visibleGeomNodes);
+		
+		
+		var facetsEnabled = false;
+		
+		if(facetsEnabled) {
+			this.updateFacetCountsGeom(visibleGeomNodes);
+		}
+		
 	};
 
 	ns.AppController.prototype.setInstances = function(geoms, geomToFeatures, idToLabel) {

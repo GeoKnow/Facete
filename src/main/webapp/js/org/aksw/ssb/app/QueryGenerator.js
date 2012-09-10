@@ -1,5 +1,7 @@
 (function() {
 	
+	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+	
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
 
@@ -31,6 +33,10 @@
 		this.queryGenerator = queryGenerator;
 		this.geoConstraintFactory = geoConstraintFactory;
 		this.options = options;
+	};
+	
+	ns.QueryGeneratorGeo.prototype.getVariable = function() {
+		return sparql.Node.v(this.queryGenerator.pathManager.getRoot().variable);
 	};
 			
 	ns.QueryGeneratorGeo.prototype.copyExcludeConstraint = function(path) {
@@ -219,9 +225,9 @@
 		
 		var resultDriver = null;
 		
-		if(inferredDriver) {
-			resultDriver = new facets.Driver(newElement, inferredDriver.getVariable());
-		} 
+		//if(inferredDriver) {
+		resultDriver = new facets.Driver(newElement, this.getVariable());// inferredDriver.getVariable());
+		//} 
 		
 		var result = new widgets.QueryGenerator(
 				resultDriver, 
@@ -520,12 +526,29 @@
 	
 	/**
 	 * Common code for forBounds and forGeoms.
+	 * 
+	 * Supported options:
+	 * var options = {
+	 *     subQuery: true // Make the geos-constraints a subquery, and place the driver in the outer query
+	 * }
+	 * 
 	 */
 	ns.QueryGenerator.prototype._forFilter = function(filter, options) {
 		var inferredDriver = this.getInferredDriver();
 		
+		/*
+		if(!inferredDriver) {
+			inferredDriver = queryUtils.createDriverFallback(this.pathManager.getRoot().variable);
+		}
+			
+		console.log("InferredDriver " + inferredDriver);
+		*/
+		
 		var tmpElement = new sparql.ElementGroup();
-		tmpElement.elements.push(inferredDriver.element);
+		if(inferredDriver) {
+			tmpElement.elements.push(inferredDriver.element);
+		}
+		
 		tmpElement.elements.push(filter);
 				
 		var result;

@@ -45,7 +45,7 @@
 		var self = this;
 		var result = {};
 			
-		var exec = sparqlService.executeAsk("Ask { ?s geo:long ?x; geo:lat ?y . }");
+		var exec = sparqlService.executeAsk("Prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> Ask { ?s geo:long ?x; geo:lat ?y . }");
 		
 		$.when(exec).then(function(jsonRdf) {
 			result.wgsPoint = jsonRdf.value; // boolean
@@ -79,22 +79,6 @@
 		
 		alert(a.isOverlap(b));
 		alert(b.isOverlap(a));
-	};
-
-	function createFallbackDriver() {
-
-		var fallbackDriver = null;
-		var s = sparql.Node.v("s");
-		var p = sparql.Node.v("p");
-		var o = sparql.Node.v("o");
-		
-		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
-
-		pathManager = new facets.PathManager("s");
-		
-		result = new facets.Driver(driverElement, s);
-
-		return result;
 	};
 	
 	/**
@@ -155,7 +139,9 @@
 		
 		// TODO I think the system should work if the driver is left on null
 		// Alternatively, the driver must be set to the triples of the geoPath
-		var fallbackDriver = createFallbackDriver(); // null
+		//var fallbackDriver = createFallbackDriver(); // null
+		
+		var fallbackDriver = null;
 		
 		var driver = config.driver ? config.driver : fallbackDriver;
 		var geoPath = config.geoPath ? config.geoPath : new facets.Path();

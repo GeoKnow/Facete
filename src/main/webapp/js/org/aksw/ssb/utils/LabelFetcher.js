@@ -118,7 +118,7 @@
 		
 		var self = this;
 		
-		var queryString = "Select ?u ?l { ?u rdfs:label ?l . " + filterStr + "Filter(?u In (<" + lookups.join(">,<") + ">)) . }";
+		var queryString = "Prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> Select ?u ?l { ?u rdfs:label ?l . " + filterStr + "Filter(?u In (<" + lookups.join(">,<") + ">)) . }";
 	
 		//var self = this;
 		//alert(queryString);

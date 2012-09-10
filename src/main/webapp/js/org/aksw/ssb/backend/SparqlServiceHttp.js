@@ -214,7 +214,10 @@
 		});
 
 		//return $.post(baseURL, querypart);
-		return $.ajax(baseURL + "?" + querypart);
+		return $.ajax({
+			url: baseURL + "?" + querypart,
+			dataType: 'json'
+		});
 	};
 
 })(jQuery);

@@ -1,4 +1,5 @@
 (function($) {
+		
 	
 	/**
 	 * TODO: Create sliders for numeric values:
@@ -60,6 +61,8 @@
 	 * such as switching between a thumbnail and list view.
 	 * 
 	 * TODO Switching between views may change the "itemsPerPage" constant.
+	 * 
+	 * NOT WORKING YET
 	 * 
 	 */
 	ns.MetaView = Backbone.View.extend({
@@ -184,6 +187,7 @@
 		    tagName: 'li',
 		    attributes: {style: 'float: left'},
 		    events: { 
+//		        'click a':
 //		      'click span.swap':  'swap',
 //		      'click span.delete': 'remove'
 		    },    
@@ -358,7 +362,7 @@
 			// Bind the viewCollection so that author and project uri are resolved
 			ns.slaveCollection(collection, viewCollection, function(data) {
 	    		
-				console.log("Slave data", data);
+				//console.log("Slave data", data);
 				var projectUri = data["project"];
 	    		var authorUri = data["author"];
 
@@ -376,11 +380,27 @@
 			});
 			
 			
+			
+			/**
+			 * Clicking a thumbnail shows the detail page.
+			 * 
+			 */
+			var CustomLinksetThumbnail = ns.ItemViewLinksetThumbnail.extend({
+				events: {
+					'click a': function(event) {
+						//event.preventDefault();
+						
+						var projectUri = this.model.get("project");
+						self.showDetailPage(projectUri.value);
+					}
+				}
+			});
+			
 			var listView = new widgets.ListView({
 				el: $("#list"),
 				attributes: {style: {'list-style': 'none'}},
 				collection: viewCollection,
-				itemRenderer: new ns.ItemRendererBackbone(ns.ItemViewLinksetThumbnail)
+				itemRenderer: new ns.ItemRendererBackbone(CustomLinksetThumbnail)
 			});
 	
 			
@@ -894,6 +914,15 @@
 		
 		this.syncer.sync();
 
+	};
+	
+	
+	ns.AppController.prototype.showDetailPage = function(uriStr) {
+		
+		app.renderDetailPage();
+		
+		//var element = 
+		
 	};
 	
 })(jQuery);

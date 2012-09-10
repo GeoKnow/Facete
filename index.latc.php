@@ -327,6 +327,9 @@
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
 
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/facets/FacetSystem.js"></script>
+
 
 
 	<script src="lib/highcharts/2.2.5/js/highcharts.js"></script>
@@ -348,6 +351,9 @@
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/qa-dashboard/app/controllers/AppController.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/qa-dashboard/app/DetailPage.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/qa-dashboard/app/main.js"></script>
@@ -553,6 +559,9 @@
 
 <div style="clear:both;height:300px"></div>
 <hr />
+
+
+<div id="detail-page"></div>
 
 <h1>DBpedia LinkedGeoData Airport</h1>
 <p style="padding-left: 50px; font-size: 17px;"><i>by: Konrad H&ouml;ffner</i></p>

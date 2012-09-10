@@ -18,6 +18,23 @@
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
 	
+	function createDriverFallback(subjectVar) {
+
+		//var s = sparql.Node.v("s");
+		var s = subjectVar;
+		var p = sparql.Node.v("p");
+		var o = sparql.Node.v("o");
+		
+		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
+
+		//pathManager = new facets.PathManager(s.value);
+		
+		result = new facets.Driver(driverElement, s);
+
+		return result;
+	};
+
+	
 	ns.createQueryAnyResource = function(outputVar) {
 		var driver = new facets.Driver(ns.createElementAnyResource(outputVar), outputVar);
 		var result = ns.createQuerySelect(driver, {distinct: true});

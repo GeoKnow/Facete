@@ -1,6 +1,6 @@
 (function($) {
 
-	var backboneUtils = Namespace("org.aksw.ssb.utils.backbone");
+	var backboneUtils = Namespace("org.aksw.utils.backbone");
 	var stringUtils = Namespace("org.aksw.ssb.utils.strings");
 
 	

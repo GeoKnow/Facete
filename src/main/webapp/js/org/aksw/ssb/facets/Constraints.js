@@ -478,6 +478,35 @@
 	};
 	*/
 
+	
+	
+	ns.ConstraintOgc = function(path, bounds) {
+		this.path = path;
+		this.bounds = bounds;
+	};
+	
+	ns.ConstraintOgc.createExpr = function(breadcrumb) {
+		var variable = breadcrumb.getTargetVariable();
+		var varExpr = new sparql.ExprVar(variable);
+	};
+
+	
+	ns.ConstraintOgcFactory = function(path) {
+		this.path = path ? path : new facets.Path();
+	};
+	
+	ns.ConstraintOgcFactory.getPath = function() {
+		return this.path;
+	};
+	
+	ns.ConstraintOgcFactory.prototype.create = function(bounds) {
+		return new ns.PathConstraint(this.path, ns.ConstraintWkt(bounds));
+	};
+	
+	
+	
+	
+	
 	/*
 	 * Wgs84 
 	 */
@@ -649,7 +678,40 @@
 	};
 	
 	
+	ns.createFilterOgcIntersects = function(v, bounds) {
+		var ogc = "http://www.opengis.net/rdf#";
+		
+		var exprVar = new sparql.ExprVar(v);
+		var wktStr = ns.boundsToWkt(bounds);
+		
+		// FIXME: Better use typeLit with xsd:string
+		var nodeValue = new sparql.NodeValue(sparql.Node.plainLit(wktStr));
+		
+		var result =
+			new sparql.E_Function(
+				ogc + "intersects",
+				exprVar,
+				new sparql.E_Function(
+						ogc + "geomFromText",
+						wktStr
+				)
+			);
+
+		return result;
+	};
 	
+	ns.boundsToWkt = function(bounds) {
+		var ax = bounds.left;
+		var ay = bounds.bottom;
+		var bx = bounds.right;
+		var by = bounds.top;
+		
+		var result = "POLYGON((" + ax + " " + ay + "," + bx + " " + ay
+				+ "," + bx + " " + by + "," + ax + " " + by + "," + ax
+				+ " " + ay + "))";
+
+		return result;
+	};
 	
 	
 })(jQuery);

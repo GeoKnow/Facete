@@ -813,6 +813,34 @@
 		return "Regex(" + this.expr + ", '" + patternStr + "'" + flagsStr + ")"; 
 	};
 
+	ns.E_Function = function(uriNode, args) {
+		this.uriNode = uriNode;
+		this.args = args;
+	};
+	
+	ns.E_Function.prototype.copySubstitute = function(fnNodeMap) {
+		var newArgs = _.map(this.args, fnNodeMap);
+		
+		return new ns.E_Function(this.uriNode, newArgs);
+	};
+	
+	ns.E_Function.prototype.getArgs = function() {
+		return this.args;
+	};
+	
+	ns.E_Function.prototype.copy = function(newArgs) {
+		return new ns.E_Function(this.uriNode, newArgs);
+	};
+	
+	ns.E_Function.prototype.toString = function() {
+		var argStr = this.args.join(", ");
+		
+		var result = this.uriNode.value + "(" + argStr + ")";
+		return result;
+	};
+
+	
+	
 	ns.E_Equals = function(left, right) {
 		this.left = left;
 		this.right = right;
@@ -1173,7 +1201,7 @@
 			var v = this.vars[i];
 			var expr = this.varToExpr[v.value];
 			
-			result.push({v:v, expr:expr});
+			result.push({v:v, expr:expr,});
 		}
 
 		return result;
@@ -1206,7 +1234,7 @@
 				arr.push("(" + expr + " As " + v + ")");
 			} else {
 				arr.push("" + v);				
-			}			
+			};
 		}
 		
 		var result = arr.join(" ");
@@ -1420,7 +1448,7 @@
 					next.push(new ctor(a, b));
 				} else {
 					next.push(a);
-				}
+				};
 			}
 			
 			open = next;

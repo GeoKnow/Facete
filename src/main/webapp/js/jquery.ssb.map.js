@@ -173,7 +173,11 @@ $.widget("ui.ssb_map", {
 				var geometry = feature.geometry;
 				
 				
+				console.log("Got Geometry: ", geometry);
+
+				// TODO Something seems to go wrong here after RDFauthor hides itself
 				if(geometry instanceof OpenLayers.Geometry.Point) {
+				//if(geometry.CLASS_NAME = 'OpenLayers.Geometry.Point') {
 					
 						//OpenLayers.Event.stop(event);
 						//console.log("aoeu", feature);
@@ -183,8 +187,8 @@ $.widget("ui.ssb_map", {
 						self._trigger("onMarkerClick", event, data);
 						
 					
-				} else {
-				
+				} else if(geometry instanceof OpenLayers.Geometry.Polygon) {
+					//console.log("What I think is a geometry is a: ", geometry);
 				
 					var bounds = geometry.bounds;
 										
@@ -265,6 +269,15 @@ $.widget("ui.ssb_map", {
 		this._doBind();
 	},
 
+	/**
+	 * Calls .redraw() on all layers.
+	 * 
+	 * Motivation: Workaround for an RDFauthor bug, where the map behaves strange after saving a resource.
+	 */
+	redraw: function() {
+		this.boxLayer.redraw();
+		this.featureLayer.redraw();
+	},
 
 	/**
 	 * Creates a feature for the given id.

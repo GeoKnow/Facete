@@ -92,6 +92,8 @@
 	ns.AppController = function(options) {
 		this.sparqlService = null;
 
+		
+		
 		/*
 		 * Backend configuration
 		 */
@@ -343,6 +345,16 @@
 
 		var self = this;
 
+		$(config.EventBus).on("resourcesModified", function(resources) {
+			
+			//setTimeout((function() {
+				//self.mapWidget.redraw();
+				self.factBox.controller.redraw();
+				self.repaint();
+			//}), 500);
+		});
+
+		
 		
 		this.breadcrumbWidget = widgets.createBreadcrumbWidget({
 			onNavigate: function(path) {
@@ -789,7 +801,12 @@
 				}
 			});
 	
-			alert("selected: " + selected);
+			if(selected) {
+				alert("Writes will go to graph: " + selected);
+			} else {
+				alert("Writes disabled because there is no longer a selected graph");
+			}
+		
 			if(selected) {
 				//console.log("Checking:", $('link[rel="update:sourceGraph"]'));
 				$('link[rel="update:sourceGraph"]').attr({about: selected});
@@ -1014,7 +1031,7 @@
 	};
 
 	
-	ns.AppController.prototype.showDescription = function(nodes) {
+	ns.AppController.prototype.showDescription = function(nodes) {		
 		this.factBox.controller.setNodes(nodes);
 	};
 	
@@ -1806,7 +1823,7 @@
 		
 		
 		
-		var facetsEnabled = false;
+		var facetsEnabled = true;
 		
 		if(facetsEnabled) {
 			this.updateFacetCountsGeom(visibleGeomNodes);
@@ -1940,6 +1957,7 @@
 						
 						var widget = widgets.createResourceListWidget(backend, {
 							onClick: function(uri) {
+																
 								self.showDescription([uri]);
 								$("#box-facts").show();								
 							}

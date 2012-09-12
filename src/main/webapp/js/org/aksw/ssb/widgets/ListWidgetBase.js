@@ -96,7 +96,7 @@
 		}
 	};
 	
-	ns.RendererString.prototype.create = function(parent, data) {
+	ns.RendererString.prototype.create = function(data, parent) {
 		var label = ns.getDataValue(data, "label", this.binding);
 		
 		var result = $$(ns.itemLabel, {parent: parent, label: label, fnId: this.fnId, data: data});
@@ -243,7 +243,7 @@
 					//item.setData(data);
 					item.view.sync();
 				} else {
-					item = self.getItemRenderer().create(self, data);
+					item = self.getItemRenderer().create(data, self);
 					
 					//console.log("Append", item);
 					self.append(item);//, self.getContainerElement());

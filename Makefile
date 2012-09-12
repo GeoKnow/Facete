@@ -15,6 +15,7 @@ clean-deps:
 	rm -rf lib/RDFauthor/current
 	rm -rf lib/Font-Awesome/current
 	rm -rf lib/SparqlProxyPHP/current
+	rm -rf lib/underscore.string/current
 
 zip:
 	cd $(wdDirname); \

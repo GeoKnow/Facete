@@ -60,11 +60,16 @@
 					},
 					
 					setNodes: function(nodes) {
+						this.nodes = nodes;
+						this.controller.redraw();
+					},
+					
+					redraw: function() {
 						var self = this;
 						//console.log("setNodes called");
 						
 						var sparqlService = this.model.get('sparqlService');
-						var describeTask = ns.executeDescribe(sparqlService, nodes);
+						var describeTask = ns.executeDescribe(sparqlService, this.nodes);
 						$.when(describeTask).then(function(talisJson) {
 							//console.log("Describe callback called", talisJson);
 							
@@ -135,6 +140,8 @@
 				autoParse: false, 
 				showPropertyButton: true, 
 				onSubmitSuccess: function (responseData) {
+					
+					$(config.EventBus).trigger("resourcesModified", [subjectUri]);
 					// Clear or renew caches of the modified resource 
 				},
 				onCancel: function () {

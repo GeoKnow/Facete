@@ -183,6 +183,9 @@
 		
 		var factory = new facets.ConstraintWgs84.Factory(geoPath);//breadcrumbX, breadcrumbY);
 		
+		//var factory = new facets.ConstraintOgcFactory(facets.Path.fromString("http://geovocab.org/geometry#geometry"));
+		
+		
 		var bounds = new qt.Bounds(0, 1, 2, 4);
 		var c2 = factory.create(bounds);
 		//console.log("C2:", c2.getExpr().toString());

@@ -828,13 +828,13 @@
 		});
 		
 		
-		result.getPaginator().on('change-page', function(event, pageRequest) {
+		$(result.getPaginator()).on('change-page', function(event, pageRequest) {
 			var paginatorModel = self.getView().getPaginator().model;
-			paginatorModel.set({currentPage: pageRequest});
+			paginatorModel.set({currentPage: pageRequest});			
 		});
 
 		
-		result.getPaginator().on("change", function(model) {
+		result.getPaginator().model.on("change", function(model) {
 			var page = model.get("currentPage");
 			
 			//alert(page);

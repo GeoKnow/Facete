@@ -7,7 +7,7 @@
 	
 	
 	function createLabel(low, high) {
-		return mathUtils.roundNumber((low * 0.1), 2) + "% - " + mathUtils.roundNumber((high * 0.1), 2) + "%"
+		return mathUtils.roundNumber((low * 0.1), 2) + "% - " + mathUtils.roundNumber((high * 0.1), 2) + "%";
 	};
 
 	

@@ -25,6 +25,8 @@ $.widget("ui.ssb_map", {
 
 	// TODO: Add _init method for backward compatibility
 
+
+	
 	_create: function() {
 		var self = this;
 		
@@ -35,6 +37,8 @@ $.widget("ui.ssb_map", {
 		
 		this.domElement = this.element.get(0);
 
+
+		this.options.zoomLabel = "Click to zoom in on the markers";
 
 		
 		//this.nodeToPos = this.options.nodeToPos;
@@ -112,6 +116,7 @@ $.widget("ui.ssb_map", {
 			//alert("test");
 		};
 		
+		
 		//OpenLayers.Feature.Vector.style['temporary']['fillColor'] = '#8080a0';
 		var hoverStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style["default"]);
 		OpenLayers.Util.extend(hoverStyle, {
@@ -121,7 +126,7 @@ $.widget("ui.ssb_map", {
         	strokeWidth: 1, 
         	strokeColor: "#5050a0",
         	pointRadius: 12,
-        	label: "Click to zoom",
+        	label: self.options.zoomLabel,
         	fontColor: "#8080ff", //"#ffffff",
         	fontWeight: "bold"
 
@@ -355,6 +360,8 @@ $.widget("ui.ssb_map", {
 	
 	addBox : function(id, bounds) {
 		
+		var self = this;
+		
 		var existingBox = this.idToBox[id];
 		if(existingBox) {
 			this.removeBox(id);
@@ -379,19 +386,19 @@ $.widget("ui.ssb_map", {
 		// a = original lonlat, b = screen space, c = modified lonlal
 		var orig_ll_min = new OpenLayers.LonLat(newBounds.left, newBounds.bottom);
 		var orig_ll_max = new OpenLayers.LonLat(newBounds.right, newBounds.top); 
-		console.log("mmi orig_ll", orig_ll_min, orig_ll_max);
+		//console.log("mmi orig_ll", orig_ll_min, orig_ll_max);
 				
 		
 		//aMin.transform(this.map.displayProjection, this.map.projection);
 		var orig_px_min = this.map.getPixelFromLonLat(orig_ll_min);		
 		var orig_px_max = this.map.getPixelFromLonLat(orig_ll_max);
-		console.log("mmi orig_px", orig_px_min, orig_px_max);
+		//console.log("mmi orig_px", orig_px_min, orig_px_max);
 		
 		var border_px = 10;
 		
 		var border_px_min = new OpenLayers.Pixel(orig_px_min.x + border_px, orig_px_min.y - border_px);
 		var border_px_max = new OpenLayers.Pixel(orig_px_max.x - border_px, orig_px_max.y + border_px);
-		console.log("mmi border_px", border_px_min, border_px_max);
+		//console.log("mmi border_px", border_px_min, border_px_max);
 		
 //		border_px_min = orig_px_min;
 //		border_px_max = orig_px_max;
@@ -399,7 +406,7 @@ $.widget("ui.ssb_map", {
 		
 		var border_ll_min = this.map.getLonLatFromPixel(border_px_min);
 		var border_ll_max = this.map.getLonLatFromPixel(border_px_max);
-		console.log("mmi border_ll", border_ll_min, border_ll_max);
+		//console.log("mmi border_ll", border_ll_min, border_ll_max);
 		
 		var b = new OpenLayers.Bounds(
 				border_ll_min.lon,
@@ -458,7 +465,7 @@ $.widget("ui.ssb_map", {
         	//graphicOpacity: 0.4,
         	//graphicWidth: 100,
         	//graphicHeight: 100
-        	label: "Click to zoom",
+        	label: self.options.zoomLabel,
         	fontColor: "#8080ff", //"#ffffff",
         	fontWeight: "bold"
         	//backgroundGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",

@@ -23,7 +23,7 @@
 	 * Fills the caches by downloading all data (a few thousand mappings) from prefix cc
 	 */
 	ns.NamespaceResolverPrefixCC.prototype.cacheAll = function() {
-		console.warn("Not implemented yet");
+		console.log("Not implemented yet");
 	};
 	
 	

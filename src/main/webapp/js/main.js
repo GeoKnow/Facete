@@ -215,7 +215,8 @@
 					pathManager: pathManager,
 					geoConstraintFactory: factory,
 					constraints: constraints
-				}
+				}, 
+				config: config
 			};
 		
 		//var queryGenerator = new app.QueryGenerator(options);

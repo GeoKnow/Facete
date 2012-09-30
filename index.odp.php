@@ -43,8 +43,6 @@
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
     <head xmlns:update="http://ns.aksw.org/update/">
     
-        <style type="text/css">@import 'lib/fauxconsole.css';</style>
-        <script type="text/javascript" src="lib/fauxconsole.js"></script>
     
         <!-- rdfAuthor config. TODO Make endpoints configurable -->
         <link about="http://ex.org" rel="update:sourceGraph" href="http://ex.org" class="Resource" /> 
@@ -56,6 +54,7 @@
         <title>European Commission | Opening up European Commission</title>
         
 
+        <!-- <style type="text/css">@import 'lib/fauxconsole/fauxconsole.css';</style> -->
 		<link rel="stylesheet" href="lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" /> 
 
 
@@ -96,6 +95,9 @@
 
 
         <script type="text/javascript" src="lib/jquery/1.7.2/jquery-1.7.2.js"></script>
+
+
+        <!-- <script type="text/javascript" src="lib/fauxconsole/fauxconsole.js"></script> -->
 
 
         <script type="text/javascript"
@@ -427,6 +429,13 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 	<script type="text/javascript" src="src/main/webapp/js/main.js"></script>
 	
 	<script type="text/javascript">
+
+		// HACK For browsers that do not support console.log
+		if(!window.console) {
+			var console = {
+				log: function() { }
+			}
+		}
 
 	    $(document).ready(function() {
 
@@ -775,7 +784,7 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 			<div id="ssb-main-content"
 				style="position: absolute; top: 0px; bottom: 0px; left: 300px; right: 0px;">
 
-				<div id="filtersAndMap" style="height: 100%; width: 100%;">
+				<div id="filtersAndMap" style="position:absolute; height: 100%; width: 100%;">
 
 					<div id="ssb-breadcrumb"></div>
 					<div id="ssb-constraints"></div>

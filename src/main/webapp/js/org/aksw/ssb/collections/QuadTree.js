@@ -460,7 +460,7 @@
 		for(var i = 0; i < this.children.length; ++i) {
 			var child = this.children[i];
 			
-			console.log("Split for ",child, bounds);
+			//console.log("Split for ",child, bounds);
 			child.splitFor(bounds, depth, result);
 		}	
 	};

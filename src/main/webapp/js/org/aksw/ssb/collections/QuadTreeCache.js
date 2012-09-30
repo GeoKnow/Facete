@@ -282,18 +282,25 @@
 	 * @param backend
 	 * @returns {ns.QuadTreeCache}
 	 */
-	ns.QuadTreeCache = function(backendFactory, labelFetcher, geomPosFetcher) {	
+	ns.QuadTreeCache = function(backendFactory, labelFetcher, geomPosFetcher, options) {	
 		var maxBounds = new qt.Bounds(-180.0, 180.0, -90.0, 90.0);
 		this.quadTree = new qt.QuadTree(maxBounds, 18, 0);
 	
 		this.backendFactory = backendFactory;
 
+		if(!options) {
+			options = {};
+		}
+		
 		// FIXME Rename to maxTileItemCount
 		// Maximum geoms per tile before skipping
-		this.maxItemCount = 25;
+		this.maxItemCount = options.maxTileItemCount ? options.maxTileItemCount : 25;
 		
 		// Maximum geoms to accept for global lookup
-		this.maxGlobalItemCount = 50;
+		this.maxGlobalItemCount = options.maxGlobalItemCount ? options.maxGlobalItemCount : 50;
+		
+		console.log("[QuadTree] MaxTileItemCount: " + this.maxItemCount);
+		console.log("[QuadTree] MaxGlobalItemCount: " + this.maxGlobalItemCount);
 		
 		this.labelFetcher = labelFetcher;
 		this.geomPosFetcher = geomPosFetcher;

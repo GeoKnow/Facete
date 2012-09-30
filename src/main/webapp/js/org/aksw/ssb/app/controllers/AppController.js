@@ -93,6 +93,7 @@
 		this.sparqlService = null;
 
 		
+		this.options = options;
 		
 		/*
 		 * Backend configuration
@@ -1012,7 +1013,7 @@
 		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.driver, concat);
 		//this.facetbox.controller.setState(this.facetState);
 		//this.facebox.controller.setState(queryGenerator);
-		console.warn("TODO - Set the FacetSate");
+		console.log("TODO - Set the FacetSate");
 		
 		//this.facetbox.controller.refresh();
 		//this.updateFacetsRec(this.executor, this.facetBox);
@@ -1193,7 +1194,7 @@
 		var cacheEntry = this.hashToCache[hash];
 		if(!cacheEntry) {
 			var backendFactory = new qtc.BackendFactory(this.sparqlService, queryGeneratorGeo);
-			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPointFetcher);
+			cacheEntry = new qtc.QuadTreeCache(backendFactory, this.labelFetcher, this.geomPointFetcher, this.options.config.quadTree);
 			//cacheEntry = new qt.QuadTree(maxBounds, 18, 0);
 			this.hashToCache[hash] = cacheEntry;
 		}
@@ -1212,7 +1213,7 @@
 		if(!nodes) {
 			// FIXME undefined 'nodes' happens, if there was an empty set of geometries or
 			// a query failed. this should be trapped at a different location than here
-			console.warn("No nodes to index, should not happen; using workaround");
+			console.log("No nodes to index, should not happen; using workaround");
 			
 			nodes = [];
 		}
@@ -1503,7 +1504,7 @@
 	
 	ns.AppController.prototype.updateFacets = function() {
 		if(!this.executor) {
-			console.warn("No executor set (yet)");
+			console.log("No executor set (yet)");
 			return;
 		}
 		
@@ -2220,14 +2221,14 @@
 	
 	ns.AppController.prototype.onInstanceHover = function(uriStr) {
 		if(!this.viewState.geomToFeatures) {
-			console.warn("No geom to feature mapping; viewState is", viewState);
+			console.log("No geom to feature mapping; viewState is", viewState);
 			return;
 		}
 		var featureToGeoms = this.viewState.geomToFeatures.inverse.entries;
 		
 		var obj = featureToGeoms[uriStr];
 		if(!obj) {
-			console.warn("No geometries for feature", uriStr, featureToGeoms);
+			console.log("No geometries for feature", uriStr, featureToGeoms);
 			return;
 		}
 		

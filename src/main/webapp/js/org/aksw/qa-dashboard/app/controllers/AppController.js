@@ -750,7 +750,7 @@
 	
 	ns.AppController.prototype.updateFacets = function(executor, facetBox) {
 		if(!executor) {
-			console.warn("No executor set (yet)");
+			console.log("No executor set (yet)");
 			return;
 		}
 		

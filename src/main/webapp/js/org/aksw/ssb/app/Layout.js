@@ -62,6 +62,11 @@ function doSearch() {
 		$("#ssb-tabs-start").parentHeight();
 		$("#ssb-tabs-start-content").autoHeight();
 
+		
+		// FIXME HACK for IE7, otherwise the map area has zero height.
+		
+		setTimeout(function() { $(window).resize(); }, 500);
+		
 		/*
     	$('.tab-content:parent > ul > li > a').each(function(index, item) {
     		console.log("Showing ", item);

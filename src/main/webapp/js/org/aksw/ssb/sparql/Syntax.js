@@ -275,7 +275,8 @@
 	};
 	
 	ns.BasicPattern.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.BasicPattern(this.triples.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+		var newElements = _.map(this.triples, function(x) { return x.copySubstitute(fnNodeMap); });
+		return new ns.BasicPattern(newElements);
 	};
 	
 	ns.BasicPattern.prototype.toString = function() {
@@ -560,7 +561,8 @@
 	};
 	
 	ns.ElementTriplesBlock.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementTriplesBlock(this.triples.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+		var newElements = _.map(this.triples, function(x) { return x.copySubstitute(fnNodeMap); });
+		return new ns.ElementTriplesBlock(newElements);
 	};
 	
 	ns.ElementTriplesBlock.prototype.getVarsMentioned = function() {
@@ -593,7 +595,8 @@
 	};
 	
 	ns.ElementGroup.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementGroup(this.elements.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+		var newElements = _.map(this.elements, function(x) { return x.copySubstitute(fnNodeMap); });
+		return new ns.ElementGroup(newElements);
 	};
 	
 	ns.ElementGroup.prototype.getVarsMentioned = function() {
@@ -680,7 +683,8 @@
 	};
 	
 	ns.E_In.prototype.copySubstitute = function(fnNodeMap) {		
-		return new ns.E_In(this.variable.copySubstitute(fnNodeMap), this.nodes.map(function(x) { return x.copySubstitute(fnNodeMap); }));
+		var newElements = _.map(this.nodes, function(x) { return x.copySubstitute(fnNodeMap); });
+		return new ns.E_In(this.variable.copySubstitute(fnNodeMap), newElements);
 	};
 	
 	ns.E_In.prototype.toString = function() {
@@ -1201,7 +1205,7 @@
 			var v = this.vars[i];
 			var expr = this.varToExpr[v.value];
 			
-			result.push({v:v, expr:expr,});
+			result.push({v:v, expr:expr});
 		}
 
 		return result;

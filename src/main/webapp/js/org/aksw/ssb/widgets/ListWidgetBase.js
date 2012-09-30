@@ -114,7 +114,7 @@
 	 */
 	ns.ListWidget = $$({
 		//view: { format: '<ul class="nav nav-list"></ul>', },
-		view: { format: '<ul></ul>', },
+		view: { format: '<ul></ul>' },
 		model: {itemRenderer: new ns.RendererString(), collection: []},
 		/*
 		controller: {
@@ -599,7 +599,7 @@
 	    
 	    unrender: function() {
 	    	$(this.el).remove();
-	    },
+	    }
 	});
 	
 

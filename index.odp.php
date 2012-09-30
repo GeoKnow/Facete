@@ -43,11 +43,14 @@
 <html class="js" lang="en" dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
     <head xmlns:update="http://ns.aksw.org/update/">
     
+        <style type="text/css">@import 'lib/fauxconsole.css';</style>
+        <script type="text/javascript" src="lib/fauxconsole.js"></script>
+    
         <!-- rdfAuthor config. TODO Make endpoints configurable -->
-        <link about="" rel="update:sourceGraph" href="http://example.org/geo" class="Resource" /> 
-        <link about="" rel="update:defaultGraph" href="http://example.org/geo" class="Resource" />
-		<link about="http://fp7-pp.publicdata.eu/" rel="update:queryEndpoint" href="http://localhost/sparql" />
-		<link about="http://fp7-pp.publicdata.eu/" rel="update:updateEndpoint" href="http://localhost/sparql" />
+        <link about="http://ex.org" rel="update:sourceGraph" href="http://ex.org" class="Resource" /> 
+        <link about="http://ex.org" rel="update:defaultGraph" href="http://ex.org" class="Resource" />
+		<link about="http://ex.org" rel="update:queryEndpoint" href="http://localhost/sparql" />
+		<link about="http://ex.org" rel="update:updateEndpoint" href="http://localhost/sparql" />
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <title>European Commission | Opening up European Commission</title>
@@ -339,7 +342,7 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
             title: "",
             editable: true
         }
-        var RDFAUTHOR_DEFAULT_GRAPH = "http://fintrans.publicdata.eu/ec/";
+        var RDFAUTHOR_DEFAULT_GRAPH = "http://ex.org"; //"http://fintrans.publicdata.eu/ec/";
 		
 		RDFAUTHOR_BASE = 'lib/RDFauthor/current/'; //'http://localhost/rdfauthor';
         // RDFAUTHOR_READY_CALLBACK = function() {

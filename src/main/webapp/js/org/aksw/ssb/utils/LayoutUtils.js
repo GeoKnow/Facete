@@ -117,7 +117,7 @@
 			var height = ns.calcDim(element, ns.innerHeight, ns.outerHeight, doLogging);
 			
 			if(doLogging) {
-				console.debug("AutoHeight: " + height, element);
+				console.log("AutoHeight: " + height, element);
 			}
 			
 			element.css("height", height + "px");
@@ -140,7 +140,7 @@
 			var height = parent.height();
 			
 			if(doLogging) {
-				console.debug("ParentHeight: " + height, element);
+				console.log("ParentHeight: " + height, element);
 			}
 			
 			element.css("height", height + "px");

@@ -21,3 +21,5 @@ debian/semmap.postinst.debhelper
 debian/semmap.prerm.debhelper
 debian/semmap.substvars
 
+
+config.js.sparqlify

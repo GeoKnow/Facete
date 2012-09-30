@@ -88,7 +88,7 @@
 							
 							this.append(item);
 						}
-					},
+					}
 				});
 		
 		return result;		

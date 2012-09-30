@@ -178,7 +178,7 @@
 					
 					container.bind("clickConstraint", function(ev, payload) { self.trigger("clickConstraint", payload); });
 					
-				},
+				}
 			}
 		);
 		
@@ -258,7 +258,7 @@
 				
 				'change' : function() {
 					//this.controller.refresh();
-				},
+				}
 				
 			},
 			
@@ -387,7 +387,7 @@
 				},
 
 				'click span:first' : function() {
-				},
+				}
 		},
 		getParent: function() {
 			return this.model.get("parent");

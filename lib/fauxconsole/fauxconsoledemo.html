@@ -1,0 +1,140 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html dir="ltr" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+	<title>console.log() for IE - Simulating a Firebug, Safari or Opera debugging console</title>
+	<style type="text/css">@import 'fauxconsole.css';</style>
+	<script type="text/javascript" src="fauxconsole.js"></script>
+	<style type="text/css">
+		*{
+			margin:0;
+			padding:0;
+		}
+		body{
+			font-family:helvetica,arial,sans-serif;
+			font-size:1em;
+			background:#999;
+			color:#000;
+			padding:3em;			
+		}
+		#body{
+			background:#fff;
+			color:#333;
+			padding:10px;
+		}
+		h1{
+			font-family:"Trebuchet MS",Arial,Sans-Serif;
+			font-size:1.4em;
+			color:#363;
+			padding-bottom:1em;
+			text-transform:uppercase;
+		}
+		h2{
+			font-family:"Trebuchet MS",Arial,Sans-Serif;
+			font-size:1em;
+			letter-spacing:-1px;
+			color:#666;
+			padding-bottom:.5em;
+			text-transform:uppercase;
+		}
+		#content{
+			padding-right:300px;
+			position:relative;
+		}
+		#tryout{
+			width:250px;
+			position:absolute;
+			top:10px;
+			right:10px;
+			border-left:1px solid #999;
+			padding-left:10px;
+		}
+		#body ul{
+			margin:.5em 1em .5em 1em;
+			list-style:square;
+		}
+		p code,li code{
+			font-weight:bold;
+			font-size:1em;
+			color:#030;
+		}
+		pre{
+			margin:1em;
+		}
+		p,li{
+			padding-bottom:.5em;
+			line-height:1.3em;
+		}
+		a:link{color:#363;}
+		a:visited{color:#030;}
+		a:hover,a:active{color:#fff;background:#363;}
+	
+	</style>
+</head>
+<body>
+<div id="body">
+<h1>Simulating a Firebug, Safari or Opera debugging console in Microsoft Internet Explorer with Faux Console</h1>
+<div id="content">
+<p><a href="fauxconsole.zip">Faux Console</a> is a JavaScript that simulates a debugging console for IE. If you write JavaScript 
+you obviously need to debug your scripts while you write them.</p>
+<p>A classic debugging 
+trick is to use <code>alert()</code> from time to time to output data The drawback of this 
+solution is that you need to click the close button or hit enter to make the 
+alert disappear which can be very time consuming if you try to monitor changing 
+data in a loop.</p>
+<p>Browsers like Safari and Opera and Firefox using the amazing Firebug extension 
+therefore offer you a different way to output debugging information using the 
+<code>console.log</code> command. Microsoft Internet Explorer does not support this 
+though and I found myself sending work-in-progress files to colleagues and got 
+reports of failure back because I forgot to comment out some <code>console.log()</code> 
+calls.</p>
+<p>This is why I wrote Faux Console, which is a small JavaScript you can embed in the 
+document to have a basic debugging console in IE.</p>
+<p>Simply include the script and the styles in the <code>HEAD</code> of your document:</p>
+<pre><code>&#60;style type=&#34;text/css&#34;&#62;@import 'fauxconsole.css';&#60;/style&#62;
+&#60;script type=&#34;text/javascript&#34; src=&#34;fauxconsole.js&#34;&#62;&#60;/script&#62;</code></pre>
+<p>The functionality is very basic and 
+if you want to have a full-blown cross-browser logging solution, you might want to 
+take a look at the <a href="http://developer.yahoo.com/yui/logger/">Yahoo User Interface Logger Widget</a> instead.</p>
+<p>Using Faux Console however means that you don't need to include lots of YUI 
+files if you don't use the YUI and that you can use <code>console.log()</code> to 
+log information cross-browser. The script does the following:</p>
+<ul>
+	<li>It tests if there is a <code>console</code> object defined - if there is one this means your browser has a console 
+	and the script does nothing else.</li>
+	<li>If <code>console</code> is <code>undefined</code>, the script creates a new console object and 
+	adds a DIV to the body of the document.</li>
+	<li>It adds a close and clear link to that <code>DIV</code> which allow you to hide or wipe the console.</li>
+	<li>It provides you with the following methods:
+		<ul>
+			<li><code>console.log(message)</code> - adds message to the log</li>
+			<li><code>console.show()</code> - shows the console</li>
+			<li><code>console.hide()</code> - hides the console</li>
+		</ul>
+	</li>
+	<li>The script adds the ID <code>fauxconsole</code> to the <code>DIV</code> (unless there is another 
+	element with that ID) and you can style the console using that. The preset 
+	CSS <code>fauxconsole.css</code> is pretty basic and shows the console as a grey box 
+	fixed to the top right corner of the viewport.</li>
+</ul>
+<p>Hope this helps you debugging,</p>
+<p>Chris</p>
+<div id="tryout">
+<h2>Download and try it out now</h2>
+<ul>
+	<li><a href="fauxconsole.zip">Download <strong>Faux Console</strong></a></li>
+	<li>Try it out:
+		<ul>
+			<li><a href="javascript:console.log('hello console');">console.log('hello console')</a></li>
+			<li><a href="javascript:console.log([1,3,4]);">console.log([1,3,4])</a></li>
+			<li><a href="javascript:console.log(console.log);">console.log(console.log)</a></li>
+		</ul>
+	</li>
+	<li><a href="http://www.wait-till-i.com/index.php?p=393">Comment on the Blog</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+</body>
+</html>

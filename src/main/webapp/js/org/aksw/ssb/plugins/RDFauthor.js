@@ -80,7 +80,7 @@ ns.populateRDFauthor = function(data, protect, resource, graph) {
                     stmt._object.value = "";
                 }
 */
-                console.debug("Adding statement", "" + stmt);
+                console.log("Adding statement", "" + stmt);
                 RDFauthor.addStatement(stmt);
             }
         }

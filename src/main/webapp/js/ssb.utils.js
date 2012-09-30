@@ -238,7 +238,7 @@ function notify(title, text)
 {
 	$.gritter.add({
 		title: title,
-		text: text,
+		text: text
 //		image: image,
 //		sticky: false,
 	});

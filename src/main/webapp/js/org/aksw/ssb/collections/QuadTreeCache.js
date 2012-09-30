@@ -563,10 +563,10 @@
 		
 		var self = this;
 		var result;
-		console.debug("Initiating data fetching workflow");
+		console.log("Initiating data fetching workflow");
 		if(!rootNode.checkedGlobal) {
 			
-			console.debug("Checking applicability of global fetching strategy (was not checked before)");
+			console.log("Checking applicability of global fetching strategy (was not checked before)");
 			
 			result = $.Deferred();
 			
@@ -579,7 +579,7 @@
 
 			$.when(globalCheckTask).then(function(canUseGlobal) {
 
-				console.debug("Applicability: ", canUseGlobal);
+				console.log("Applicability: ", canUseGlobal);
 				
 				rootNode.checkedGlobal = true;
 				task = canUseGlobal ? self.createGlobalWorkflow(rootNode) : self.loadTiles(bounds);
@@ -593,7 +593,7 @@
 				result.fail();
 			});
 		} else {
-			console.debug("Using tile based strategy (global strategy checked)");
+			console.log("Using tile based strategy (global strategy checked)");
 			result = self.loadTiles(bounds);
 		}
 		
@@ -608,13 +608,13 @@
 
 		// Fetch the items
 		var loadTask = self.backendFactory.forGlobal().fetchGeomToFeatureCount().pipe(function(geomToFeatureCount) {
-			console.debug("Global fetching: ", geomToFeatureCount);
+			console.log("Global fetching: ", geomToFeatureCount);
 			self.loadTaskAction(node, geomToFeatureCount);
 		});
 
 		$.when(loadTask).then(function() {
 			$.when(self.postProcess([node])).then(function() {
-				console.debug("Global workflow completed.");
+				console.log("Global workflow completed.");
 				//console.debug("Workflow completed. Resolving deferred.");
 				result.resolve([node]);
 			}).fail(function() {

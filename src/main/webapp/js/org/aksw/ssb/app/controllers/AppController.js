@@ -41,7 +41,7 @@
 	
 	ns.ConstraintModel = Backbone.Model.extend({
 		defaults: {
-			value: null,
+			value: null
 			/*label: "" // FIXME As there could be many ways for crafting constraint labels, 
 				//associating a label only makes sense for view-models;*/  
 	    }
@@ -792,8 +792,9 @@
 			var selected = null;
 			$.each(self.graphSelectionModel, function(key, value) {
 				if(value.isSelected) {
+					//console.log("The selected value is", value);
 					if(!selected) {
-						selected = key;
+						selected = value.data.data.value;
 					} else {
 						selected = null;
 						return false;
@@ -808,9 +809,12 @@
 			}
 		
 			if(selected) {
+				RDFAUTHOR_DEFAULT_GRAPH=selected;
 				//console.log("Checking:", $('link[rel="update:sourceGraph"]'));
-				$('link[rel="update:sourceGraph"]').attr({about: selected});
-				$('link[rel="update:defaultGraph"]').attr({about: selected});
+				$('link[rel="update:queryEndpoint"]').attr({about: selected});
+				$('link[rel="update:updateEndpoint"]').attr({about: selected});
+				$('link[rel="update:sourceGraph"]').attr({about: selected, href: selected});
+				$('link[rel="update:defaultGraph"]').attr({about: selected, href: selected});
 			}
 			
 			
@@ -1031,6 +1035,10 @@
 	};
 
 	
+	ns.AppController.prototype.centerOnResource = function(node) {
+		
+	};
+	
 	ns.AppController.prototype.showDescription = function(nodes) {		
 		this.factBox.controller.setNodes(nodes);
 	};
@@ -1179,7 +1187,7 @@
 		//var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.driver.element;
 		 
 		var hash = baseElement.toString();
-		console.debug("Query hash (including facets): ", hash);
+		console.log("Query hash (including facets): ", hash);
 		
 		
 		var cacheEntry = this.hashToCache[hash];
@@ -1274,7 +1282,7 @@
 			// TODO Properly check if an old request is running
 			// and schedule the next request
 			if(!nodes) {
-				console.debug("Update was in progress");
+				console.log("Skipping refresh because as update is in progress");
 				return;
 			}
 			
@@ -1819,7 +1827,7 @@
 		
 		
 		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
-		var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.uri(x); });
+		var visibleGeomNodes = _.map(visibleGeoms, function(x) { return sparql.Node.uri(x); });
 		
 		
 		

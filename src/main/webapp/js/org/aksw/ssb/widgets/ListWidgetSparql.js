@@ -23,7 +23,7 @@
 				//var model = this.model.get("selected");
 				alert("test");
 			}
-		},
+		}
 		
 	});
 	
@@ -85,7 +85,7 @@
 		},
 		getSelectionModel: function() {
 			return this.model.get("selectionModel");
-		},
+		}
 	});
 	
 	

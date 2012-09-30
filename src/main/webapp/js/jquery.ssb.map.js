@@ -77,8 +77,8 @@ $.widget("ui.ssb_map", {
 	    					new OpenLayers.Control.PanZoom(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
-	    					new OpenLayers.Control.ScaleLine(),
-	    		],
+	    					new OpenLayers.Control.ScaleLine()
+	    		]
 	    };
 
 
@@ -123,7 +123,7 @@ $.widget("ui.ssb_map", {
         	pointRadius: 12,
         	label: "Click to zoom",
         	fontColor: "#8080ff", //"#ffffff",
-        	fontWeight: "bold",
+        	fontWeight: "bold"
 
 		});
 
@@ -149,7 +149,7 @@ $.widget("ui.ssb_map", {
                     	return false;
     				}
                 	
-                },
+                }
                 /*
                 featurehighlighted: report,
                 featureunhighlighted: report
@@ -460,7 +460,7 @@ $.widget("ui.ssb_map", {
         	//graphicHeight: 100
         	label: "Click to zoom",
         	fontColor: "#8080ff", //"#ffffff",
-        	fontWeight: "bold",
+        	fontWeight: "bold"
         	//backgroundGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
         	//backgroundHeight: 100,
         	//backgroundWidth: 100
@@ -720,7 +720,7 @@ $.widget("ui.ssb_map", {
 		var zoom = state.zoom ? state.zoom : this.map.getZoom();
 		
 		this.map.setCenter(center, zoom, false, false);		
-	},
+	}
 	
 	/*
 	onMapEvent: function(event) {

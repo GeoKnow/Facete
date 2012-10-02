@@ -88,26 +88,138 @@ $.widget("ui.ssb_map", {
 
 		this.map = new OpenLayers.Map(this.domElement, options); 
 
-		//this.map.
+		/*
+		 * Renderer init (needed for outlines of labels)
+		 */
 		
-		//this.boxLayer    = new OpenLayers.Layer.Boxes( "Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true } );
-		this.boxLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
-		this.featureLayer    = new OpenLayers.Layer.Vector("Boxes", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: true });
-		
-		
-		
-		//this.markerLayer = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayInLayerSwitcher: false });
-	    //this.vectorLayer = new OpenLayers.Layer.Vector("Vector Layer");
+        var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+        renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
 
-	    
-	    // uncomment	    
+        console.log("The renderer is: " + renderer);
+
+
+		/*
+		 * Style definitions 
+		 */
+		
+		var defaultStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+		
+		this.styles = {};
+		
+		//OpenLayers.Feature.Vector.style['temporary']['fillColor'] = '#8080a0';
+		this.styles.hoverStyle = OpenLayers.Util.extend(
+			OpenLayers.Util.extend({}, defaultStyle), {
+				fillColor: '#8080ff',
+	        	fillOpacity: 0.4,
+	        	strokeLinecap: "round",
+	        	strokeWidth: 1, 
+	        	strokeColor: "#5050a0",
+	        	pointRadius: 12,
+	        	label: self.options.zoomLabel,
+	        	fontColor: "#8080ff", //"#ffffff",
+	        	fontWeight: "bold"
+			}
+		);
+        console.log("HoverStyle: ", this.styles.hoverStyle);
+		
+
+		this.styles.markerStyle = OpenLayers.Util.extend(
+			OpenLayers.Util.extend({}, defaultStyle), {
+				externalGraphic: config.markerUrlDefault,
+	        	graphicOpacity: 0.8, //0.8,
+	        	graphicWidth: 25,
+	        	graphicHeight: 25,
+	        	graphicYOffset: -25,
+	
+	            strokeColor: "#00FF00",
+	            strokeOpacity: 1,
+	            strokeWidth: 3,
+	            fillColor: "#FF5500",
+	            fillOpacity: 1.0,
+	            pointRadius: 6,
+	            //pointerEvents: "visiblePainted",
+	
+	        	fontColor: "#0000FF", //"#0000FF",
+                fontSize: "16px",
+                fontFamily: "Courier New, monospace",
+                fontWeight: "bold",
+                //labelAlign: "cm",
+                
+	        	label: "${label}",
+	            labelXOffset: 0,
+	            labelYOffset: 15,
+	            labelOutlineColor: "#0080FF",
+	            labelOutlineWidth: 3
+			}
+		);
+
+		console.log("MarkerStyle", this.styles.markerStyle);
+		
+
+		this.styles.boxStyle = OpenLayers.Util.extend(
+			OpenLayers.Util.extend({}, defaultStyle), {
+	        	fillColor: "#8080ff",
+	        	fillOpacity: 0.2,
+	        	strokeLinecap: "round",
+	        	strokeWidth: 1, 
+	        	strokeColor: "#7070ff",
+	        	pointRadius: 12,
+	        	//fill: false,
+	        	//externalGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
+	        	//graphicOpacity: 0.4,
+	        	//graphicWidth: 100,
+	        	//graphicHeight: 100
+	        	label: self.options.zoomLabel,
+	        	fontColor: "#8080ff", //"#ffffff",
+	        	fontWeight: "bold"
+	        	//backgroundGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
+	        	//backgroundHeight: 100,
+	        	//backgroundWidth: 100
+			}
+		);
+	//);
+
+		
+		
+		
+        /*
+         * Layer creation 
+         */
+        
+        // The layer for the massive instance indicator boxes
+		this.boxLayer = new OpenLayers.Layer.Vector("Boxes", {
+			projection: new OpenLayers.Projection("EPSG:4326"),
+			visibility: true,
+			displayInLayerSwitcher: true
+//			renderers: renderer
+		});
+		
+
+		// The layer for the actual features		
+		this.featureLayer = new OpenLayers.Layer.Vector("Features", {
+			projection: new OpenLayers.Projection("EPSG:4326"),
+			visibility: true, displayInLayerSwitcher: true,
+			styleMap: new OpenLayers.StyleMap({'default': this.styles.markerStyle}),
+			
+			renderers: renderer
+		});
 
 		// TODO Make it easy to exchange the URL pattern
 		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
 		//var mapnikLayer = new OpenLayers.Layer.OSM.Local("Mapnik");
 		this.map.addLayers([mapnikLayer, this.boxLayer, this.featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
-		this.map.events.register("moveend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
-		this.map.events.register("zoomend", this, function(event) { self._trigger("onMapEvent", event, {"map": self.map}); });
+
+		
+		/*
+		 * Forward some simple events
+		 */		
+		this.map.events.register("moveend", this, function(event) {
+			self._trigger("onMapEvent", event, {"map": self.map});
+		});
+		
+		this.map.events.register("zoomend", this, function(event) {
+			self._trigger("onMapEvent", event, {"map": self.map});
+		});
 	    
 		var self = this;
 		
@@ -117,27 +229,17 @@ $.widget("ui.ssb_map", {
 		};
 		
 		
-		//OpenLayers.Feature.Vector.style['temporary']['fillColor'] = '#8080a0';
-		var hoverStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style["default"]);
-		OpenLayers.Util.extend(hoverStyle, {
-			fillColor: '#8080ff',
-        	fillOpacity: 0.4,
-        	strokeLinecap: "round",
-        	strokeWidth: 1, 
-        	strokeColor: "#5050a0",
-        	pointRadius: 12,
-        	label: self.options.zoomLabel,
-        	fontColor: "#8080ff", //"#ffffff",
-        	fontWeight: "bold"
 
-		});
-
+		
+		
+		
+		
 		
 		this.highlightController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
             hover: true,
             highlightOnly: true,
             //renderIntent: "temporary",
-            selectStyle: hoverStyle,
+            selectStyle: this.styles.hoverStyle,
 
 
             eventListeners: {
@@ -150,7 +252,7 @@ $.widget("ui.ssb_map", {
     				if(geometry instanceof OpenLayers.Geometry.Point) {
     					
     					// Seems like we can abort the highlight by returning false here.
-    					// However, a cleaner solution would be to keep MII-boxes and features in separate layers
+    					// However, a seemingly cleaner solution would be to keep MII-boxes and features in separate layers
                     	return false;
     				}
                 	
@@ -178,7 +280,8 @@ $.widget("ui.ssb_map", {
 				var geometry = feature.geometry;
 				
 				
-				console.log("Got Geometry: ", geometry);
+
+				console.log("[Select Feature] Got Geometry: ", geometry);
 
 				// TODO Something seems to go wrong here after RDFauthor hides itself
 				if(geometry instanceof OpenLayers.Geometry.Point) {
@@ -214,8 +317,6 @@ $.widget("ui.ssb_map", {
 							self.map.zoomTo(nextZoom);
 						}
 					}
-					
-
 				}				
 			}
 		});
@@ -292,12 +393,12 @@ $.widget("ui.ssb_map", {
 	 * @param id
 	 * @param lonlat
 	 */
-	addItem: function(id, lonlat, visible) {
+	addItem: function(id, lonlat, attrs, visible) {
 		
 		
 		
 		
-		var feature = this.createMarker(lonlat, id);
+		var feature = this.createMarker(id, lonlat, attrs);
 		this.nodeToFeature.put(id, feature);
 		//console.log("Adding feature/marker");
 		//console.log(feature);
@@ -323,10 +424,12 @@ $.widget("ui.ssb_map", {
 		}
 	},
 	
-	addItems : function(idToPos) {
+	// Fixme: combine pos with attrs?
+	addItems : function(idToPos, idToAttrs) {
 		for(var id in idToLonlat) {
 			var lonlat = idToLonlat[id];
-			this.addItem(id, lonlat);
+			var attrs = idToAttrs[id];
+			this.addItem(id, lonlat, attrs, true);
 		}
 		/*
 		$.each(idToPos, function(id, point) {
@@ -337,6 +440,10 @@ $.widget("ui.ssb_map", {
 			
 		});
 		*/		
+	},
+	
+	clearItems: function() {
+		this.removeItems(_.keys(this.nodeToFeature.entries));
 	},
 	
 	removeItems : function(ids) {
@@ -413,71 +520,14 @@ $.widget("ui.ssb_map", {
 				border_ll_min.lat,
 				Math.max(border_ll_min.lon, border_ll_max.lon),
 				Math.max(border_ll_min.lat, border_ll_max.lat));
-
-		//console.log("aoeu compare before", newBounds, "after", b);
 		
-		//b.transform(this.map.displayProjection, this.map.projection);
-		
-		/*
-		var x = b.clone();
-		x = x.transform(this.map.displayProjection, this.map.projection);
-		console.log("aoeu x", x);
-		*/
-		
-		
-		/*
-		var a = new OpenLayers.LonLat(bounds.left, bounds.bottom);
-		var b = new OpenLayers.LonLat(bounds.right, bounds.top);
-		
-		var ta = this._pointToScreen(a);
-		var tb = this._pointToScreen(b);
-		
-		var b = new OpenLayers.Bounds();
-		b.extend(ta);
-		b.extend(tb);
 
 		
-		var limit = new OpenLayers.Bounds(-179.999, -89.999, 179.999, 89.999);
-		*/
-		
-		//box = new OpenLayers.Marker.Box(bounds);
-
-		/* For box layer
-		box = new OpenLayers.Marker.Box(b);
-		this.boxLayer.addMarker(box);
-		*/
-		
-		
-//		var styleMap = new OpenLayers.StyleMap({
-//    		fillColor: "#080080ff"
-//    	});
-		
-		// Vector layer
-        var box = new OpenLayers.Feature.Vector(b.toGeometry(), {}, {
-        	fillColor: "#8080ff",
-        	fillOpacity: 0.2,
-        	strokeLinecap: "round",
-        	strokeWidth: 1, 
-        	strokeColor: "#7070ff",
-        	pointRadius: 12,
-        	//fill: false,
-        	//externalGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
-        	//graphicOpacity: 0.4,
-        	//graphicWidth: 100,
-        	//graphicHeight: 100
-        	label: self.options.zoomLabel,
-        	fontColor: "#8080ff", //"#ffffff",
-        	fontWeight: "bold"
-        	//backgroundGraphic: "src/main/resources/images/org/openclipart/people/mathec/magnifying_glass.svg",
-        	//backgroundHeight: 100,
-        	//backgroundWidth: 100
-        });
+		//console.log("Box style: ", this.styles.boxStyle);
+        var boxFeature = new OpenLayers.Feature.Vector(b.toGeometry(), {}, this.styles.boxStyle);
         
-        //box = new OpenLayers.Feature.Vector(b.toGeometry());
-        
-        this.boxLayer.addFeatures([box]);
-
-		this.idToBox[id] = box;
+        this.boxLayer.addFeatures([boxFeature]);
+		this.idToBox[id] = boxFeature;
 	},
 	
 	removeBox : function(id) {
@@ -596,18 +646,8 @@ $.widget("ui.ssb_map", {
 		return point.clone().transform(this.map.displayProjection, this.map.projection);
 	},
 	
-	createMarker: function(point, nodeId) {
-		var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-        
-		var style_image = OpenLayers.Util.extend({
-			externalGraphic: config.markerUrlDefault,
-        	graphicOpacity: 1.0, //0.8,
-        	graphicWidth: 25,
-        	graphicHeight: 25,
-        	graphicYOffset: -25
-			
-		}, layer_style);
-		
+	createMarker: function(id, point, attrs) {
+
 		
 		/*
 		var style_blue = OpenLayers.Util.extend({}, layer_style);
@@ -623,12 +663,29 @@ $.widget("ui.ssb_map", {
         var tPoint = point.clone().transform(this.map.displayProjection, this.map.projection);
         
         var pt = new OpenLayers.Geometry.Point(tPoint.lon, tPoint.lat);
-        var result = new OpenLayers.Feature.Vector(pt, {point: point, nodeId: nodeId}, style_image);
+        
+        var newAttrs = OpenLayers.Util.extend(
+    		OpenLayers.Util.extend({}, attrs), {
+	        	point: point,
+	        	nodeId: id,
+	        	label: attrs.abbr
+    		}
+        );
+        
+        //console.log("Feature attributes: ", newAttrs);
+        //{point: point, nodeId: nodeId}
+        //alert(JSON.stringify(attrs));
+        //alert(JSON.stringify(newAttrs)); , this.styles.markerStyle
+        var result = new OpenLayers.Feature.Vector(pt, newAttrs);
+        console.log("Feature attributes: ", result.attributes);
+
+        //result.attributes = {label: "test"};
         
         return result;
 	},
 	
 	
+	/*
 	createMarkerOld: function(point, nodeId) {
 		//console.log("Creating marker: " + point);
 		
@@ -657,7 +714,7 @@ $.widget("ui.ssb_map", {
 
 		/*
 		markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,0),icon));
-		*/
+		* 
 
 		
 		var feature = new OpenLayers.Feature(this.markerLayer, tPoint, {icon: icon});
@@ -690,18 +747,19 @@ $.widget("ui.ssb_map", {
 			this.popup.setContentHTML(self.nodeToLabels.get(nodeId));
 			
 			//loadData(currentPopup, nodeId, xlon, xlat, tags);
-			*/
+			* /
 		};
 		
 		//marker.events.register("mouseover", feature, markerClick);
 		//marker.events.register("mouseout", feature, markerClick);
 		marker.events.register("click", feature, markerClick);
-		 //*/
+		 //* /
 		
 		//markerLayer.addMarker(marker);
 		
 		return feature;
 	},
+	*/
 
 
 	getBounds: function() {
@@ -727,7 +785,12 @@ $.widget("ui.ssb_map", {
 		var zoom = state.zoom ? state.zoom : this.map.getZoom();
 		
 		this.map.setCenter(center, zoom, false, false);		
+	},
+	
+	getElement: function() {
+		return this.domElement;
 	}
+	
 	
 	/*
 	onMapEvent: function(event) {

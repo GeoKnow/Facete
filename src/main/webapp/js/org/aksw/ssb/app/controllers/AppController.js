@@ -23,7 +23,9 @@
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 
+	var utils = Namespace("org.aksw.ssb.utils");
 	
+	// FIXME get rid of labelUtils references and replace with utils
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
@@ -38,6 +40,23 @@
 	
 	var ns = Namespace("org.aksw.ssb.app.controllers");
 
+	
+	/**
+	 * A model and corresponding collection for the instances shown on the map.
+	 * 
+	 */
+	ns.ModelInstance = Backbone.Model.extend({
+		id: "",
+		label: ""		
+	});
+	
+	
+	ns.CollectionInstance = Backbone.Collection.extend({
+		model: ns.ModelInstance
+	});
+	
+	
+	
 	
 	ns.ConstraintModel = Backbone.Model.extend({
 		defaults: {
@@ -162,6 +181,10 @@
 		
 		this.queryCacheFactory = null;
 		
+		
+		this.abbreviator = new utils.Abbreviator();
+		
+
 		// Map resources to stuff like selected, or hovered, so we can
 		// style markers in corresponding colors and sizes
 		this.resourceState = {};
@@ -388,21 +411,54 @@
 		
 		//config, queryGenerator, basePath, backend, callbacks
 		//this.facetBox = $$(facetbox.FacetBox); //widgets.createListWidget2(ns.FacetSwitcherItemFactory, ns.hackId);
+
 		
 		/*
-		 * The model for keeping track of selected constraints
-		 * 
+		 * Instances
+		 */
+		
+		this.visibleInstances = new ns.CollectionInstance();
+		
+		this.visibleInstances.bind("add", function(model) {
+			//alert("yay");
+		});
+				
+		
+		var InstanceListItemView = widgets.ItemViewLabel.extend({
+			events: {
+				'click span': function(event) {
+					self.showFeatureDetails(this.model.get("id"));
+				}
+			}
+		});
+
+		
+		var instanceListView = new widgets.ListView({
+			el: $("#tabs-content-instances"),
+			attributes: {style: {'list-style': 'none'}},
+			collection: this.visibleInstances,
+			itemRenderer: new widgets.ItemRendererBackbone(InstanceListItemView)
+		});
+
+		
+		var mapSyncView = new widgets.ItemViewMapMarker({
+			//el: $("#tabs-content-instances"),
+			//attributes: {style: {'list-style': 'none'}},
+			mapWidget: self.mapWidget,
+			collection: this.visibleInstances
+			//itemRenderer: new widgets.ItemRendererBackbone(InstanceListItemView)		
+		});
+
+
+		
+		
+		
+		/*
+		 * Constraints 
 		 */
 		
 		
-				
-		//this.constraintSelections = {};
-		this.constraintSelections = new widgets.SelectionCollection();
-		
-		//this.constraintSelections
-		
-		
-		
+		this.constraintSelections = new widgets.SelectionCollection();		
 		
 		this.constraints = new ns.ConstraintCollection();
 
@@ -1139,6 +1195,13 @@
 
 
 
+	/**
+	 * Fetch geometries within the given bounds
+	 * 
+	 * @param queryGeneratorGeo
+	 * @param bounds
+	 * @returns
+	 */
 	ns.AppController.prototype.fetchGeoms = function(queryGeneratorGeo, bounds) {
 		var task = this.fetchNodesGeo(queryGeneratorGeo, bounds);
 
@@ -1166,7 +1229,7 @@
 	
 	
 	/**
-	 * TODO Factory out into a separate object
+	 * TODO Factor out into a separate object
 	 * 
 	 */
 	ns.AppController.prototype.fetchNodesGeo = function(queryGeneratorGeo, bounds) {
@@ -1468,7 +1531,15 @@
 		var pivotFacetsTask = $.Deferred();
 		pivotFacetsTask.resolve({});
 		
-		$.when(executor.fetchValuesCounted(), pivotFacetsTask).then(function(facetCollection, pivotFacets) {
+		
+		var facetCountTask = executor.fetchCountDistinctFacets(isInverse); 
+		
+		
+		// Fetches the count of distinct objects per property
+		//$.when(executor.fetchValuesCounted(), pivotFacetsTask).then(function(facetCollection, pivotFacets) {
+		$.when(facetCountTask, pivotFacetsTask).then(function(facetCollection, pivotFacets) {
+			
+			//console.log("FacetCollection: ", facetCollection);
 			
 			var promise = ns.postProcessFacets(facetCollection, pivotFacets, self.labelFetcher);
 			
@@ -1494,11 +1565,16 @@
 		
 		var path = new facets.Path(); //executor.getNavigationPath();
 		
+		this.updateFacetsRecDir(executor, view.getOutgoing(), false, path);
+		this.updateFacetsRecDir(executor, view.getIncoming(), true, path);
+
+		/*
 		executorIncoming = executor.navigateToFacets(-1);
 		executorOutgoing = executor.navigateToFacets(1);
 		
 		this.updateFacetsRecDir(executorOutgoing, view.getOutgoing(), false, path);
 		this.updateFacetsRecDir(executorIncoming, view.getIncoming(), true, path);
+		*/
 	};
 	
 	
@@ -1553,6 +1629,7 @@
 		}
 		
 		// TODO Remove below
+		/*
 		var self = this;
 		var driver = queryUtils.createFacetQueryCountVisibleGeomNested(this.queryGenerator, uris);
 		
@@ -1606,7 +1683,8 @@
 			self.facetbox.controller.refresh();
 			self.facetbox.controller.setPivotFacets(steps);
 
-		});
+		})
+		*/
 		
 	};
 
@@ -1756,30 +1834,41 @@
 		var addedGeoms    = _.difference(visibleGeoms, oldVisibleGeoms);
 		var removedGeoms  = _.difference(oldVisibleGeoms, visibleGeoms);
 
-		this.mapWidget.removeItems(removedGeoms);
+		
+		/*
+		 * Updates of views below
+		 * 
+		 */
+
+		var useOldMethod = false;
+		if(useOldMethod) {
+
+			this.mapWidget.removeItems(removedGeoms);
 		/*
 		for(var i = 0; i < removedGeoms.length; ++i) {
 			//var geom = removedGeoms[i];
 			
 			
 		}*/
+				
 		
-		
-		for(var i = 0; i < addedGeoms.length; ++i) {
-			var geom = addedGeoms[i];
-
-			var point = globalGeomToPoint[geom];
-			var lonlat = new OpenLayers.LonLat(point.x, point.y);
-			
-			//console.debug("Adding map item", geom, point, lonlat);
-			this.mapWidget.addItem(geom, lonlat, true);
+			for(var i = 0; i < addedGeoms.length; ++i) {
+				var geom = addedGeoms[i];
+	
+				var point = globalGeomToPoint[geom];
+				var lonlat = new OpenLayers.LonLat(point.x, point.y);
+				
+				//console.debug("Adding map item", geom, point, lonlat);
+				this.mapWidget.addItem(geom, lonlat, true);
+			}
 		}
-		
+
 		var boxIds = _.keys(this.mapWidget.idToBox);
 		for(var i = 0; i < boxIds.length; ++i) {
 			var boxId = boxIds[i];
 			this.mapWidget.removeBox(boxId);
 		}
+		
 		
 		// If true, shows the box of each node
 		var alwaysShowBoxes = false;
@@ -1806,7 +1895,13 @@
 
 		// TODO: idToLabel should be the replaced by a LabelFetcher
 		this.viewState.idToLabel = idToLabel;
-		this.setInstances(visibleGeoms, geomToFeatures, idToLabel);
+		
+		
+		
+		this.setVisibleInstances(visibleGeoms, geomToFeatureCount, globalGeomToPoint);
+		
+		
+		//this.setInstances(visibleGeoms, geomToFeatures, idToLabel);
 		
 		
 		
@@ -1824,7 +1919,7 @@
 		}
 		*/
 
-		this.updateInstanceList(visibleGeoms, geomToFeatureCount);
+		//this.updateInstanceList(visibleGeoms, geomToFeatureCount);
 		
 		
 		//var visibleGeomNodes = visibleGeoms.map(function(x) { return sparql.Node.parse(x); });
@@ -1832,6 +1927,7 @@
 		
 		
 		
+		// HACK for testing the browser with Sparqlify
 		var facetsEnabled = true;
 		
 		if(facetsEnabled) {
@@ -1840,11 +1936,69 @@
 		
 	};
 
+	/**
+	 * This is the new version for setting the visible instances
+	 * 
+	 * @param geoms
+	 * @param geomToFeatures
+	 * @param idToLabel
+	 */
+	ns.AppController.prototype.setVisibleInstances = function(geoms, geomToFeatureCount, geomToPoint) {
+
+		var self = this;
+		
+		
+		this.labelFetcher.fetch(geoms).pipe(function(labelInfo) {
+
+			
+			var geomToAbbr = self.abbreviator.allocAll(geoms);
+			
+			self.visibleInstances.reset();
+
+			// Prepare the abbreviator for future abbr-assignments
+			self.abbreviator.nextContext();
+
+			var models = _.map(geoms, function(geomStr) {
+				var uriToLabel = labelInfo.uriToLabel;
+
+				var geom = sparql.Node.uri(geomStr);
+				var label = geomStr in uriToLabel ? uriToLabel[geomStr].value : geomStr;
+				var point = geomToPoint[geomStr];
+				var lonlat = new OpenLayers.LonLat(point.x, point.y);
+				var abbr = geomToAbbr[geomStr];
+				
+				var model = new ns.ModelInstance({
+					id: geom,
+					uri: geom,
+					count: geomToFeatureCount[geomStr],
+					abbr: abbr,
+					label: abbr + ": " + label,
+					lonlat: lonlat
+					// Required legacy attributes... get rid of them soon
+					//point: lonlat,
+					//nodeId: geom
+				});
+			
+				return model;
+			});
+
+			models.sort(function(a, b) { return a.get("abbr") - b.get("abbr"); });
+			
+			self.visibleInstances.add(models);
+		});
+		
+	};
+	
+	
+	
 	ns.AppController.prototype.setInstances = function(geoms, geomToFeatures, idToLabel) {
+		
+		
 		this.nodeToLabel.clear();
 		for(var i = 0; i < geoms.length; ++i) {
 			var geom = geoms[i];
 
+			
 			var features = geomToFeatures.get(geom);
 			if(!features) {
 				continue;
@@ -1852,6 +2006,7 @@
 			
 			for(var j = 0; j < features.length; ++j) {
 				var feature = features[j];
+				
 				
 				var label = idToLabel[feature];
 				this.nodeToLabel.put(feature, label);				
@@ -1907,7 +2062,74 @@
 	};
 			
 	
-	
+	ns.AppController.prototype.showFeatureDetails = function(geom) {
+		
+		var self = this;
+		
+		// Create the resource query element
+		console.log("QueryGenerator", self.queryGeneratorGeo);
+		var queryGenerator = self.queryGeneratorGeo.forGeoms([geom]);
+
+		
+		//var element = s
+
+		//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
+		//var featureVar = self.queryGenerator.getInferredDriver().variable;
+		//var driver = new facets.Driver(element, featureVar);
+		var driver = queryGenerator.createDriverValues();
+		
+		//var element = this.queryGenerator.ForGeoms(geomUriNodes);
+		//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
+
+		console.log("Driver", geom, driver);
+		
+		
+		// TODO We need the query element and the geom variable
+		var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
+		
+		var widget = widgets.createResourceListWidget(backend, {
+			onClick: function(uri) {
+												
+				self.showDescription([uri]);
+				$("#box-facts").show();								
+			}
+		});
+		
+		if(self.prevResWidget) {
+			self.prevResWidget.destroy();
+		}
+		
+		self.prevResWidget = widget;
+		
+		
+		var resourceListBox = $("#box-resources");
+		$$.document.append(widget, resourceListBox);
+		resourceListBox.show();
+		//widget.view.$().show();
+		
+		/*
+		var targetElement = $("#box-test");
+		targetElement.show();
+		
+		// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
+		$(targetElement).children().remove();
+
+		$$.document.append(widget, targetElement);
+		*/
+		
+		/*
+		widgets.createResourceTable([geom], self.labelFetcher, columnCount).pipe(function(ag) {
+			$$.document.append(ag, "#box-test");
+		});*/
+		
+		
+		
+		
+		//alert(this.model.get("uri"));
+	};
+
+
+	/* Replaced with backbone
 	ns.AppController.prototype.updateInstanceList = function(visibleGeoms, geomToFeatureCount) {
 		
 		var self = this;
@@ -1940,70 +2162,7 @@
 				//dataDictionary.items.push({uri: geom, count: count, label: label});			
 
 				var item = $$(model, "<li><span data-bind='label' /> (<span data-bind='count' />)</li>", {
-					'click span': function() {
-						
-						
-						// Create the resource query element
-						console.log("QueryGenerator", self.queryGeneratorGeo);
-						var queryGenerator = self.queryGeneratorGeo.forGeoms([geom]);
-
-						
-						//var element = s
-
-						//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
-						//var featureVar = self.queryGenerator.getInferredDriver().variable;
-						//var driver = new facets.Driver(element, featureVar);
-						var driver = queryGenerator.createDriverValues();
-						
-						//var element = this.queryGenerator.ForGeoms(geomUriNodes);
-						//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
-
-						console.log("Driver", geom, driver);
-						
-						
-						// TODO We need the query element and the geom variable
-						var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
-						
-						var widget = widgets.createResourceListWidget(backend, {
-							onClick: function(uri) {
-																
-								self.showDescription([uri]);
-								$("#box-facts").show();								
-							}
-						});
-						
-						if(self.prevResWidget) {
-							self.prevResWidget.destroy();
-						}
-						
-						self.prevResWidget = widget;
-						
-						
-						var resourceListBox = $("#box-resources");
-						$$.document.append(widget, resourceListBox);
-						resourceListBox.show();
-						//widget.view.$().show();
-						
-						/*
-						var targetElement = $("#box-test");
-						targetElement.show();
-						
-						// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
-						$(targetElement).children().remove();
-
-						$$.document.append(widget, targetElement);
-						*/
-						
-						/*
-						widgets.createResourceTable([geom], self.labelFetcher, columnCount).pipe(function(ag) {
-							$$.document.append(ag, "#box-test");
-						});*/
-						
-						
-						
-						
-						//alert(this.model.get("uri"));
-					}
+					'click span': function() { self.showFeatureDetails(geom); } 
 				});
 				
 				list.append(item, "ul:first");
@@ -2038,7 +2197,7 @@
 		});
 		
 	};
-		
+	*/
 	
 	
 	ns.AppController.prototype.updateLabels = function(uris, map) {					
@@ -2171,7 +2330,7 @@
 	};
 	
 	ns.AppController.prototype.enableHighlight = function(feature) {
-		
+		//alert("highlight");
 	};
 	
 	ns.AppController.prototype.disableHighlight = function(feature) {
@@ -2251,6 +2410,7 @@
 		}		
 	};
 		
+
 	ns.AppController.prototype.onInstanceClicked = function(uriStr) {
 		Dispatcher.fireEvent("selection", uriStr);
 		

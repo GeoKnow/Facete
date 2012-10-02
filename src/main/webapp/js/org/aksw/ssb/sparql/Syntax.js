@@ -968,6 +968,7 @@
 		return "(" + this.left + " || " + this.right + ")";
 	};
 
+
 	
 	/**
 	 * If null, '*' will be used
@@ -977,18 +978,19 @@
 	 * @param subExpr
 	 * @returns {ns.E_Count}
 	 */
-	ns.E_Count = function(subExpr) {
+	ns.E_Count = function(subExpr, isDistinct) {
 		this.subExpr = subExpr;
+		this.isDistinct = isDistinct ? isDistinct : false;
 	};
 
 	ns.E_Count.prototype.copySubstitute = function(fnNodeMap) {
 		var subExprCopy = this.subExpr ? this.subExpr.copySubstitute(fnNodeMap) : null;
 		
-		return new ns.E_Count(subExprCopy);
+		return new ns.E_Count(subExprCopy, this.isDistinct);
 	};
 	
 	ns.E_Count.prototype.toString = function() {		
-		return "Count(" + (this.subExpr ? this.subExpr : "*") +")";
+		return "Count(" + (this.isDistinct ? "Distinct " : "") + (this.subExpr ? this.subExpr : "*") +")";
 	};
 
 

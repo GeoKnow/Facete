@@ -1,4 +1,172 @@
 	
+		/**
+	 * A simple list widget.
+	 * 
+	 * TODO I think we should distinguish between a pure view-only list widget,
+	 * and a view+model list widget.
+	 * 
+	 */
+	/*
+	ns.ListWidgetBackbone = $$({
+		//view: { format: '<ul class="nav nav-list"></ul>', },
+		view: { format: '<ul></ul>' },
+		model: {itemRenderer: new ns.RendererString()},
+
+		getContainerElement: function() {
+			return this.view.$();
+		},
+		clear: function() {
+			this.each(function(i, child) {
+				child.destroy();
+			});
+		},
+		getItems: function() {
+			var result = [];
+			this.each(function(i, item) {
+				result.push(item);
+			});
+			return result;
+		},
+		trimToSize: function(size) {
+			var items = this.getItems();
+			
+			for(var i = size; i < items.length; ++i) {
+				items[i].destroy();
+			}
+		},
+		addItem: function(item) {
+			console.log("Item is", item);
+			this.append(item);//, this.getContainerElement());
+		},
+		removeItem: function(item) {
+			this.remove(item);
+		},
+		setCollection: function(collection) {
+			var old = this.getCollection();
+			
+			
+			if(old) {
+				old.unbind("add", this.refresh, this);
+				old.unbind("remove", this.refresh, this);
+			}
+			
+			collection.bind("add", this.refresh, this);
+			collection.bind("remove", this.refresh, this);
+
+			
+			this.model.set({collection: collection});
+		},
+		getCollection: function() {
+			return this.model.get("collection");
+		},
+		setItemRenderer: function(itemRenderer) {
+			this.model.set({itemRenderer: itemRenderer});
+		},
+		getItemRenderer: function() {
+			return this.model.get("itemRenderer");
+		},		
+		getFnId: function() {
+			return this.model.get("fnId");
+		},
+		setFnId: function(fnId) {
+			this.model.set({fnId: fnId});
+		},
+//		sync3: function() {
+//			this.syncView2(this.getCollection());
+//		},
+		syncView2: function(collection) {
+			this.clear();
+			
+			var self = this;
+			//var collection = this.getCollection();
+
+			var renderer = this.getItemRenderer();
+			collection.each(function(item) {
+				console.log("RenderingItem: ", item);
+				
+				//console.log("ListWidgetBackbone, renderer:", renderer);
+				
+				itemView = renderer.create(item, self);
+				self.append(itemView);
+			});
+			
+			//this.trimToSize(collection.size());
+		},
+		
+		syncView: function(keyToData) {
+			
+			this.syncView2(keyToData);
+			return;
+			
+			var idToItem = ns.agilityJsIndexChildren(this);
+
+			// Destroy all children for which there is no key
+			var oldKeys = _.keys(idToItem);
+			var newKeys = _.keys(keyToData);
+			
+			var toRemove = _.difference(oldKeys, newKeys);
+			_.each(toRemove, function(id) {
+				var item = idToItem[id];
+				if(item) {
+					item.destroy();
+				}
+			});
+			
+			
+			var self = this;
+			_.each(newKeys, function(key) {
+				var item = idToItem[key];
+				var data = keyToData[key];
+				
+				if(item) {
+					console.log("Update", item, "with", data);
+					item.model.set(data);
+					//item.setData(data);
+					item.view.sync();
+				} else {
+					item = self.getItemRenderer().create(self, data);
+
+					console.log("Append", item);
+					self.append(item);//, self.getContainerElement());
+				}
+			});
+			
+			
+		},
+		
+		refresh: function() {
+			var collection = this.getCollection();
+			
+			console.log("listModel", collection);
+			if(!collection) {
+				return;
+			}
+
+			var self = this;
+						
+			self.syncView(collection);
+		}
+		
+	});
+
+	
+	ns.createListWidgetBackbone = function(collection, itemRenderer) {
+		var result = new ns.ListView({collection: collection, itemRenderer: itemRenderer});
+		
+		/*
+		var result = $$(ns.ListWidgetBackbone);
+		
+		if(itemRenderer) {
+			result.setItemRenderer(itemRenderer);
+		}
+		result.setCollection(collection);
+		result.refresh();
+		* /
+			
+		return result;
+	};
+*/
+	
 	ns.ResourceProvider = function(variable, fragment, service) {
 		this.variable = variable;
 		this.fragment = fragment;

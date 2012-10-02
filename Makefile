@@ -19,7 +19,7 @@ clean-deps:
 
 zip:
 	cd $(wdDirname); \
-	tar --exclude ".git*" --exclude "*.tar.gz" -zcvf $(tarGzFile) $(wdBasename)/*
+	tar --exclude ".git*" --exclude "*.tar.gz" --exclude "src/main/webapp/js/org/aksw/qa-dashboard" -zcvf $(tarGzFile) $(wdBasename)/*
 	mv $(tarGzFile) $(wd)
 
 deploy: clean-deps

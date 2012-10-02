@@ -260,10 +260,10 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryGenerator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryGenerator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryExecutor.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>
@@ -279,6 +279,9 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetBaseOld.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/PaginatorWidget.js"></script>
@@ -306,16 +309,19 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 		src="src/main/webapp/js/org/aksw/ssb/app/controllers/AppController.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/app/QueryGenerator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/app/QueryGeneratorGeo.js"></script>
 		
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeModel.js"></script>
 		
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeCache.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/backend/QuadTreeCache.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/QueryCache.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/Abbreviator.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>

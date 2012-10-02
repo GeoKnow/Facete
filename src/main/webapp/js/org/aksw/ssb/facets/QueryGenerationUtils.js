@@ -18,6 +18,11 @@
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
 	
+	/**
+	 * Creates a {?s ?p ?o} concept.
+	 * The subject must be specified. 
+	 * 
+	 */
 	function createDriverFallback(subjectVar) {
 
 		//var s = sparql.Node.v("s");
@@ -35,11 +40,20 @@
 	};
 
 	
+	/**
+	 * Creates a query for any resource, that is:
+	 * Select Distinct ?s { { ?s ?x ?y } Union { ?x ?s ?y } Union { ?x ?y ?s } }
+	 * 
+	 */
 	ns.createQueryAnyResource = function(outputVar) {
 		var driver = new facets.Driver(ns.createElementAnyResource(outputVar), outputVar);
 		var result = ns.createQuerySelect(driver, {distinct: true});
 	};
 	
+	/**
+	 * Creates an element for any resource, that is:
+	 * { ?s ?x ?y } Union { ?x ?s ?y } Union { ?x ?y ?s }
+	 */
 	ns.createElementAnyResource = function(outputVar) {
 		var s = outputVar;
 		var x = sparql.Node.v("__x");
@@ -54,6 +68,11 @@
 		return result;		
 	};
 
+	/**
+	 * Creates a query that retrives all _explicit_ OWL classes in the store.
+	 * Does not consider implicit classes through rdf:type. 
+	 * 
+	 */
 	ns.createQueryGetClasses = function(outputVar) {
 		var driver = new facets.Driver(ns.createElementGetClasses(outputVar), outputVar);
 		var result = ns.createQuerySelect(driver, {distinct: true});
@@ -62,6 +81,11 @@
 	};
 	
 
+	/**
+	 * Creates an element identifying all _explicit_ OWL classes in the store.
+	 * Does not consider implicit classes through rdf:type. 
+	 * 
+	 */
 	ns.createElementGetClasses = function(outputVar) {
 		var s = outputVar;
 		var x = sparql.Node.v("__x");
@@ -75,6 +99,12 @@
 		return result;
 	};
 	
+	
+	/**
+	 * Returns a query that retrives all resources that act as rdf:types of others. 
+	 * Select Distinct ?t { ?s a ?t } 
+	 * 
+	 */
 	ns.createQueryGetTypes = function(outputVar) {
 		var result = new sparql.Query();
 		
@@ -91,6 +121,8 @@
 	};
 	
 	/**
+	 * Creates a query for all named graphs in a store.
+	 * 
 	 * Select Distinct ?g { Graph ?g { ?s ?p ?o } }
 	 * 
 	 */
@@ -101,6 +133,11 @@
 		return result;
 	};
 
+	/**
+	 * Creates a query for all named graphs in a store.
+	 * Fallback for a bug in Virtuoso 6.1.5, which has a broken cache for this query.
+	 * 
+	 */
 	ns.createQueryGetNamedGraphsFallback = function(outputVar) {
 		var driver = new facets.Driver(ns.createElementGetNamedGraphsFallback(outputVar), outputVar);
 		var result = ns.createQuerySelect(driver, {distinct: true});
@@ -261,8 +298,121 @@
 		return result;
 	};
 
+	
+
+
+	/**
+	 * Counts the number of distinct objects per property.
+	 * 
+	 */
+	/*
+	ns.createQueryCountDistinctVar = function(driver, driverVar, distinctVar, sampleSize) {
+		// The maximum number of instances to scan for collecting properties		
+		
+		var q = new sparql.Query();
+		
+		q.distinct = true;
+		
+		var p = sparql.Node.v("__p");
+		//var o = sparql.Node.v("__o");
+		var c = sparql.Node.v("__c");
+		
+		q.projectVars.add(p);
+		q.projectVars.add(c, new sparql.E_Count(new sparql.ExprVar(distinctVar), true));
+		///q.projection[p.value] = null;
+		///q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
+
+		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(driverVar));
+
+		var tmp = q;
+		if(true) { // limit instances to check for properties
+		    var subQuery = new sparql.Query();
+		    
+		    if(false) {
+		    	subQuery.isResultStar = true;
+		    } else {
+		    	//console.error(driverVar);
+		    	subQuery.projectVars.add(driverVar);
+		    	subQuery.projectVars.add(o);
+		    	///subQuery.projection[driverVar.value] = null;
+		    	///subQuery.projection[p.value] = null;
+		    	subQuery.distinct = true;
+		    }
+		    
+		    
+		    subQuery.limit = sampleSize;
+		    q.elements.push(new sparql.ElementSubQuery(subQuery));
+		    
+		    tmp = subQuery;
+		}
+		
+		
+		//console.log("Driver", driver);
+		
+		tmp.elements.push(driver);
+		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, p, o)]));
+		
+		
+		// TODO We could reduce the number of requests if we fetched labels here
+		// The problem (as usual) is how to deal with alternative lang tags:
+		// primary lang (de), secondary lang (en), fallback (no lang tag)
+		// ?x label ?l1 , ?l2 , ?l3 . Filter(?(  
+		/*
+		var result;
+		var lang
+		if(true) { // Fetch the labels of the properties
+			result = new sparql.Query();
+			result.projection[]
+		}
+		* /
+		
+		// TODO Order by ?o ?p
+		q.order.push(new sparql.Order(new sparql.ExprVar(c), sparql.OrderDir.Desc));
+		
+		//console.log("Created query: " + q);
+		return q;
+	};
+	*/
+
+	ns.createElementFacetCount = function(driver, isInverse, facetVar, valueVar, sampleSize) {
+		var result = new sparql.ElementGroup();
+		
+		var de = driver.getElement();
+		result.elements.push(de);
+		
+		var s = driver.variable;
+		var p = facetVar;
+		var o = valueVar;
+	
+		var triples = isInverse
+			? [ new sparql.Triple(o, p, s) ]
+			: [ new sparql.Triple(s, p, o) ];
+		
+		var triplesBlock = new sparql.ElementTriplesBlock(triples);
+		
+		result.elements.push(triplesBlock);
+		
+		return result;
+	};
+	
+	/**
+	 * Select ?facetVar (Count(Distinct(?__o)) As ?countFacetVar) { }
+	 * 
+	 */
+	ns.createQueryFacetCount = function(driver, facetVar, countFacetVar, isInverse, sampleSize) {
+		
+		//var facetVar = sparql.Node.v("__p");
+		var valueVar = sparql.Node.v("__o");
+		var element = ns.createElementFacetCount(driver, isInverse, facetVar, valueVar, sampleSize);
+		
+		var result = ns.createQueryCountDistinct(element, sampleSize, valueVar, countFacetVar, [facetVar]);
+
+		return result;
+	};
+	
 	/**
 	 * Counts the number of unique subjects per property.
+	 * NOTE: This is not what you want as facet counts
 	 * 
 	 * The generated query has the form:
 	 * Select Distinct ?p (Count(?p) As ?c) {
@@ -272,7 +422,7 @@
 	 * NOTE Variables are __s, __p, __o. Beware of name clashes.
 	 * 
 	 */
-	ns.createFacetQueryCount = function(driver, driverVar, sampleSize) {
+	ns.createFacetQueryCount2 = function(driver, driverVar, sampleSize) {
 		// The maximum number of instances to scan for collecting properties		
 		
 		var q = new sparql.Query();
@@ -351,7 +501,7 @@
 		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
 		
 		//var result = ns.createQueryFacetValuesCounted(element, breadcrumb, sampleSize);
-		var result = ns.createCountQuery(element, sampleSize, sourceVar, countVar, [facetVar]);
+		var result = ns.createQueryCount(element, sampleSize, sourceVar, countVar, [facetVar]);
 
 		//alert(result);
 		return result;
@@ -364,9 +514,9 @@
 	 * 
 	 */
 	ns.createQueryCountFacetValues = function(baseElement, breadcrumb, searchString, sampleSize, countVar) {
-		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);		
+		var element = ns.createElementFacetValues(baseElement, breadcrumb, searchString);
 		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
-		var result = ns.createCountQuery(element, sampleSize, facetVar, countVar);
+		var result = ns.createQueryCount(element, sampleSize, facetVar, countVar);
 		return result;
 	};
 	
@@ -571,7 +721,7 @@
 	 * If one of the groupVars equals the variable, it is omitted
 	 * 
 	 */
-	ns.createCountQuery = function(element, limit, variable, outputVar, groupVars, options) {
+	ns.createQueryCount = function(element, limit, variable, outputVar, groupVars, options) {
 		
 		
 		var subQuery = new sparql.Query();
@@ -602,7 +752,8 @@
 					subQuery.projectVars.add(groupVar);
 				}
 				
-				// FIXME Only works with virtuoso that way
+				// FIXME Only works with virtuoso if we do not additionally
+				// add variables to the group by clause
 				result.projectVars.add(groupVar);
 			}
 		}
@@ -621,7 +772,51 @@
 	};
 	
 	
-	
+
+	/**
+	 * Creates a query with Count(Distinct ?variable)) As outputVar for an element.
+	 * 
+	 */
+	ns.createQueryCountDistinct = function(element, limit, variable, outputVar, groupVars, options) {
+		
+		
+		var result = new sparql.Query();
+		if(limit) {
+			var subQuery = new sparql.Query();
+			
+			subQuery.elements.push(element); //element.copySubstitute(function(x) { return x; }));
+
+			if(groupVars) {
+				for(var i = 0; i < groupVars.length; ++i) {					
+					var groupVar = groupVars[i];					
+					subQuery.projectVars.add(groupVar);
+				}
+			}
+			subQuery.projectVars.add(variable);
+			subQuery.limit = limit;
+			
+			result.elements.push(new sparql.ElementSubQuery(subQuery));			
+		} else {
+			result.elements.push(element);
+		}
+		
+
+		if(groupVars) {
+			for(var i = 0; i < groupVars.length; ++i) {
+				var groupVar = groupVars[i];				
+				if(groupVar.value !== variable.value) {
+					result.projectVars.add(groupVar);
+				}
+			}
+		}
+		
+		result.projectVars.add(outputVar, new sparql.E_Count(new sparql.ExprVar(variable), true));
+		ns.applyQueryOptions(result, options);
+		
+		
+		return result;
+	};
+
 	/*
 	ns.createPlainQueryGenerator = function(queryGenerator, uris) {
 
@@ -916,7 +1111,7 @@
 	 *     TODO Now I finally have to change to projection to a list rather than a map...
 	 * @returns {sparql.Query}
 	 */
-	ns.createCountQueryFromQuery = function(baseQuery, limit, variable, groupVars) {
+	ns.createQueryCountFromQuery = function(baseQuery, limit, variable, groupVars) {
 		//return "Select Count(*) As ?c { { Select Distinct ?n { ?n a ?t ; geo:long ?x ; geo:lat ?y . " +  createBBoxFilterWgs84("x", "y", bounds) + this.createClassFilter("t", uris) + " } Limit 1000 } }";
 		
 		// Create a new query with its elemets set to copies of that of the baseQuery

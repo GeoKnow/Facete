@@ -5,6 +5,32 @@
 
 	
 	var ns = Namespace("org.aksw.ssb.widgets");
+
+	/**
+	 * This helper function provides indirect access
+	 * to member 'key' on 'data' via 'binding'.
+	 * 
+	 * Binding may either:
+	 * - map the key to another key
+	 * - map the key to a function that is then applied on data 
+	 * 
+	 */
+	ns.getDataValue = function(data, key, binding) {
+		var b = binding ? binding[key] : null;
+		var result;
+
+		if(b) {
+			if(typeof b === 'function') {
+				return b(data);
+			} else {				
+				return data[b];
+			}
+		} else {
+			return data[key];
+		}
+	};
+
+
 	
 	
 	// TODO Make use of backbone for the selection model
@@ -22,79 +48,13 @@
 	});
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	ns.ListModelSimple = function() {
 		
-	};
-	
-	
-	ns.ListItem = $$({
-		setId: function(id) {
-			this.model.set({id:id});
-		},
-		
-	
-		getId: function() {
-			return this.model.get(id);
-		}
-	});
-	
-	
-	ns.agilityJsIndexChildren = function(parent) {
-		var result = {};
-		
-		parent.each(function(index, child) {
-			
-			var id = child.model.get("id");
-			//console.log("Child id is", id);
-			
-			result[id] = child;
-		});
-		
-		return result;		
-	};
-	
-	ns.itemLabel = $$({label: ""}, '<li><span data-bind="label" /></li>', {
-		'click span': function() {
-
-			var parent = this.model.get("parent");
-			console.log("Triggereing click event on ", parent);
-			//alert("parent is: " + parent);
-			if(parent) {
-				parent.trigger("click", {isChild: true, item: this, data: this.model.get("data")});
-			}
-		}
-	});
 	
 	ns.RendererString = function(fnId, binding) {
 		this.fnId = fnId;
 		this.binding = binding;
 	};
 	
-	ns.getDataValue = function(data, key, binding) {
-		var b = binding ? binding[key] : null;
-		var result;
-
-		if(b) {
-			if(typeof b === 'function') {
-				return b(data);
-			} else {				
-				return data[b];
-			}
-		} else {
-			return data[key];
-		}
-	};
 	
 	ns.RendererString.prototype.create = function(data, parent) {
 		var label = ns.getDataValue(data, "label", this.binding);
@@ -105,193 +65,20 @@
 	};
 	
 	
-	/**
-	 * A simple list widget.
-	 * 
-	 * TODO I think we should distinguish between a pure view-only list widget,
-	 * and a view+model list widget.
-	 * 
-	 */
-	ns.ListWidget = $$({
-		//view: { format: '<ul class="nav nav-list"></ul>', },
-		view: { format: '<ul></ul>' },
-		model: {itemRenderer: new ns.RendererString(), collection: []},
-		/*
-		controller: {
-			'change': function() {
-				
-				var fnId = this.getFnId();
-				
-				var keyToData = {};
-				
-				_.each(this.getCollection(), function(data) {
-					var id = fnId(data);
-					keyToData[id] = data;
-				});
-				
-				//console.log("Synch", keyToData);
-				this.syncView(keyToData);
-			}			
-		},*/
-		/*
-		getContainerElement: function() {
-			return this.view.$();
-		},
-		*/
-		clear: function() {
-			this.each(function(i, child) {
-				child.destroy();
-			});
-		},
-		getItems: function() {
-			var result = [];
-			this.each(function(i, item) {
-				result.push(item);
-			});
-			return result;
-		},
-		trimToSize: function(size) {
-			var items = this.getItems();
-			
-			for(var i = size; i < items.length; ++i) {
-				items[i].destroy();
-			}
-		},
-		/*
-		setCollection: function(collection) {
-			this.model.set({collection: collection});
-		},
-		getCollection: function() {
-			return this.model.get("collection");
-		},
-		*/
-		addItem: function(item) {
-			//console.log("Item is", item);
-			this.append(item);//, this.getContainerElement());
-		},
-		removeItem: function(item) {
-			this.remove(item);
-		},
-		setModel: function(listModel) {
-			this.model.set({listModel: listModel});
-		},
-		getModel: function() {
-			return this.model.get("listModel");
-		},
-		setItemRenderer: function(itemRenderer) {
-			this.model.set({itemRenderer: itemRenderer});
-		},
-		getItemRenderer: function() {
-			return this.model.get("itemRenderer");
-		},		
-		getFnId: function() {
-			return this.model.get("fnId");
-		},
-		setFnId: function(fnId) {
-			this.model.set({fnId: fnId});
-		},
-		syncView2: function(collection) {
-			this.clear();
-			
-			var self = this;
-			//var collection = this.getCollection();
-			var renderer = self.getItemRenderer();
-			//console.log("ListWidget, Renderer", renderer);
-			_.each(collection, function(item) {
-								
-				itemView = renderer.create(item, self);
-				
-				
-				//console.log("Rendered item ", item, itemView);
-
-				self.append(itemView);
-			});
-			
-			//this.trimToSize(collection.size());
-		},
-		
-		syncView: function(keyToData) {
-			
-			//console.log("[ListWidget] sync view, data: ", keyToData);
-			
-			this.syncView2(keyToData);
-			return;
-			
-			var idToItem = ns.agilityJsIndexChildren(this);
-
-			// Destroy all children for which there is no key
-			var oldKeys = _.keys(idToItem);
-			var newKeys = _.keys(keyToData);
-			
-			var toRemove = _.difference(oldKeys, newKeys);
-			_.each(toRemove, function(id) {
-				var item = idToItem[id];
-				if(item) {
-					item.destroy();
-				}
-			});
-			
-			
-			var self = this;
-			_.each(newKeys, function(key) {
-				var item = idToItem[key];
-				var data = keyToData[key];
-				
-				if(item) {
-					//console.log("Update", item, "with", data);
-					item.model.set(data);
-					//item.setData(data);
-					item.view.sync();
-				} else {
-					item = self.getItemRenderer().create(data, self);
-					
-					//console.log("Append", item);
-					self.append(item);//, self.getContainerElement());
-				}
-			});
-			
-			
-		},
-		
-		refresh: function() {
-			var listModel = this.getModel();
-			
-			//console.log("listModel", listModel);
-			if(!listModel || !listModel.fetchData) {
-				return;
-			}
-
-			var self = this;
-						
-			var task = listModel.fetchData();
-			$.when(task).then(function(collection) {
-				
-				//console.log("[List Widgeht] Fetched data", collection);
-				self.syncView(collection);
-				
-			});
-		}
-		
-	});
-	
-	/*
-	ns.createListWidget2 = function(itemRenderer, fnId) {
-		var result = $$(ns.ListWidget);
-		//console.log("ListWidget", result);
-		
-		if(itemRenderer) {
-			result.setItemRenderer(itemRenderer);
-		}
-		
-		if(fnId) {
-			result.setFnId(fnId);
-		}
-		
-		return result;
-		//result.setListModel(model);
-		
+	ns.ItemRendererBackbone = function(viewCtor) {
+		this.viewCtor = viewCtor;
 	};
-	*/
+	
+	ns.ItemRendererBackbone.prototype = {
+			
+			create: function(model, parent) {
+				var view = new this.viewCtor({model: model});
+		
+				return view.render().el;
+			}
+	};
+
+	
 
 	
 	ns.ListView = Backbone.View.extend({
@@ -356,192 +143,81 @@
 	});
 	
 	
-	/**
-	 * A simple list widget.
-	 * 
-	 * TODO I think we should distinguish between a pure view-only list widget,
-	 * and a view+model list widget.
-	 * 
-	 */
-	/*
-	ns.ListWidgetBackbone = $$({
-		//view: { format: '<ul class="nav nav-list"></ul>', },
-		view: { format: '<ul></ul>' },
-		model: {itemRenderer: new ns.RendererString()},
+	ns.ItemViewMapMarker = Backbone.View.extend({
+		initialize: function() {
 
-		getContainerElement: function() {
-			return this.view.$();
-		},
-		clear: function() {
-			this.each(function(i, child) {
-				child.destroy();
-			});
-		},
-		getItems: function() {
-			var result = [];
-			this.each(function(i, item) {
-				result.push(item);
-			});
-			return result;
-		},
-		trimToSize: function(size) {
-			var items = this.getItems();
+			console.log('status', this);
 			
-			for(var i = size; i < items.length; ++i) {
-				items[i].destroy();
-			}
-		},
-		addItem: function(item) {
-			console.log("Item is", item);
-			this.append(item);//, this.getContainerElement());
-		},
-		removeItem: function(item) {
-			this.remove(item);
-		},
-		setCollection: function(collection) {
-			var old = this.getCollection();
+			this.mapWidget = this.options.mapWidget;
+			this.setElement(this.options.mapWidget.getElement());
 			
 			
-			if(old) {
-				old.unbind("add", this.refresh, this);
-				old.unbind("remove", this.refresh, this);
-			}
 			
-			collection.bind("add", this.refresh, this);
-			collection.bind("remove", this.refresh, this);
-
-			
-			this.model.set({collection: collection});
+			this.collection.bind('add', this.addModel, this);
+			this.collection.bind('remove', this.removeModel, this);
+			this.collection.bind('reset', this.clear, this);
 		},
-		getCollection: function() {
-			return this.model.get("collection");
-		},
-		setItemRenderer: function(itemRenderer) {
-			this.model.set({itemRenderer: itemRenderer});
-		},
-		getItemRenderer: function() {
-			return this.model.get("itemRenderer");
-		},		
-		getFnId: function() {
-			return this.model.get("fnId");
-		},
-		setFnId: function(fnId) {
-			this.model.set({fnId: fnId});
-		},
-//		sync3: function() {
-//			this.syncView2(this.getCollection());
-//		},
-		syncView2: function(collection) {
-			this.clear();
-			
-			var self = this;
-			//var collection = this.getCollection();
-
-			var renderer = this.getItemRenderer();
-			collection.each(function(item) {
-				console.log("RenderingItem: ", item);
-				
-				//console.log("ListWidgetBackbone, renderer:", renderer);
-				
-				itemView = renderer.create(item, self);
-				self.append(itemView);
-			});
-			
-			//this.trimToSize(collection.size());
-		},
+	
+	    addModel: function(model) {
+	    	var id = model.get("id").value;
+	    	var label = model.get("label");
+	    	var lonlat = model.get("lonlat");
+	    	var attrs = {	    			
+	    			abbr: model.get("abbr"),
+	    			label: model.get("label")
+	    	};
+	    	var visible = true;
+	    	//var state = this.model.get("isSelected");
+	    	
+	    	this.mapWidget.addItem(id, lonlat, attrs, visible);
+	    	//addItem: function(id, lonlat, visible);
 		
-		syncView: function(keyToData) {
-			
-			this.syncView2(keyToData);
-			return;
-			
-			var idToItem = ns.agilityJsIndexChildren(this);
+	    	/*
+	    	var label = this.model.get("label");
+	    	var state = this.model.get("isSelected");
+	
+	    	var stateStr = state ? "checked" : "";
+	    	
+	        $(this.el).html('<input type="checkbox" checked="' + stateStr + '"/><span>' + label + '</span>');
+	        */
+	        return this;
+	    },
+	    
+	    removeModel: function(model) {
+	    	this.mapWidget.removeItems(this.model.get("id"));
+	    	
+	    	//$(this.el).remove();
+	    },
 
-			// Destroy all children for which there is no key
-			var oldKeys = _.keys(idToItem);
-			var newKeys = _.keys(keyToData);
-			
-			var toRemove = _.difference(oldKeys, newKeys);
-			_.each(toRemove, function(id) {
-				var item = idToItem[id];
-				if(item) {
-					item.destroy();
-				}
-			});
-			
-			
-			var self = this;
-			_.each(newKeys, function(key) {
-				var item = idToItem[key];
-				var data = keyToData[key];
-				
-				if(item) {
-					console.log("Update", item, "with", data);
-					item.model.set(data);
-					//item.setData(data);
-					item.view.sync();
-				} else {
-					item = self.getItemRenderer().create(self, data);
-
-					console.log("Append", item);
-					self.append(item);//, self.getContainerElement());
-				}
-			});
-			
-			
-		},
-		
-		refresh: function() {
-			var collection = this.getCollection();
-			
-			console.log("listModel", collection);
-			if(!collection) {
-				return;
-			}
-
-			var self = this;
-						
-			self.syncView(collection);
-		}
-		
+	    clear: function() {
+	    	this.mapWidget.clearItems();
+	    },
+	    
+	    destroy: function() {
+	    	this.mapWidget.clearItems();
+	    }
 	});
 
-	
-	ns.createListWidgetBackbone = function(collection, itemRenderer) {
-		var result = new ns.ListView({collection: collection, itemRenderer: itemRenderer});
 		
-		/*
-		var result = $$(ns.ListWidgetBackbone);
 		
-		if(itemRenderer) {
-			result.setItemRenderer(itemRenderer);
-		}
-		result.setCollection(collection);
-		result.refresh();
-		* /
-			
-		return result;
-	};
-*/
-	
-	
-	
-
 	ns.ItemViewCheckbox = Backbone.View.extend({
 		tagName: 'li',
 		
 		events: {
+			/*
 			'click span': function() {
 				$(this.parent).trigger("click", {isChild: true, item: this, model: this.model});				
-			}
+			}*/
 		},
 		
 		initialize: function() {
-			this.parent = this.options.parent;
+			//this.parent = this.options.parent;
 			
+			/*
 			if(!parent) {
 				console.error("No parent container provided");
 			}
+			*/
 			
 			
 			this.model.bind('change', this.render, this);
@@ -567,20 +243,24 @@
 	    }
 	});
 
+	
+	
 
 	ns.ItemViewLabel = Backbone.View.extend({
 		tagName: 'li',
 		
 		events: {
+			/*
 			'click span': function() {
 				$(this.options.parent).trigger("click", {isChild: true, item: this, model: this.model});				
-			}
+			}*/
 		},
 		
 		initialize: function() {
+			/*
 			if(!this.options.parent) {
 				console.error("No parent container provided");
-			}
+			}*/
 			
 			
 			this.model.bind('change', this.render, this);
@@ -630,23 +310,7 @@
 		
 		return result;
 	};
-
 	
-	
-	ns.createListWidget = function(model, itemRenderer) {
-		var result = $$(ns.ListWidget);
-		
-		if(itemRenderer) {
-			result.setItemRenderer(itemRenderer);
-		}
-		result.setModel(model);
-		
-		
-		
-		result.refresh();
-			
-		return result;
-	};
 	
 	
 })(jQuery);

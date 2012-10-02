@@ -283,6 +283,24 @@
 	
 	$(document).ready(function() {
 
+/*
+		var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
+		
+		var v = sparql.Node.v("class");
+		var c = sparql.Node.v("c");
+		var x = sparql.Node.v("x");
+		var element = ns.createElementGetClasses(v);
+		var driver = new facets.Driver(element, v);
+
+		//var query = ns.createQueryCountDistinct(element, null, v, c, [x]);
+		var f = sparql.Node.v("f");
+		var fc = sparql.Node.v("fc");
+		var query = ns.createQueryFacetCount(driver, f, fc, false, 10);
+		//alert("" + query);
+*/	
+		
+		
+		
 		/*
 		var x = $.when().pipe(function() { return 1; });
 		var y = $.when().pipe(function() { return 2; });

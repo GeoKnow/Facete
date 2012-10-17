@@ -266,9 +266,9 @@
 
 	};
 	
-	ns.ResourceListBackendSparql = function(sparqlService, driver, labelFetcher) {
+	ns.ResourceListBackendSparql = function(sparqlService, concept, labelFetcher) {
 		this.sparqlService = sparqlService;
-		this.driver = driver;
+		this.concept = concept;
 		this.labelFetcher = labelFetcher;
 	};
 	
@@ -282,14 +282,14 @@
 	ns.ResourceListBackendSparql.prototype.fetchResources = function(searchString, options) {
 
 		var element = new sparql.ElementGroup();
-		element.elements.push(this.driver.element);
+		element.elements.push(this.concept.element);
 		
 		if(searchString) {
-			var searchElement = queryUtils.createElementLabelRegex(this.driver.variable, searchString);
+			var searchElement = queryUtils.createElementLabelRegex(this.concept.variable, searchString);
 			
 			element.elements.push(searchElement);
 		}
-		var newDriver = new facets.Driver(element, this.driver.variable);
+		var newDriver = new facets.ConceptInt(element, this.concept.variable);
 		
 		
 		var query = queryUtils.createQuerySelect(newDriver, options);		
@@ -310,7 +310,7 @@
 		
 		var countLimit = 1001;
 		var countVar = sparql.Node.v("__c");
-		var baseElement = facetState.driver.element;
+		var baseElement = facetState.concept.element;
 
 		var query = queryUtils.createQueryCountFacetValues(baseElement, breadcrumb, searchString, countLimit, countVar);
 

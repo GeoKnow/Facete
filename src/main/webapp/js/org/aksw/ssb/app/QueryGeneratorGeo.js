@@ -154,7 +154,7 @@
 		}
 		
 		
-		var newDriver = new facets.Driver(group, oldDriver.getVariable());
+		var newDriver = new facets.ConceptInt(group, oldDriver.getVariable());
 		
 		var result = new widgets.QueryGenerator(
 				newDriver,
@@ -226,7 +226,7 @@
 		var resultDriver = null;
 		
 		//if(inferredDriver) {
-		resultDriver = new facets.Driver(newElement, this.getVariable());// inferredDriver.getVariable());
+		resultDriver = new facets.ConceptInt(newElement, this.getVariable());// inferredDriver.getVariable());
 		//} 
 		
 		var result = new widgets.QueryGenerator(
@@ -331,11 +331,11 @@
 	
 		/* Query generation */
 		
-		// The driver is a query element which specifies which resources to fetch
+		// The concept is a query element which specifies which resources to fetch
 		// (e.g. ?s a Subvention)
-		// The driverVar is a variable of the driver element (e.g. ?s) 
-		this.driver = options.driver;
-		//this.driverVar = options.driverVar;
+		// The conceptVar is a variable of the concept element (e.g. ?s) 
+		this.concept = options.concept;
+		//this.conceptVar = options.conceptVar;
 		
 		// The path manager can create query elements for property paths
 		// such as (knows label) -> ?x knows ?y . ?y label ?z.
@@ -389,7 +389,7 @@
 	ns.QueryGenerator.prototype.copyExcludeConstraints = function(path) {
 		var result = new ns.QueryGenerator(
 				this.options,
-				this.driver,
+				this.concept,
 				this.pathManager,
 				this.geoConstraintFactory,
 				this.constraints.copyExclude(path),
@@ -409,7 +409,7 @@
 	ns.QueryGenerator.prototype.copyNavigate = function(navigationPath) {
 		var result = new ns.QueryGenerator(
 				this.options,
-				this.driver,
+				this.concept,
 				this.pathManager,
 				this.geoConstraintFactory,
 				this.constraints,
@@ -440,18 +440,18 @@
 		if(navigationTriples.length > 0) {
 			var elements = [];
 
-			// Add base driver element
-			elements.push(this.driver.element);
+			// Add base concept element
+			elements.push(this.concept.element);
 			elements.push(new sparql.ElementTriplesBlock(navigationTriples));
 			
 			element = new sparql.ElementGroup(elements);;
 		} else {
-			element = this.driver.element;
+			element = this.concept.element;
 		}
 
 		
 		var variable = sparql.Node.v(navigationBreadcrumb.targetNode.variable);				
-		var result = new facets.Driver(element, variable);
+		var result = new facets.ConceptInt(element, variable);
 
 		return result;
 	};
@@ -467,8 +467,8 @@
 	ns.QueryGenerator.prototype.forGlobal = function(options) {
 		var elements = [];
 
-		// Add driver element
-		//elements.push(this.driver.element);
+		// Add concept element
+		//elements.push(this.concept.element);
 		var inferredDriver = this.getInferredDriver();
 		elements.push(inferredDriver.element);
 
@@ -529,7 +529,7 @@
 	 * 
 	 * Supported options:
 	 * var options = {
-	 *     subQuery: true // Make the geos-constraints a subquery, and place the driver in the outer query
+	 *     subQuery: true // Make the geos-constraints a subquery, and place the concept in the outer query
 	 * }
 	 * 
 	 */

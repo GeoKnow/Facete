@@ -86,7 +86,7 @@
 	 * @returns
 	 */
 	ns.QueryExecutor.prototype.fetchValues = function(options) {
-		//var driver = this.queryGenerator.getDriverValues();
+		//var concept = this.queryGenerator.getDriverValues();
 		
 		var query = this.queryGenerator.createQueryValues(options);
 		var variable = this.queryGenerator.getNavigationVariable();
@@ -225,9 +225,9 @@
 	 * TODO Adjust
 	 */
 	ns.QueryExecutor.prototype.fetchFacetsWithDistinctValueCounts = function(isInverse) {
-		var driver = this.queryGenerator.createDriverValues();
+		var concept = this.queryGenerator.createDriverValues();
 		
-		var promise = queryUtils.fetchPivotFacets(this.sparqlService, driver, isInverse).pipe(function(nodes) {
+		var promise = queryUtils.fetchPivotFacets(this.sparqlService, concept, isInverse).pipe(function(nodes) {
 			return {isInverse: isInverse, facets: nodes };// _.map(nodes, function(item) { return sparql.Node.fromJson(item); }) };
 		});
 		
@@ -247,9 +247,9 @@
 	 * @returns
 	 */
 	ns.QueryExecutor.prototype.fetchPivotFacets = function(isInverse) {
-		var driver = this.queryGenerator.createDriverValues();
+		var concept = this.queryGenerator.createDriverValues();
 		
-		var promise = queryUtils.fetchPivotFacets(this.sparqlService, driver, isInverse).pipe(function(nodes) {
+		var promise = queryUtils.fetchPivotFacets(this.sparqlService, concept, isInverse).pipe(function(nodes) {
 			return {isInverse: isInverse, facets: nodes };// _.map(nodes, function(item) { return sparql.Node.fromJson(item); }) };
 		});
 		

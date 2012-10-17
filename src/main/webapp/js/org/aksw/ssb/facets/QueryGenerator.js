@@ -1,6 +1,5 @@
 (function() {
 
-	
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var facets = Namespace("org.aksw.ssb.facets");
@@ -17,27 +16,27 @@
 //	 * Or should it become passed as an argument when actually creating queries? 
 	 * 
 	 * Note: If a focusPath is specified, it is treated as an exists-constraint.
-	 * If there is no focusPath, then an empty path is used; which means that it points to the driver var.
+	 * If there is no focusPath, then an empty path is used; which means that it points to the concept var.
 	 * 
-	 * @param driver
+	 * @param concept
 	 * @param targetPath The path for which to fetch values
-	 * @param focusPath The path for which to compute the counts. If unspecified, same as driver.variable.  
+	 * @param focusPath The path for which to compute the counts. If unspecified, same as concept.variable.  
 	 * @param constraints
 	 * @param pathManager
 	 * @returns {ns.QueryGenerator}
 	 */
-	ns.QueryGenerator = function(driver, navigationPath, focusPath, constraints, pathManager) {
+	ns.QueryGenerator = function(concept, navigationPath, focusPath, constraints, pathManager) {
 		// The parent query generator (if it exists)
 		//this.parent = parent;
 		
-		this.driver = driver;
+		this.concept = concept;
 		
-		var driverVariableName = (this.driver && this.driver.variable) ? driver.variable.value : "s"; 
+		var conceptVariableName = (this.concept && this.concept.variable) ? concept.variable.value : "s";
 		
 		this.navigationPath = navigationPath ? navigationPath : new facets.Path();
 		this.focusPath = focusPath ? focusPath : new facets.Path();
 		this.constraints = constraints ? constraints : new facets.ConstraintCollection();
-		this.pathManager = pathManager ? pathManager : new facets.PathManager(driverVariableName);
+		this.pathManager = pathManager ? pathManager : new facets.PathManager(conceptVariableName);
 		
 		//this.fixedConstraints = fixedConstraints ? fixedConstraints : ne
 		
@@ -53,8 +52,8 @@
 	ns.QueryGenerator.prototype = {
 			createQueryCountDistinctFacets: function(facetVar, facetCountVar, isInverse, sampleLimit, options) {
 
-				var driver = this.createDriverValues();
-				var query = queryUtils.createQueryFacetCount(driver, facetVar, facetCountVar, isInverse, sampleLimit, options);
+				var concept = this.createDriverValues();
+				var query = queryUtils.createQueryFacetCount(concept, facetVar, facetCountVar, isInverse, sampleLimit, options);
 
 				return query;
 			}
@@ -69,7 +68,7 @@
 	 */
 	ns.QueryGenerator.prototype.clone = function() {
 			return new ns.QueryGenerator(
-				this.driver,
+				this.concept,
 				this.navigationPath,
 				this.focusPath,
 				this.constraints.clone(),
@@ -82,8 +81,8 @@
 		_.extend(result, overrides);
 		
 		/*
-				//this.driverProvider, // TODO Either the driver is an element or it is a sub-query-generator
-				this.driver,
+				//this.conceptProvider, // TODO Either the concept is an element or it is a sub-query-generator
+				this.concept,
 				this.navigationPath,
 				this.focusPath,
 				this.constraints.copyExclude(path),
@@ -126,8 +125,8 @@
 		return result;
 /*
 		var result = new ns.QueryGenerator(
-				//this.driverProvider, // TODO Either the driver is an element or it is a sub-query-generator
-				this.driver,
+				//this.conceptProvider, // TODO Either the concept is an element or it is a sub-query-generator
+				this.concept,
 				this.navigationPath,
 				this.focusPath,
 				this.constraints.copyExclude(path),
@@ -157,8 +156,8 @@
 		return result;
 		/*
 		var result = new ns.QueryGenerator(
-				//this.driverProvider,
-				this.driver,
+				//this.conceptProvider,
+				this.concept,
 				this.navigationPath,
 				this.focusPath,
 				this.constraints,
@@ -182,8 +181,8 @@
 
 
 	/**
-	 * Adds the navigation path to the driver and uses
-	 * this as a "virtual" new driver.
+	 * Adds the navigation path to the concept and uses
+	 * this as a "virtual" new concept.
 	 * 
 	 * 
 	 * @returns
@@ -197,9 +196,9 @@
 		if(navigationTriples.length > 0) {
 			var elements = [];
 
-			// Add base driver element
-			if(this.driver && this.driver.element) {
-				elements.push(this.driver.element);
+			// Add base concept element
+			if(this.concept && this.concept.element) {
+				elements.push(this.concept.element);
 			}
 			
 			
@@ -207,7 +206,7 @@
 			
 			element = new sparql.ElementGroup(elements);
 		} else {
-			element = (this.driver && this.driver.element) ? this.driver.element : null;
+			element = (this.concept && this.concept.element) ? this.concept.element : null;
 		}
 
 		if(!element) {
@@ -215,7 +214,7 @@
 		}
 		
 		var variable = navigationBreadcrumb.getTargetVariable(); //sparql.Node.v(navigationBreadcrumb.targetNode.variable);				
-		var result = new facets.Driver(element, variable);
+		var result = new facets.ConceptInt(element, variable);
 
 		//console.debug("Inferred Driver", variable);
 		
@@ -225,7 +224,7 @@
 	
 	/**
 	 * Returns a new Query Generator, where the constraints have been fixed;
-	 * i.e. encoded into the driver.
+	 * i.e. encoded into the concept.
 	 * 
 	 */
 	ns.QueryGenerator.prototype.fixConstraints = function() {
@@ -289,9 +288,9 @@
 		
 		var elements = [];
 
-		// Add driver element
-		if(this.driver && this.driver.element) {
-			elements.push(this.driver.element);
+		// Add concept element
+		if(this.concept && this.concept.element) {
+			elements.push(this.concept.element);
 		}
 		
 		// Add facet constraints
@@ -382,24 +381,24 @@
 		//console.log("var", variableName);
 		var variable = this.getNavigationVariable();
 		
-		var result = new facets.Driver(element, variable);
+		var result = new facets.ConceptInt(element, variable);
 		
 		return result;
 	};
 	
 	ns.QueryGenerator.prototype.createQueryCountValues = function(countVar, sampleLimit, options) {
-		var driver = this.createDriverValues();
+		var concept = this.createDriverValues();
 
 		countVar = countVar ? countVar : sparql.Node.v("__c");
-		var result = queryUtils.createQueryCount(driver.getElement(), sampleLimit, driver.getVariable(), countVar);
+		var result = queryUtils.createQueryCount(concept.getElement(), sampleLimit, concept.getVariable(), countVar);
 
 		return result;
 	};
 	
 	ns.QueryGenerator.prototype.createQueryValues = function(options) {
-		var driver = this.createDriverValues();
+		var concept = this.createDriverValues();
 		
-		var result = queryUtils.createQuerySelect(driver, options);
+		var result = queryUtils.createQuerySelect(concept, options);
 		return result;
 	};
 
@@ -426,14 +425,14 @@
 
 	/*
 	ns.QueryGenerator.prototype.createQueryValuesFiltered = function(searchString, property, options) {
-		var driver = this.createDriverValues();
+		var concept = this.createDriverValues();
 		
 		var labelVar = sparql.Node.v("__l");
-		var element = queryUtils.createElementLabelRegex(driver.getVariable(), searchString, labelVar, property);
+		var element = queryUtils.createElementLabelRegex(concept.getVariable(), searchString, labelVar, property);
 		
-		var newElement = element ? new sparql.ElementGroup([driver.getElement(), element]) : driver.getElement();
+		var newElement = element ? new sparql.ElementGroup([concept.getElement(), element]) : concept.getElement();
 		
-		var newDriver = new facets.Driver(newElement, driver.getVariable());
+		var newDriver = new facets.ConceptInt(newElement, concept.getVariable());
 		
 		var result = queryUtils.createQuerySelect(newDriver, options);
 		

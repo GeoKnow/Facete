@@ -279,8 +279,9 @@ $.widget("ui.ssb_map", {
 				var vector = feature; // Note: We assume a vector feature - might have to check in the future				
 				var geometry = feature.geometry;
 				
+				// FIXME Find a better way to get the click coordinates; but it might not exists yet, see http://trac.osgeo.org/openlayers/ticket/2089
+				var xy = this.handlers.feature.evt.xy;
 				
-
 				console.log("[Select Feature] Got Geometry: ", geometry);
 
 				// TODO Something seems to go wrong here after RDFauthor hides itself
@@ -298,23 +299,41 @@ $.widget("ui.ssb_map", {
 				} else if(geometry instanceof OpenLayers.Geometry.Polygon) {
 					//console.log("What I think is a geometry is a: ", geometry);
 				
-					var bounds = geometry.bounds;
-										
-					var newBounds = bounds.scale(0.5);
 					
+					/*
+					 * New method forzooming in onto the click position
+					 */
+					var clickLonLat = self.map.getLonLatFromViewPortPx(xy);
 					var currentZoom = self.map.getZoom();
+					var nextZoom = currentZoom + 1;
+					var numZoomLevels = self.map.getNumZoomLevels();
+ 
+					if(nextZoom >= numZoomLevels) {
+						nextZoom = numZoomLevels - 1;
+					}
 					
-					self.map.zoomToExtent(newBounds, false);
-
+					self.map.setCenter(clickLonLat, nextZoom);
 					
-					// Zoom-in (increase the zoom level) if zoomToExtent did not do that already  
-					var newZoom = self.map.getZoom();					
-					if(newZoom >= currentZoom) {
-						var nextZoom = newZoom + 1;
+					if(false) {
+						/*
+						 * Old method for zooming into the center of the bounds
+						 */
+						var bounds = geometry.bounds;
+											
+						var newBounds = bounds.scale(0.5);
+						var currentZoom = self.map.getZoom();
+						self.map.zoomToExtent(newBounds, false);
+	
 						
-						var numZoomLevels = self.map.getNumZoomLevels();
-						if(nextZoom < numZoomLevels) {
-							self.map.zoomTo(nextZoom);
+						// Zoom-in (increase the zoom level) if zoomToExtent did not do that already  
+						var newZoom = self.map.getZoom();					
+						if(newZoom >= currentZoom) {
+							var nextZoom = newZoom + 1;
+							
+							var numZoomLevels = self.map.getNumZoomLevels();
+							if(nextZoom < numZoomLevels) {
+								self.map.zoomTo(nextZoom);
+							}
 						}
 					}
 				}				

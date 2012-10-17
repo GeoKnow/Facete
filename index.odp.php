@@ -51,6 +51,8 @@
 		<link about="http://ex.org" rel="update:updateEndpoint" href="http://localhost/sparql" />
     
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
         <title>European Commission | Opening up European Commission</title>
         
 
@@ -80,6 +82,7 @@
 			<!-- 		<link rel="stylesheet" href="lib/jquery-ui/1.8.16/css/smoothness/jquery-ui-1.8.20.custom.css" /> -->
 <!-- 		<link rel="stylesheet" href="style.css" /> -->
 
+
     
 
         <script type="text/javascript"
@@ -95,6 +98,8 @@
 
 
         <script type="text/javascript" src="lib/jquery/1.7.2/jquery-1.7.2.js"></script>
+
+		<script type="text/javascript" src="lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>
 
 
         <!-- <script type="text/javascript" src="lib/fauxconsole/fauxconsole.js"></script> -->
@@ -242,6 +247,8 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
 
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/facets/Concepts.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>

@@ -125,7 +125,7 @@
 		
 		var conf = options.queryGenerator;
 		
-		var queryGenerator = new widgets.QueryGenerator(conf.driver, conf.navigationPath, null, conf.constraints, conf.pathManager);
+		var queryGenerator = new widgets.QueryGenerator(conf.concept, conf.navigationPath, null, conf.constraints, conf.pathManager);
 		
 		this.queryGeneratorGeo = new ns.QueryGeneratorGeo(queryGenerator, conf.geoConstraintFactory);
 		
@@ -880,12 +880,12 @@
 
 
 		{
-	    	var driverVar = sparql.Node.v("c");
-	    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
-	    	var driverElement = queryUtils.createElementGetNamedGraphs(driverVar);
-	    	var driver = new facets.Driver(driverElement, driverVar);
+	    	var conceptVar = sparql.Node.v("c");
+	    	//var conceptElement = queryUtils.createElementGetNamedGraphsFallback(conceptVar);
+	    	var conceptElement = queryUtils.createElementGetNamedGraphs(conceptVar);
+	    	var concept = new facets.ConceptInt(conceptElement, conceptVar);
 	
-	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	var queryGenerator = new widgets.QueryGenerator(concept);
 	    	
 			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 
@@ -918,11 +918,11 @@
 
 		
 		{
-	    	var driverVar = sparql.Node.v("c");
-	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
-	    	var driver = new facets.Driver(driverElement, driverVar);
+	    	var conceptVar = sparql.Node.v("c");
+	    	var conceptElement = queryUtils.createElementGetClasses(conceptVar);
+	    	var concept = new facets.ConceptInt(conceptElement, conceptVar);
 	
-	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	var queryGenerator = new widgets.QueryGenerator(concept);
 			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 
 			
@@ -952,11 +952,11 @@
 
 		// Resource search
 		{
-	    	var driverVar = sparql.Node.v("c");
-	    	var driverElement = queryUtils.createElementAnyResource(driverVar);
-	    	var driver = new facets.Driver(driverElement, driverVar);
+	    	var conceptVar = sparql.Node.v("c");
+	    	var conceptElement = queryUtils.createElementAnyResource(conceptVar);
+	    	var concept = new facets.ConceptInt(conceptElement, conceptVar);
 	
-	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	var queryGenerator = new widgets.QueryGenerator(concept);
 			var executor = new widgets.QueryExecutor(this.sparqlService, queryGenerator);
 
 			
@@ -1003,11 +1003,11 @@
 
 		/*
 		{
-	    	var driverVar = sparql.Node.v("c");
-	    	var driverElement = queryUtils.createElementGetClasses(driverVar);
-	    	var driver = new facets.Driver(driverElement, driverVar);
+	    	var conceptVar = sparql.Node.v("c");
+	    	var conceptElement = queryUtils.createElementGetClasses(conceptVar);
+	    	var concept = new facets.ConceptInt(conceptElement, conceptVar);
 	
-	    	var queryGenerator = new widgets.QueryGenerator(driver);
+	    	var queryGenerator = new widgets.QueryGenerator(concept);
 	    	
 			var model = widgets.createListModelLabels(this.sparqlService, queryGenerator, {distinct: true}, this.labelFetcher);
 			var listWidget = widgets.createListWidget(model, widgets.checkItemFactory);
@@ -1051,7 +1051,7 @@
 		
 		sparqlListWidget.refresh();
 		*/
-    	//var driverElement = queryUtils.createElementGetNamedGraphsFallback(driverVar);
+    	//var conceptElement = queryUtils.createElementGetNamedGraphsFallback(conceptVar);
 
 	};
 	
@@ -1066,7 +1066,7 @@
 		//this.queryGenerator.navigationBreadcrumb = concat;
 
 		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.getInferredDriver(), concat);
-		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.driver, concat);
+		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.concept, concat);
 		//this.facetbox.controller.setState(this.facetState);
 		//this.facebox.controller.setState(queryGenerator);
 		console.log("TODO - Set the FacetSate");
@@ -1248,7 +1248,7 @@
 		console.log("The queryGenerator is: ", queryGeneratorGeo);
 		
 		var baseElement = queryGenerator.createDriverValues().getElement();
-		//var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.driver.element;
+		//var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.concept.element;
 		 
 		var hash = baseElement.toString();
 		console.log("Query hash (including facets): ", hash);
@@ -1620,7 +1620,7 @@
 		});
 		*/
 		
-		//var generator = widgets.QueryGenerator(driver, );
+		//var generator = widgets.QueryGenerator(concept, );
 		
 		
 		if(true) {
@@ -1631,14 +1631,14 @@
 		// TODO Remove below
 		/*
 		var self = this;
-		var driver = queryUtils.createFacetQueryCountVisibleGeomNested(this.queryGenerator, uris);
+		var concept = queryUtils.createFacetQueryCountVisibleGeomNested(this.queryGenerator, uris);
 		
 		
-		// Set the driver of the facet state to the new query element
-		//this.facetState.driver = driver;
+		// Set the concept of the facet state to the new query element
+		//this.facetState.concept = concept;
 		
 		//console.log("Facet Query - Visible", this.viewState.visibleGeoms.length);
-		//console.log("Facet Query", driver);
+		//console.log("Facet Query", concept);
 
 		
 		// clear the pathManager
@@ -1670,7 +1670,7 @@
 		
 		// Once all facet counts have been obtained, and the pivoting abilities have been checked, update the view
 		var facetCountTask = queryUtils.fetchFacetCountsGeomRec(this.sparqlService, this.labelFetcher, state, node, stepStrToItem);
-		var pivotCheckTask = queryUtils.fetchPivotFacets(this.sparqlService, state.driver);
+		var pivotCheckTask = queryUtils.fetchPivotFacets(this.sparqlService, state.concept);
 		
 		$.when(facetCountTask, pivotCheckTask).then(function(facetState, pivotFacets) {
 			
@@ -2075,17 +2075,17 @@
 
 		//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
 		//var featureVar = self.queryGenerator.getInferredDriver().variable;
-		//var driver = new facets.Driver(element, featureVar);
-		var driver = queryGenerator.createDriverValues();
+		//var concept = new facets.ConceptInt(element, featureVar);
+		var concept = queryGenerator.createDriverValues();
 		
 		//var element = this.queryGenerator.ForGeoms(geomUriNodes);
 		//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
 
-		console.log("Driver", geom, driver);
+		console.log("Driver", geom, concept);
 		
 		
 		// TODO We need the query element and the geom variable
-		var backend = new widgets.ResourceListBackendSparql(self.sparqlService, driver, self.labelFetcher);
+		var backend = new widgets.ResourceListBackendSparql(self.sparqlService, concept, self.labelFetcher);
 		
 		var widget = widgets.createResourceListWidget(backend, {
 			onClick: function(uri) {
@@ -2468,12 +2468,10 @@
 	
 		//var url = "src/main/php/search_proxy.php?query=" + searchValue;
 		
-		var url = "http://nominatim.openstreetmap.org/search?format=json&q=" + searchValue;
+		var url = "http://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(searchValue);
 		
-		//console.log(url);
-		var promise = $.ajax(url, {dataType: "json"});
-		
-		$.when(promise).then(function(response) {				
+		var promise = $.ajax({url: url, crossDomain: true, dataType: 'json', type: "GET"});
+		promise.done(function(response) {				
 			var json = response;
 			
 			//console.log("displayName", json);

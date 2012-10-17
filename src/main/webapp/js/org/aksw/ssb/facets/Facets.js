@@ -34,28 +34,7 @@
 		
 		return result;
 	};
-	
-	
-	/*
-	ns.FacetValue = function(node, count) {
-		this.node = node;
-		this.count = count;
-	};
-	*/
-	
-	/*
-	ns.DriverProvider = function(label, driver) {
-		this.label = label;
-		this.driver = driver;
-	};
 
-	ns.DriverProvider.prototype.getDriver = function() {
-		return this.driver;
-	};
-
-	ns.DriverProvider.prototype.getLabel = function() {
-		return this.label;
-	};*/
 
 	
 	
@@ -67,6 +46,7 @@
 	 * @param element
 	 * @returns {ns.Driver}
 	 */
+	/*
 	ns.Driver = function(element, variable) {
 		this.element = element;
 		this.variable = variable;
@@ -83,6 +63,7 @@
 	ns.Driver.prototype.toString = function() {
 		return "" + this.getElement() + " with " + this.getVariable(); 
 	};
+	*/
 	
 	ns.PathNodeFactoryDefault = function() {
 	};

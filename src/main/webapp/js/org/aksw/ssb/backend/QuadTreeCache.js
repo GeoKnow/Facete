@@ -67,7 +67,7 @@
 	 * Creates a query for the geoms,  without retrieving the feature counts
 	 */
 	ns.QueryFactory.prototype.createQueryGeoms = function() {
-		var result = queryUtils.createQuerySelect(new facets.Driver(this.element, this.geomVar));
+		var result = queryUtils.createQuerySelect(new facets.ConceptInt(this.element, this.geomVar));
 		return result;
 	};
 	

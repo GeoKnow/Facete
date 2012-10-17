@@ -33,8 +33,8 @@
 	ns.FacetController.prototype.updateFacetCountsGeomRec = function(sparqlService, labelFetcher, facetState, node, propertyNameToItem) {
 		
 		//var self = this;
-		var driver = state.driver;
-		var query = queryUtils.createFacetQueryCount(driver.element, driver.variable);
+		var concept = state.concept;
+		var query = queryUtils.createFacetQueryCount(concept.element, concept.variable);
 
 		// Return a promise so we can react if the callback finishes
 		return sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {

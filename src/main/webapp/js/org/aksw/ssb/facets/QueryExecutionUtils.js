@@ -78,7 +78,7 @@
 	ns.loadDefaultFacets = function(sparqlService, config, callback) {
 		var autoFacetVar = 1;
 		
-		var s = config.driverVar;
+		var s = config.conceptVar;
 		
 		q = ns.FacetUtils.createQueryLoadDefaults(config);
 		
@@ -105,7 +105,7 @@
 					(
 							propertyName,
 							propertyNode,
-							new sparql.ElementTriplesBlock([new sparql.Triple(self.config.driverVar, propertyNode, objectNode)])
+							new sparql.ElementTriplesBlock([new sparql.Triple(self.config.conceptVar, propertyNode, objectNode)])
 					);
 					*/
 					
@@ -177,12 +177,12 @@
 		qf = queryFactory.copyNavigate(path);
 		
 		//  
-		var driver = qf.getDriver();
+		var concept = qf.getDriver();
 		
-		var baseElement = driver.element;
+		var baseElement = concept.element;
 		
 		var countVar = sparql.Node.v("__c");
-		var facetVar = driver.variable;//sparql.Node.v(breadcrumb.targetNode.variable);
+		var facetVar = concept.variable;//sparql.Node.v(breadcrumb.targetNode.variable);
 		var query = ns.createQueryFacetValuesCountedFiltered(baseElement, breadcrumb, state.config.sampleSize, searchString, countVar);
 
 		console.log("Query data", "" + query);
@@ -290,7 +290,7 @@
 	ns.loadFacetValues = function(sparqlService, labelFetcher, state, breadcrumb, searchString, callback) {
 		//var self = this;
 
-		var baseElement = state.driver.element;
+		var baseElement = state.concept.element;
 		
 		var countVar = sparql.Node.v("__c");
 		var facetVar = sparql.Node.v(breadcrumb.targetNode.variable);
@@ -389,10 +389,10 @@
 	};
 
 	
-	ns.fetchPivotFacets = function(sparqlService, driver, isInverse) {
+	ns.fetchPivotFacets = function(sparqlService, concept, isInverse) {
 		
 		var outputVar = sparql.Node.v("__p");
-		var query = ns.createQueryGetPivotFacets(driver, outputVar, isInverse);
+		var query = ns.createQueryGetPivotFacets(concept, outputVar, isInverse);
 		
 		var result = ns.fetchList(sparqlService, query, outputVar);
 		//var result = sparqlService.executeSelect(query.toString()).pipe(function()
@@ -409,8 +409,8 @@
 	ns.fetchFacetCountsGeomRec = function(sparqlService, labelFetcher, facetState, node, propertyNameToItem) {
 		
 		//var self = this;
-		var driver = facetState.driver;
-		var query = ns.createFacetQueryCount(driver.element, driver.variable);
+		var concept = facetState.concept;
+		var query = ns.createFacetQueryCount(concept.element, concept.variable);
 
 		// Return a promise so we can react if the callback finishes
 		var result = sparqlService.executeSelect(query.toString()).pipe(function(jsonRs) {

@@ -89,7 +89,7 @@
 		//testBounds();
 		
 		
-		var driver = config.driver;
+		var concept = config.concept;
 		var pathManager = null;
 
 		console.log("Config is", config);
@@ -107,8 +107,8 @@
 			//query.elements.push(new sparql.ElementString(queryString, [v]));
 			//query.projectVars.add(v);
 			
-			var driverElement = new sparql.ElementString(queryString, [v]);
-			driver = new facets.Driver(driverElement, s);
+			var conceptElement = new sparql.ElementString(queryString, [v]);
+			concept = new facets.ConceptInt(conceptElement, s);
 			pathManager = new facets.PathManager(vName); 
 		}
 		
@@ -123,10 +123,10 @@
 			//var subvention = sparql.Node.uri("http://diadem.cs.ox.ac.uk/ontologies/real-estate#House");
 			var subvention = sparql.Node.uri("http://linkedgeodata.org/ontology/Node");
 			
-			//var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
-			var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
+			//var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, node)]);
+			var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, a, subvention)]);
 			
-			driver = new facets.Driver(driverElement, s);
+			concept = new facets.ConceptInt(conceptElement, s);
 			pathManager = new facets.PathManager("s");
 		}
 		*/
@@ -137,13 +137,13 @@
 		//var baseStr = "http://fintrans.publicdata.eu/ec/ontology/beneficiary http://fintrans.publicdata.eu/ec/ontology/city http://www.w3.org/2002/07/owl#sameAs";	
 
 		
-		// TODO I think the system should work if the driver is left on null
-		// Alternatively, the driver must be set to the triples of the geoPath
+		// TODO I think the system should work if the concept is left on null
+		// Alternatively, the concept must be set to the triples of the geoPath
 		//var fallbackDriver = createFallbackDriver(); // null
 		
 		var fallbackDriver = null;
 		
-		var driver = config.driver ? config.driver : fallbackDriver;
+		var concept = config.concept ? config.concept : fallbackDriver;
 		var geoPath = config.geoPath ? config.geoPath : new facets.Path();
 		var navigationPath = config.navigationPath ? config.navigationPath : new facets.Path();
 		
@@ -198,7 +198,7 @@
 
 		
 		/*
-		var config = new facetbox.FacetConfig(driver, 1001, 10001);
+		var config = new facetbox.FacetConfig(concept, 1001, 10001);
 		var state = new facetbox.FacetState(config, pathManager);
 		
 		var constraints = new facets.ConstraintCollection();
@@ -209,8 +209,8 @@
 	
 		var options = {
 				queryGenerator: {
-					driver: driver,
-					//driverVar: s,
+					concept: concept,
+					//conceptVar: s,
 					navigationPath: navigationPath,
 					pathManager: pathManager,
 					geoConstraintFactory: factory,
@@ -290,12 +290,12 @@
 		var c = sparql.Node.v("c");
 		var x = sparql.Node.v("x");
 		var element = ns.createElementGetClasses(v);
-		var driver = new facets.Driver(element, v);
+		var concept = new facets.ConceptInt(element, v);
 
 		//var query = ns.createQueryCountDistinct(element, null, v, c, [x]);
 		var f = sparql.Node.v("f");
 		var fc = sparql.Node.v("fc");
-		var query = ns.createQueryFacetCount(driver, f, fc, false, 10);
+		var query = ns.createQueryFacetCount(concept, f, fc, false, 10);
 		//alert("" + query);
 */	
 		

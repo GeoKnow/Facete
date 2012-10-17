@@ -9,7 +9,7 @@
 
 	
 	ns.FacetConfig = function(facetCountThreshold, sampleSize) {
-		// this.driver = driver;
+		// this.concept = concept;
 		this.facetCountThreshold = facetCountThreshold;
 		this.sampleSize = sampleSize;
 	};

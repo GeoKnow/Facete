@@ -17,7 +17,7 @@
 		
 	};
 	
-	ns.TableFacade.prototype.setDriver = function(driver) {
+	ns.TableFacade.prototype.setDriver = function(concept) {
 		
 	};
 	

@@ -309,17 +309,17 @@
 
 		// Resource search
 		{
-	    	var driverVar = sparql.Node.v("c");
-	    	var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, rdf.type, sparql.Node.uri("http://qa.linkeddata.org/ontology/LinkingProject"))]);
-	    	//var driverElement = queryUtils.createElementAnyResource(driverVar);
-	    	var driver = new facets.Driver(driverElement, driverVar);
+	    	var conceptVar = sparql.Node.v("c");
+	    	var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(conceptVar, rdf.type, sparql.Node.uri("http://qa.linkeddata.org/ontology/LinkingProject"))]);
+	    	//var conceptElement = queryUtils.createElementAnyResource(conceptVar);
+	    	var concept = new facets.ConceptInt(conceptElement, conceptVar);
 	
-	    	this.queryGenerator = new widgets.QueryGenerator(driver);
+	    	this.queryGenerator = new widgets.QueryGenerator(concept);
 	    	var queryProjector = new widgets.QueryProjector(this.queryGenerator);
 	    	
 	    	
 	    	
-	    	this.queryGeneratorFacets = new widgets.QueryGenerator(driver);
+	    	this.queryGeneratorFacets = new widgets.QueryGenerator(concept);
 	    	this.queryGeneratorFacets.setNavigationPath(facets.Path.fromString("http://qa.linkeddata.org/ontology/assessment"));
 	    	
 	    	var q = this.queryGeneratorFacets.createQueryValues();

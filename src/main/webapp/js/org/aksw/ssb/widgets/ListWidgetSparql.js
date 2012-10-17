@@ -369,12 +369,12 @@
 	 * Not sure if below is needed
 	 */
 	/*
-	ns.DriverProviderSimple = function(driver) {
-		this.driver = driver;
+	ns.DriverProviderSimple = function(concept) {
+		this.concept = concept;
 	};
 	
 	ns.DriverProviderSimple.prototype.provideDriver = function() {
-		return this.driver;
+		return this.concept;
 	};
 	
 	ns.DriverProviderGenerated = function(queryGenerator) {
@@ -432,12 +432,12 @@
 	
 	
 	ns.ListModelSparql.prototype.fetchData = function() {
-		var driver = this.queryGenerator.createDriverValues();
+		var concept = this.queryGenerator.createDriverValues();
 
-		console.log("Driver: ", driver);
+		console.log("Driver: ", concept);
 		
-		var query = queryUtils.createQuerySelect(driver, this.options);						
-		var task = queryUtils.fetchList(this.sparqlService, query, driver.variable);
+		var query = queryUtils.createQuerySelect(concept, this.options);						
+		var task = queryUtils.fetchList(this.sparqlService, query, concept.variable);
 
 		var result = $.Deferred();
 		

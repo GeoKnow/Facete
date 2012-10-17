@@ -18,6 +18,13 @@
 	var ns = Namespace("org.aksw.ssb.facets.QueryUtils");
 
 	
+	ns.requireIntensionalConcept = function(concept) {
+		if(!concept.isIntensional()) {
+			throw "Intensional concept required";
+		}
+	};
+	
+	
 	/**
 	 * Creates a {?s ?p ?o} concept.
 	 * The subject must be specified. 
@@ -30,11 +37,11 @@
 		var p = sparql.Node.v("p");
 		var o = sparql.Node.v("o");
 		
-		var driverElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
+		var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
 
 		//pathManager = new facets.PathManager(s.value);
 		
-		result = new facets.Driver(driverElement, s);
+		result = new facets.ConceptInt(conceptElement, s);
 
 		return result;
 	};
@@ -46,8 +53,8 @@
 	 * 
 	 */
 	ns.createQueryAnyResource = function(outputVar) {
-		var driver = new facets.Driver(ns.createElementAnyResource(outputVar), outputVar);
-		var result = ns.createQuerySelect(driver, {distinct: true});
+		var concept = new facets.ConceptInt(ns.createElementAnyResource(outputVar), outputVar);
+		var result = ns.createQuerySelect(concept, {distinct: true});
 	};
 	
 	/**
@@ -65,7 +72,7 @@
 		    new sparql.ElementTriplesBlock([new sparql.Triple(x, y, s)]),
 		]);
 		
-		return result;		
+		return result;
 	};
 
 	/**
@@ -74,8 +81,8 @@
 	 * 
 	 */
 	ns.createQueryGetClasses = function(outputVar) {
-		var driver = new facets.Driver(ns.createElementGetClasses(outputVar), outputVar);
-		var result = ns.createQuerySelect(driver, {distinct: true});
+		var concept = new facets.ConceptInt(ns.createElementGetClasses(outputVar), outputVar);
+		var result = ns.createQuerySelect(concept, {distinct: true});
 
 		return result;
 	};
@@ -127,8 +134,8 @@
 	 * 
 	 */
 	ns.createQueryGetNamedGraphs = function(outputVar) {
-		var driver = new facets.Driver(ns.createElementGetNamedGraphs(outputVar), outputVar);
-		var result = ns.createQuerySelect(driver, {distinct: true});
+		var concept = new facets.ConceptInt(ns.createElementGetNamedGraphs(outputVar), outputVar);
+		var result = ns.createQuerySelect(concept, {distinct: true});
 
 		return result;
 	};
@@ -139,8 +146,8 @@
 	 * 
 	 */
 	ns.createQueryGetNamedGraphsFallback = function(outputVar) {
-		var driver = new facets.Driver(ns.createElementGetNamedGraphsFallback(outputVar), outputVar);
-		var result = ns.createQuerySelect(driver, {distinct: true});
+		var concept = new facets.ConceptInt(ns.createElementGetNamedGraphsFallback(outputVar), outputVar);
+		var result = ns.createQuerySelect(concept, {distinct: true});
 
 		return result;
 	};
@@ -166,9 +173,9 @@
 	
 
 	/**
-	 * Creates a Select-Query from a driver.
+	 * Creates a Select-Query from an intensional concept.
 	 * 
-	 * Select ?driverVar { driverElement }
+	 * Select ?conceptVar { conceptElement }
 	 * 
 	 * options:
 	 *     distinct
@@ -176,11 +183,14 @@
 	 *     offset
 	 * 
 	 */
-	ns.createQuerySelect = function(driver, options) {
+	ns.createQuerySelect = function(concept, options) {
+
+		ns.requireIntensionalConcept(concept);
+		
 		var result = new sparql.Query();
 		
-		result.projectVars.add(driver.variable);
-		result.elements.push(driver.element);
+		result.projectVars.add(concept.getVariable());
+		result.elements.push(concept.getElement());
 
 		ns.applyQueryOptions(result, options);
 		
@@ -202,20 +212,20 @@
 	/**
 	 * Creates a query that fetches plain facets (i.e. no counts)
 	 * Select Distinct ?p {
-	 *     [driver] (optional)
-	 *     ?driverVar ?p ?o .
+	 *     [concept] (optional)
+	 *     ?conceptVar ?p ?o .
 	 * }
 	 */
-	ns.createFacetQueryPlain = function(driver, driverVar) {
+	ns.createFacetQueryPlain = function(concept, conceptVar) {
 		var result = new sparql.Query();
 		
-		if(driver) {
-			result.elements.push(driver);
+		if(concept) {
+			result.elements.push(concept);
 		}
 		
  
 		var p = sparql.Node.v("__p");
-		var triple = new sparql.Triple(driver, p, sparql.Node.v("__o"));		
+		var triple = new sparql.Triple(concept, p, sparql.Node.v("__o"));		
 		result.elements.push(new sparql.ElementTriplesBlock(triple));
 		
 		result.projectVars.add(p);
@@ -232,16 +242,16 @@
 		return result;
 	};
 	
-	ns.createDescribeQuery = function(driver, driverVar) {
+	ns.createDescribeQuery = function(concept, conceptVar) {
 		var result = new sparql.Query();
 		result.type = sparql.QueryType.Construct;
 		
-		result.elements.push(driver);
+		result.elements.push(concept);
 		
 		var p = sparql.Node.v("__p");
 		var o = sparql.Node.v("__o");
 		
-		var triple = new sparql.Triple(driverVar, p, o);
+		var triple = new sparql.Triple(conceptVar, p, o);
 
 		result.constructTemplate = new sparql.Template(new sparql.BasicPattern([triple]));
 		
@@ -259,7 +269,7 @@
 	 *   ?o ?x ?y
 	 *   
 	 *   {?s ?p ?o
-	 *   driver(?s)}
+	 *   concept(?s)}
 	 * }
 	 * 
 	 * Backward:
@@ -267,17 +277,17 @@
 	 *       ?y ?x ?o
 	 *       
 	 *       {?s ?p ?o
-	 *       driver(?s)}
+	 *       concept(?s)}
 	 *     }
 
 	 */
-	ns.createQueryGetPivotFacets = function(driver, outputVar, isInverse) {
+	ns.createQueryGetPivotFacets = function(concept, outputVar, isInverse) {
 		var result = new sparql.Query();
 				
-		result.elements.push(driver.element);
+		result.elements.push(concept.getElement());
 		
-		//var s = sparql.Node.v(driver.variable);
-		var s = driver.variable;
+		//var s = sparql.Node.v(concept.getVariable());
+		var s = concept.getVariable();
 		var p = outputVar; //sparql.Node.v("__p");
 		var o = sparql.Node.v("__o");
 		var x = sparql.Node.v("__x");
@@ -306,7 +316,7 @@
 	 * 
 	 */
 	/*
-	ns.createQueryCountDistinctVar = function(driver, driverVar, distinctVar, sampleSize) {
+	ns.createQueryCountDistinctVar = function(concept, conceptVar, distinctVar, sampleSize) {
 		// The maximum number of instances to scan for collecting properties		
 		
 		var q = new sparql.Query();
@@ -322,7 +332,7 @@
 		///q.projection[p.value] = null;
 		///q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
 
-		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(driverVar));
+		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(conceptVar));
 
 		var tmp = q;
 		if(true) { // limit instances to check for properties
@@ -331,10 +341,10 @@
 		    if(false) {
 		    	subQuery.isResultStar = true;
 		    } else {
-		    	//console.error(driverVar);
-		    	subQuery.projectVars.add(driverVar);
+		    	//console.error(conceptVar);
+		    	subQuery.projectVars.add(conceptVar);
 		    	subQuery.projectVars.add(o);
-		    	///subQuery.projection[driverVar.value] = null;
+		    	///subQuery.projection[conceptVar.value] = null;
 		    	///subQuery.projection[p.value] = null;
 		    	subQuery.distinct = true;
 		    }
@@ -347,10 +357,10 @@
 		}
 		
 		
-		//console.log("Driver", driver);
+		//console.log("Driver", concept);
 		
-		tmp.elements.push(driver);
-		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, p, o)]));
+		tmp.elements.push(concept);
+		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(conceptVar, p, o)]));
 		
 		
 		// TODO We could reduce the number of requests if we fetched labels here
@@ -374,13 +384,13 @@
 	};
 	*/
 
-	ns.createElementFacetCount = function(driver, isInverse, facetVar, valueVar, sampleSize) {
+	ns.createElementFacetCount = function(concept, isInverse, facetVar, valueVar, sampleSize) {
 		var result = new sparql.ElementGroup();
 		
-		var de = driver.getElement();
+		var de = concept.getElement();
 		result.elements.push(de);
 		
-		var s = driver.variable;
+		var s = concept.getVariable();
 		var p = facetVar;
 		var o = valueVar;
 	
@@ -399,11 +409,11 @@
 	 * Select ?facetVar (Count(Distinct(?__o)) As ?countFacetVar) { }
 	 * 
 	 */
-	ns.createQueryFacetCount = function(driver, facetVar, countFacetVar, isInverse, sampleSize) {
+	ns.createQueryFacetCount = function(concept, facetVar, countFacetVar, isInverse, sampleSize) {
 		
 		//var facetVar = sparql.Node.v("__p");
 		var valueVar = sparql.Node.v("__o");
-		var element = ns.createElementFacetCount(driver, isInverse, facetVar, valueVar, sampleSize);
+		var element = ns.createElementFacetCount(concept, isInverse, facetVar, valueVar, sampleSize);
 		
 		var result = ns.createQueryCountDistinct(element, sampleSize, valueVar, countFacetVar, [facetVar]);
 
@@ -416,13 +426,13 @@
 	 * 
 	 * The generated query has the form:
 	 * Select Distinct ?p (Count(?p) As ?c) {
-	 *   { Select Distinct ?s ?p { driver . ?s ?p ?o . } }
+	 *   { Select Distinct ?s ?p { concept . ?s ?p ?o . } }
 	 * }
 	 * 
 	 * NOTE Variables are __s, __p, __o. Beware of name clashes.
 	 * 
 	 */
-	ns.createFacetQueryCount2 = function(driver, driverVar, sampleSize) {
+	ns.createFacetQueryCount2 = function(concept, conceptVar, sampleSize) {
 		// The maximum number of instances to scan for collecting properties		
 		
 		var q = new sparql.Query();
@@ -438,7 +448,7 @@
 		///q.projection[p.value] = null;
 		///q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(p));
 
-		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(driverVar));
+		//q.projection[c.value] = new sparql.E_Count(new sparql.ExprVar(conceptVar));
 		
 		var tmp = q;
 		if(true) { // limit instances to check for properties
@@ -447,10 +457,10 @@
 		    if(false) {
 		    	subQuery.isResultStar = true;
 		    } else {
-		    	//console.error(driverVar);
-		    	subQuery.projectVars.add(driverVar);
+		    	//console.error(conceptVar);
+		    	subQuery.projectVars.add(conceptVar);
 		    	subQuery.projectVars.add(p);
-		    	///subQuery.projection[driverVar.value] = null;
+		    	///subQuery.projection[conceptVar.value] = null;
 		    	///subQuery.projection[p.value] = null;
 		    	subQuery.distinct = true;
 		    }
@@ -463,10 +473,10 @@
 		}
 		
 		
-		//console.log("Driver", driver);
+		//console.log("Driver", concept);
 		
-		tmp.elements.push(driver);
-		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, p, o)]));
+		tmp.elements.push(concept);
+		tmp.elements.push(new sparql.ElementTriplesBlock([new sparql.Triple(conceptVar, p, o)]));
 		
 		
 		// TODO We could reduce the number of requests if we fetched labels here
@@ -522,15 +532,15 @@
 	
 
 	
-	ns.createElementLabelRegex = function(driverVar, searchString, labelVar, property) {
+	ns.createElementLabelRegex = function(conceptVar, searchString, labelVar, property) {
 		property = property ? property : rdfs.label;
 		labelVar = labelVar ? labelVar : sparql.Node.v("__l");
 		
 		var filterExpr = new sparql.E_LogicalOr(
-				new sparql.E_Regex(new sparql.E_Str(new sparql.ExprVar(driverVar)), searchString, "i"),
+				new sparql.E_Regex(new sparql.E_Str(new sparql.ExprVar(conceptVar)), searchString, "i"),
 				new sparql.E_Regex(new sparql.ExprVar(labelVar), searchString, "i"));
 		
-		var optionalElement = new sparql.ElementTriplesBlock([new sparql.Triple(driverVar, property, labelVar)]);
+		var optionalElement = new sparql.ElementTriplesBlock([new sparql.Triple(conceptVar, property, labelVar)]);
 		var optional = new sparql.ElementOptional(optionalElement);		
 
 		element = new sparql.ElementGroup();		
@@ -607,7 +617,7 @@
 	 * Example:
 	 * If the facet corresponds to { ?s rdfs:label ?o }, then the query is
 	 * 
-	 * Select Distinct ?o Count(?s) { { Select Distinct ?s { ?s driver ... constraints . } Limit 10001 } . ?s rdfs:label ?o .
+	 * Select Distinct ?o Count(?s) { { Select Distinct ?s { ?s concept ... constraints . } Limit 10001 } . ?s rdfs:label ?o .
 	 * 
 	 * 
 	 * @param config
@@ -667,7 +677,7 @@
 		    tmp = subQuery;
 		}
 
-		//subQuery.elements.push(config.driver);
+		//subQuery.elements.push(config.concept);
 		subQuery.elements.push(baseElement);
 		subQuery.elements.push(element);
 
@@ -820,7 +830,7 @@
 	/*
 	ns.createPlainQueryGenerator = function(queryGenerator, uris) {
 
-		var driver = queryGenerator.driver;
+		var concept = queryGenerator.concept;
 		var inferredDriver = queryGenerator.getInferredDriver();
 
 		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
@@ -842,9 +852,9 @@
 
 		subQuery.elements.push(filterElement);
 		//subQuery.projectVars.add(inferredDriver.variable);
-		//subQuery.projectVars.add(driver.variable);
+		//subQuery.projectVars.add(concept.getVariable());
 		subQuery.projectVars.add(geomSrcVar);
-		///subQuery.projection[driver.variable.value] = null;
+		///subQuery.projection[concept.getVariable().value] = null;
 		subQuery.distinct = true;
 		
 		
@@ -862,10 +872,10 @@
 		
 		var element = new sparql.ElementGroup(elements);		
 		
-		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
-		//var result = new facets.Driver(element, queryGenerator.driver.variable);
+		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.concept.getVariable());
+		//var result = new facets.ConceptInt(element, queryGenerator.concept.getVariable());
 
-		var newDriver = new facets.Driver(element, inferredDriver.variable);
+		var newDriver = new facets.ConceptInt(element, inferredDriver.variable);
 
 		
 		var result = new widgets.QueryGenerator(newDriver, )
@@ -878,7 +888,7 @@
 	/**
 	 * Select Distinct ?p (Count(?p) As ?c) {
 	 *   Select Distinct ?s ?p {
-	 *     driver
+	 *     concept
 	 *     {
 	 *       Select Distinct ?s { geomElement . Filter(geom In ...) } 
 	 *     }   
@@ -893,7 +903,7 @@
 	 */
 	ns.createFacetQueryCountVisibleGeomNested = function(queryGenerator, uris) {
 
-		var driver = queryGenerator.driver;
+		var concept = queryGenerator.concept;
 		var inferredDriver = queryGenerator.getInferredDriver();
 
 		//var geoQueryFactory = this.queryGenerator.createQueryFactory();
@@ -915,9 +925,9 @@
 
 		subQuery.elements.push(filterElement);
 		//subQuery.projectVars.add(inferredDriver.variable);
-		//subQuery.projectVars.add(driver.variable);
+		//subQuery.projectVars.add(concept.getVariable());
 		subQuery.projectVars.add(geomSrcVar);
-		///subQuery.projection[driver.variable.value] = null;
+		///subQuery.projection[concept.getVariable().value] = null;
 		subQuery.distinct = true;
 		
 		
@@ -933,10 +943,10 @@
 		
 		var element = new sparql.ElementGroup(elements);		
 		
-		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.driver.variable);
-		//var result = new facets.Driver(element, queryGenerator.driver.variable);
+		//var result = queryUtils.createFacetQueryCount(element, this.queryGenerator.concept.getVariable());
+		//var result = new facets.ConceptInt(element, queryGenerator.concept.getVariable());
 
-		var result = new facets.Driver(element, inferredDriver.variable);
+		var result = new facets.ConceptInt(element, inferredDriver.variable);
 
 
 		return result;
@@ -1085,10 +1095,10 @@
 		var expr = sparql.opify(constraintExprs, sparql.E_LogicalOr);
 		var filterElement = new sparql.ElementFilter(expr);
 		baseElement.elements.push(filterElement);
-		var result = queryUtils.createFacetQueryCount(baseElement, this.queryGenerator.driver.variable);
+		var result = queryUtils.createFacetQueryCount(baseElement, this.queryGenerator.concept.getVariable());
 		* /
 		
-		var result = queryUtils.createFacetQueryCount(unionElement, this.queryGenerator.driver.variable);
+		var result = queryUtils.createFacetQueryCount(unionElement, this.queryGenerator.concept.getVariable());
 		
 		//console.debug("FacetCounts", result.toString());
 		return result;
@@ -1181,7 +1191,7 @@
 			
 			var q = new sparql.Query();
 
-			var s = config.driverVar;
+			var s = config.conceptVar;
 			q.projection.projectVars.add(p);
 			q.projection.porjectVars.add(count, new sparql.E_Count(s));
 			///q.projection[p.value] = null;
@@ -1190,8 +1200,8 @@
 
 			var subQuery = new sparql.Query();
 			subQuery.limit = maxCount;
-			subQuery.elements.push(config.driver);
-			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.driverVar);
+			subQuery.elements.push(config.concept);
+			subQuery.elements.push(facet.queryElement); //.copySubstitute(facet.mainVar, facetManager.conceptVar);
 			subQuery.distinct = true;
 			subQuery.projectVars.add(p, new sparql.NodeValue(sparql.Node.uri(facet.id)));
 			subQuery.projectVars.add(s);
@@ -1220,7 +1230,7 @@
 			// facet.getQueryElement();
 			
 			
-			// Select Distinct ?p ?c { { Select ?p { <driver> ?driver_var ?p ?o . Filter(?p = <facet>) . } Limit 1001 } }
+			// Select Distinct ?p ?c { { Select ?p { <concept> ?concept_var ?p ?o . Filter(?p = <facet>) . } Limit 1001 } }
 			
 			//this.sparqlService.
 		}

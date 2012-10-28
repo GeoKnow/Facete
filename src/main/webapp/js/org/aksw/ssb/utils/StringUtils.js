@@ -12,7 +12,7 @@
 	 * 
 	 */
 	(function() {
-	
+
 		// I think this is just the prototype escapeHTML method
 		this.escapeHTML = function(text) {
 			return !text ? "" : text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -32,6 +32,7 @@
 		    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 		    return parts.join(".");
 		};
+
 	}).apply(ns);
 
 })();

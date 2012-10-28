@@ -20,12 +20,21 @@
 	ns.GeomPointFetcher.prototype.fetch = function(uris) {
 		var self = this;
 		
-		return this.cache.lookup(this.geomVar, uris).pipe(function(geomToBinding) {
+		return this.cache.lookup(this.geomVar, uris).pipe(function(jsonRs) {
 			var result = {};
 			
-			_.each(geomToBinding, function(binding, str) {
+			var bindings = jsonRs.results.bindings;
+			
+			//_.each(geomToBinding, function(binding, str) {
+			for(var i = 0; i < bindings.length; ++i) {
 				
-				var geomUri = sparql.Node.parse(str).value;
+				var binding = bindings[i];
+				
+				var geomNode = binding[self.geomVar.value];
+				var geomUri = geomNode.value;
+				
+				//var geomUri = sparql.Node.parse(str).value;
+				//var geomUri = sparl.Node.parse(geom)
 				
 				//var keyNode = sparql.Node.parse(key);
 				//var uri = keyNode.value;				
@@ -36,7 +45,7 @@
 				var y = parseFloat(yStr);
 								
 				result[geomUri] = new qt.Point(x, y);
-			});
+			}
 			
 			//console.debug("geomToBinding", result);
 			

@@ -347,6 +347,8 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/app/Layout-Odp.js"></script>
 
+	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js"></script>
+
 
 
 	<!--script type="text/javascript" src="lib/RDFauthor/current/src/rdfauthor.js"></script-->

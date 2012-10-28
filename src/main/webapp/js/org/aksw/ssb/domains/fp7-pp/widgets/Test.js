@@ -1,5 +1,6 @@
-$(document).ready(
-		function() {
+$(document).ready(function() {
+		
+
 
 			var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 			var backend = Namespace("org.aksw.ssb.backend");
@@ -10,27 +11,6 @@ $(document).ready(
 			var labelUtils = Namespace("org.aksw.ssb.utils");
 			var uriUtils = Namespace("org.aksw.ssb.utils.uris");
 
-			//var ns = Namespace("org.aksw.ssb.backend");
-
-			/*
-			 * = "Prefix fp7-pp-o:<http://fp7-pp.publicdata.eu/ontology/>\n" +
-			 * "\n" + "Select * {\n"
-			 */
-
-			var str = "    ?s\n" + "        a fp7-pp-o:Project ;\n"
-					+ "        fp7-pp-o:funding ?f .\n" + "\n" + "    ?f\n"
-					+ "        fp7-pp-o:amount ?a ;\n"
-					+ "        fp7-pp-o:partner ?p ;\n"
-					+ "        fp7-pp-o:partnerRole ?pr .\n"
-			// + "}\n"
-			;
-
-			var nsStr = "http://fp7-pp.publicdata.eu/ontology/";
-			str = str.replace(/fp7-pp-o:(\S*)/g, "<" + nsStr + "\$1>");
-
-			var vars = sparql.extractSparqlVars(str);
-			var element = new sparql.ElementString(str, vars);
-
 			var sparqlServiceHttp = new backend.SparqlServiceHttp(
 					config.sparqlServiceUri, config.defaultGraphUris,
 					config.sparqlProxyServiceUri, config.sparqlProxyParamName);
@@ -40,41 +20,36 @@ $(document).ready(
 			// TODO LabelFetcher is not compatible with SparqlServicePaginator yet...
 			var labelFetcher = new labelUtils.LabelFetcher(sparqlServiceHttp);
 
+			
+
+			var concept = widgets.createConceptPartnerState();
+			var element = concept.getElement(); 
+
+			var query = queryUtils.createQuerySelectElement(element, element
+					.getVarsMentioned(), {
+				limit : 1000
+			});
+			query.orderBy.push(new sparql.SortCondition(new sparql.ExprVar(
+					sparql.Node.v("a"))));
+
+			query.offset = 100;
+
+				
+				
+
 
 			//TODO: The syncer should pass the result set to a post processor first.
-			var syncer = new backboneUtils.BackboneSyncQuery(sparqlService, null, backboneUtils.postProcessDefault);
-
-
+			// TODO: Actually, this sync thing should already be a a backbone collection
 			
-			var viewCollection = syncer.getCollection();
-
-			// var viewCollection = collection;
-			//var viewCollection = new Backbone.Collection();
-
-			// Bind the viewCollection so that author and project uri are
-			// resolved
-/*
-			backboneUtils.slaveCollection(collection, viewCollection, function(
-					data) {
-
-				console.log("Data is", data);
-
-				var partnerId = data.p;
-				var uriStrs = [ partnerId.value ];
-
-				var promise = labelFetcher.fetch(uriStrs).pipe(
-						function(labelInfo) {
-
-							data.partnerLabel = labelUtils.getLabel(partnerId,
-									labelInfo);
-							return data;
-						});
-
-				return promise;
+			var viewCollection = new backboneUtils.BackboneSyncQueryCollection([], {
+				sparqlService: sparqlService,
+				postProcessor: backboneUtils.createDefaultPostProcessor(labelFetcher)
 			});
-*/
+			
 
-			var TableView = widgets.ListView.extend({ tagName: 'table' });
+			var TableView = widgets.ListView.extend({
+				tagName: 'table'
+			});
 			
 			var tableView = new TableView(
 					{
@@ -85,19 +60,46 @@ $(document).ready(
 								widgets.ItemViewProject)
 					});
 
-			var query = queryUtils.createQuerySelectElement(element, element
-					.getVarsMentioned(), {
-				limit : 1000
-			});
-			query.orderBy.push(new sparql.SortCondition(new sparql.ExprVar(
-					sparql.Node.v("a"))));
 
-			query.offset = 700;
-
-			syncer.sync(query);
+			viewCollection.sync(query);
 
 		});
 
+
+//var syncer = new backboneUtils.BackboneSyncQuery(sparqlService, null, backboneUtils.createDefaultPostProcessor(labelFetcher));
+
+
+
+//var viewCollection = syncer.getCollection();
+
+// var viewCollection = collection;
+//var viewCollection = new Backbone.Collection();
+
+// Bind the viewCollection so that author and project uri are
+// resolved
+/*
+backboneUtils.slaveCollection(collection, viewCollection, function(
+		data) {
+
+	console.log("Data is", data);
+
+	var partnerId = data.p;
+	var uriStrs = [ partnerId.value ];
+
+	var promise = labelFetcher.fetch(uriStrs).pipe(
+			function(labelInfo) {
+
+				data.partnerLabel = labelUtils.getLabel(partnerId,
+						labelInfo);
+				return data;
+			});
+
+	return promise;
+});
+*/
+
+
+/*
 $(document).ready(function() {
 
 	var widgets = Namespace("org.aksw.ssb.widgets");
@@ -107,7 +109,7 @@ $(document).ready(function() {
 	 * limit - offset - condiditons //- a function that generates IDs for each
 	 * row ; rowIds are automatically generated
 	 * 
-	 */
+	 * /
 	var TableSpecSparql = Backbone.Model.extend({
 		defaults : {
 			element : null,
@@ -118,6 +120,8 @@ $(document).ready(function() {
 	});
 
 });
+
+*/
 /*
  * var TableView = widgets.ListView.extend({ tagName: 'table' });
  * 

@@ -1,5 +1,7 @@
 (function() {
 
+	var uriUtils = Namespace("org.aksw.ssb.utils.uris");
+
 	var ns = Namespace("org.aksw.utils.backbone");
 
 	
@@ -269,5 +271,33 @@
 		
 		return fn;
 	};
+	
+	
+	
+	ns.BackboneSyncQueryCollection = Backbone.Collection.extend({
+		initialize: function(models, options) {
+
+			this.options = options;
+			
+			//console.log("Collection:", sparqlService, postProcessor);
+			
+			this.syncer = new ns.BackboneSyncQuery(options.sparqlService, this, options.postProcessor);			
+		},
+
+		sync: function(query) {
+			
+			if(!query) {
+				query = this.options.query;
+			}
+			
+			if(!query) {
+				throw "No query specified";
+			}
+			
+			this.syncer.sync(query);
+			
+		}
+	
+	});
 
 })();

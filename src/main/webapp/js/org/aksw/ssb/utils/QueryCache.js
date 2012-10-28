@@ -135,9 +135,9 @@
 					var copy = this.query.copySubstitute(function(x) { return x; });
 					copy.elements.push(filterElement);
 		
-					promise = this.sparqlService.executeSelect(copy).pipe(function(jsonResultSet) {
+					promise = this.sparqlService.executeSelect(copy).pipe(function(jsonRs) {
 		
-						var bindings = jsonResultSet.results.bindings;
+						var bindings = jsonRs.results.bindings;
 						
 						//console.debug("Bindings", bindings);
 						
@@ -168,7 +168,7 @@
 							
 							data[keyStr] = nodeToData[keyStr];
 						} else {
-							data[keyStr] = null;
+							//data[keyStr] = null;
 						}
 					}
 					

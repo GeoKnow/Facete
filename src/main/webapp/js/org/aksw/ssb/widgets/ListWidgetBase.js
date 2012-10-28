@@ -103,6 +103,10 @@
 	    initialize: function(){
 	    	// _.bindAll(this, 'render', 'addItem', 'appendItem'); // every function that uses 'this' as the current object should be in here
 	      
+	    	if(this.options.itemRenderer) {
+	    		this.itemRenderer = this.options.itemRenderer;
+	    	}
+	    	
 	    	//this.collection = new List();
 	    	//this.collection.bind('add', this.appendItem); // collection event binder
 
@@ -149,7 +153,8 @@
 	    	$(this.el).append(itemView.render().el);
 	    },
 	    getItemRenderer: function() {
-	    	return this.options.itemRenderer;
+	    	return this.itemRenderer;
+	    	//return this.options.itemRenderer;	    	
 	    },
 	    clear: function() {
 	    	$(this.el.children).remove();

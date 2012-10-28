@@ -79,9 +79,10 @@
 
 			// TODO uris = String[]. Maybe this should be sparql.Node[]
 			fetch: function(uriStrs) {
-			
+
+				validUriStrs = uriUtils.filterUrisValidate(uriStrs);
 				
-				var uris = _.map(uriStrs, function(uriStr) {
+				var uris = _.map(validUriStrs, function(uriStr) {
 					return sparql.Node.uri(uriStr);
 				});
 					
@@ -95,8 +96,11 @@
 					console.log("Cache result: ", rs);
 					
 					// Add the results to the cache
-					for(var i in rs.results.bindings) {
+					//for(var i in rs.results.bindings) {
+					for(var i = 0; i < rs.results.bindings.length; ++i) {
 						var binding = rs.results.bindings[i];
+						
+						console.log("Binding: ", binding);
 						
 						var uri = binding.u.value;
 						var labelNode = binding.l;

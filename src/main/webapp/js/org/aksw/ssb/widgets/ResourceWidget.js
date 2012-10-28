@@ -1,4 +1,5 @@
 /**
+
  * A widget for displaying/browsing a set of resources.
  * 
  * 

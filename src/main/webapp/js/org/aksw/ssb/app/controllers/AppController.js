@@ -836,6 +836,7 @@
 		
 		var self = this;
 
+		var isWriteEnabled = false;
 		$(this.graphSelectionModel).bind("change", function() {
 
 			//alert("test");
@@ -859,21 +860,24 @@
 				}
 			});
 	
-			if(selected) {
-				alert("Writes will go to graph: " + selected);
-			} else {
-				alert("Writes disabled because there is no longer a selected graph");
-			}
-		
-			if(selected) {
-				RDFAUTHOR_DEFAULT_GRAPH=selected;
-				//console.log("Checking:", $('link[rel="update:sourceGraph"]'));
-				$('link[rel="update:queryEndpoint"]').attr({about: selected});
-				$('link[rel="update:updateEndpoint"]').attr({about: selected});
-				$('link[rel="update:sourceGraph"]').attr({about: selected, href: selected});
-				$('link[rel="update:defaultGraph"]').attr({about: selected, href: selected});
-			}
+			if(isWriteEnabled) {
+				
+				if(selected) {
+					alert("Writes will go to graph: " + selected);
+				} else {
+					alert("Writes disabled because there is no longer a selected graph");
+				}
 			
+				if(selected) {
+					RDFAUTHOR_DEFAULT_GRAPH=selected;
+					//console.log("Checking:", $('link[rel="update:sourceGraph"]'));
+					$('link[rel="update:queryEndpoint"]').attr({about: selected});
+					$('link[rel="update:updateEndpoint"]').attr({about: selected});
+					$('link[rel="update:sourceGraph"]').attr({about: selected, href: selected});
+					$('link[rel="update:defaultGraph"]').attr({about: selected, href: selected});
+				}
+				
+			}
 			
 		});
 		
@@ -2090,8 +2094,24 @@
 		var widget = widgets.createResourceListWidget(backend, {
 			onClick: function(uri) {
 												
+				
 				self.showDescription([uri]);
-				$("#box-facts").show();								
+				$("#box-facts").show();
+				
+				
+				var collection = widgets.createPartnerCollection(uri, self.sparqlService, self.labelFetcher);
+				
+				var el = $("#box-resources").append("<div />");
+
+				console.log("Element", el);
+				
+				var view = new widgets.PartnerView({
+					el: el,
+					collection: collection
+				});
+				
+				collection.sync();
+				
 			}
 		});
 		

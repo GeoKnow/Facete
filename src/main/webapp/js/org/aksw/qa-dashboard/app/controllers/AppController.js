@@ -72,7 +72,7 @@
 //	      'click span.swap':  'swap',
 //	      'click span.delete': 'remove'
 	    },    
-	    initialize: function(){
+	    initialize: function() {
 	      _.bindAll(this, 'render', 'unrender', 'remove'); // every function that uses 'this' as the current object should be in here
 
 	      this.model.bind('change', this.render, this);
@@ -137,6 +137,7 @@
 	 * 
 	 * @param fnPromise A function that returns a promise that upon completion return the new state
 	 */
+	/*
 	ns.slaveCollection = function(masterCollection, slaveCollection, fnPromise) {
 		masterCollection.on("add", function(model) {
 			
@@ -156,8 +157,10 @@
 			slaveCollection.remove(model.id);			
 		});
 	};
+	*/
 	
 	
+	/* Now in ListWidgetBase
 	ns.ItemRendererBackbone = function(viewCtor) {
 		this.viewCtor = viewCtor;
 	};
@@ -167,6 +170,7 @@
 		
 		return view.render().el;
 	};
+	*/
 	
 	
 	ns.ConstraintModel = Backbone.Model.extend({
@@ -269,7 +273,7 @@
 		
 	};
 	
-	
+/*	
 	ns.getLabel = function(uri, labelInfo) {
 		var label = labelInfo.uriToLabel[uri.value];
 		
@@ -277,7 +281,7 @@
 		
 		return result;
 	};
-	
+*/
 	ns.AppController.prototype.loadDatasetWidget = function() {
 
 		/*

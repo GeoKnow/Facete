@@ -33,23 +33,6 @@
 	};
 	*/
 	
-	ns.DefaultModel = Backbone.Model.extend({
-		defaults: {
-			//value: null,
-			/*label: "" // FIXME As there could be many ways for crafting constraint labels, 
-				//associating a label only makes sense for view-models;*/  
-	    }
-	});
-	
-	ns.DefaultCollection = Backbone.Collection.extend({
-		model: ns.DefaultModel
-	});
-
-	
-	ns.fnDefaultId = function(item, row, offset) {
-		return offset + row;
-	};
-	
 	/**
 	 * fnId(item, row, offset)
 	 * 
@@ -205,7 +188,15 @@
 		tagName: 'table',
 	    events: {
 	    },
-	    initialize: function(){
+
+	    /**
+	     * options:
+	     * colNames: [{id: "http://...", name: "age", cellRenderer:}] 
+	     * 
+	     */
+	    initialize: function() {
+	  
+	    	
 	    	// _.bindAll(this, 'render', 'addItem', 'appendItem'); // every function that uses 'this' as the current object should be in here
 	      
 	    	//this.collection = new List();
@@ -244,8 +235,14 @@
 	    appendItem: function(itemView) {
 	    	$(this.el).append(itemView.render().el);
 	    },
+	    /*
 	    getRowRenderer: function() {
 	    	return this.options.itemRenderer;
+	    },*/
+	    getCellRenderer: function(colId) {
+	    	if(typeof(colId) === 'numeric') {
+	    		return 
+	    	}
 	    },
 	    clear: function() {
 	    	

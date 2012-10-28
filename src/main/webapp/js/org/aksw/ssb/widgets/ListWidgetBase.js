@@ -6,6 +6,20 @@
 	
 	var ns = Namespace("org.aksw.ssb.widgets");
 
+	ns.ItemRendererBackbone = function(viewCtor) {
+		this.viewCtor = viewCtor;
+	};
+	
+	ns.ItemRendererBackbone.prototype = {
+			create: function(model, parent) {
+		
+				var view = new this.viewCtor({model: model});
+		
+				return view.render().el;
+			}
+	};
+	
+	
 	/**
 	 * This helper function provides indirect access
 	 * to member 'key' on 'data' via 'binding'.

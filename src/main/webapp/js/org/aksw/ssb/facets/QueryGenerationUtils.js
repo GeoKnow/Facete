@@ -171,7 +171,19 @@
 		return result;
 	};
 	
+	
+	ns.createQuerySelectElement = function(element, vars, options) {
+		var result = new sparql.Query();
+		
+		result.projectVars.addAll(vars);
+		result.elements.push(element);
 
+		ns.applyQueryOptions(result, options);
+		
+		return result;
+	};
+
+	
 	/**
 	 * Creates a Select-Query from an intensional concept.
 	 * 

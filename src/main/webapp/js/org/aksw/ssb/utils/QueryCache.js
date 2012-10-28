@@ -4,6 +4,16 @@
 	
 	var ns = Namespace("org.aksw.ssb.utils");
 
+	
+	/**
+	 * A query cache that for a given SPARQL select query and one of its variables caches the corresponding bindings.
+	 * 
+	 * 
+	 * @param sparqlService
+	 * @returns {ns.QueryCacheFactory}
+	 */
+	
+	
 	ns.QueryCacheFactory = function(sparqlService) {
 		this.sparqlService = sparqlService;
 		this.queryToCache = {};
@@ -33,80 +43,151 @@
 		this.cache = varToNodeToData = {};
 	};
 		
+		
 	// Note: variable must be part of the projection
-	ns.QueryCache.prototype.lookup = function(v, nodes, retain) {
-		var filterExpr = new sparql.E_In(v, nodes);
-		var filterElement = new sparql.ElementFilter(filterExpr);
-		
-		var nodeToData = varToNodeToData[v.value];
-		if(!nodeToData) {
-			varToNodeToData[v.value] = nodeToData = {};
-		}
-		
-		
-		var fetchList = [];
-		for(var i = 0; i < nodes.length; ++i) {
-			var node = nodes[i];
-			
-			var keyStr = node.toString(); 
-			if(keyStr in nodeToData) {
-				continue;
-			}
-			
-			fetchList.push(node);
-		}
-		
-		fetchList = _.uniq(fetchList, function(node) { return node.toString(); });		
+	/**
+	 * 
+	 * @param retain if true, the lookup does not invalidate cached entries
+	 */
+	ns.QueryCache.prototype = {
+			lookup: function(v, nodes, retain) {
 
-		var promise;
-		
-		if(_.isEmpty(fetchList)) {			
-			promise = $.when();
-		} else {
-			var copy = this.query.copySubstitute(function(x) { return x; });
-			copy.elements.push(filterElement);
-
-			promise = this.sparqlService.executeAny(copy.toString()).pipe(function(jsonResultSet) {
-
-				var bindings = jsonResultSet.results.bindings;
+				var result = $.Deferred();
 				
-				//console.debug("Bindings", bindings);
+				var resultJsonRs = {
+						results: {
+							bindings: null
+						}
+				};
 				
-				for(var i = 0; i < bindings.length; ++i) {
-					var binding = bindings[i];
+				
+				var chunkSize = 50;
+				
+				var tasks = [];
+				
+				for (var i = 0, j = nodes.length; i < j; i += chunkSize) {
 					
-					
-					var jsonNode = binding[v.value];
-					var indexNode = sparql.Node.fromJson(jsonNode);
-					var keyStr = indexNode.toString();
-					
-					nodeToData[keyStr] = binding;
+				    var chunk = nodes.slice(i, i + chunkSize);
+		
+				    var task = this.lookupChunk(v, chunk, retain);
+				    tasks.push(task);
 				}
-			});
-		}
-
-		var result = promise.pipe(function() {
-			var data = {};
-			for(var i = 0; i < nodes.length; ++i) {
-				var node = nodes[i];
 				
-				var keyStr = node.toString(); 
-				if(keyStr in nodeToData) {
-					var cached = nodeToData[keyStr];
-					if(cached === null && !retain) {
+			
+				var masterTask = $.when.apply(window, tasks);
+				
+			    masterTask.done(function(jsonRs) {	    	
+
+			    	var resultBindings = [];
+			    	for(var i = 0; i < arguments.length; ++i) {
+			    		var arg = arguments[i];
+			    		var chunkBindings = arg.results.bindings;
+			    		
+			    		// TODO: Set header, if not done yet
+			    		
+				    	resultBindings = resultBindings.concat(chunkBindings);		    	
+			    	}	    	
+			    				    	
+			    	resultJsonRs.results.bindings = resultBindings;
+			    	
+			    	result.resolve(resultJsonRs);
+			    	
+			    }).fail(function() {
+			    	result.fail();
+			    });
+		
+				
+				
+				return result;
+			},
+			
+	
+			lookupChunk: function(v, nodes, retain) {
+		
+				var filterExpr = new sparql.E_In(v, nodes);
+				var filterElement = new sparql.ElementFilter(filterExpr);
+				
+				var nodeToData = varToNodeToData[v.value];
+				if(!nodeToData) {
+					varToNodeToData[v.value] = nodeToData = {};
+				}
+				
+				
+				var fetchList = [];
+				for(var i = 0; i < nodes.length; ++i) {
+					var node = nodes[i];
+					
+					var keyStr = node.toString(); 
+					if(keyStr in nodeToData) {
 						continue;
-					} 
+					}
 					
-					data[keyStr] = nodeToData[keyStr];
-				} else {
-					data[keyStr] = null;
+					fetchList.push(node);
 				}
-			}
-			
-			return data;
-		});
+				
+				fetchList = _.uniq(fetchList, function(node) { return node.toString(); });		
 		
-		return result;	
-	};
+				var promise;
+				
+				if(_.isEmpty(fetchList)) {			
+					promise = $.when();
+				} else {
+					var copy = this.query.copySubstitute(function(x) { return x; });
+					copy.elements.push(filterElement);
+		
+					promise = this.sparqlService.executeSelect(copy).pipe(function(jsonResultSet) {
+		
+						var bindings = jsonResultSet.results.bindings;
+						
+						//console.debug("Bindings", bindings);
+						
+						for(var i = 0; i < bindings.length; ++i) {
+							var binding = bindings[i];
+							
+							
+							var jsonNode = binding[v.value];
+							var indexNode = sparql.Node.fromJson(jsonNode);
+							var keyStr = indexNode.toString();
+							
+							nodeToData[keyStr] = binding;
+						}
+					});
+				}
+		
+				var result = promise.pipe(function() {
+					var data = {};
+					for(var i = 0; i < nodes.length; ++i) {
+						var node = nodes[i];
+						
+						var keyStr = node.toString(); 
+						if(keyStr in nodeToData) {
+							var cached = nodeToData[keyStr];
+							if(cached === null && !retain) {
+								continue;
+							} 
+							
+							data[keyStr] = nodeToData[keyStr];
+						} else {
+							data[keyStr] = null;
+						}
+					}
+					
+					
+					var jsonRs = {
+							results: {
+								bindings: []
+							}
+					};
+					
+					jsonRs.results.bindings = _.values(data);
+					
+					//console.log("Soooo: ", jsonRs);
+					
+					return jsonRs;
+				});
+				
+				return result;	
+			}
+	}
 	
 })();

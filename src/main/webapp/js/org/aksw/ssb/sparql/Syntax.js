@@ -20,6 +20,34 @@
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 
 	
+	ns.orify = function(exprs) {
+		var open = exprs;
+		var next = [];
+		
+		while(open.length > 1) {
+		
+			for(var i = 0; i < open.length; i+=2) {
+				
+				var a = open[i];
+	
+				if(i + 1 == open.length) {
+					next.push(a);
+					break;
+				}
+				
+				var b = open[i + 1];
+				
+				next.push(new ns.E_LogicalOr(a, b));
+			}
+			
+			var tmp = open;
+			open = next;
+			next = [];
+		}
+		
+		return open;
+	};
+	
 	ns.uniqTriples = function(triples) {
 		var result =  _.uniq(triples, false, function(x) { return x.toString(); });
 		return result;
@@ -50,7 +78,15 @@
 	 * @returns {Array}
 	 */
 	ns.extractSparqlVars = function(str) {
-		return ns.extractAll(ns.varPattern, str, 1);
+		var varNames = ns.extractAll(ns.varPattern, str, 1);
+		var result = [];
+		for(var i = 0; i < varNames.length; ++i) {
+			var varName = varNames[i];
+			var v = ns.Node.v(varName);
+			result.push(v);
+		}
+		
+		return result;
 	};
 
 	ns.extractPrefixes = function(str) {
@@ -72,7 +108,31 @@
 		return result;
 		
 	};
+	
+	/*
+	ns.parseJsonRs = function(jsonRs) {
+		var bindings = jsonRs.results.bindings;
 		
+		var bindings = jsonRs.results.bindings;
+		
+		var tmpUris = {};
+		for(var i = 0; i < bindings.length; ++i) {
+
+			var binding = bindings[i];
+			
+			var newBinding = {};
+			
+			$.each(binding, function(varName, node) {
+				var newNode = node ? null : Node.parseJson(node);
+				
+				newBinding[varName] = newNode;
+			});
+			
+			bindings[i] = newBinding;
+		}
+	};
+	*/
+	
 	ns.Node = function(type, value, language, datatype) {
 		this.type = type;
 		this.value = value;
@@ -1201,6 +1261,11 @@
 		}
 	};
 	
+	
+	ns.VarExprList.prototype.addAll = function(vars) {
+		this.vars.push.apply(this.vars, vars);
+	};
+	
 	ns.VarExprList.prototype.entries = function() {
 		var result = [];
 		for(var i = 0; i < this.vars.length; ++i) {
@@ -1247,6 +1312,41 @@
 		return result;
 	};
 	
+	ns.SortCondition = function(expr, direction) {
+		this.expr = expr;
+		this.direction = direction;
+	};
+	
+	ns.SortCondition.prototype = {
+			getExpr: function() {
+				return this.expr;
+			},
+			
+			getDirection: function() {
+				return this.direction;
+			},
+			
+			toString: function() {
+				var result;
+				if(this.direction >= 0) {
+					result = "Asc(" + this.expr + ")";
+				} else {
+					result = "Desc(" + this.expr + ")";
+				}
+				
+				return result;
+			},
+			
+			copySubstitute: function(fnNodeMap) {
+				var exprCopy = this.expr.copySubstitute(fnNodeMap);
+				
+				var result = new ns.SortCondition(exprCopy, this.direction);
+				
+				return result;
+			}
+	};
+	
+	
 	ns.Query = function() {
 		this.type = 0; // select, construct, ask, describe
 		
@@ -1261,14 +1361,17 @@
 		
 		//this.projection = {}; // Map from var to expr; map to null for using the var directly
 		
-		this.order = []; // A list of expressions
+		//this.order = []; // A list of expressions
+		
+		this.orderBy = [];
+
 		
 		this.elements = [];
 		
 		this.constructTemplate = null;
 		
 		this.limit = null;
-		this.offset = null;
+		this.offset = null;		
 	};
 	
 	ns.fnIdentity = function(x) { return x; };
@@ -1297,7 +1400,7 @@
 		result.isResultStar = this.isResultStar;
 		result.limit = this.limit;
 		result.offset = this.offset;
- 
+ 				
 		result.projectVars = this.projectVars.copySubstitute(fnNodeMap);
 
 		//console.log("PROJECTION  " + this.projectVars + " --- " + result.projectVars);
@@ -1315,10 +1418,11 @@
 		if(this.constructTemplate) {
 			result.constructTemplate = this.constructTemplate.copySubstitute(fnNodeMap);
 		}
-		
-		for(var i = 0; i < this.order.length; ++i) {
-			result.order.push(this.order[i].copySubstitute(fnNodeMap));
-		}
+
+		result.orderBy = this.orderBy == null
+			? null
+			:  _.map(this.orderBy, function(item) { return item.copySubstitute(fnNodeMap); });			
+
 
 		result.elements = _.map(this.elements, function(element) { return element.copySubstitute(fnNodeMap); });		
 
@@ -1401,11 +1505,11 @@
 	
 	
 	ns.Query.prototype.toStringOrderBy = function() {
-		if(this.order.length === 0) {
-			return "";
-		} else {
-			return "Order By " + this.order.join(" ") + " ";
-		}
+		var result = (this.orderBy && this.orderBy.length > 0)
+			? result = "Order By " + this.orderBy.join(" ") + " "
+			: "";
+			//console.log("Order: ", this.orderBy);
+		return result;
 	};
 	
 	ns.Query.prototype.toStringSelect = function() {

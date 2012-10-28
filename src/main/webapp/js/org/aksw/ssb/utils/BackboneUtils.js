@@ -2,6 +2,26 @@
 
 	var ns = Namespace("org.aksw.utils.backbone");
 
+	
+	ns.DefaultModel = Backbone.Model.extend({
+		defaults: {
+			//value: null,
+			/*label: "" // FIXME As there could be many ways for crafting constraint labels, 
+				//associating a label only makes sense for view-models;*/  
+	    }
+	});
+	
+	ns.DefaultCollection = Backbone.Collection.extend({
+		model: ns.DefaultModel
+	});
+
+	
+	ns.fnDefaultId = function(item, row, offset) {
+		return offset + row;
+	};
+	
+
+	
 	/**
 	 * Returns a key from the model based on the binding.
 	 * 
@@ -77,4 +97,177 @@
 		}
 
 	});
+	
+	/**
+	 * 
+	 * @param fnPromise A function that returns a promise that upon completion return the new state
+	 */
+	ns.slaveCollection = function(masterCollection, slaveCollection, fnPromise) {
+		masterCollection.on("add", function(model) {
+			
+			var clone = jQuery.extend(true, {}, model.attributes);
+
+			
+			var promise = fnPromise(clone);
+			$.when(promise).done(function(newState) {
+				// TODO Treat request order properly
+				slaveCollection.add(newState);
+				//var newState = fn(model.attributes);
+			});
+		});
+		
+		masterCollection.on("remove", function(model) {
+			// TODO Delete by id AND/OR cid
+			slaveCollection.remove(model.id);			
+		});
+	};
+	
+	
+	/**
+	 * fnId(item, row, offset)
+	 * 
+	 */
+	ns.BackboneSyncQuery = function(sparqlService, collection, fnPostProcess) {
+		this.sparqlService = sparqlService;
+		this.collection = collection ? collection : new ns.DefaultCollection();
+		//this.fnId = fnId ? fnId : ns.fnDefaultId; // A function that returns the Id of items delivered by the tableModel
+		this.fnPostProcess = fnPostProcess;
+		
+		this.taskCounter = 0;
+	};
+	
+	ns.BackboneSyncQuery.prototype = {
+			getCollection: function() {
+				return this.collection;
+			},
+	
+			sync: function(query) {
+				var result = $.Deferred();
+		
+				this.taskCounter++;
+				
+				var queryExecution = this.sparqlService.executeSelect(query);
+				var self = this;
+				
+				var tmp = self.taskCounter;
+				
+				
+				queryExecution.done(function(jsonRs) {
+
+					if(self.taskCounter != tmp) {
+						result.fail();
+						return;
+					}
+					
+					var postProcessTask;
+					if(self.fnPostProcess) {
+						postProcessTask = self.fnPostProcess(jsonRs);
+					} else {
+						postProcessTask = queryExecution;
+					}
+						
+					postProcessTask.done(function(jsonRs) {
+						if(self.taskCounter != tmp) {
+							result.fail();
+							return;
+						}
+
+						var resolveData = self.processResult(jsonRs);
+						
+						result.resolve(resolveData);
+					}).fail(function() {
+						result.fail();
+					});
+																
+				}).fail(function() {
+					result.fail();
+				});
+				
+				return result.promise();
+			},
+			
+			
+			processResult: function(jsonRs) {
+				var offset = jsonRs.offset ? jsonRs.offset : 0;
+				var bindings = jsonRs.results.bindings; //data;
+				
+				var destroyModels = [];
+				
+				this.collection.each(function(model) {
+					destroyModels.push(model);
+				});
+				
+				// The browsing experience is better, if first the new models are added
+				// and then the old ones removed:
+				// Removal of models may cause the page to shrink, and therefore change the location the user is viewing
+				// before the new models are added
+				
+				//self.collection.reset();
+				
+				for(var i = 0; i < bindings.length; ++i) {
+					var binding = bindings[i];
+					
+					//var id = self.fnId(binding, i, offset);
+					var id = offset + i;
+					
+					binding.id = id;
+	
+					this.collection.add(binding);
+				}
+	
+				for(var i = 0; i < destroyModels.length; ++i) {
+					var model = destroyModels[i];
+					model.destroy();
+				}
+			}
+			
+			
+	};
+
+	/**
+	 * Returns a function that processes a json ResultSet:
+	 * - parses all plain Json Nodes to sparql.Node objects
+	 * - associates the label with each result set binding
+	 * 
+	 * Note: Having the labels at the resources is convenient;
+	 * we could however store the labels in a model. This would allow adding
+	 * arbitrary information to resources.
+	 */
+	ns.createDefaultPostProcessor = function(labelFetcher) {
+		
+		var fn = function(plainJsonRs) {
+			
+			jsonRs = uriUtils.parseJsonRs(plainJsonRs);
+			
+			uris = uriUtils.extractUrisFromJsonRs(jsonRs);
+			
+			var result = $.Deferred();
+			
+			var task = labelFetcher.fetch(uris);
+	
+			
+			task.done(function(labelInfo) {
+			
+				uriUtils.transformJsonRs(jsonRs, function(node) {
+						
+					var result = {node: node};
+					
+					if(node && node.isUri()) {
+						result.label = labelInfo.uriToLabel[node.value];
+					}
+					
+					return result;
+				});
+	
+				result.resolve(jsonRs);
+			}).fail(function() {					
+				result.fail();
+			});
+			
+			return result.promise();
+		};
+		
+		return fn;
+	};
+
 })();

@@ -467,6 +467,7 @@
 		var constraintTextBuilder = new widgets.ConstraintTextBuilder(this.labelFetcher);
 
 		
+		// TODO: The constraint text builder should operate on the collection, not individual models
 		this.constraints.bind("add", function(model) {
 			
 			constraint = model.get("value");
@@ -706,9 +707,19 @@
 		};
 		
 				
-				
 		
-		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelections, null, widgets.ItemViewLabel, {
+		var ItemViewConstraint = widgets.ItemViewLabel.extend({
+			events: {
+				'click span': function(ev, payload) {
+					
+					var id = this.model.get("id");
+					self.constraints.remove(id);
+				}
+			}
+		});
+		
+		
+		var constraintItemRenderer = new widgets.RendererItemView(this.constraintSelections, null, ItemViewConstraint, {
 			label: "simpleLabel"
 			/*
 			label: function(model) {
@@ -721,9 +732,14 @@
 			}*/
 		});
 		
-		this.constraintWidget = new widgets.ListView({el: $("#ssb-constraints"), collection: this.constraints, itemRenderer: constraintItemRenderer});
+		this.constraintWidget = new widgets.ListView({
+			el: $("#ssb-constraints"),
+			collection: this.constraints,
+			itemRenderer: constraintItemRenderer
+		});
 		
 		
+		/*
 		$(this.constraintWidget).bind("click", function(ev, payload) {
 			
 			var id = payload.model.get("id");
@@ -734,6 +750,7 @@
 			//console.log("moooo", payload);
 			//alert("got it" + JSON.stringify(payload));
 		});
+		*/
 		
 		//$$.document.append(self.constraintWidget, $("#ssb-constraints"));
 		
@@ -2091,6 +2108,9 @@
 		// TODO We need the query element and the geom variable
 		var backend = new widgets.ResourceListBackendSparql(self.sparqlService, concept, self.labelFetcher);
 		
+		// HACK Removes all hacks.
+		$("#box-resources .hack").remove();
+
 		var widget = widgets.createResourceListWidget(backend, {
 			onClick: function(uri) {
 												
@@ -2101,9 +2121,18 @@
 				
 				var collection = widgets.createPartnerCollection(uri, self.sparqlService, self.labelFetcher);
 				
-				var el = $("#box-resources").append("<div />");
+				// HACK Removes all hacks.
+				$("#box-resources .hack").remove();
+				
 
-				console.log("Element", el);
+				
+				//$("#box-resources").append('<hr class="hack"/>');
+
+				var el = $('<table class="table hack"/>');
+				$("#box-resources").append(el);
+
+				
+				//console.log("Element", el);
 				
 				var view = new widgets.PartnerView({
 					el: el,

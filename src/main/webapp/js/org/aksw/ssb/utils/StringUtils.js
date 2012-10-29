@@ -28,9 +28,16 @@
 	
 		// Source: http://stackoverflow.com/questions/2901102/how-to-print-number-with-commas-as-thousands-separators-in-javascript
 		this.formatNumber = function(x) {
+
 		    var parts = x.toString().split(".");
 		    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 		    return parts.join(".");
+
+			/*
+		    var parts = x.toString().split(".");
+		    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+		    return parts.join(",");
+		    */
 		};
 
 	}).apply(ns);

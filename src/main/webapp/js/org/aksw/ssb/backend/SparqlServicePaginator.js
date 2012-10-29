@@ -41,9 +41,11 @@
 		this.pageSize = pageSize ? pageSize : 0;
 	};
 	
+	/*
 	ns.SparqlServicePaginator.prototype.executeConstructRec = function(paginator, prevResult, deferred) {
 		
 	};
+	*/
 	
 	ns.SparqlServicePaginator.prototype.executeSelectRec = function(paginator, prevResult, deferred) {
 		var query = paginator.next();
@@ -53,7 +55,9 @@
 		}
 		
 		var self = this;
-		$.when(this.backend.executeSelect(query)).then(function(jsonRs) {
+		
+		var queryExecution = this.backend.executeSelect(query); 
+		queryExecution.done(function(jsonRs) {
 			// If result set size equals pageSize, request more data.			
 			var result;
 			if(!prevResult) {
@@ -84,7 +88,7 @@
 		
 		this.executeSelectRec(paginator, null, deferred);
 		
-		return deferred;
+		return deferred.promise();
 	};
 	
 	ns.SparqlServicePaginator.prototype.executeConstruct = function(query) {

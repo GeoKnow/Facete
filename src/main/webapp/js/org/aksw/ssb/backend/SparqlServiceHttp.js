@@ -214,10 +214,12 @@
 		});
 
 		//return $.post(baseURL, querypart);
-		return $.ajax({
+		var result = $.ajax({
 			url: baseURL + "?" + querypart,
 			dataType: 'json'
 		});
+			
+		return result;
 	};
 
 })(jQuery);

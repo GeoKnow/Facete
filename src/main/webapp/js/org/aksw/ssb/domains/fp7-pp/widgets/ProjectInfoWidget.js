@@ -30,6 +30,7 @@
 	
 	this.ItemViewRowBase = Backbone.View.extend({
 	    tagName: 'tr',
+	    attributes: {'class': "table"},
 	    //attributes: {style: ""},
 	    events: { 
 	    },    
@@ -62,7 +63,7 @@
 	
 	this.renderBar = function(data) {
 	
-	    var template = '<div style="position: absolute; right: 0px; background-color: #0080ff; border-color: #00a0ff; width: {width}px;  height: {height}px;">{innerHtml}</div>';
+	    var template = '<div style="position:relative; width: 100%"><div style="position: absolute; right: 0px; background-color: #0080ff; border-color: #00a0ff; width: {width}px;  height: {height}px;">{innerHtml}</div></div>';
 	
 	
 	    var result = jsontemplate.expand(template, data);
@@ -73,7 +74,7 @@
 
 	this.ItemViewProject = this.ItemViewRowBase.extend({
 		renderHtml: function() {
-			console.log("Model", this.model);
+			//console.log("Model", this.model);
 			
 			var project   = this.model.get("s");
 			var partner   = this.model.get("p");
@@ -94,11 +95,17 @@
 			};
 		
 		//console.log(data);
-		
+
+			/*
+			var templateStr
+				= '<td>{partnerLabel}</td>'
+				+ '<td>' + self.renderBar(data) + '</td>'
+				+*/ 
+			
 			var result
 				= '<td>' + partnerLabel + '</td>'
-				+ '<td style="position: relative; width: 250px">' + self.renderBar(data) + '</td>'
-				+ '<td>' + stringUtils.formatNumber(a) + '</td>'
+				+ '<td style="width: 250px">' + self.renderBar(data) + '</td>'
+				+ '<td>' + stringUtils.formatNumber(a) + '&nbsp;&euro;</td>'
 				;
 				
 		    return result;

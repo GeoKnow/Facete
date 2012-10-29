@@ -84,7 +84,7 @@
 							
 							$.when(labelFetchTask).then(function(labelInfo) {
 								var uriToLabel = labelInfo.uriToLabel;
-								console.log("uriToLabel", uriStrs, uriToLabel);
+								//console.log("uriToLabel", uriStrs, uriToLabel);
 								
 								var html = ns.generateHtml(talisJson, uriToLabel);
 								self.view.$().html(html);
@@ -211,6 +211,8 @@
 			//var rdfaAboutStr = "about='" + s + "'";
 
 			var editStr = ' <a class="ssb_edit" href="#">(edit)</a>';
+			editStr = "";
+			
 			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a>' + editStr + '</td></tr>';
 
 			/*

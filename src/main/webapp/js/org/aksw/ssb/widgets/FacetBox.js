@@ -314,7 +314,7 @@
 					// Small HACK to pass on path information - maybe its not even a hack
 					payload.path = self.model.get("path");
 					
-					//alert("" +payload.path);
+					//alert("Why does it fail sometimes?" +payload.path);
 					
 					self.getParent().trigger("clickConstraint", payload);
 				});

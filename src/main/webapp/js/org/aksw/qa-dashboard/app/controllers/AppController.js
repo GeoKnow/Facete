@@ -35,7 +35,8 @@
 	var rdf = Namespace("org.aksw.ssb.vocabs.rdf");
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 
-	
+	var backboneUtils = Namespace("org.aksw.utils.backbone");
+
 	var labelUtils = Namespace("org.aksw.ssb.utils");
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 
@@ -52,6 +53,8 @@
 	var charts = Namespace("org.aksw.qa-dashboard.charts");
 	var chartUtils = Namespace("org.aksw.utils.charts"); 
 
+	
+	
 	var ns = Namespace("org.aksw.qa-dashboard.app.controllers");
 
 
@@ -356,15 +359,20 @@
 			var viewModel = new widgets.TableModelExecutor(this.executor, this.itemsPerPage);
 			
 			
+			this.syncer = new backboneUtils.BackboneSyncQueryCollection([], {
+				sparqlService: this.sparqlService,
+				//postProcessor: backboneUtils.createDefaultPostProcessor(this.labelFetcher)
+			});
+
 			
-			this.syncer = new widgets.TableModelBackboneSync(viewModel);
-			var collection = this.syncer.getCollection();
+			//this.syncer = new widgets.TableModelBackboneSync(viewModel);
+			var collection = this.syncer; //.getCollection();
 			
 			
 			var viewCollection = new Backbone.Collection();
 			
 			// Bind the viewCollection so that author and project uri are resolved
-			ns.slaveCollection(collection, viewCollection, function(data) {
+			backboneUtils.slaveCollection(collection, viewCollection, function(data) {
 	    		
 				//console.log("Slave data", data);
 				var projectUri = data["project"];
@@ -382,6 +390,8 @@
 				
 	    		return promise;
 			});
+
+			
 			
 			
 			
@@ -404,7 +414,7 @@
 				el: $("#list"),
 				attributes: {style: {'list-style': 'none'}},
 				collection: viewCollection,
-				itemRenderer: new ns.ItemRendererBackbone(CustomLinksetThumbnail)
+				itemRenderer: new widgets.ItemRendererBackbone(CustomLinksetThumbnail)
 			});
 	
 			
@@ -419,6 +429,10 @@
 				var offset = self.itemsPerPage * (currentPage - 1);
 				console.log("Set offset", offset, self.itemsPerPage, model);
 				viewModel.setOffset(offset);
+				
+				
+				//console.log("This is myself:", self);
+				
 				self.syncer.sync();
 				
 				
@@ -431,6 +445,7 @@
 //			self.updateFacets();
 			
 			
+			console.log("PaginatorModel is: ", this.paginatorModel);
 			
 			var paginator = new widgets.ViewPaginator({el: null, model: this.paginatorModel});//$$(widgets.Paginator); //widgets.createPaginatorWidget(5);
 			

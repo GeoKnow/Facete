@@ -93,7 +93,7 @@
 			<!-- 		<link rel="stylesheet" href="lib/jquery-ui/1.8.16/css/smoothness/jquery-ui-1.8.20.custom.css" /> -->
 <!-- 		<link rel="stylesheet" href="style.css" /> -->
 
-        <script type="text/javascript"
+       <script type="text/javascript"
             src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
 
 
@@ -107,9 +107,22 @@
 
         <script type="text/javascript" src="lib/jquery/1.7.2/jquery-1.7.2.js"></script>
 
+		<script type="text/javascript" src="lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>
+
+
+        <!-- <script type="text/javascript" src="lib/fauxconsole/fauxconsole.js"></script> -->
+
 
         <script type="text/javascript"
             src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
+
+
+    <!-- Load modificiations to existing frameworks; such as adding events to jQuery's show method -->
+<!--
+Not needed; Twitter Bootstrap fires the neccessary event already.
+	<script type="text/javascript" 
+		src="src/main/webapp/js/org/aksw/ssb/mods/jQuery.js"></script>
+		-->
 
 
 <!--         <script type="text/javascript" -->
@@ -120,6 +133,10 @@
 
         <script type="text/javascript"
             src="lib/underscore/1.3.1/underscore.js"></script>
+
+        <script type="text/javascript"
+            src="lib/underscore.string/current/dist/underscore.string.min.js"></script>
+
 
         <script type="text/javascript" src="lib/backbone/0.9.2/backbone.js"></script>
 
@@ -145,8 +162,8 @@
 
 
 	<!-- Open Layers 2.11-rc2 -->
-<!--	<script type="text/javascript"
-		src="lib/open-layers/2.10/OpenLayers.js"></script> -->
+	<script type="text/javascript"
+		src="lib/open-layers/2.10/OpenLayers.js"></script>
 
 	<script type="text/javascript"
 		src="lib/json-template/0.85/json-template.js"></script>
@@ -157,10 +174,8 @@
     <script type="text/javascript"
 		src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
 
-<!--
  	<script type="text/javascript"
  		src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script>
- 		-->
 
 <!-- 	<script type="text/javascript" -->
 <!-- 		src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script> -->
@@ -240,6 +255,8 @@
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/UriUtils.js"></script>
 
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/facets/Concepts.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/facets/Facets.js"></script>
@@ -258,10 +275,10 @@
 
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryGenerator.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryGenerator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/widgets/QueryExecutor.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/facets/QueryExecutor.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/LabelFetcher.js"></script>
@@ -279,10 +296,16 @@
 		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetBase.js"></script>
 
 	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetBaseOld.js"></script>
+
+	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/PaginatorWidget.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/ListWidgetSparql.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/widgets/TableWidgetSparql.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/FacetBox.js"></script>
@@ -299,38 +322,45 @@
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/ConstraintWidget.js"></script>
 
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/app/controllers/AppController.js"></script>
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/app/QueryGenerator.js"></script>
-
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/TableQueryGenerator.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/widgets/TableQueryExecutor.js"></script>
 
+
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/widgets/TableWidgetSparql.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/app/controllers/AppController.js"></script>
+
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/QueryGeneratorGeo.js"></script>
 		
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeModel.js"></script>
 		
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/collections/QuadTreeCache.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/backend/QuadTreeCache.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/ssb/utils/QueryCache.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/utils/Abbreviator.js"></script>
 
 	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/facets/FacetSystem.js"></script>
+		src="src/main/webapp/js/org/aksw/ssb/utils/BackboneUtils.js"></script>
 
 
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/plugins/RDFauthor.js"></script>
+		
+		
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/MathUtils.js"></script>
+		
+		
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/utils/LayoutUtils.js"></script>
 
 	<script src="lib/highcharts/2.2.5/js/highcharts.js"></script>
 	<script src="lib/highcharts/2.2.5/js/modules/exporting.js"></script>
@@ -339,9 +369,6 @@
 	<script type="text/javascript" src="lib/canvg/current/rgbcolor.js"></script>
 	<script type="text/javascript" src="lib/canvg/current/canvg.js"></script> 
 
-
-	<script type="text/javascript"
-		src="src/main/webapp/js/org/aksw/ssb/utils/MathUtils.js"></script>
 
 	<script type="text/javascript"
 		src="src/main/webapp/js/org/aksw/qa-dashboard/utils/ChartUtils.js"></script>

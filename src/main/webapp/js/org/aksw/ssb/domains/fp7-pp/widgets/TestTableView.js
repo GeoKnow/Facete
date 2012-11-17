@@ -22,6 +22,8 @@ $(document).ready(function() {
 	
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 
+	//config.sparqlServiceUri = "http://fts.publicdata.eu/sparql";
+	
 	var sparqlServiceHttp = new backend.SparqlServiceHttp(
 			config.sparqlServiceUri, config.defaultGraphUris,
 			config.sparqlProxyServiceUri, config.sparqlProxyParamName);
@@ -484,6 +486,8 @@ $(document).ready(function() {
 		});
 		
 		
+
+		
 		var controller = new SparqlBrowseController({
 			tableModel: tableModel,
 			
@@ -500,6 +504,12 @@ $(document).ready(function() {
 
 		var searchModel = new Backbone.Model({text: "test"});
 
+		
+		var createFilterExpr = function(exprVar, pattern) {
+			return new sparql.E_Regex(exprVar, pattern, 'i');
+				
+			//return new sparql.E_Like(exprVar, pattern);
+		};
 		
 		searchModel.on('change:text', function() {
 
@@ -564,7 +574,7 @@ $(document).ready(function() {
 				 * Filter URIs
 				 */
 				
-				var exprUri = new sparql.E_Regex(new sparql.ExprVar(v), searchText, 'i');
+				var exprUri = createFilterExpr(new sparql.ExprVar(v), searchText);
 				finalOrs.push(exprUri);
 				
 				/*
@@ -577,7 +587,7 @@ $(document).ready(function() {
 				evLabels.push(evLabel);
 				
 				var triple = new sparql.Triple(v, rdfs.label, vLabel);				
-				var exprLabel = new sparql.E_Regex(evLabel, searchText, 'i');
+				var exprLabel = createFilterExpr(evLabel, searchText);
 
 				var exprLang;
 				

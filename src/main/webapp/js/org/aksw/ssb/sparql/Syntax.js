@@ -869,40 +869,76 @@
 		this.expr = expr;
 		this.pattern = pattern;
 		this.flags = flags;
-		
-		//console.log("Pattern", this.pattern);
 	};
 		
-	ns.E_Regex.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.E_Regex(this.expr.copySubstitute(fnNodeMap), this.pattern, this.flags);
-	};
+	ns.E_Regex.prototype = {
+			copySubstitute: function(fnNodeMap) {
+				return new ns.E_Regex(this.expr.copySubstitute(fnNodeMap), this.pattern, this.flags);
+			},
 	
-	ns.E_Regex.prototype.getVarsMentioned = function() {
-		return this.expr.getVarsMentioned();
-	};
+			getVarsMentioned: function() {
+				return this.expr.getVarsMentioned();
+			},
 	
-	ns.E_Regex.prototype.getArgs = function() {
-		return [this.expr];
-	};
+			getArgs: function() {
+				return [this.expr];
+			},
 	
-	ns.E_Regex.prototype.copy = function(args) {
-		if(args.length != 1) {
-			throw "Invalid argument";
+			copy: function(args) {
+				if(args.length != 1) {
+					throw "Invalid argument";
+				}
+		
+				var newExpr = args[0];
+				var result = new ns.E_Regex(newExpr, this.pattern, this.flags);
+				return result;
+			},
+	
+	
+		toString: function() {		
+			var patternStr = this.pattern.replace("'", "\\'");
+			var flagsStr = this.flags ? ", '" + this.flags.replace("'", "\\'") + "'" : "";
+	
+			
+			return "Regex(" + this.expr + ", '" + patternStr + "'" + flagsStr + ")"; 
 		}
-
-		var newExpr = args[0];
-		var result = new ns.E_Regex(newExpr, this.pattern, this.flags);
-		return result;
 	};
 	
 	
-	ns.E_Regex.prototype.toString = function() {		
-		var patternStr = this.pattern.replace("'", "\\'");
-		var flagsStr = this.flags ? ", '" + this.flags.replace("'", "\\'") + "'" : "";
-
+	
+	ns.E_Like = function(expr, pattern) {
+		this.expr = expr;
+		this.pattern = pattern;
+	};
 		
-		return "Regex(" + this.expr + ", '" + patternStr + "'" + flagsStr + ")"; 
+	ns.E_Like.prototype = {
+			copySubstitute: function(fnNodeMap) {
+				return new ns.E_Like(this.expr.copySubstitute(fnNodeMap), this.pattern);
+			},
+	
+			getVarsMentioned: function() {
+				return this.expr.getVarsMentioned();
+			},
+	
+			getArgs: function() {
+				return [this.expr];
+			},
+	
+			copy: function(args) {
+				var result = newUnaryExpr(ns.E_Like, args);
+				return result;
+			},
+	
+	
+		toString: function() {		
+			var patternStr = this.pattern.replace("'", "\\'");
+	
+			
+			return "(" + this.expr + " Like '" + patternStr + "')"; 
+		}
 	};
+	
+
 
 	ns.E_Function = function(uriNode, args) {
 		this.uriNode = uriNode;

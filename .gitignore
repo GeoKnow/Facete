@@ -1,6 +1,9 @@
+.classpath
 .buildpath
 .project
 .settings/
+
+target
 
 # Temporary excludes:
 install-rdf-author.sh

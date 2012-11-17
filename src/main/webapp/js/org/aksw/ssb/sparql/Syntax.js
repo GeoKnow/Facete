@@ -19,8 +19,18 @@
 
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 
-	
 	ns.orify = function(exprs) {
+		var result = ns.opify(exprs, ns.E_LogicalOr);
+		return result;
+	};
+
+	ns.andify = function(exprs) {
+		var result = ns.opify(exprs, ns.E_LogicalAnd);
+		return result;
+	};
+
+	
+	ns.opify = function(exprs, fnCtor) {
 		var open = exprs;
 		var next = [];
 		
@@ -36,8 +46,10 @@
 				}
 				
 				var b = open[i + 1];
+		
+				var newExpr = fnCtor(a, b);
 				
-				next.push(new ns.E_LogicalOr(a, b));
+				next.push(newExpr); //;new ns.E_LogicalOr(a, b));
 			}
 			
 			var tmp = open;
@@ -47,6 +59,8 @@
 		
 		return open;
 	};
+	
+
 	
 	ns.uniqTriples = function(triples) {
 		var result =  _.uniq(triples, false, function(x) { return x.toString(); });
@@ -483,8 +497,10 @@
 		return new ns.ElementSubQuery(this.query.flatten());
 	};
 	
-	ns.ElementFilter = function(expr) {
-		this.expr = expr;
+	
+	
+	ns.ElementFilter = function(exprs) {
+		this.exprs = exprs;
 	};
 
 	ns.ElementFilter.prototype.getArgs = function() {
@@ -497,12 +513,16 @@
 		}
 		
 		// FIXME: Should we clone the attributes too?
-		var result = new ns.ElemenFilter(this.expr);
+		var result = new ns.ElemenFilter(this.exprs);
 		return result;
 	};
 	
 	ns.ElementFilter.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementFilter(this.expr.copySubstitute(fnNodeMap));
+		var exprs = _.map(this.exprs, function(expr) {
+			return expr.copySubstitute(fnNodeMap);
+		});
+		
+		return new ns.ElementFilter(exprs);
 	};
 
 	ns.ElementFilter.prototype.getVarsMentioned = function() {
@@ -514,8 +534,13 @@
 	};
 	
 	ns.ElementFilter.prototype.toString = function() {
-		return "Filter(" + this.expr + ")";
+		
+		var expr = ns.andify(this.exprs);
+		
+		return "Filter(" + expr + ")";
 	};
+	
+	
 	
 	ns.ElementOptional = function(element) {
 		this.optionalPart = element;
@@ -548,7 +573,7 @@
 	};
 	
 	ns.ElementOptional.prototype.toString = function() {
-		return "Optional {" + element + "}";
+		return "Optional {" + this.optionalPart + "}";
 	};
 	
 	
@@ -844,6 +869,8 @@
 		this.expr = expr;
 		this.pattern = pattern;
 		this.flags = flags;
+		
+		//console.log("Pattern", this.pattern);
 	};
 		
 	ns.E_Regex.prototype.copySubstitute = function(fnNodeMap) {
@@ -869,7 +896,7 @@
 	};
 	
 	
-	ns.E_Regex.prototype.toString = function() {
+	ns.E_Regex.prototype.toString = function() {		
 		var patternStr = this.pattern.replace("'", "\\'");
 		var flagsStr = this.flags ? ", '" + this.flags.replace("'", "\\'") + "'" : "";
 
@@ -914,6 +941,17 @@
 		return new ns.E_Equals(fnNodeMap(this.left), fnNodeMap(this.right));
 	};
 	
+	ns.newUnaryExpr = function(ctor, args) {
+		if(args.length != 1) {
+			throw "Invalid argument";
+		}
+
+		var newExpr = args[0];
+		
+		var result = new ctor(newExpr);
+		return result;		
+	};
+	
 	
 	ns.newBinaryExpr = function(ctor, args) {
 		if(args.length != 2) {
@@ -944,6 +982,80 @@
 		;
 	};
 
+	
+	ns.E_LangMatches = function(left, right) {
+		this.left = left;
+		this.right = right;		
+	};
+	
+	ns.E_LangMatches.prototype = {
+			copySubstitute: function(fnNodeMap) {
+				return new ns.E_LangMatches(fnNodeMap(this.left), fnNodeMap(this.right));
+			},
+
+			getArgs: function() {
+				return [this.left, this.right];
+			},
+			
+			copy: function(args) {
+				return ns.newBinaryExpr(ns.E_LangMatches, args);
+			},
+			
+			toString: function() {
+				return "langMatches(" + this.left + ", " + this.right + ")";
+			}
+	};
+	
+
+	ns.E_Lang = function(expr) {
+		this.expr = expr;		
+	};
+	
+	ns.E_Lang.prototype = {
+			copySubstitute: function(fnNodeMap) {
+				return new ns.E_Lang(fnNodeMap(this.expr));
+			},
+
+			getArgs: function() {
+				return [this.expr];
+			},
+			
+			copy: function(args) {
+				var result = newUnaryExpr(ns.E_Lang, args);
+				return result;
+			},
+			
+			toString: function() {
+				return "lang(" + this.expr + ")";
+			}
+	};
+	
+	ns.E_Bound = function(expr) {
+		this.expr = expr;		
+	};
+	
+	ns.E_Bound.prototype = {
+			copySubstitute: function(fnNodeMap) {
+				return new ns.E_Bound(fnNodeMap(this.expr));
+			},
+
+			getArgs: function() {
+				return [this.expr];
+			},
+			
+			copy: function(args) {
+				var result = newUnaryExpr(ns.E_Bound, args);
+				return result;
+			},
+			
+			toString: function() {
+				return "bound(" + this.expr + ")";
+			}
+	};
+	
+	
+	
+	
 	ns.E_GreaterThan = function(left, right) {
 		this.left = left;
 		this.right = right;
@@ -1253,6 +1365,16 @@
 		this.varToExpr = {};
 	};	
 	
+	ns.VarExprList.prototype = {
+		getVarList: function() {
+			return this.vars;
+		},
+			
+		getExprMap: function() {
+			return this.varToExpr;
+		}	
+	};
+	
 	ns.VarExprList.prototype.add = function(v, expr) {
 		this.vars.push(v);
 		
@@ -1374,6 +1496,18 @@
 		this.offset = null;		
 	};
 	
+	
+	ns.Query.prototype = {
+		getElements: function() {
+			return this.elements;
+		},
+		
+		getProjectVars: function() {
+			return this.projectVars;
+		}
+	};
+
+	
 	ns.fnIdentity = function(x) { return x; };
 	
 	ns.Query.prototype.clone = function() {
@@ -1431,6 +1565,7 @@
 		
 		return result;
 	};
+	
 	
 	/**
 	 * Convenience function for setting limit, offset and distinct from JSON

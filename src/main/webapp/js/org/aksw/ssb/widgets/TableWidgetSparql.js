@@ -1,5 +1,7 @@
 (function() {
 	
+	var backboneUtils = Namespace("org.aksw.utils.backbone");
+	
 	var ns = Namespace("org.aksw.ssb.widgets");
 	
 	
@@ -34,12 +36,13 @@
 	*/
 	
 	/**
+	 * 
 	 * fnId(item, row, offset)
 	 * 
 	 */
 	ns.TableModelBackboneSync = function(tableModelExecutor, collection, fnId) {
 		this.tableModelExecutor = tableModelExecutor;
-		this.collection = collection ? collection : new ns.DefaultCollection();
+		this.collection = collection ? collection : new backboneUtils.DefaultCollection();
 		this.fnId = fnId ? fnId : ns.fnDefaultId; // A function that returns the Id of items delivered by the tableModel
 		
 		this.taskCounter = 0;
@@ -104,16 +107,18 @@
 	
 	
 	/**
+	 * @deprecated
+	 * 
 	 * Adds a layer onto a tabular data backend that enables
 	 * adding limit and offset.
 	 * 
 	 * -> What about projections?
 	 * 
-	 * @param sparqlService
-	 * @param elementProvider An object with a "ge
+	 * @param executor
 	 * @param limit
 	 * @param offset
 	 * @returns {ns.TableModelExecutor}
+	 * 
 	 */
 	ns.TableModelExecutor = function(executor, limit, offset) {
 		this.executor = executor;
@@ -121,60 +126,62 @@
 		this.offset = offset;
 	};
 
-	ns.TableModelExecutor.prototype.setLimit = function(limit) {
-		this.limit = limit;
-	};
-	
-	ns.TableModelExecutor.prototype.setOffset = function(offset) {
-		this.offset = offset;
-	};
-	
-	
-	ns.TableModelExecutor.prototype.fetchData = function() {
-		if(!this.executor) {
-			var result = $.Deferred();
-			result.resolve([]);
-			return result.promise();
-		}
-		
+	ns.TableModelExecutor.prototype = {
 
-		var options = {limit: this.limit, offset: this.offset, distinct: true};
-
-		var promise = this.executor.fetchRows(options);
-		
-		//return promise;
-		
-		var result = promise.pipe(function(rs) {
-			// Include the offset in the result - can be used to show row numbers, which may be used as ids
-			return {data: rs, offset: options.offset};
-		});
-		
-		return result;
-	};
+			setLimit: function(limit) {
+				this.limit = limit;
+			},
 	
-	ns.TableModelExecutor.prototype.fetchDataOld = function() {
-		/*
-		if(!this.executor) {
-			var result = $.Deferred();
-			result.resolve([]);
-			return result.promise();
-		}*/
-		
-		var query = this.queryProjector.createQuerySelect();
-		
-		// TODO Maybe treat the limit and offset relative to that of the query we get
-		// This makes sense if we see this class as only providing a "window" to the data of the underyling query
-		query.setLimit(this.limit);
-		query.setOffset(this.offset);
+			setOffset: function(offset) {
+				this.offset = offset;
+			},
+			
+			
+//			getSparqlService = function() {
+//				return this.sparqlService;
+//			};	
+	
+			fetchData: function() {
+				if(!this.executor) {
+					var result = $.Deferred();
+					result.resolve([]);
+					return result.promise();
+				}
 				
-		var promise = this.sparqlService.executeSelect(query);
-		return promise;
+		
+				var options = {limit: this.limit, offset: this.offset, distinct: true};
+		
+				var promise = this.executor.fetchRows(options);
+				
+				//return promise;
+				
+				var result = promise.pipe(function(rs) {
+					// Include the offset in the result - can be used to show row numbers, which may be used as ids
+					return {data: rs, offset: options.offset};
+				});
+				
+				return result;
+			},
+			
+			fetchDataOld: function() {
+				/*
+				if(!this.executor) {
+					var result = $.Deferred();
+					result.resolve([]);
+					return result.promise();
+				}*/
+				
+				var query = this.queryProjector.createQuerySelect();
+				
+				// TODO Maybe treat the limit and offset relative to that of the query we get
+				// This makes sense if we see this class as only providing a "window" to the data of the underyling query
+				query.setLimit(this.limit);
+				query.setOffset(this.offset);
+						
+				var promise = this.sparqlService.executeSelect(query);
+				return promise;
+			}
 	};
-	
-	ns.TableModelExecutor.prototype.getSparqlService = function() {
-		return this.sparqlService;
-	};	
-	
 	
 	
 	
@@ -186,8 +193,6 @@
 	ns.TableView = Backbone.View.extend({
 		el: $('body'), // el attaches to existing element
 		tagName: 'table',
-	    events: {
-	    },
 
 	    /**
 	     * options:
@@ -196,18 +201,19 @@
 	     */
 	    initialize: function() {
 	  
-	    	
+	    	//_.bindAll(this, 'addModel', 'clear');
+
 	    	// _.bindAll(this, 'render', 'addItem', 'appendItem'); // every function that uses 'this' as the current object should be in here
 	      
 	    	//this.collection = new List();
 	    	//this.collection.bind('add', this.appendItem); // collection event binder
 
-	    	this.collection.bind('add', this.addModel, this);
+	    	//this.collection.bind('add', this.addModel, this);
 	    	//this.collection.remove('remove', this.addModel, this);
 	    	
 	    	
 	    	
-	    	this.render();
+	    	//this.render();
 	    },
 	    addModel: function(model) {
 			var renderer = this.getRowRenderer();	
@@ -244,9 +250,10 @@
 	    		return 
 	    	}
 	    },
+	    /*
 	    clear: function() {
 	    	
-	    }
+	    }*/
 	});
 	
 	

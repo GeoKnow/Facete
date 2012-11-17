@@ -142,7 +142,7 @@
 			limit : 1000
 		});
 		
-		query.elements.push(new sparql.ElementFilter(new sparql.E_Equals(projectVar, projectNode)));
+		query.elements.push(new sparql.ElementFilter([new sparql.E_Equals(projectVar, projectNode)]));
 		
 		
 		query.orderBy.push(new sparql.SortCondition(new sparql.ExprVar(

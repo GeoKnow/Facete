@@ -350,13 +350,28 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 		src="src/main/webapp/js/org/aksw/ssb/app/Layout-Odp.js"></script> -->
 
 
+	<script type="text/javascript"
+		src="src/main/webapp/js/org/aksw/ssb/app/controllers/ResourceDetailsController.js"></script>
 
 
 	<!-- <script type="text/javascript" src="src/main/webapp/js/main.js"></script>  -->
 
 	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js"></script>
-	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/Test.js"></script>
+
+
+
+<!--	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/TestProjectPartnerFundingTable.js"></script> -->
+	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js"></script>
 	
+
+
+	<script type="text/javascript">
+
+	    $(document).ready(function() {
+	    	
+	    });
+	    
+	</script>
 
     </head>
 <body>

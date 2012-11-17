@@ -2083,6 +2083,12 @@
 	};
 			
 	
+	/**
+	 * @deprecated
+	 * 
+	 * 
+	 * @param geom
+	 */
 	ns.AppController.prototype.showFeatureDetails = function(geom) {
 		
 		var self = this;
@@ -2460,6 +2466,10 @@
 	};
 		
 
+	/**
+	 * @deprecated
+	 * @param uriStr
+	 */
 	ns.AppController.prototype.onInstanceClicked = function(uriStr) {
 		Dispatcher.fireEvent("selection", uriStr);
 		

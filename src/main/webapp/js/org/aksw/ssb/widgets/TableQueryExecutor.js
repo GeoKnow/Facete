@@ -25,9 +25,9 @@
 		this.queryProjector = queryProjector;
 	};
 
-	ns.TableQueryExecutor.getColumnNames = function() {
-		
-	};
+//	ns.TableQueryExecutor.getColumnNames = function() {
+//		
+//	};
 	
 	/**
 	 * FIXME Decide on options; they may e.g. include: limit, offset, order
@@ -35,34 +35,36 @@
 	 * @param options
 	 * @returns
 	 */
-	ns.TableQueryExecutor.prototype.fetchRows = function(options) {
-		var query = this.queryProjector.createQueryRows(options);
+	ns.TableQueryExecutor.prototype = {
+			fetchRows: function(options) {
+				var query = this.queryProjector.createQueryRows(options);
+				
+				/*
+				console.log(options);
+				alert("" + query);
+				throw "meh";
+				*/
+				
+				var promise = this.sparqlService.executeSelect(query).pipe(function(rs) {
+					return rs.results.bindings;
+				});
 		
-		/*
-		console.log(options);
-		alert("" + query);
-		throw "meh";
-		*/
-		
-		var promise = this.sparqlService.executeSelect(query).pipe(function(rs) {
-			return rs.results.bindings;
-		});
+				return promise;
+			},
 
-		return promise;
+			fetchCountRows: function(sampleLimit, options) {
+				var countVar = sparql.Node.v("__c");
+				var query = this.queryProjector.createQueryCountRows(countVar, sampleLimit, options);
+				
+				var promise = queryUtils.fetchInt(this.sparqlService, query, countVar);
+		
+				var result = promise.pipe(function(value) {
+					
+					return {count: value, isCutOff: (value >= sampleLimit) };
+				});
+				
+				return result;
+			}
 	};
-
-	ns.TableQueryExecutor.prototype.fetchCountRows = function(sampleLimit, options) {
-		var countVar = sparql.Node.v("__c");
-		var query = this.queryProjector.createQueryCountRows(countVar, sampleLimit, options);
-		
-		var promise = queryUtils.fetchInt(this.sparqlService, query, countVar);
-
-		var result = promise.pipe(function(value) {
 			
-			return {count: value, isCutOff: (value >= sampleLimit) };
-		});
-		
-		return result;
-	};
-		
 })();

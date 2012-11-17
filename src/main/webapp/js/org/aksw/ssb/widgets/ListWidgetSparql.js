@@ -768,21 +768,21 @@
 		this.executor = executor;
 	};
 	
-	ns.updatePageCount = function(paginator, subExecutor, limit) {
+	ns.updatePageCount = function(paginatorModel, subExecutor, limit) {
 		
-		$.when(subExecutor.fetchCountValues(null, {distinct: true})).then(function(info) {
-			var itemCount = info.count;
-			//var limit = model.limit;
+		var result = $.when(subExecutor.fetchCountValues(null, {distinct: true})).then(function(info) {
+			var itemCount = info.count;			
+			//console.log("Item count: " + itemCount);
 			
 			var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
 			if(itemCount === 0) {
 				pageCount = 1;
 			}
 			
-			paginator.model.set({pageCount: pageCount});
-			//paginator.getModel().setPageCount(pageCount);
-			//paginator.refresh();
-		});		
+			paginatorModel.set({pageCount: pageCount});
+		});
+		
+		return result;
 	};
 	
 	
@@ -804,95 +804,113 @@
 		this.bindEvents();
 	};
 	
-	ns.ExecutorListWidget.prototype.bindEvents = function() {
+	ns.ExecutorListWidget.prototype = {
+			
+			bindEvents: function() {
 
-		var result = this.listView;
+				var result = this.listView;
+						
 				
+				//var result = ns.createListWidgetSparql(postModel, itemRenderer);
 		
-		//var result = ns.createListWidgetSparql(postModel, itemRenderer);
-
+							
+			
+				//var paginatorModel = result.getPaginator().getModel();
+				var paginatorModel = result.getPaginator().model;
+		
+				
+				var self = this;
+				
+				result.getTextWidget().bind("change-text", function(ev, text) {
+					var model = self.getModel();
 					
+					model.searchString = text;
+		
+					self.refresh();
+				});
+				
+				
+				$(result.getPaginator()).on('change-page', function(event, pageRequest) {
+					var paginatorModel = self.getView().getPaginator().model;
+					paginatorModel.set({currentPage: pageRequest});			
+				});
+		
+				
+				result.getPaginator().model.on("change", function(model) {
+					var page = model.get("currentPage");
+					
+					//alert(page);
+					//var offset = itemsPerPage * (currentPage - 1);
+		
+					
+					var m = self.getModel();
+		
+					var paginatorModel = self.getView().getPaginator().model;
+					//var paginatorModel = self.getView().getPaginator().getModel();
+		
+					
+					var limit = m.limit;
+					
+					var offset = limit ? (page - 1) * limit : 0;
+					
+					m.offset = offset;
+					//paginatorModel.setCurrentPage(page);
+					paginatorModel.set({currentPage: page});
+					
+					//alert("offest" + offset);
+					//paginatorModel.setCurrentPage(page);
+					
+					//result.getPaginator().refresh();
+					result.getListWidget().refresh();
+				});
+			},
+
+			refresh: function() {
+				var model = this.getModel();
+				var executor = model.getExecutor();
+				var view = this.getView();
+				
+				var subExecutor = executor.filterRegex(model.searchString, "i");
+				
+				ns.updatePageCount(view.getPaginator().model, subExecutor, model.limit);
+				
+				view.getListWidget().refresh();		
+			},
 	
-		//var paginatorModel = result.getPaginator().getModel();
-		var paginatorModel = result.getPaginator().model;
-
-		
-		var self = this;
-		
-		result.getTextWidget().bind("change-text", function(ev, text) {
-			var model = self.getModel();
-			
-			model.searchString = text;
-
-			self.refresh();
-		});
-		
-		
-		$(result.getPaginator()).on('change-page', function(event, pageRequest) {
-			var paginatorModel = self.getView().getPaginator().model;
-			paginatorModel.set({currentPage: pageRequest});			
-		});
-
-		
-		result.getPaginator().model.on("change", function(model) {
-			var page = model.get("currentPage");
-			
-			//alert(page);
-			//var offset = itemsPerPage * (currentPage - 1);
-
-			
-			var m = self.getModel();
-
-			var paginatorModel = self.getView().getPaginator().model;
-			//var paginatorModel = self.getView().getPaginator().getModel();
-
-			
-			var limit = m.limit;
-			
-			var offset = limit ? (page - 1) * limit : 0;
-			
-			m.offset = offset;
-			//paginatorModel.setCurrentPage(page);
-			paginatorModel.set({currentPage: page});
-			
-			//alert("offest" + offset);
-			//paginatorModel.setCurrentPage(page);
-			
-			//result.getPaginator().refresh();
-			result.getListWidget().refresh();
-		});
-	};
-
-	ns.ExecutorListWidget.prototype.refresh = function() {
-		var model = this.getModel();
-		var executor = model.getExecutor();
-		var view = this.getView();
-		
-		var subExecutor = executor.filterRegex(model.searchString, "i");
-		
-		ns.updatePageCount(view.getPaginator(), subExecutor, model.limit);
-		
-		view.getListWidget().refresh();		
-	};
-	
-	ns.ExecutorListWidget.prototype.getView = function() {
-		return this.listView;
-	};
+			getView: function() {
+				return this.listView;
+			},
 
 	
-	ns.ExecutorListWidget.prototype.getModel = function() {
-		return this.model;
-	};
+			getModel: function() {
+				return this.model;
+			},
 
-	ns.ExecutorListWidget.prototype.setModel = function(model) {
-		if(!model) {
-			model =  new ns.ListModelExecutor(null, 50);
-		}
+			setModel: function(model) {
+				if(!model) {
+					model =  new ns.ListModelExecutor(null, 50);
+				}
+				
+				this.model = model;
+				var m = this.wrapModel(model);
 		
-		this.model = model;
-		var m = this.wrapModel(model);
+				this.listView.getListWidget().setModel(m);
+			},
 
-		this.listView.getListWidget().setModel(m);
+			setLabelFetcher: function(labelFetcher) {
+				this.labelFetcher = labelFetcher;
+				
+				var m = this.wrapModel(this.model);
+				this.listView.getListWidget().setModel(m);
+			},
+			
+			wrapModel:  function(model) {
+				//var executor = model.getExecutor();
+				var postProcessor = new ns.PostProcessorLabels(this.labelFetcher);
+				var result = new ns.PostProcessorModel(model, postProcessor);
+
+				return result;
+			}
 	};
 	
 
@@ -906,20 +924,6 @@
 	};
 	*/
 	
-	ns.ExecutorListWidget.prototype.setLabelFetcher = function(labelFetcher) {
-		this.labelFetcher = labelFetcher;
-		
-		var m = this.wrapModel(this.model);
-		this.listView.getListWidget().setModel(m);
-	};
-	
-	ns.ExecutorListWidget.prototype.wrapModel = function(model) {
-		//var executor = model.getExecutor();
-		var postProcessor = new ns.PostProcessorLabels(this.labelFetcher);
-		var result = new ns.PostProcessorModel(model, postProcessor);
-
-		return result;
-	};
 	
 	/*
 	ns.ExecutorListWidget.prototype.refresh = function() {

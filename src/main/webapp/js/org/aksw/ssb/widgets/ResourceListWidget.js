@@ -19,22 +19,134 @@
 	
 	var ns = Namespace("org.aksw.ssb.widgets"); 
 
+	var widgets = ns;
+	
+	(function() {
+	
+		
+		
+		this.ListViewTable = widgets.ListViewBase.extend({
+			cols: 3,
+			
+			initialize: function(options) {
+
+				if(options.cols) {
+					this.cols = options.cols;
+				}
+
+				
+				this.constructor.__super__.initialize.apply(this, options);
+			},
+			
+			appendRow: function(targetEl) {
+		    	var result = $('<tr></tr>');
+		    	$(targetEl).append(result);
+		    	
+		    	return result;
+			},
+			
+			
+			
+		    appendElement: function(elItem) {
+		    	
+				//console.log("Number of columns: ", this.cols);
+		    	var el = this.el;
+		    	
+		    	var tbodies = $(el).find("> tbody");
+		    	
+		    	// Append a tbody element if not there yet
+		    	var tbody;
+		    	if(tbodies.size() == 0) {
+		    		tbody = $('<tbody></tbody>');
+		    		$(el).append(tbody);
+		    	} else {
+		    		tbody = tbodies.get(0);
+		    	}
+		    	
+		    	
+		    	// Locate the last tr; create a new tr if full or not there
+		    	var lastTr = $(tbody).find("> tr:last");
+
+		    	var tr;
+		    	
+		    	if(lastTr.size() == 0) {
+		    		tr = this.appendRow(tbody);
+		    	} else {
+		    		tr = lastTr.get(0);
+		    		
+		    		var tds = $(tr).find("> td");
+		    		
+		    		//console.log("tds.size()", tds.size(), this.cols);
+		    		
+		    		if(tds.size() >= this.cols) {
+		    			tr = this.appendRow(tbody);
+		    		}
+		    	}
+		    			    	
+		    	
+		    	//console.log("Appending ", lastTr);
+		    	
+		    	
+		    	$(tr).append(elItem);
+		    },
+
+		});
+		
+		/*
+		this.ListTableView = Backbone.View.extend({
+			tagName: 'table',
+
+		    initialize: function() {
+		      _.bindAll(this, 'render', 'unrender', 'remove'); // every function that uses 'this' as the current object should be in here
+
+		    	this.collection.on('add', this.addModel, this);
+		    	this.collection.on('reset', this.clear, this);
+		    	//this.collection.remove('remove', this.unrender, this);
+		    	
+		    	this.render();
+		    },
+		    render: function(){	    	
+
+		    	
+		    	
+		    	
+		      $(this.el).html(html); 
+		      return this;
+		    },
+		    unrender: function() {
+		      $(this.el).remove();
+		    },
+		    remove: function() {
+		      this.model.destroy();
+		    }
+		});*/		
+		
+	}).apply(ns);
+	
+	
+	
+	
+	
+	
+	
 	ns.EmptyTable = function(rowCount, columnCount, value) {
 		this.rowCount = rowCount;
 		this.columnCount = columnCount;
 		this.value = value;
 	};
 
-	ns.EmptyTable.prototype.getColumnCount = function() {
-		return this.columnCount;
-	};
+	ns.EmptyTable.prototype = {
+			getColumnCount: function() {
+				return this.columnCount;
+			},
 	
-	ns.EmptyTable.prototype.getRowCount = function() {
-		return this.rowCount;
-	};
+			getRowCount: function() {
+				return this.rowCount;
+			},
 	
-	ns.EmptyTable.prototype.get = function(row, col) {
-		return this.value;
+			get: function(row, col) {
+				return this.value;
+			}
 	};
 	
 
@@ -102,19 +214,21 @@
 		return result;
 	};
 	
-	ns.ListTable.prototype.getColumnCount = function() {
-		return this.tableIndex.columnCount;
-	};
+	ns.ListTable.prototype = {
+			getColumnCount: function() {
+				return this.tableIndex.columnCount;
+			},
 	
-	ns.ListTable.prototype.getRowCount = function() {
-		return this.tableIndex.rowCount;
-	};
+			getRowCount: function() {
+				return this.tableIndex.rowCount;
+			},
 	
-	ns.ListTable.prototype.get = function(row, col) {
-		var index = tableIndex.get(row, col);
+			get: function(row, col) {
+				get(row, col);
 		
-		var result = index in list ? list[index] : this.fillValue;
-		return result;
+				var result = index in list ? list[index] : this.fillValue;
+				return result;
+			}
 	};
 	
 	ns.getItem = function(list, columnCount, row, col, fillValue) {

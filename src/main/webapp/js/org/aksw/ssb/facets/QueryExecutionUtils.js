@@ -470,7 +470,7 @@
 	 */
 	ns.fetchInt = function(sparqlService, query, variable) {
 		
-		var result = sparqlService.executeSelect(query.toString()).pipe(function(data) {
+		var result = sparqlService.executeSelect(query).pipe(function(data) {
 			var count = parseInt(data.results.bindings[0][variable.value].value);
 			
 			return count;

@@ -17,8 +17,7 @@ $(document).ready(function() {
 			
 			var sparqlService = new backend.SparqlServicePaginator(sparqlServiceHttp, 1000);
 			
-			// TODO LabelFetcher is not compatible with SparqlServicePaginator yet...
-			var labelFetcher = new labelUtils.LabelFetcher(sparqlServiceHttp);
+			var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
 
 			
 
@@ -27,7 +26,7 @@ $(document).ready(function() {
 
 			var query = queryUtils.createQuerySelectElement(element, element
 					.getVarsMentioned(), {
-				limit : 1000
+				limit : 10
 			});
 			query.orderBy.push(new sparql.SortCondition(new sparql.ExprVar(
 					sparql.Node.v("a"))));

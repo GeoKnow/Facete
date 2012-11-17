@@ -95,38 +95,40 @@
 	
 
 	
-	ns.ListView = Backbone.View.extend({
+	ns.ListViewBase = Backbone.View.extend({
 		//el: $('body'), // el attaches to existing element
 		tagName: 'ul',
-	    events: {
-	    },
 	    initialize: function(){
-	    	// _.bindAll(this, 'render', 'addItem', 'appendItem'); // every function that uses 'this' as the current object should be in here
 	      
 	    	if(this.options.itemRenderer) {
 	    		this.itemRenderer = this.options.itemRenderer;
 	    	}
 	    	
+	    	//_.bindAll(this, 'render', 'addModel', 'reset');
+
+	    	
 	    	//this.collection = new List();
 	    	//this.collection.bind('add', this.appendItem); // collection event binder
 
 	    	this.collection.bind('add', this.addModel, this);
+	    	this.collection.bind('reset', this.reset, this);
 	    	//this.collection.remove('remove', this.unrender, this);
-	    	this.collection.bind('reset', this.clear, this);
 	    	
 	    	this.render();
 	    },
 	    addModel: function(model) {
 			var renderer = this.getItemRenderer();	
 			
-			//console.log("Options", this.options);
-
-			//itemView = renderer.create(model, this);
-			//this.appendItem(itemView);	    	
-			
-			var element = renderer.create(model, this);
-			this.appendElement(element);
+			var el = renderer.create(model, this);
+			this.appendElement(el);
 	    },
+	    
+	    /*
+	    appendElement: function(el) {
+	    	var result = this.prototype.appendElement.call(this, el); //Backbone.View.prototype.
+	    },
+	    */		
+
 	    render: function() {
 			//this.clear();
 			
@@ -146,19 +148,31 @@
 	    unrender: function() {
 	    	$(this.el).remove();
 	    },
-	    appendElement: function(element) {
-	    	$(this.el).append(element);
+	    /*
+	    appendView: function(view) {
+	    	var tmp = view.render(); // usually tmp should equals view here
+	    	var el = tmp.el;
+	    	
+	    	this.appendElement(el);
 	    },
-	    appendItem: function(itemView) {
-	    	$(this.el).append(itemView.render().el);
-	    },
+	    */
 	    getItemRenderer: function() {
 	    	return this.itemRenderer;
 	    	//return this.options.itemRenderer;	    	
 	    },
-	    clear: function() {
-	    	$(this.el.children).remove();
+
+	    reset: function() {
+	    	console.log("Reset", arguments);
+	    	$(this.el).children().remove();
+	    	this.render();
 	    }
+	});
+	
+	
+	ns.ListView = ns.ListViewBase.extend({
+	    appendElement: function(el) {
+	    	$(this.el).append(el);
+	    },		
 	});
 	
 	

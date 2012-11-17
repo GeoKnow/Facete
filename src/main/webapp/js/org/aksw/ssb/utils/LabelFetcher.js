@@ -67,7 +67,7 @@
 					
 					if(ors.length != 0) {
 						var orExpr = sparql.orify(ors);
-						filter = new sparql.ElementFilter(orExpr);
+						filter = new sparql.ElementFilter([orExpr]);
 						
 						query.elements.push(filter);
 					}

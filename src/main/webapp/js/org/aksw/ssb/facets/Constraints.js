@@ -210,7 +210,7 @@
 		if(ands.length > 0) {
 			finalFilter = sparql.opify(ands, sparql.E_LogicalAnd);
 			
-			filterElement = new sparql.ElementFilter(finalFilter);
+			filterElement = new sparql.ElementFilter([finalFilter]);
 		}
 		 
 		
@@ -340,17 +340,32 @@
 		this.flags = flags;
 	};
 	
-	ns.ConstraintRegex.prototype.toString = function() {
-		return "regex(" + this.regexStr + ", " + this.flags + ")";
-	};
+	ns.ConstraintRegex.prototype = {
+			toString: function() {
+				return "regex(" + this.regexStr + ", " + this.flags + ")";
+			},
 	
-	ns.ConstraintRegex.prototype.createExpr = function(breadcrumb) {
-		
-		var variable = breadcrumb.getTargetVariable();
-		var varExpr = new sparql.ExprVar(variable); 		
-		var result = new sparql.E_Regex(varExpr, this.regexStr, this.flags);
+			/**
+			 * TODO: This should become the new createExpr function
+			 * 
+			 * @param v
+			 * @returns {sparql.E_Regex}
+			 */
+			createExprVar: function(v) {
+				var varExpr = new sparql.ExprVar(variable); 		
+				var result = new sparql.E_Regex(varExpr, this.regexStr, this.flags);
 
-		return result;
+				return result;				
+			},
+			
+			createExpr: function(breadcrumb) {
+		
+				var variable = breadcrumb.getTargetVariable();
+				
+				var result = createExprVar(variable);
+				
+				return result;
+			}
 	};
 	
 	/*
@@ -582,7 +597,7 @@
 		var vX = breadcrumbX.getTargetVariable();
 		var vY = breadcrumbY.getTargetVariable();
 		
-		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.double);
+		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
 
 		// Create the result
 		var result = new ns.ConstraintElement(triples, expr);
@@ -607,7 +622,7 @@
 		var vX = breadcrumbX.getTargetVariable();
 		var vY = breadcrumbY.getTargetVariable();
 		
-		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.double);
+		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
 
 		// Create the result
 		var result = new ns.ConstraintElement(triples, expr);
@@ -650,7 +665,7 @@
 	 * @param varX The SPARQL variable that corresponds to the longitude
 	 * @param varY The SPARQL variable that corresponds to the longitude
 	 * @param bounds The bounding box to use for filtering
-	 * @param castNode An optional SPAQRL node used for casting, e.g. xsd.double
+	 * @param castNode An optional SPAQRL node used for casting, e.g. xsd.xdouble
 	 */
 	ns.createWgsFilter = function(varX, varY, bounds, castNode) {
 		var lon = new sparql.ExprVar(varX);

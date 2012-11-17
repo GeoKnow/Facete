@@ -317,7 +317,7 @@
 		// Resource search
 		{
 	    	var conceptVar = sparql.Node.v("c");
-	    	var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(conceptVar, rdf.type, sparql.Node.uri("http://qa.linkeddata.org/ontology/LinkingProject"))]);
+	    	var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(conceptVar, rdf.type, sparql.Node.uri("http://qa.linkeddata.org/ontology/Project"))]);
 	    	//var conceptElement = queryUtils.createElementAnyResource(conceptVar);
 	    	var concept = new facets.ConceptInt(conceptElement, conceptVar);
 	
@@ -348,25 +348,35 @@
 	    	});
 	    	
 	    	
-	    	var q = queryProjector.createQueryRows();
+	    	//var q = queryProjector.createQueryRows();
 	    	//alert(q.toString());
 	    	
-			this.executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
+	    	
 
 			
+	    	/*
+	    	 * Create a model for the paginator. 
+	    	 */
 			this.paginatorModel = new widgets.PaginatorModel({maxSlotCount: 15});
 
+			
+			
+	    	this.executor = new widgets.TableQueryExecutor(this.sparqlService, queryProjector);
 			var viewModel = new widgets.TableModelExecutor(this.executor, this.itemsPerPage);
+			//var viewModel = new widgets.TableQueryExecutor(this.executor, queryPro);
 			
 			
+			/*
 			this.syncer = new backboneUtils.BackboneSyncQueryCollection([], {
 				sparqlService: this.sparqlService,
 				//postProcessor: backboneUtils.createDefaultPostProcessor(this.labelFetcher)
 			});
+			*/
 
 			
-			//this.syncer = new widgets.TableModelBackboneSync(viewModel);
-			var collection = this.syncer; //.getCollection();
+			//this.syncer = new widgets.TableModelBackboneSync(this.executor);
+			this.syncer = new widgets.TableModelBackboneSync(viewModel); //this.viemModel);
+			var collection = this.syncer.getCollection();
 			
 			
 			var viewCollection = new Backbone.Collection();
@@ -376,7 +386,8 @@
 	    		
 				//console.log("Slave data", data);
 				var projectUri = data["project"];
-	    		var authorUri = data["author"];
+
+				var authorUri = data["author"];
 
 	    		var uriStrs = [projectUri.value, authorUri.value];
 	    		

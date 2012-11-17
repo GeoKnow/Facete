@@ -125,6 +125,7 @@
 	};
 	
 	
+	
 	/**
 	 * fnId(item, row, offset)
 	 * 
@@ -270,6 +271,102 @@
 		};
 		
 		return fn;
+	};
+	
+	
+	
+	ns.BackboneCollectionRdf = Backbone.Collection.extend({
+		initialize: function(models, options) {
+
+			this.options = options;
+			
+			//console.log("Collection:", sparqlService, postProcessor);
+			
+			this.syncer = new ns.BackboneSyncQuery(options.sparqlService, this, options.postProcessor);			
+		},
+
+		sync: function(jsonRs) {
+			
+			if(!query) {
+				query = this.options.query;
+			}
+			
+			if(!query) {
+				throw "No query specified";
+			}
+			
+			this.syncer.sync(query);
+			
+		}		
+	});
+	
+	/**
+	 * fnId(item, row, offset)
+	 * 
+	 */
+	ns.SyncerRdfCollection = function(collection, fnPostProcess) {
+		this.collection = collection ? collection : new ns.DefaultCollection();
+		//this.fnId = fnId ? fnId : ns.fnDefaultId; // A function that returns the Id of items delivered by the tableModel
+		this.fnPostProcess = fnPostProcess;
+		
+		this.taskCounter = 0;
+	};
+	
+	ns.SyncerRdfCollection.prototype = {
+			getCollection: function() {
+				return this.collection;
+			},
+	
+			sync: function(jsonRs) {
+
+				var result = $.Deferred();
+				var self = this;
+
+				++self.taskCounter;
+				var tmp = self.taskCounter;
+				
+				
+				if(self.fnPostProcess) {
+					var postProcessTask = self.fnPostProcess(jsonRs);
+					
+					postProcessTask.done(function(jsonRs) {
+						if(self.taskCounter != tmp) {
+							result.fail();
+							return;
+						}
+	
+						var resolveData = self.processResult(jsonRs);
+						
+						result.resolve(resolveData);
+					}).fail(function() {
+						result.fail();
+					});
+				} else {
+					result.resolve(jsonRs);
+				}
+				
+				return result.promise();
+			},
+			
+			
+			processResult: function(jsonRs) {
+				var offset = jsonRs.offset ? jsonRs.offset : 0;
+				var bindings = jsonRs.results.bindings; //data;
+				
+				var newModels = [];
+				for(var i = 0; i < bindings.length; ++i) {
+					var binding = bindings[i];
+					
+					var id = offset + i;
+					
+					binding.id = id;
+	
+					newModels.push(binding);
+				}
+	
+				console.log("New models", newModels);
+				this.collection.reset(newModels);
+			}			
 	};
 	
 	

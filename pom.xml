@@ -78,9 +78,12 @@
 								<param>jquery.ssb.instances.js</param>
 								<param>jquery.ssb.map.js</param>
 								<param>jquery.ssb.search.js</param>
+
 								<param>org/aksw/ssb/backend/SparqlServiceHttp.js</param>
 								<param>org/aksw/ssb/backend/SparqlServicePaginator.js</param>
+
 								<param>org/aksw/ssb/sparql/Syntax.js</param>
+
 								<param>org/aksw/ssb/vocabs/xsd.js</param>
 								<param>org/aksw/ssb/vocabs/rdf.js</param>
 								<param>org/aksw/ssb/vocabs/rdfs.js</param>
@@ -88,32 +91,45 @@
 								<param>org/aksw/ssb/vocabs/wgs84.js</param>
 								<param>org/aksw/ssb/vocabs/geovocab.js</param>
 								<param>org/aksw/ssb/vocabs/appvocab.js</param>
-								<param>org/aksw/ssb/facets/Facets.js</param>
-								<param>org/aksw/ssb/facets/Constraints.js</param>
-								<param>org/aksw/ssb/facets/QueryGenerationUtils.js</param>
-								<param>org/aksw/ssb/facets/QueryExecutionUtils.js</param>
-								<param>org/aksw/ssb/widgets/QueryGenerator.js</param>
-								<param>org/aksw/ssb/widgets/QueryExecutor.js</param>
+
+								<param>org/aksw/ssb/utils/BackboneUtils.js</param>
 								<param>org/aksw/ssb/utils/StringUtils.js</param>
+								<param>org/aksw/ssb/utils/UriUtils.js</param>
 								<param>org/aksw/ssb/utils/LabelFetcher.js</param>
 								<param>org/aksw/ssb/utils/GeomPointFetcher.js</param>
 								<param>org/aksw/ssb/utils/RdfQuery.js</param>
 								<param>org/aksw/ssb/utils/TalisJson.js</param>
+								<param>org/aksw/ssb/utils/LayoutUtils.js</param>
+
+								<param>org/aksw/ssb/facets/Concepts.js</param>
+								<param>org/aksw/ssb/facets/Facets.js</param>
+								<param>org/aksw/ssb/facets/Constraints.js</param>
+								<param>org/aksw/ssb/facets/QueryGenerationUtils.js</param>
+								<param>org/aksw/ssb/facets/QueryExecutionUtils.js</param>
+
+								<param>org/aksw/ssb/widgets/QueryGenerator.js</param>
+								<param>org/aksw/ssb/widgets/QueryExecutor.js</param>
 								<param>org/aksw/ssb/widgets/ListWidgetBase.js</param>
+								<param>org/aksw/ssb/widgets/ListWidgetBaseOld.js</param>
 								<param>org/aksw/ssb/widgets/PaginatorWidget.js</param>
 								<param>org/aksw/ssb/widgets/ListWidgetSparql.js</param>
 								<param>org/aksw/ssb/widgets/FacetBox.js</param>
 								<param>org/aksw/ssb/widgets/ResourceWidget.js</param>
 								<param>org/aksw/ssb/widgets/ResourceListWidget.js</param>
 								<param>org/aksw/ssb/widgets/BreadcrumbWidget.js</param>
-								<param>org/aksw/ssb/app/controllers/AppController.js</param>
-								<param>org/aksw/ssb/app/QueryGenerator.js</param>
+								<param>org/aksw/ssb/widgets/ConstraintWidget.js</param>
+
+								<param>org/aksw/ssb/app/QueryGeneratorGeo.js</param>
 								<param>org/aksw/ssb/collections/QuadTreeModel.js</param>
-								<param>org/aksw/ssb/collections/QuadTreeCache.js</param>
+								<param>org/aksw/ssb/backend/QuadTreeCache.js</param>
 								<param>org/aksw/ssb/utils/QueryCache.js</param>
+								<param>org/aksw/ssb/utils/Abbreviator.js</param>
 								<param>org/aksw/ssb/plugins/RDFauthor.js</param>
 								<param>org/aksw/ssb/experiments/FacetNavigator.js</param>
 
+
+								<param>org/aksw/ssb/app/controllers/AppController.js</param>
+								<param>org/aksw/ssb/app/controllers/ResourceDetailsController.js</param>
 
 								<!-- Layouting for this (p)HTML file -->
 								<param>org/aksw/ssb/app/Layout.js</param>

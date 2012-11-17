@@ -93,6 +93,14 @@
 		var pathManager = null;
 
 		console.log("Config is", config);
+
+		
+		var fallbackDriver = null;
+		
+		var concept = config.concept ? config.concept : fallbackDriver;
+		var geoPath = config.geoPath ? config.geoPath : new facets.Path();
+		var navigationPath = config.navigationPath ? config.navigationPath : new facets.Path();
+
 		
 		if(config.query || config.variable) {
 			// The query string is assumed to be a SELECT query. Surround with {} to
@@ -108,8 +116,12 @@
 			//query.projectVars.add(v);
 			
 			var conceptElement = new sparql.ElementString(queryString, [v]);
-			concept = new facets.ConceptInt(conceptElement, s);
+			concept = new facets.ConceptInt(conceptElement, v);
 			pathManager = new facets.PathManager(vName); 
+			
+			
+			navigationPath = new facets.Path();
+			geoPath = new facets.Path();
 		}
 		
 		/*
@@ -141,11 +153,6 @@
 		// Alternatively, the concept must be set to the triples of the geoPath
 		//var fallbackDriver = createFallbackDriver(); // null
 		
-		var fallbackDriver = null;
-		
-		var concept = config.concept ? config.concept : fallbackDriver;
-		var geoPath = config.geoPath ? config.geoPath : new facets.Path();
-		var navigationPath = config.navigationPath ? config.navigationPath : new facets.Path();
 		
 		
 		

@@ -1,6 +1,8 @@
 (function($) {
 	
 	var ns = Namespace("org.aksw.ssb.widgets");
+	
+	var widgets = ns;
 
 	
 	/**
@@ -279,7 +281,7 @@
 				}
 				
 				//this.getParent().trigger("change-page", this.getPage());
-				console.log(this.getParent());
+				//console.log(this.getParent());
 				$(this.getParent()).trigger("change-page", this.getPage());
 			}
 		},
@@ -349,6 +351,19 @@
 
 	    	this.model.bind('change', this.render);
 	    	this.model.bind('remove', this.unrender);
+	    	
+	    	
+	    	$(this).on("change-page", function(ev, pageRequest) {
+	    		
+				if(pageRequest == -1) {
+					var userInput = window.prompt("Jump to page:", "");
+					
+					pageRequest = parseInt(userInput);
+				}
+	    		
+				console.log("Page Request: ", pageRequest);
+	    		this.model.set({pageRequest: pageRequest});
+	    	});
 	    },
 	    render: function() {
 
@@ -378,6 +393,37 @@
 	});
 
 	
+	
+	
+	
+	
+
+	/**
+	 * Paginator jQuery plugin
+	 * 
+	 * @param Optional. A PaginatorModel object.
+	 * @returns A backbone view for the paginator
+	 */
+	$.fn.paginator = function() {
+		var el = $(this[0]);
+		
+		
+		var argModel = arguments[0]; 
+		//console.log("argModel", argModel);
+		//console.log("el", el);
+		
+		var paginatorModel = argModel ? argModel : new widgets.PaginatorModel();
+		
+		var result = new widgets.ViewPaginator({
+			el: el,
+			model: paginatorModel
+		});
+
+		result.render();
+		
+		return result;
+	};
+
 	
 
 	/**

@@ -181,7 +181,7 @@
 		var geomVar = this.getGeoBreadcrumb().getTargetVariable(); //sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
 		
 		var geoElement = this._createGeoElement();
-		var filter = new sparql.ElementFilter(new sparql.E_In(geomVar, geomUriNodes));
+		var filter = new sparql.ElementFilter([new sparql.E_In(geomVar, geomUriNodes)]);
 		
 		var element = new sparql.ElementGroup([geoElement, filter]);
 		
@@ -268,7 +268,7 @@
 		var ce = geoConstraint.createConstraintElement(this.getPathManager());
 		
 		var element = new sparql.ElementTriplesBlock(ce.getTriples());		
-		var filter = new sparql.ElementFilter(ce.getExpr());
+		var filter = new sparql.ElementFilter([ce.getExpr()]);
 		
 		result.elements.push(element);
 		result.elements.push(filter);
@@ -503,7 +503,7 @@
 		var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
 		
 		var geoElement = this._createGeoElement();
-		var filter = new sparql.ElementFilter(new sparql.E_In(geomVar, geomUriNodes));
+		var filter = new sparql.ElementFilter([new sparql.E_In(geomVar, geomUriNodes)]);
 		
 		var element = new sparql.ElementGroup([geoElement, filter]);
 		
@@ -518,7 +518,7 @@
 		//var geomVar = this.geoConstraintFactory.geomVar;
 		var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
 		
-		var filter = new sparql.ElementFilter(new sparql.E_In(geomVar, geomUriNodes));
+		var filter = new sparql.ElementFilter([new sparql.E_In(geomVar, geomUriNodes)]);
 		var result = this._forFilter(filter);
 		return result;		
 	};
@@ -591,7 +591,7 @@
 		
 		// Add the filter statement
 		var geoConstraint = this.geoConstraintFactory.create(bounds);		
-		var filter = new sparql.ElementFilter(geoConstraint.createConstraintElement(this.pathManager).getExpr());
+		var filter = new sparql.ElementFilter([geoConstraint.createConstraintElement(this.pathManager).getExpr()]);
 		result.elements.push(filter);
 
 		return result;		

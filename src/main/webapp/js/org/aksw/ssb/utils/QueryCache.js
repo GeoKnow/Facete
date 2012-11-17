@@ -105,7 +105,7 @@
 			lookupChunk: function(v, nodes, retain) {
 		
 				var filterExpr = new sparql.E_In(v, nodes);
-				var filterElement = new sparql.ElementFilter(filterExpr);
+				var filterElement = new sparql.ElementFilter([filterExpr]);
 				
 				var nodeToData = varToNodeToData[v.value];
 				if(!nodeToData) {

@@ -249,7 +249,7 @@
 
 	ns.createDescribeQueryNodes = function(nodes) {		
 		var s = sparql.Node.v("__s");
-		var element = new sparql.ElementFilter(new sparql.E_In(s, nodes));
+		var element = new sparql.ElementFilter([new sparql.E_In(s, nodes)]);
 		var result = ns.createDescribeQuery(element, s);
 		return result;
 	};
@@ -557,7 +557,7 @@
 
 		element = new sparql.ElementGroup();		
 		element.elements.push(optional);
-		element.elements.push(new sparql.ElementFilter(filterExpr));
+		element.elements.push(new sparql.ElementFilter([filterExpr]));
 
 		return element;
 	};
@@ -933,7 +933,7 @@
 		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
 		//console.log("geomVar", geomVar);
 		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
-		var filterElement = new sparql.ElementFilter(filterExpr);
+		var filterElement = new sparql.ElementFilter([filterExpr]);
 
 		subQuery.elements.push(filterElement);
 		//subQuery.projectVars.add(inferredDriver.variable);
@@ -1017,7 +1017,7 @@
 		var geomVarExpr = new sparql.ExprVar(sparql.Node.v(geomVarStr));
 		//console.log("geomVar", geomVar);
 		var filterExpr = (uris.length === 0) ? sparql.NodeValue.False : new sparql.E_In(geomVarExpr, uris);
-		var filterElement = new sparql.ElementFilter(filterExpr);
+		var filterElement = new sparql.ElementFilter([filterExpr]);
 		
 		elements.push(filterElement);
 

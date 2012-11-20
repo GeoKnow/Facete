@@ -103,7 +103,7 @@
 				+*/ 
 			
 			var result
-				= '<td>' + partnerLabel + '</td>'
+				= '<td><span>' + partnerLabel + '</span></td>'
 				+ '<td style="width: 250px">' + self.renderBar(data) + '</td>'
 				+ '<td>' + stringUtils.formatNumber(a) + '&nbsp;&euro;</td>'
 				;
@@ -127,6 +127,28 @@
 	//console.log("PartnerView", this.PartnerView);
 
 	
+	
+	this.createPartnerQuery = function(projectNode) {
+		var concept = widgets.createConceptPartnerState();
+		var element = concept.getElement(); 
+
+		
+		var projectVar = sparql.Node.v("s");
+		//var projectUri = sparql.Node.uri("projectUri")
+		
+		var query = queryUtils.createQuerySelectElement(element, element
+				.getVarsMentioned(), {
+			limit : 1000
+		});
+		
+		query.elements.push(new sparql.ElementFilter([new sparql.E_Equals(projectVar, projectNode)]));
+		
+		
+		query.orderBy.push(new sparql.SortCondition(new sparql.ExprVar(
+				sparql.Node.v("a"))));
+
+		return query;
+	};
 	
 	this.createPartnerCollection = function(projectNode, sparqlService, labelFetcher) {
 		

@@ -1,3 +1,70 @@
+	/**
+	 * Currently hard wired configuration of the facets for the financial transparency system
+	 * 
+	 */
+	function createAppConfig() {
+
+		var concept = config.concept;
+		var pathManager = null;
+
+		console.log("Config is", config);
+
+		
+		var fallbackDriver = null;
+		
+		var concept = config.concept ? config.concept : fallbackDriver;
+		var geoPath = config.geoPath ? config.geoPath : new facets.Path();
+		var navigationPath = config.navigationPath ? config.navigationPath : new facets.Path();
+
+		
+		if(config.query || config.variable) {
+			// The query string is assumed to be a SELECT query. Surround with {} to
+			// turn it into a SPARQL element.
+			var queryString = "{ " + config.query + " }";
+			
+			var vName = config.variable;
+			var v = sparql.Node.v(vName);
+			
+
+			//var query = new sparql.Query();
+			//query.elements.push(new sparql.ElementString(queryString, [v]));
+			//query.projectVars.add(v);
+			
+			var conceptElement = new sparql.ElementString(queryString, [v]);
+			concept = new facets.ConceptInt(conceptElement, v);
+			pathManager = new facets.PathManager(vName); 
+			
+			
+			navigationPath = new facets.Path();
+			geoPath = new facets.Path();
+		}
+		
+		
+		var factory = new facets.ConstraintWgs84.Factory(geoPath);//breadcrumbX, breadcrumbY);
+		
+		var bounds = new qt.Bounds(0, 1, 2, 4);
+		var c2 = factory.create(bounds);
+	
+		var facetbox = Namespace("org.aksw.ssb.widgets.facetbox");
+		
+		var constraints = new facets.ConstraintCollection();
+	
+		var result = {
+			queryGenerator: {
+				concept: concept,
+				//conceptVar: s,
+				navigationPath: navigationPath,
+				pathManager: pathManager,
+				geoConstraintFactory: factory,
+				constraints: constraints
+			}, 
+			config: config
+		};
+		
+		return result;
+	}
+
+
 
 	/**
 	 * Add an .endsWith method to the prototype of String.

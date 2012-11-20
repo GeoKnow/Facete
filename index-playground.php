@@ -358,9 +358,10 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 
 	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js"></script>
 
+	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js"></script>
 
 
-	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/TestProjectPartnerFundingTable.js"></script>
+	<!-- <script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/TestProjectPartnerFundingTable.js"></script> -->
 	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js"></script>
 	
 

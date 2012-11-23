@@ -1,5 +1,15 @@
 <?php
 
+function getJsMinFiles() {
+    $result = array("target/semmap/webapp/js/semmap.min.js");
+    return $result;
+}
+
+function getCssMinFiles() {
+    $result = array("target/semmap/webapp/css/semmap.min.css");
+    return $result;
+}
+
 function getStringFromXml($xml, $xpath) {
     $tmp = $xml->xpath($xpath);
     $result = $tmp[0];

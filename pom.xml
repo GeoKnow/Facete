@@ -20,12 +20,12 @@
 	</properties>
 
 	<build>
-
+                <finalName>semmap</finalName>
 		<plugins>
 			<plugin>
 				<groupId>com.samaxes.maven</groupId>
 				<artifactId>minify-maven-plugin</artifactId>
-				<version>1.5.2-SNAPSHOT</version>
+				<version>1.5.2</version>
 
 				<executions>
 					<execution>
@@ -36,13 +36,18 @@
 							<jsSourceDir>js</jsSourceDir>
 							<cssSourceDir>css</cssSourceDir>
 
+							<!-- Note: The extra 'webapp' dir is simply there to put target and src on the
+							same level of nesting, so that relative paths to resouces work either way -->
+							<jsTargetDir>webapp/js</jsTargetDir>
+							<cssTargetDir>webapp/css</cssTargetDir>
+
 							<cssSourceFiles>
 <!-- 								<param>lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css</param>  -->
 <!--     							<param>lib/Font-Awesome/current/css/font-awesome.css</param> -->
 <!--             					<param>lib/jquery-ui/1.8.16/themes/base/jquery-ui.css</param> -->
         						<param>style.css</param>
 							</cssSourceFiles>
-							<cssFinalFile>SemMap.css</cssFinalFile>
+							<cssFinalFile>semmap.css</cssFinalFile>
 
 							<jsSourceFiles>
 <!-- 								<param>lib/namespacedotjs/a28da387ce/Namespace.js</param> -->
@@ -142,7 +147,7 @@
 	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>
 	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js</param>
 							</jsSourceFiles>
-							<jsFinalFile>SemMap.js</jsFinalFile>
+							<jsFinalFile>semmap.js</jsFinalFile>
 
 						</configuration>
 						<goals>

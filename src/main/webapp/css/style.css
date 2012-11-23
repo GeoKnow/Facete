@@ -331,7 +331,7 @@ a:active {
  
  
 .header{
-	background-image: url("../../resources/images/title_bg.gif");
+	background-image: url("../../../../src/main/resources/images/title_bg.gif");
 	height: 145px;
 }
 
@@ -357,7 +357,7 @@ a:active {
 
 #header-menu ul li.leaf {
 	display: inline;
-	background: url("../../resources/images/services-separator.gif") transparent left center no-repeat;
+	background: url("../../../../src/main/resources/images/services-separator.gif") transparent left center no-repeat;
 	margin: 0;
 	padding: 0;
 	padding-left: 5px;
@@ -562,5 +562,10 @@ a:active {
     border-top: 0 none !important;
 }
 
-
-
+.beta {
+    color: red;
+    font-size: 0.4em;
+    vertical-align: 2px;
+    font-weight: bold;
+    padding-left: 10px;
+}

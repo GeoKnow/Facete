@@ -8,6 +8,8 @@ debFile = "debian/semmap_all.deb"
 
 odpGit = ~/Documents/OpenDataPortal/git
 
+all: clean-deps deploy-sparql-proxy
+	
 
 clean-deps:
 	rm -rf lib/twitter-bootstrap/current

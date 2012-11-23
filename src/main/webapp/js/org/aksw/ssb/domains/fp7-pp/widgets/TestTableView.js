@@ -66,7 +66,7 @@
 	}
 	
 	
-	var createList = function(sparqlService, queryFactory, containerEl) {
+	var createList = function(sparqlService, queryFactory, containerEl, labelFetcher) {
 		var container = $(containerEl);
 
 		/*		
@@ -77,7 +77,7 @@
 		*/
 		
 		var tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
-		var browseConfig = createSparqlSearch(tableConfig, {limit: 10});
+		var browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
 		
 		console.log("browseConfig is ", browseConfig);
 		
@@ -128,7 +128,7 @@
 	 * 
 	 * 
 	 */
-	var createInfobox = function(sparqlService, containerEl) {
+	var createInfobox = function(sparqlService, containerEl, labelFetcher) {
 		
 		var container = $(containerEl);
 
@@ -149,7 +149,7 @@
 		
 
 		
-		var browseConfig = createSparqlSearch(tableConfig, {limit: 10, queryFactory: "TODO"});
+		var browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
 
 		
 		var result = {

@@ -64,7 +64,7 @@
 <!-- 								<param>config.js</param> -->
 
 								<!-- Configuration files -->
-								<param>ssb.namespacePrefixes.js</param>
+<!-- 								<param>ssb.namespacePrefixes.js</param> -->
 
 								<!-- The actual spatial semantic browsing widgets -->
 								<param>org/aksw/ssb/collections/QuadTree.js</param>
@@ -106,9 +106,9 @@
 								<param>org/aksw/ssb/facets/Constraints.js</param>
 								<param>org/aksw/ssb/facets/QueryGenerationUtils.js</param>
 								<param>org/aksw/ssb/facets/QueryExecutionUtils.js</param>
+								<param>org/aksw/ssb/facets/QueryGenerator.js</param>
+								<param>org/aksw/ssb/facets/QueryExecutor.js</param>
 
-								<param>org/aksw/ssb/widgets/QueryGenerator.js</param>
-								<param>org/aksw/ssb/widgets/QueryExecutor.js</param>
 								<param>org/aksw/ssb/widgets/ListWidgetBase.js</param>
 								<param>org/aksw/ssb/widgets/ListWidgetBaseOld.js</param>
 								<param>org/aksw/ssb/widgets/PaginatorWidget.js</param>
@@ -125,7 +125,7 @@
 								<param>org/aksw/ssb/utils/QueryCache.js</param>
 								<param>org/aksw/ssb/utils/Abbreviator.js</param>
 								<param>org/aksw/ssb/plugins/RDFauthor.js</param>
-								<param>org/aksw/ssb/experiments/FacetNavigator.js</param>
+<!-- 								<param>org/aksw/ssb/experiments/FacetNavigator.js</param> -->
 
 
 								<param>org/aksw/ssb/app/controllers/AppController.js</param>
@@ -137,6 +137,10 @@
 
 								<!-- OpenDataPortal specify layouting (header bar translations) -->
 								<param>org/aksw/ssb/app/Layout-Odp.js</param>
+
+	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js</param>
+	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>
+	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js</param>
 							</jsSourceFiles>
 							<jsFinalFile>SemMap.js</jsFinalFile>
 

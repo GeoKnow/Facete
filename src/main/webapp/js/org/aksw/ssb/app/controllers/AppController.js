@@ -2375,8 +2375,8 @@
 		var listQf = createListQueryFactory(geom);
 
 		
-		var list = createList(sparqlService, listQf, el);
-		var infobox = createInfobox(sparqlService, el);
+		var list = createList(this.sparqlService, listQf, el, this.labelFetcher);
+		var infobox = createInfobox(this.sparqlService, el, this.labelFetcher);
 
 		
 		list.model.on("change:selected", function() {

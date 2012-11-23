@@ -24,13 +24,14 @@
 
 	//config.sparqlServiceUri = "http://fts.publicdata.eu/sparql";
 	
+	/*
 	var sparqlServiceHttp = new backend.SparqlServiceHttp(
 			config.sparqlServiceUri, config.defaultGraphUris,
 			config.sparqlProxyServiceUri, config.sparqlProxyParamName);
 	
 	var sparqlService = new backend.SparqlServicePaginator(sparqlServiceHttp, 1000);	
 	var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
-
+    */
 	
 	
 	
@@ -636,7 +637,7 @@
 	/**
 	 * tableConfig { config { limit, offset, queryFactory }, executor { }
 	 */
-	var createSparqlPagination = function(tableConfig, tableModelAttrs) {
+	var createSparqlPagination = function(tableConfig, tableModelAttrs, labelFetcher) {
 		
 		var collection = new Backbone.Collection();
 		
@@ -685,8 +686,8 @@
 	}
 	
 	
-	var createSparqlSearch = function(tableConfig, tableModelAttrs) {
-		var result = createSparqlPagination(tableConfig, tableModelAttrs);
+	var createSparqlSearch = function(tableConfig, tableModelAttrs, labelFetcher) {
+		var result = createSparqlPagination(tableConfig, tableModelAttrs, labelFetcher);
 
 		var searchModel = new Backbone.Model();
 

@@ -26,3 +26,10 @@ debian/semmap.substvars
 
 
 config.js.sparqlify
+
+lib/SparqlProxyPHP
+lib/agility
+lib/jQuery-ajaxTransport-XDomainRequest
+lib/twitter-bootstrap
+lib/underscore.string
+

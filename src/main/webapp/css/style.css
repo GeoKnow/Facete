@@ -569,3 +569,7 @@ a:active {
     font-weight: bold;
     padding-left: 10px;
 }
+
+
+/* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
+img { max-width: none; }

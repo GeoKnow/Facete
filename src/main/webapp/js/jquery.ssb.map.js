@@ -56,32 +56,32 @@ $.widget("ui.ssb_map", {
 		//this.tree.logDebug("Dynatree._init(): done.");
 
 		
-	    var options = { scales: [50000000, 30000000, 10000000, 5000000],
+	    var options = {
 	    		projection: new OpenLayers.Projection("EPSG:900913"),
 	    		displayProjection: new OpenLayers.Projection("EPSG:4326"),
 	    		
-	    		resolutions: [1.40625,0.703125,0.3515625,0.17578125,0.087890625,0.0439453125],
-	            minScale: 50000000,
-	            maxResolution: "auto",
-	            maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90),
-	            maxScale: 10000000,
-	            minResolution: "auto",
-	            minExtent: new OpenLayers.Bounds(-1, -1, 1, 1),
-	            
+	            //maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90),
+	            //minExtent: new OpenLayers.Bounds(-1, -1, 1, 1),
 	    		numZoomLevels: 19,
 	    		units: 'm',
 
-	    		
-	    		
-	            
+	    		//maxExtent: [-18924313.432222, -15538711.094146, 18924313.432222, 15538711.094146],
+	    	    //restrictedExtent: [-13358338.893333, -9608371.5085962, 13358338.893333, 9608371.5085962],
+	    		//scales: [50000000, 30000000, 10000000, 5000000],
+	    		//resolutions: [1.40625,0.703125,0.3515625,0.17578125,0.087890625,0.0439453125],
+//	            minScale: 50000000,
+//	            maxResolution: "auto",
+//	            maxScale: 10000000,
+//	            minResolution: "auto",
 	        	controls: [
-	    					new OpenLayers.Control.MouseDefaults(),
+	    					new OpenLayers.Control.Navigation(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
-	    					//new OpenLayers.Control.PanZoomBar(),
 	    					new OpenLayers.Control.PanZoom(),
 	    					new OpenLayers.Control.MousePosition(),
 //	        					new OpenLayers.Control.OverviewMap(),
-	    					new OpenLayers.Control.ScaleLine()
+	    					//new OpenLayers.Control.PanZoomBar(),
+	    					new OpenLayers.Control.ScaleLine(),
+	    					new OpenLayers.Control.Attribution()
 	    		]
 	    };
 
@@ -95,14 +95,14 @@ $.widget("ui.ssb_map", {
         var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
         renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
 
-        console.log("The renderer is: " + renderer);
+        //console.log("The renderer is: " + renderer);
 
 
 		/*
 		 * Style definitions 
 		 */
 		
-		var defaultStyle = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+		var defaultStyle = OpenLayers.Feature.Vector.style['default'];
 		
 		this.styles = {};
 		
@@ -111,6 +111,7 @@ $.widget("ui.ssb_map", {
 			OpenLayers.Util.extend({}, defaultStyle), {
 				fillColor: '#8080ff',
 	        	fillOpacity: 0.4,
+	        	stroke: true,
 	        	strokeLinecap: "round",
 	        	strokeWidth: 1, 
 	        	strokeColor: "#5050a0",
@@ -120,7 +121,7 @@ $.widget("ui.ssb_map", {
 	        	fontWeight: "bold"
 			}
 		);
-        console.log("HoverStyle: ", this.styles.hoverStyle);
+        //console.log("HoverStyle: ", this.styles.hoverStyle);
 		
 
 		this.styles.markerStyle = OpenLayers.Util.extend(
@@ -131,25 +132,26 @@ $.widget("ui.ssb_map", {
 	        	graphicHeight: 25,
 	        	graphicYOffset: -25,
 	
-	            strokeColor: "#00FF00",
+                stroke: true,
+	            strokeColor: "#FF0000",
 	            strokeOpacity: 1,
 	            strokeWidth: 3,
 	            fillColor: "#FF5500",
 	            fillOpacity: 1.0,
 	            pointRadius: 6,
-	            //pointerEvents: "visiblePainted",
-	
+	            pointerEvents: "visiblePainted",
+//	
 	        	fontColor: "#0000FF", //"#0000FF",
                 fontSize: "16px",
                 fontFamily: "Courier New, monospace",
                 fontWeight: "bold",
                 //labelAlign: "cm",
-                
+//                
 	        	label: "${label}",
 	            labelXOffset: 0,
 	            labelYOffset: 15,
-	            labelOutlineColor: "#0080FF",
-	            labelOutlineWidth: 3
+//	            labelOutlineColor: "#0080FF",
+//	            labelOutlineWidth: 3
 			}
 		);
 
@@ -160,6 +162,7 @@ $.widget("ui.ssb_map", {
 			OpenLayers.Util.extend({}, defaultStyle), {
 	        	fillColor: "#8080ff",
 	        	fillOpacity: 0.2,
+	        	stroke: true,
 	        	strokeLinecap: "round",
 	        	strokeWidth: 1, 
 	        	strokeColor: "#7070ff",
@@ -190,22 +193,26 @@ $.widget("ui.ssb_map", {
 		this.boxLayer = new OpenLayers.Layer.Vector("Boxes", {
 			projection: new OpenLayers.Projection("EPSG:4326"),
 			visibility: true,
-			displayInLayerSwitcher: true
-//			renderers: renderer
+			displayInLayerSwitcher: true,
+			renderers: renderer
 		});
 		
 
 		// The layer for the actual features		
 		this.featureLayer = new OpenLayers.Layer.Vector("Features", {
 			projection: new OpenLayers.Projection("EPSG:4326"),
-			visibility: true, displayInLayerSwitcher: true,
-			styleMap: new OpenLayers.StyleMap({'default': this.styles.markerStyle}),
-			
+			visibility: true,
+			displayInLayerSwitcher: true,
+			styleMap: new OpenLayers.StyleMap({'default': new OpenLayers.Style(this.styles.markerStyle)}),			
 			renderers: renderer
 		});
 
 		// TODO Make it easy to exchange the URL pattern
-		var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+		//var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+		
+		var mapnikLayer = new OpenLayers.Layer.OSM("Mapnik", "http://a.tile.openstreetmap.org/${z}/${x}/${y}.png", {numZoomLevels: 19}); //http://a.tile.openstreetmap.org
+		
+		
 		//var mapnikLayer = new OpenLayers.Layer.OSM.Local("Mapnik");
 		this.map.addLayers([mapnikLayer, this.boxLayer, this.featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
 
@@ -230,8 +237,8 @@ $.widget("ui.ssb_map", {
 		
 		
 
-		
-		
+		// TODO Following example is probably how to do it the proper way:
+		// http://openlayers.org/dev/examples/select-feature-multilayer.html
 		
 		
 		

@@ -570,14 +570,57 @@ a:active {
     padding-left: 10px;
 }
 
+
+
+.semmap-window {
+/*    position: absolute; */ 
+/*     right: 0px;  */
+/*     top: 0px; */
+/*     margin-right: 10px; */
+/*    width: 35%; */
+/*    max-height: 75%; */
+/*
+    padding-left: 6px;
+    padding-top: 6px;
+    padding-right: 6px;
+    padding-bottom: 14px;
+    */
+    background-color: #F9F9F9;
+    border: 1px solid #4D4D4D;
+    overflow: auto;
+    overflow-y: auto;
+	z-index: 1000;
+	margin: 5px;
+	padding: 0px;
+}
+
+.semmap-window-content {
+	padding: 5px;
+}
+
+
+/* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
+img { max-width: none; }
+
+
+/*
+ * Bootstrap overrides
+ */
+
+.pagination {
+	margin: 5px;
+	height: 17px;
+}
+
 .pagination a {
 	padding: 0 7px;
 	line-height: 17px;
 }
 
-/* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
-img { max-width: none; }
-
+.table-striped tbody tr:nth-child(odd) td,
+.table-striped tbody tr:nth-child(odd) th {
+  background-color: #f0f0ff;
+}
 
 
 

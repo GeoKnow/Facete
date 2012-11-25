@@ -487,7 +487,10 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 		
 			TableView = Backbone.View.extend({
 				tagName: 'table',
-				attributes: { 'class': 'table table-bordered table-striped table-condensed' },
+				attributes: {
+					'class': 'table table-bordered table-striped table-condensed',
+					'style': 'margin: 0px'
+				},
 
 			    /**
 			     * options:
@@ -507,11 +510,17 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 			    
 			    	var self = this;
 					
-					this.thead = $("<thead />");
-					this.tbody = $("<tbody />");
+					var useThreePartTable = true;
+					if(useThreePartTable) {
+						this.thead = $("<thead />");
+						this.tbody = $("<tbody />");
 
-					this.$el.append(this.thead);
-					this.$el.append(this.tbody);
+						this.$el.append(this.thead);
+						this.$el.append(this.tbody);
+					} else {
+						this.thead = this.$el;
+						this.tbody = this.$el;
+					}
 		
 					this.renderHeader();
 		
@@ -580,6 +589,7 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 			var tableView = new TableView({
 				collection: browseConfig.collection,
 				model:tableModel
+				//options: { attributes: { style: "margin: 0px;" } }
 			});
 			
 			var el = tableView.render().el;
@@ -587,11 +597,37 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 			var container = $('#wrapper');	
 	
 	
+	/*
+			var template
+				= '<div class="semmap-window" />'
+				+ '    <span>Filter:</span>'
+				*/
+	
+	        var frame = $('<div class="semmap-window" />');
+	        container.append(frame);
 			
-			container.append($().ssb.searchBox(browseConfig.searchModel).render().el);
-			container.append($().ssb.paginator(browseConfig.config.paginatorModel).render().el);
+			var createView = function(container) {
+
+				var header = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
+				container.append(header);
 			
-			container.append(el);
+				header.append($('<span>Filter:</span>'));
+				header.append($().ssb.searchBox(browseConfig.searchModel).render().el);				
+				
+				var body = $('<div />');
+				body.append(el);
+				container.append(body);
+												
+				
+				var footer = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
+				container.append(footer);
+				
+				footer.append($().ssb.paginator({model: browseConfig.config.paginatorModel}).render().el);
+
+			}
+			
+			createView(frame);
+			
 
 
 			var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
@@ -601,7 +637,6 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 	    	
 	    	
 	    	tableModel.set({queryFactory: queryFactory});
-	    	
 	    	
 	    	
 	    

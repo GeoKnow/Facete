@@ -2371,11 +2371,16 @@
 		
 		el.empty();
 		
+		el.append($('<h3>Projects related to this location</h3>'));
+		el.append($('<hr />'));
 
 		var listQf = createListQueryFactory(geom);
-
 		
 		var list = createList(this.sparqlService, listQf, el, this.labelFetcher);
+		
+		el.append($('<h3>Project partners</h3>'));
+		//el.append($('<hr />'));
+		
 		var infobox = createInfobox(this.sparqlService, el, this.labelFetcher);
 
 		
@@ -2393,7 +2398,7 @@
 			var query = widgets.createPartnerQuery(node);
 			var queryFactory = new QueryFactoryQuery(query);
 			
-			console.log("Query is now: ", queryFactory.createQuery());
+			//console.log("Query is now: ", queryFactory.createQuery());
 			
 			//var queryFactory = new QueryFactoryQueryGenerator(queryGenerator);
 			

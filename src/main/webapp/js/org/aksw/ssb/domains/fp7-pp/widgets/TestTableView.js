@@ -54,13 +54,18 @@
 		return result;
 	}
 
-	$.fn.ssb.paginator = function(paginatorModel) {
+	$.fn.ssb.paginator = function(options) {
 		var el = this[0];
 
-		var result = new widgets.ViewPaginator({
-			el: el,
-			model: paginatorModel
-		});
+		var tmp = _.extend({}, options);
+		tmp.el = el;
+
+		var result = new widgets.ViewPaginator(tmp);
+
+//		var result = new widgets.ViewPaginator({
+//			el: el,
+//			model: paginatorModel
+//		});
 		
 		return result;
 	}
@@ -113,11 +118,19 @@
 		var el = tableView.render().el;
 
 
+		var paginatorModel = browseConfig.config.paginatorModel;
 		
-		container.append($().ssb.searchBox(browseConfig.searchModel).render().el);
-		container.append($().ssb.paginator(browseConfig.config.paginatorModel).render().el);
+		container.append($("<span>Filter:</span>"));
 		
+		container.append($().ssb.searchBox(browseConfig.searchModel).render().el);		
 		container.append(el);
+		container.append($().ssb.paginator({
+			model: paginatorModel,
+			attributes: {
+				style: 'width: 200px; margin-left: auto; margin-right: auto;'
+			}
+		}).render().el);
+
 		
 		
 		return result;
@@ -132,6 +145,7 @@
 		
 		var container = $(containerEl);
 
+		/*
 		var concept = widgets.createConceptPartnerState();
 		var element = concept.getElement(); 
 
@@ -142,9 +156,10 @@
 		query.orderBy.push(new sparql.SortCondition(new sparql.ExprVar(
 				sparql.Node.v("a"))));
 
+		 */
 		//query.offset = 100;
 
-		var tableConfig = createExecutorQuery(sparqlService, query);
+		var tableConfig = createExecutorQuery(sparqlService, null); //query);
 		//console.log("tableConfig is", tableConfig);
 		
 
@@ -159,12 +174,20 @@
 		
 
 		
-		
+		var paginatorModel = browseConfig.config.paginatorModel;
+
 		//console.log("Collection is", browseConfig);
 		container.append($().ssb.searchBox(browseConfig.searchModel).render().el);
 
-		container.append($().ssb.paginator(browseConfig.config.paginatorModel).render().el);
+		//container.append($().ssb.paginator(browseConfig.config.paginatorModel).render().el);
+		container.append($().ssb.paginator({
+			model: paginatorModel,
+			attributes: {
+				style: 'margin-left: auto; margin-right: auto;'
+			}
+		}).render().el);
 
+		
 		/*
 		var myTextBox = new ViewTextBox({model: browseConfig.searchModel});
 		var textEl = myTextBox.render().el; //$('<input type="text" />');

@@ -147,6 +147,7 @@
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js</param>
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js</param>
+								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlQueryBrowser.js</param>
 							</jsSourceFiles>
 							<jsFinalFile>semmap.js</jsFinalFile>
 

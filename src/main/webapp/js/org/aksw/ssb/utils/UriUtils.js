@@ -5,6 +5,16 @@
 	
 	var ns = Namespace("org.aksw.ssb.utils.uris");
 
+	ns.extractLabelFromUri = function(str) {
+		var a = str.lastIndexOf("#");
+		var b = str.lastIndexOf("/");
+		
+		var i = Math.max(a, b);
+		
+		var result = str.substring(i + 1);
+		return result;
+	}
+
 
 	// Very hacky check to avoid literals as URIs
 	ns.isValidUri = function(str) {

@@ -2469,12 +2469,44 @@
 		if(feature) {
 			this.enableHighlight(feature);
 		}
-        
+
+		
         // Show fact box
-        $("#box-facts").show();
+		this.showFactBox(sparql.Node.uri(uriStr));
 	};
 	
 	
+	ns.AppController.prototype.showFactBox = function(node) {
+		var task = this.labelFetcher.fetch([node.value], false);
+		
+		task.done(function(labelInfo) {
+			var uriToLabel = labelInfo.uriToLabel;
+			var label = uriToLabel[node.value];
+			
+	    	var models = createQueryBrowser();
+			models.model.set({
+				selected: {
+					node: node,
+					label: label
+				}
+			});
+	
+			
+			var container = $('#box-facts');
+			container.children().remove();
+	    	createView(container, models);
+	
+	    	$("#box-facts").show();
+		});
+/*
+		var query = queryUtils.createQueryDescribe(sparql.Node.uri("http://dbpedia.org/resource/Belgium"));
+		var queryFactory = new QueryFactoryQuery(query);		    	
+    	
+    	
+    	tableModel.set({queryFactory: queryFactory});
+*/    	
+
+	}
 	
 	
 

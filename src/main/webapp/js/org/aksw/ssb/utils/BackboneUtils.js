@@ -226,16 +226,6 @@
 			
 			
 	};
-
-	ns.extractLabelFromUri = function(str) {
-		var a = str.lastIndexOf("#");
-		var b = str.lastIndexOf("/");
-		
-		var i = Math.max(a, b);
-		
-		var result = str.substring(i + 1);
-		return result;
-	}
 	
 	/**
 	 * Returns a function that processes a json ResultSet:
@@ -269,7 +259,7 @@
 						var label = labelInfo.uriToLabel[node.value];
 
 						if(!label) {
-							var str = ns.extractLabelFromUri(node.value);
+							var str = uriUtils.extractLabelFromUri(node.value);
 							label = {value: str};
 						}
 						

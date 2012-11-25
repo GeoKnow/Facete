@@ -323,8 +323,8 @@
 		//$("#facts").ssb_facts({});
 
 		//var describer = new widgets.Describer(this.sparqlService);
-		this.factBox = widgets.createResourceWidget(this.sparqlService);
-		$$.document.append(this.factBox, "#box-facts");
+		//this.factBox = widgets.createResourceWidget(this.sparqlService);
+		//$$.document.append(this.factBox, "#box-facts");
 		
 		//this.factBox.controller.setNodes([sparql.Node.uri("http://fintrans.publicdata.eu/ec/ontology/beneficiary")]);
 		
@@ -1117,9 +1117,9 @@
 		
 	};
 	
-	ns.AppController.prototype.showDescriptionOld = function(nodes) {		
-		this.factBox.controller.setNodes(nodes);
-	};
+//	ns.AppController.prototype.showDescriptionOld = function(nodes) {		
+//		this.factBox.controller.setNodes(nodes);
+//	};
 	
 	ns.AppController.prototype.initEvents = function() {
 		var self = this;
@@ -2411,7 +2411,22 @@
 			//console.log("Table model: ", tableModel);//.browseConfig.tableModel);
 		});
 		
+		
+    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
+    		events: {
+    			'click': function() {
+                    el.fadeOut('slow');
+    			}
+    		}
+    	});
+    	
+    	var closeButton = new MyViewCloseButton();
+    	var rendered = closeButton.render();
+    	el.append(rendered.el);
+
+		
 		el.show();
+		//$('#box-resources').show();
 	};
 	
 
@@ -2419,9 +2434,9 @@
 		node = sparql.Node.uri(uriStr);
 	};
 	
-	ns.AppController.prototype.showDescription = function(nodes) {		
-		this.factBox.controller.setNodes(nodes);
-	};
+//	ns.AppController.prototype.showDescription = function(nodes) {		
+//		this.factBox.controller.setNodes(nodes);
+//	};
 
 	
 	
@@ -2437,7 +2452,7 @@
  
 		//var node = sparql.Node.parse(uriStr);
 		node = sparql.Node.uri(uriStr);
-		this.showDescription([node]);
+		//this.showDescription([node]);
 		
 		
 		var self = this;
@@ -2495,7 +2510,21 @@
 			var container = $('#box-facts');
 			container.children().remove();
 	    	createView(container, models);
-	
+
+	    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
+	    		events: {
+	    			'click': function() {
+	                    $("#box-facts").fadeOut ('slow');
+	    			}
+	    		}
+	    	});
+	    	
+	    	var closeButton = new MyViewCloseButton();
+	    	var rendered = closeButton.render();
+	    	container.append(rendered.el);
+	    			
+	    			//<i id="box-resources-closebutton-img" class="icon-remove-sign"></i>
+	    	
 	    	$("#box-facts").show();
 		});
 /*
@@ -2516,99 +2545,99 @@
 	 * 
 	 * @param geom
 	 */
-	ns.AppController.prototype.showFeatureDetailsOld = function(geom) {
-		
-		var self = this;
-		
-		// Create the resource query element
-		console.log("QueryGenerator", self.queryGeneratorGeo);
-		var queryGenerator = self.queryGeneratorGeo.forGeoms([geom]);
-
-		
-		//var element = s
-
-		//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
-		//var featureVar = self.queryGenerator.getInferredDriver().variable;
-		//var concept = new facets.ConceptInt(element, featureVar);
-		var concept = queryGenerator.createDriverValues();
-		
-		//var element = this.queryGenerator.ForGeoms(geomUriNodes);
-		//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
-
-		console.log("Driver", geom, concept);
-		
-		
-		// TODO We need the query element and the geom variable
-		var backend = new widgets.ResourceListBackendSparql(self.sparqlService, concept, self.labelFetcher);
-		
-		// HACK Removes all hacks.
-		$("#box-resources .hack").remove();
-
-		var widget = widgets.createResourceListWidget(backend, {
-			onClick: function(uri) {
-												
-				
-				self.showDescription([uri]);
-				$("#box-facts").show();
-				
-				
-				var collection = widgets.createPartnerCollection(uri, self.sparqlService, self.labelFetcher);
-				
-				// HACK Removes all hacks.
-				$("#box-resources .hack").remove();
-				
-
-				
-				//$("#box-resources").append('<hr class="hack"/>');
-
-				var el = $('<table class="table hack"/>');
-				$("#box-resources").append(el);
-
-				
-				//console.log("Element", el);
-				
-				var view = new widgets.PartnerView({
-					el: el,
-					collection: collection
-				});
-				
-				collection.sync();
-				
-			}
-		});
-		
-		if(self.prevResWidget) {
-			self.prevResWidget.destroy();
-		}
-		
-		self.prevResWidget = widget;
-		
-		
-		var resourceListBox = $("#box-resources");
-		$$.document.append(widget, resourceListBox);
-		resourceListBox.show();
-		//widget.view.$().show();
-		
-		/*
-		var targetElement = $("#box-test");
-		targetElement.show();
-		
-		// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
-		$(targetElement).children().remove();
-
-		$$.document.append(widget, targetElement);
-		*/
-		
-		/*
-		widgets.createResourceTable([geom], self.labelFetcher, columnCount).pipe(function(ag) {
-			$$.document.append(ag, "#box-test");
-		});*/
-		
-		
-		
-		
-		//alert(this.model.get("uri"));
-	};
+//	ns.AppController.prototype.showFeatureDetailsOld = function(geom) {
+//		
+//		var self = this;
+//		
+//		// Create the resource query element
+//		console.log("QueryGenerator", self.queryGeneratorGeo);
+//		var queryGenerator = self.queryGeneratorGeo.forGeoms([geom]);
+//
+//		
+//		//var element = s
+//
+//		//var featureVar = sparql.Node.v(self.queryGenerator.geoConstraintFactory.breadcrumb.sourceNode.variable);
+//		//var featureVar = self.queryGenerator.getInferredDriver().variable;
+//		//var concept = new facets.ConceptInt(element, featureVar);
+//		var concept = queryGenerator.createDriverValues();
+//		
+//		//var element = this.queryGenerator.ForGeoms(geomUriNodes);
+//		//var queryFactory = new ns.QueryFactory(element, this.featureVar, this.geomVar);
+//
+//		console.log("Driver", geom, concept);
+//		
+//		
+//		// TODO We need the query element and the geom variable
+//		var backend = new widgets.ResourceListBackendSparql(self.sparqlService, concept, self.labelFetcher);
+//		
+//		// HACK Removes all hacks.
+//		$("#box-resources .hack").remove();
+//
+//		var widget = widgets.createResourceListWidget(backend, {
+//			onClick: function(uri) {
+//												
+//				
+//				self.showDescription([uri]);
+//				$("#box-facts").show();
+//				
+//				
+//				var collection = widgets.createPartnerCollection(uri, self.sparqlService, self.labelFetcher);
+//				
+//				// HACK Removes all hacks.
+//				$("#box-resources .hack").remove();
+//				
+//
+//				
+//				//$("#box-resources").append('<hr class="hack"/>');
+//
+//				var el = $('<table class="table hack"/>');
+//				$("#box-resources").append(el);
+//
+//				
+//				//console.log("Element", el);
+//				
+//				var view = new widgets.PartnerView({
+//					el: el,
+//					collection: collection
+//				});
+//				
+//				collection.sync();
+//				
+//			}
+//		});
+//		
+//		if(self.prevResWidget) {
+//			self.prevResWidget.destroy();
+//		}
+//		
+//		self.prevResWidget = widget;
+//		
+//		
+//		var resourceListBox = $("#box-resources");
+//		$$.document.append(widget, resourceListBox);
+//		resourceListBox.show();
+//		//widget.view.$().show();
+//		
+//		/*
+//		var targetElement = $("#box-test");
+//		targetElement.show();
+//		
+//		// TODO [Hack] Not sure if this is safe, as we do not destroy the agility object!
+//		$(targetElement).children().remove();
+//
+//		$$.document.append(widget, targetElement);
+//		*/
+//		
+//		/*
+//		widgets.createResourceTable([geom], self.labelFetcher, columnCount).pipe(function(ag) {
+//			$$.document.append(ag, "#box-test");
+//		});*/
+//		
+//		
+//		
+//		
+//		//alert(this.model.get("uri"));
+//	};
 
 	
 	

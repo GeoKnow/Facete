@@ -124,6 +124,7 @@
 								<param>org/aksw/ssb/widgets/ResourceListWidget.js</param>
 								<param>org/aksw/ssb/widgets/BreadcrumbWidget.js</param>
 								<param>org/aksw/ssb/widgets/ConstraintWidget.js</param>
+								<param>org/aksw/ssb/widgets/BackboneWidgets.js</param>
 
 								<param>org/aksw/ssb/collections/QuadTreeModel.js</param>
 								<param>org/aksw/ssb/backend/QuadTreeCache.js</param>

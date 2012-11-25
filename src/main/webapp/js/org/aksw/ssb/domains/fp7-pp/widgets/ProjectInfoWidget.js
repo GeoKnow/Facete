@@ -63,7 +63,7 @@
 	
 	this.renderBar = function(data) {
 	
-	    var template = '<div style="position:relative; width: 100%"><div style="position: absolute; right: 0px; background-color: #0080ff; border-color: #00a0ff; width: {width}px;  height: {height}px;">{innerHtml}</div></div>';
+	    var template = '<div style="position:relative; width: 100%; height: {height}px;"><div style="position: absolute; right: 0px; background-color: #0080ff; border-color: #00a0ff; width: {width}px;  height: {height}px;">{innerHtml}</div></div>';
 	
 	
 	    var result = jsontemplate.expand(template, data);
@@ -104,7 +104,7 @@
 			
 			var result
 				= '<td><span>' + partnerLabel + '</span></td>'
-				+ '<td style="width: 250px">' + self.renderBar(data) + '</td>'
+				+ '<td style="width: 250px; height: 20px;">' + self.renderBar(data) + '</td>'
 				+ '<td>' + stringUtils.formatNumber(a) + '&nbsp;&euro;</td>'
 				;
 				

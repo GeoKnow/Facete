@@ -570,6 +570,14 @@ a:active {
     padding-left: 10px;
 }
 
+.pagination a {
+	padding: 0 7px;
+	line-height: 17px;
+}
 
 /* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
 img { max-width: none; }
+
+
+
+

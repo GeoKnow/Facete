@@ -128,9 +128,9 @@ $.widget("ui.ssb_map", {
 			OpenLayers.Util.extend({}, defaultStyle), {
 				externalGraphic: config.markerUrlDefault,
 	        	graphicOpacity: 0.8, //0.8,
-	        	graphicWidth: 25,
-	        	graphicHeight: 25,
-	        	graphicYOffset: -25,
+	        	graphicWidth: 31,
+	        	graphicHeight: 31,
+	        	graphicYOffset: -31,
 	
                 stroke: true,
 	            strokeColor: "#FF0000",
@@ -142,20 +142,19 @@ $.widget("ui.ssb_map", {
 	            pointerEvents: "visiblePainted",
 //	
 	        	fontColor: "#0000FF", //"#0000FF",
-                fontSize: "16px",
+                fontSize: "12px",
                 fontFamily: "Courier New, monospace",
                 fontWeight: "bold",
                 //labelAlign: "cm",
 //                
 	        	label: "${label}",
 	            labelXOffset: 0,
-	            labelYOffset: 15,
+	            labelYOffset: 21,
 //	            labelOutlineColor: "#0080FF",
 //	            labelOutlineWidth: 3
 			}
 		);
-
-		console.log("MarkerStyle", this.styles.markerStyle);
+		//console.log("MarkerStyle", this.styles.markerStyle);
 		
 
 		this.styles.boxStyle = OpenLayers.Util.extend(
@@ -703,7 +702,7 @@ $.widget("ui.ssb_map", {
         //alert(JSON.stringify(attrs));
         //alert(JSON.stringify(newAttrs)); , this.styles.markerStyle
         var result = new OpenLayers.Feature.Vector(pt, newAttrs);
-        console.log("Feature attributes: ", result.attributes);
+        //console.log("Feature attributes: ", result.attributes);
 
         //result.attributes = {label: "test"};
         

@@ -79,7 +79,7 @@
 		var tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
 		var browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
 		
-		console.log("browseConfig is ", browseConfig);
+		//console.log("browseConfig is ", browseConfig);
 		
 		
 		var result = {
@@ -145,7 +145,7 @@
 		//query.offset = 100;
 
 		var tableConfig = createExecutorQuery(sparqlService, query);
-		console.log("tableConfig is", tableConfig);
+		//console.log("tableConfig is", tableConfig);
 		
 
 		
@@ -160,7 +160,7 @@
 
 		
 		
-		console.log("Collection is", browseConfig);
+		//console.log("Collection is", browseConfig);
 		container.append($().ssb.searchBox(browseConfig.searchModel).render().el);
 
 		container.append($().ssb.paginator(browseConfig.config.paginatorModel).render().el);
@@ -203,6 +203,44 @@
 	}
 	
 
+	
+	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
+	
+	var createSparqlExplorer = function(sparqlService, labelFetcher) {
+		var queryFactory = new QueryFactoryQuery(null);
+		this.tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
+		this.browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
+						
+		var result = {
+				model: new Backbone.Model(),
+				browseConfig: browseConfig
+		};
+		
+		return result;
+	}
+	
+	/*
+			setDescribeResource: function(node) {
+				var query = createQueryDescribe(node);				
+
+				this.setQuery(query);
+			},
+			
+			setPropertyNode: function(node) {
+				
+			},
+			
+			setQuery: function(query) {
+				var queryFactory = new QueryFactoryQuery(query);
+				
+				this.tableModel.set({queryFactory: queryFactory});
+			},
+	};
+	*/
+		
+		
+	
+	
 	var createListQueryFactory = function(geom) {
 		var app = Namespace("org.aksw.ssb.app.controllers");
 		

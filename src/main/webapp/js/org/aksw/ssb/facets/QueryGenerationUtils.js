@@ -254,6 +254,8 @@
 		return result;
 	};
 	
+	
+	
 	ns.createDescribeQuery = function(concept, conceptVar) {
 		var result = new sparql.Query();
 		result.type = sparql.QueryType.Construct;
@@ -271,6 +273,71 @@
 		
 		return result;
 	};
+	
+	
+	
+	ns.createQueryDescribe = function(node) {
+		var result = new sparql.Query();
+
+		var element = ns.createElementDescribe(node);
+		result.elements.push(element);
+
+		var property = sparql.Node.v("property");
+		var hasValue = sparql.Node.v("hasValue");
+		//var isValueOf = sparql.Node.v("isValueOf");
+		
+		result.projectVars.addAll([property, hasValue]); //, isValueOf]);
+		
+		var evProperty = new sparql.ExprVar(property);
+		var evHasValue = new sparql.ExprVar(hasValue);
+		//var evIsValueOf = new sparql.ExprVar(isValueOf);
+
+		result.orderBy.push(new sparql.E_LogicalNot(new sparql.E_Bound(evHasValue)));
+		result.orderBy.push(new sparql.SortCondition(evProperty));
+		result.orderBy.push(new sparql.SortCondition(evHasValue));
+		//result.orderBy.push(new sparql.SortCondition(evIsValueOf));
+		
+		return result;
+	}
+
+	/**
+     * SELECT DISTINCT ?property ?hasValue ?isValueOf
+     * WHERE {
+     * { <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?property ?hasValue }
+     *  UNION
+     *  { ?isValueOf ?property <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> }
+     *}
+     *ORDER BY (!BOUND(?hasValue)) ?property ?hasValue ?isValueOf	
+     */
+	ns.createElementDescribe = function(node) {
+		var property = sparql.Node.v("property");
+		var hasValue = sparql.Node.v("hasValue");
+		var isValueOf = sparql.Node.v("isValueOf");
+		
+		var elements = [];
+		
+		var triple = new sparql.Triple(node, property, hasValue);
+		elements.push(new sparql.ElementTriplesBlock([triple]));
+		
+		if(false) {
+			var tripleInv = new sparql.Triple(isValueOf, property, node);
+			elements.push(new sparql.ElementTriplesBlock([tripleInv]));
+		}
+
+		var result;
+		if(elements.length > 1) {
+			result = new sparql.ElementTriplesBlock(elements);
+		} else {
+			result = elements[0];
+		}
+		
+//		var result = new sparql.ElementUnion([
+//            new sparql.ElementTriplesBlock([triple]),
+//            new sparql.ElementTriplesBlock([tripleInv])
+//		]);
+		
+		return result;
+	}
 
 	
 	/**

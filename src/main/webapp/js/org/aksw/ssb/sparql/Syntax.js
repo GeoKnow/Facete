@@ -1140,7 +1140,8 @@
 	};
 
 	ns.E_LogicalAnd.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.E_LogicalAnd(fnNodeMap(this.left), fnNodeMap(this.right));
+		//return new ns.E_LogicalAnd(fnNodeMap(this.left), fnNodeMap(this.right));
+		return new ns.E_LogicalAnd(this.left.copySubstitute(fnNodeMap), this.right.copySubstitute(fnNodeMap));
 	};
 	
 	ns.E_LogicalAnd.prototype.getArgs = function() {
@@ -1161,7 +1162,7 @@
 	};
 
 	ns.E_LogicalOr.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.E_LogicalOr(fnNodeMap(this.left), fnNodeMap(this.right));
+		return new ns.E_LogicalOr(this.left.copySubstitute(fnNodeMap), this.right.copySubstitute(fnNodeMap));
 	};
 	
 	ns.E_LogicalOr.prototype.getArgs = function() {
@@ -1177,6 +1178,30 @@
 	};
 
 
+	ns.E_LogicalNot = function(expr) {
+		this.expr = expr;
+	};
+
+	ns.E_LogicalNot.prototype = {
+			copySubstitute: function(fnNodeMap) {
+				return new ns.E_LogicalNot(this.expr.copySubstitute(fnNodeMap));
+			},
+
+			getArgs: function() {
+				return [this.left, this.right];
+			},
+			
+			copy: function(args) {
+				return ns.newBinaryExpr(ns.E_LogicalOr, args);
+			},
+
+			toString: function() {
+				return "(!" + this.expr + ")";
+			}
+	};
+
+	
+	
 	
 	/**
 	 * If null, '*' will be used

@@ -128,6 +128,27 @@
 	 */
 	ns.loadResourceEditor = function(subjectUri, talisJson) {
 		
+		console.log("RDFAuthor", subjectUri, talisJson);
+		
+		RDFauthor.edit({
+            view: 'popover',
+            useSPARQL11: true, /* default false */
+            targetUpdateEndpoint: 'http://localhost/sparql',
+            targetGraph: 'http://fp7-pp.publicdata.eu/',
+            targetResource: subjectUri,
+            targetResourceData: talisJson,
+
+			onSubmitSuccess: function (responseData) {
+				
+				$(config.EventBus).trigger("resourcesModified", [subjectUri]);
+				// Clear or renew caches of the modified resource 
+			},
+			onCancel: function () {
+			}
+		});
+		
+		
+		/*
 		rdfAuthor.loadRDFauthor(function() {
 		
 			console.log(subjectUri);
@@ -149,7 +170,7 @@
 				}
 			});
 			RDFauthor.start();
-		});
+		});*/
 	};
 	
 	
@@ -213,7 +234,7 @@
 			var editStr = ' <a class="ssb_edit" href="#">(edit)</a>';
 			
 			// TODO: Edits disabled.
-			editStr = "";
+			//editStr = "";
 			
 			html += '<tr class="' + rowClass[rowId % rowClass.length] + '"><td colspan="2"><a href="' + s + '" class="rdf-subject"><span style="font-weight: bold;" id="label:' + s + '">' + sLabel + '</span></a>' + editStr + '</td></tr>';
 

@@ -534,7 +534,7 @@
 		
 		this.facetBox.bind("clickFacetValues", function(ev, payload) {
 			
-			//console.log("PAYLOAD", payload.model);
+			console.log("Facet value clicked. PAYLOAD", payload.model);
 			
 			var path = payload.model.get("path");
 			

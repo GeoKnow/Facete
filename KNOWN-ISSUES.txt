@@ -1,0 +1,6 @@
+- On Zoom out, the view is refreshed with the old zoom level, potentially fetching lots of data
+  . Solution: Only refresh on zoom end, not zoom start
+  . It seems the issue is already fixed after upgrading OpenLayers?
+  
+
+RDF browser:

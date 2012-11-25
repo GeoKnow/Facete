@@ -20,7 +20,7 @@
 	</properties>
 
 	<build>
-                <finalName>semmap</finalName>
+		<finalName>semmap</finalName>
 		<plugins>
 			<plugin>
 				<groupId>com.samaxes.maven</groupId>
@@ -31,45 +31,46 @@
 					<execution>
 						<id>default-minify</id>
 						<phase>process-resources</phase>
-						
+
 						<configuration>
 							<jsSourceDir>js</jsSourceDir>
 							<cssSourceDir>css</cssSourceDir>
 
-							<!-- Note: The extra 'webapp' dir is simply there to put target and src on the
-							same level of nesting, so that relative paths to resouces work either way -->
+							<!-- Note: The extra 'webapp' dir is simply there to put target and 
+								src on the same level of nesting, so that relative paths to resouces work 
+								either way -->
 							<jsTargetDir>webapp/js</jsTargetDir>
 							<cssTargetDir>webapp/css</cssTargetDir>
 
 							<cssSourceFiles>
-<!-- 								<param>lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css</param>  -->
-<!--     							<param>lib/Font-Awesome/current/css/font-awesome.css</param> -->
-<!--             					<param>lib/jquery-ui/1.8.16/themes/base/jquery-ui.css</param> -->
-        						<param>style.css</param>
+								<!-- <param>lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css</param> -->
+								<!-- <param>lib/Font-Awesome/current/css/font-awesome.css</param> -->
+								<!-- <param>lib/jquery-ui/1.8.16/themes/base/jquery-ui.css</param> -->
+								<param>style.css</param>
 							</cssSourceFiles>
 							<cssFinalFile>semmap.css</cssFinalFile>
 
 							<jsSourceFiles>
-<!-- 								<param>lib/namespacedotjs/a28da387ce/Namespace.js</param> -->
-<!-- 								<param>lib/gettext/0.08/lib/Gettext.js</param> -->
-<!-- 								<param>lib/jquery/1.7.2/jquery-1.7.2.js</param> -->
-<!-- 								<param>lib/jquery-ui/1.8.16/ui/jquery-ui.js</param> -->
-<!-- 								<param>lib/underscore/1.3.1/underscore.js</param> -->
-<!-- 								<param>lib/backbone/0.5.3/backbone.js</param> -->
-<!-- 								<param>lib/twitter-bootstrap/2.0.3/js/bootstrap.js</param> -->
-<!-- 								<param>lib/agility/current/agility.js</param> -->
-<!-- 								<param>lib/CryptoJS/3.0.2/components/core-min.js</param> -->
-<!-- 								<param>lib/CryptoJS/3.0.2/components/enc-utf16-min.js</param> -->
-<!-- 								<param>lib/CryptoJS/3.0.2/components/enc-base64-min.js</param> -->
-<!-- 								<param>lib/open-layers/2.10/OpenLayers.js</param> -->
-<!-- 								<param>lib/json-template/0.85/json-template.js</param> -->
-<!-- 								<param>lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js</param> -->
-<!-- 								<param>lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js</param> -->
+								<!-- <param>lib/namespacedotjs/a28da387ce/Namespace.js</param> -->
+								<!-- <param>lib/gettext/0.08/lib/Gettext.js</param> -->
+								<!-- <param>lib/jquery/1.7.2/jquery-1.7.2.js</param> -->
+								<!-- <param>lib/jquery-ui/1.8.16/ui/jquery-ui.js</param> -->
+								<!-- <param>lib/underscore/1.3.1/underscore.js</param> -->
+								<!-- <param>lib/backbone/0.5.3/backbone.js</param> -->
+								<!-- <param>lib/twitter-bootstrap/2.0.3/js/bootstrap.js</param> -->
+								<!-- <param>lib/agility/current/agility.js</param> -->
+								<!-- <param>lib/CryptoJS/3.0.2/components/core-min.js</param> -->
+								<!-- <param>lib/CryptoJS/3.0.2/components/enc-utf16-min.js</param> -->
+								<!-- <param>lib/CryptoJS/3.0.2/components/enc-base64-min.js</param> -->
+								<!-- <param>lib/open-layers/2.10/OpenLayers.js</param> -->
+								<!-- <param>lib/json-template/0.85/json-template.js</param> -->
+								<!-- <param>lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js</param> -->
+								<!-- <param>lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js</param> -->
 
-<!-- 								<param>config.js</param> -->
+								<!-- <param>config.js</param> -->
 
 								<!-- Configuration files -->
-<!-- 								<param>ssb.namespacePrefixes.js</param> -->
+								<!-- <param>ssb.namespacePrefixes.js</param> -->
 
 								<!-- The actual spatial semantic browsing widgets -->
 								<param>org/aksw/ssb/collections/QuadTree.js</param>
@@ -124,15 +125,15 @@
 								<param>org/aksw/ssb/widgets/BreadcrumbWidget.js</param>
 								<param>org/aksw/ssb/widgets/ConstraintWidget.js</param>
 
-								<param>org/aksw/ssb/app/QueryGeneratorGeo.js</param>
 								<param>org/aksw/ssb/collections/QuadTreeModel.js</param>
 								<param>org/aksw/ssb/backend/QuadTreeCache.js</param>
 								<param>org/aksw/ssb/utils/QueryCache.js</param>
 								<param>org/aksw/ssb/utils/Abbreviator.js</param>
 								<param>org/aksw/ssb/plugins/RDFauthor.js</param>
-<!-- 								<param>org/aksw/ssb/experiments/FacetNavigator.js</param> -->
+								<!-- <param>org/aksw/ssb/experiments/FacetNavigator.js</param> -->
 
 
+								<param>org/aksw/ssb/app/QueryGeneratorGeo.js</param>
 								<param>org/aksw/ssb/app/controllers/AppController.js</param>
 								<param>org/aksw/ssb/app/controllers/ResourceDetailsController.js</param>
 
@@ -143,9 +144,9 @@
 								<!-- OpenDataPortal specify layouting (header bar translations) -->
 								<param>org/aksw/ssb/app/Layout-Odp.js</param>
 
-	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js</param>
-	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>
-	                            <param>org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js</param>
+								<param>org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js</param>
+								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>
+								<param>org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js</param>
 							</jsSourceFiles>
 							<jsFinalFile>semmap.js</jsFinalFile>
 

@@ -359,6 +359,12 @@
 					var userInput = window.prompt("Jump to page:", "");
 					
 					pageRequest = parseInt(userInput);
+					if(isNaN(pageRequest)) {
+						return;
+					}
+					
+					var pageCount = this.model.get("pageCount");
+					pageRequest = clamp(pageRequest, 1, pageCount);
 				}
 	    		
 				console.log("Page Request: ", pageRequest);

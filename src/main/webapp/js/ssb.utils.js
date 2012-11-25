@@ -65,6 +65,18 @@
 	}
 
 	/**
+	 * Clamp a value to a certain range
+	 * 
+	 * @param val
+	 * @param min
+	 * @param max
+	 * @returns
+	 */
+	function clamp(val, min, max) {
+		return Math.max(min, Math.min(max, val));
+	}
+	
+	/**
 	 * Check for SVG support
 	 * 
 	 * Source: http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser

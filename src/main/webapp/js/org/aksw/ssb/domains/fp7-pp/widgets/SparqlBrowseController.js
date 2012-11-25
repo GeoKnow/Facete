@@ -84,7 +84,8 @@
 	
 	QueryFactoryQuery.prototype = {
 		createQuery: function() {
-			var result = this.query.clone();
+			
+			var result = this.query ? this.query.clone() : null;
 			return result;
 		}
 	};
@@ -148,6 +149,10 @@
 		createQuery: function() {
 			var baseQuery = this.queryFactory.createQuery();
 			
+			if(baseQuery == null) {
+				return null;
+			}
+			
 			if(this.projection) {
 				baseQuery.projection = projection;
 			}
@@ -198,17 +203,26 @@
 		}
 	};
 	
-	
+
+	/**
+	 * Note: It is valid for queryFactory.createQuery() to result null,
+	 * but the queryFactory itself must not be null
+	 * 
+	 */
 	var ExecutorQueryFactory = function(sparqlService, queryFactory) {
 		this.sparqlService = checkNotNull(sparqlService);
 		this.queryFactory = checkNotNull(queryFactory);
 	};
 	
 	ExecutorQueryFactory.prototype = {
-		fetchResultSet: function() {
+		fetchResultSet: function() {			
 			var query = this.queryFactory.createQuery();
+			//sconsole.log("Query: ", "" + query);
 			
-			console.log("Query: ", "" + query);
+			if(!query) {
+				var result = queryUtils.createEmptyResultSet([]);
+				return result;
+			}
 			
 			var promise = this.sparqlService.executeSelect(query);
 			
@@ -232,7 +246,17 @@
 			
 			var query = this.queryFactory.createQuery(); 
 			
-			console.log("Query:", query);
+			//console.log("Query:", query);
+			
+			if(!query) {
+				var result = $.Deferred();
+				
+				result.resolve({count: 0, isCutOff: false});
+				
+				return result.promise();
+			}
+
+			
 			
 			var elements = query.getElements();
 			var element = this.asElement(elements);
@@ -478,6 +502,11 @@
 		// TODO: Somehow notify the tableModel...
 		var query = tableConfig.createQuery();
 	
+		if(!query) {
+			return;
+		}
+		
+		
 		var projectVars = query.getProjectVars();
 		var vars = projectVars.getVarList();
 		

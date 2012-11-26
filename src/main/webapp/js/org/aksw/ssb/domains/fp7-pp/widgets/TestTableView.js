@@ -27,7 +27,7 @@
 		initialize: function() {
 			_.bindAll(this, 'contentChanged');
 			
-			console.log("inputContent", this.inputContent);
+			//console.log("inputContent", this.inputContent);
 		},
 		contentChanged: function(e) {
 		    var input = $(this.el);
@@ -125,7 +125,7 @@
 			}, options);
 
 			
-			console.log("Table Factory", o);
+			//console.log("Table Factory", o);
 			
 			var result =  new widgets.ListViewTable(o);
 
@@ -230,7 +230,7 @@
 			}, options);
 
 			
-			console.log("Table Factory", o);
+			//console.log("Table Factory", o);
 			
 			var result =  new TableView(o);
 
@@ -403,7 +403,7 @@ $(document).ready(function() {
 			var query = widgets.createPartnerQuery(node);
 			var queryFactory = new QueryFactoryQuery(query);
 			
-			console.log("Query is now: ", queryFactory.createQuery());
+			//console.log("Query is now: ", queryFactory.createQuery());
 			
 			//var queryFactory = new QueryFactoryQueryGenerator(queryGenerator);
 			

@@ -16,7 +16,6 @@ lib/Font-Awesome/current
 config.js
 *.tar.gz
 
-index.php
 
 debian/semmap
 debian/semmap.debhelper.log

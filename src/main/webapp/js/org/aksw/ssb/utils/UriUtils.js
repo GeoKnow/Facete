@@ -53,11 +53,21 @@
 	};
 	
 	/**
-	 * In-Place transformation of the bindings of a json result set
+	 * (No longer In-Place) transformation of the bindings of a json result set
+	 * 
+	 * Note: In-Place causes severe problems, because results sets might
+	 * originate from a cache, which gets corrupted when modified.
+	 * 
 	 */
-	ns.transformJsonRs = function(jsonRs, nodeTransformer) {
+	ns.transformJsonRs = function(tmpJsonRs, nodeTransformer) {
 
-		console.log("transformJsonRs: jsonRs: ", jsonRs);
+		var jsonRs = _.clone(tmpJsonRs);
+		
+		//jsonRs.results = _.clone(jsonRs.results);
+		//jsonRs.results.bindings = _.clone(jsonRs.results.bindings);
+		
+		
+		//console.log("transformJsonRs: jsonRs: ", jsonRs);
 		
 		var bindings = jsonRs.results.bindings;
 			
@@ -86,7 +96,7 @@
 	
 	ns.extractNodesFromJsonRs = function(jsonRs) {
 
-		console.log("extractNodesFromJsonRs: jsonRs: ", jsonRs);
+		//console.log("extractNodesFromJsonRs: jsonRs: ", jsonRs);
 
 		var result = [];
 		var bindings = jsonRs.results.bindings;
@@ -122,7 +132,7 @@
 			})
 			.value();
 		
-		console.log("UriStrs", uriStrs);
+		//console.log("UriStrs", uriStrs);
 		
 		var result = _.uniq(uriStrs);
 		

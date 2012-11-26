@@ -853,7 +853,7 @@
 		
 		var self = this;
 
-		var isWriteEnabled = false;
+		//var isWriteEnabled = true;
 		$(this.graphSelectionModel).bind("change", function() {
 
 			//alert("test");
@@ -877,8 +877,9 @@
 				}
 			});
 	
-			if(isWriteEnabled) {
+			if(config.isWriteEnabled) {
 				
+				config.targetGraph = null;
 				if(selected) {
 					alert("Writes will go to graph: " + selected);
 				} else {
@@ -887,11 +888,15 @@
 			
 				if(selected) {
 					RDFAUTHOR_DEFAULT_GRAPH=selected;
+					
+					config.targetGraph = selected;
 					//console.log("Checking:", $('link[rel="update:sourceGraph"]'));
+					/*
 					$('link[rel="update:queryEndpoint"]').attr({about: selected});
 					$('link[rel="update:updateEndpoint"]').attr({about: selected});
 					$('link[rel="update:sourceGraph"]').attr({about: selected, href: selected});
 					$('link[rel="update:defaultGraph"]').attr({about: selected, href: selected});
+					*/
 				}
 				
 			}
@@ -1079,7 +1084,7 @@
 	ns.AppController.prototype.setNavigationPath = function(path) {
 		
 		
-		console.log("NavigationPath", path);
+		//console.log("NavigationPath", path);
 		//var concat = this.queryGenerator.navigationBreadcrumb.concat(breadcrumb);
 		var concat = path;
 		
@@ -1090,7 +1095,9 @@
 		//this.facetState = new facetbox.FacetState(this.facetConfig, this.queryGenerator.concept, concat);
 		//this.facetbox.controller.setState(this.facetState);
 		//this.facebox.controller.setState(queryGenerator);
-		console.log("TODO - Set the FacetSate");
+
+		// TODO - Set the FacetSate
+		//console.log("TODO - Set the FacetSate");
 		
 		//this.facetbox.controller.refresh();
 		//this.updateFacetsRec(this.executor, this.facetBox);
@@ -1174,7 +1181,7 @@
 				.then(function(jsonRdf) {													
 						// If there are any same as links, try to fetch something from
 						// additional sources (e.g. DBpedia)
-						console.log(jsonRdf);
+						//console.log(jsonRdf);
 						//var objects = JsonRdfExtractionUtils.extractObjects(jsonRdf, uri, "http://www.w3.org/2002/07/owl#sameAs");
 						var tags = extractTags(jsonRdf);
 						
@@ -1263,16 +1270,16 @@
 		var disableConstraints = true;
 
 
-		console.log("Constraints", queryGeneratorGeo.getConstraints());
+		//-- console.log("Constraints", queryGeneratorGeo.getConstraints());
 		var queryGenerator = queryGeneratorGeo.forGlobal({disableConstraints: disableConstraints});
 		
-		console.log("The queryGenerator is: ", queryGeneratorGeo);
+		//-- console.log("The queryGenerator is: ", queryGeneratorGeo);
 		
 		var baseElement = queryGenerator.createDriverValues().getElement();
 		//var baseElement = this.queryGenerator.forGlobal(); //elementFactoryGeo.concept.element;
 		 
 		var hash = baseElement.toString();
-		console.log("Query hash (including facets): ", hash);
+		//-- console.log("Query hash (including facets): ", hash);
 		
 		
 		var cacheEntry = this.hashToCache[hash];

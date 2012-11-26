@@ -113,7 +113,7 @@
 	ns.BackendFactory.prototype.forBounds = function(bounds, options) {
 		var queryGenerator = this.queryGeneratorGeo.forBounds(bounds, options);
 		
-		console.log("QueryGenerator for bounds: ", queryGenerator);
+		//console.log("QueryGenerator for bounds: ", queryGenerator);
 		
 		var result = this.forQueryGenerator(queryGenerator);
 		return result;

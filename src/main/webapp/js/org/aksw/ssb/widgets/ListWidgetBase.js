@@ -164,8 +164,9 @@
 	    },
 
 	    reset: function() {
-	    	console.log("Reset", arguments);
-	    	$(this.el).children().remove();
+	    	//console.log("Reset", arguments);
+	    	this.$el.empty();
+	    	//$(this.el).children().remove();
 	    	this.render();
 	    }
 	});
@@ -181,7 +182,7 @@
 	ns.ItemViewMapMarker = Backbone.View.extend({
 		initialize: function() {
 
-			console.log('status', this);
+			//console.log('status', this);
 			
 			this.mapWidget = this.options.mapWidget;
 			this.setElement(this.options.mapWidget.getElement());

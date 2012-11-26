@@ -1,13 +1,14 @@
 	/**
 	 * Currently hard wired configuration of the facets for the financial transparency system
-	 * 
+	 *
+	 * TODO This method gets called multiple times by some widgets, should be avoided
 	 */
 	function createAppConfig() {
 
 		var concept = config.concept;
 		var pathManager = null;
 
-		console.log("Config is", config);
+		//console.log("Config is", config);
 
 		
 		var fallbackDriver = null;

@@ -255,6 +255,8 @@
 						
 					var result = {node: node};
 					
+					//console.log("Node", jsonRs, node);
+					
 					if(node && node.isUri()) {
 						var label = labelInfo.uriToLabel[node.value];
 
@@ -372,7 +374,7 @@
 					newModels.push(binding);
 				}
 	
-				console.log("New models", newModels);
+				//console.log("New models", newModels);
 				this.collection.reset(newModels);
 			}			
 	};

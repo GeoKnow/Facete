@@ -360,7 +360,7 @@
 
 				var diff = this.changedAttributes();
 				
-				console.log("Diff", diff);
+				//console.log("Diff", diff);
 				
 				for(var att in diff) {
 					switch(att) {
@@ -400,7 +400,7 @@
 		},
 		
 		refreshPageCount: function() {
-			console.log("Refreshing page count");
+			//console.log("Refreshing page count");
 
 			var self = this;
 
@@ -409,7 +409,7 @@
 				var limit = self.tableModel.get("limit");
 				
 				var itemCount = info.count;			
-				console.log("Item count: " + itemCount);
+				//console.log("Item count: " + itemCount);
 				
 				var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
 				if(itemCount === 0) {
@@ -421,7 +421,7 @@
 		},
 		
 		changePage: function() {
-			console.log("Changing page");
+			//console.log("Changing page");
 			
 			var offset = this.tableModel.get("offset");
 			var limit = this.tableModel.get("limit");
@@ -618,7 +618,7 @@
 		}
 		
 		
-		console.log("Final elements: " + finalElements);
+		//console.log("Final elements: " + finalElements);
 		
 		//if(finalElements.length > 0) {
 
@@ -678,7 +678,7 @@
 
 		var tmpAttrs = _.extend({queryFactory: tableConfig.config.queryFactory});
 
-		console.log("tmpAttrs", tmpAttrs);
+		//console.log("tmpAttrs", tmpAttrs);
 
 		/*
 		if(!options) {

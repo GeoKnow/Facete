@@ -133,8 +133,8 @@
 		RDFauthor.edit({
             view: 'popover',
             useSPARQL11: true, /* default false */
-            targetUpdateEndpoint: 'http://localhost/sparql',
-            targetGraph: 'http://fp7-pp.publicdata.eu/',
+            targetUpdateEndpoint: config.sparqlServiceUri, //'http://localhost/sparql',
+            targetGraph: config.targetGraph, //'http://fp7-pp.publicdata.eu/',
             targetResource: subjectUri,
             targetResourceData: talisJson,
 

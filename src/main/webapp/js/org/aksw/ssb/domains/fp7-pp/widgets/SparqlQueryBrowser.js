@@ -14,7 +14,7 @@
 	    
 	    
 	    	var models = createSparqlExplorer(sparqlService, labelFetcher);
-	    	console.log("Models: ", models);
+	    	//console.log("Models: ", models);
 
 	    	var tableModel = models.browseConfig.config.tableModel;
 
@@ -144,7 +144,7 @@
 			    		 	       options: { attr: name,
 			    		 	           binding: { label:
 			    		 	           function(model) {
-			    		 	           	   console.log("Model: ", model);
+			    		 	           	   //console.log("Model: ", model);
 			    		 	               var result = getLabel(model, name);
 			    		 	               if(!result) {
 			    		 	                   item = model.get(name);
@@ -209,7 +209,7 @@
 						self.addModel(model);
 					});
 					
-					console.log("Status: ", this.$el, this.tbody);
+					//console.log("Status: ", this.$el, this.tbody);
 					
 					return this;
 			    },
@@ -222,7 +222,7 @@
 			    	}
 			    	
 			    	var vars = query.projectVars.vars;
-			    	console.log("Vars: ", vars);
+			    	//console.log("Vars: ", vars);
 			    	var columns = [];
 			    	this.columns = columns;
 			    	for(var i = 0; i < vars.length; ++i) {

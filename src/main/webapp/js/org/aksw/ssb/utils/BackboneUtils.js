@@ -240,12 +240,12 @@
 		
 		var fn = function(plainJsonRs) {
 			
-			var before = JSON.stringify(plainJsonRs);
+			//var before = JSON.stringify(plainJsonRs);
 			
 			jsonRs = uriUtils.parseJsonRs(plainJsonRs);
-			var after = JSON.stringify(plainJsonRs);
+			//var after = JSON.stringify(plainJsonRs);
 
-			 
+			 /*
 			if(before !== after) {
 				console.log("Before: " + before);
 				console.log("After: " + after);
@@ -253,6 +253,7 @@
 			}
 			
 			console.log("JSON RS IS NOW", jsonRs);
+			*/
 			uris = uriUtils.extractUrisFromParsedJsonRs(jsonRs);
 			
 			
@@ -279,7 +280,7 @@
 							label = {value: str};
 						}
 						
-						console.log("Label for node " + node + " is " + label.value);
+						//console.log("Label for node " + node + " is " + label.value);
 						
 						
 						result.label = label;

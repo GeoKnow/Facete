@@ -123,6 +123,18 @@
 		ns.loadResourceEditor(subjectUri, talisJson);
 	};
 	
+	ns.loadResourceEditor2 = function(sparqlService, node) {
+
+		var describeTask = ns.executeDescribe(sparqlService, [node]);
+		describeTask.success(function(talisJson) {
+			
+			ns.loadResourceEditor(node.value, talisJson);
+			
+		}).fail(function() {
+			alert("Failed to fetch data for " + node);
+		});
+	}
+	
 	/**
 	 * TODO: Change
 	 */
@@ -130,22 +142,26 @@
 		
 		console.log("RDFAuthor", subjectUri, talisJson);
 		
-		RDFauthor.edit({
-            view: 'popover',
-            useSPARQL11: true, /* default false */
-            targetUpdateEndpoint: config.sparqlServiceUri, //'http://localhost/sparql',
-            targetGraph: config.targetGraph, //'http://fp7-pp.publicdata.eu/',
-            targetResource: subjectUri,
-            targetResourceData: talisJson,
+		var options = {
+	            view: 'popover',
+	            useSPARQL11: true, /* default false */
+	            targetUpdateEndpoint: config.sparqlServiceUri, //'http://localhost/sparql',
+	            targetGraph: config.targetGraph, //'http://fp7-pp.publicdata.eu/',
+	            targetResource: subjectUri,
+	            targetResourceData: talisJson,
 
-			onSubmitSuccess: function (responseData) {
-				
-				$(config.EventBus).trigger("resourcesModified", [subjectUri]);
-				// Clear or renew caches of the modified resource 
-			},
-			onCancel: function () {
-			}
-		});
+				onSubmitSuccess: function (responseData) {
+					
+					$(config.EventBus).trigger("resourcesModified", [subjectUri]);
+					// Clear or renew caches of the modified resource 
+				},
+				onCancel: function () {
+				}
+		};
+		
+		console.log("Starting RDFauthor with options", options);
+		
+		RDFauthor.edit(options);
 		
 		
 		/*

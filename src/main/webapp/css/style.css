@@ -331,7 +331,7 @@ a:active {
 
 #header ul,
 #header li.leaf {
-    list-style-image: url("../../resources/images/menu-leaf.png");
+    list-style-image: url("../../../../src/main/resources/images/menu-leaf.png");
     list-style-type: square;
 }
 

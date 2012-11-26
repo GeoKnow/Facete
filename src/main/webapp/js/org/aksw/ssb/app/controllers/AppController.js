@@ -853,7 +853,7 @@
 		
 		var self = this;
 
-		//var isWriteEnabled = true;
+		var isWriteEnabled = config.isWriteEnabled;
 		$(this.graphSelectionModel).bind("change", function() {
 
 			//alert("test");
@@ -877,13 +877,13 @@
 				}
 			});
 	
-			if(config.isWriteEnabled) {
+			if(isWriteEnabled) {
 				
 				config.targetGraph = null;
 				if(selected) {
 					alert("Writes will go to graph: " + selected);
 				} else {
-					alert("Writes disabled because there is no longer a selected graph");
+					//alert("Writes disabled because there is no longer a selected graph");
 				}
 			
 				if(selected) {
@@ -2543,6 +2543,8 @@
 	ns.AppController.prototype.showFactBox = function(node) {
 		var self = this;
 		
+		
+		// Fetch the label for the given resource and use it as the title
 		var task = this.labelFetcher.fetch([node.value], false);
 		
 		task.done(function(labelInfo) {
@@ -2562,6 +2564,24 @@
 			container.children().remove();
 	    	createView(container, models);
 
+	    	var MyViewEditButton = Backbone.View.extend({
+	    		tagName: 'i',
+        		attributes: {
+        			'class': 'icon-pencil', 
+        			'style': 'position: absolute; width: 16px; height: 16px; top: 0px; right: 16px; padding: 0px; margin: 3px;'
+        		    // 'style': 'position: absolute; width: 16px; height: 16px; padding: 0px; margin: 3px;' // top: 0px; right: 16px;'
+	    		},	    		
+	    		events: {
+	    			'click': function() {
+	    				widgets.loadResourceEditor2(self.sparqlService, node);
+	    			}
+	    		}
+	    	});
+	    	
+	    	if(config.targetGraph) {
+		    	container.append(new MyViewEditButton().render().el);
+	    	}
+	    		    	
 	    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
 	    		events: {
 	    			'click': function() {

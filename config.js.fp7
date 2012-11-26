@@ -84,5 +84,5 @@
 	/*
 	 * Experimental features 
 	 */
-	config.isWriteEnabled = false;
+	config.isWriteEnabled = true;
 })();

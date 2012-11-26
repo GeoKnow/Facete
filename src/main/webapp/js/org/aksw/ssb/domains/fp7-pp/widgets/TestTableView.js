@@ -71,8 +71,8 @@
 	}
 	
 	
-	var createList = function(sparqlService, queryFactory, containerEl, labelFetcher) {
-		var container = $(containerEl);
+	var createListModels = function(sparqlService, queryFactory, labelFetcher) {
+		//var container = $(containerEl);
 
 		/*		
 		var element = new sparql.ElementString("?x rdfs:label ?y", [sparql.Node.v("x"), sparql.Node.v("y")]);		
@@ -92,15 +92,61 @@
 				browseConfig: browseConfig
 		};
 		
+		return result;
+	}
 		
-		
+	
+	
+	var createListView = function(container, models) {
+		var browseConfig = models.browseConfig;
 
 		
 		var MyItemView = ItemViewTd.extend({
 			events: {
 				'click span': function() {
 					var node = this.model.get("s").node;
-					result.model.set({selected: node});
+					models.model.set({selected: node});
+					//alert("Selected: " + this.model.get("x").label.value);
+				}
+			}
+		});
+		
+		
+		var tableFactory = function(options) {
+		
+			var o = _.extend({
+				tagName: 'table',
+				attributes: {
+					'class': 'table table-bordered table-striped table-condensed',
+					'style': 'margin: 0px'
+				},
+				cols: 3,
+				itemRenderer: new widgets.ItemRendererBackbone(MyItemView)
+			}, options);
+
+			
+			console.log("Table Factory", o);
+			
+			var result =  new widgets.ListViewTable(o);
+
+			return result;
+		};
+		
+		createView(container, models, tableFactory);
+	}
+	
+	
+	
+	var createListViewOld = function(container, models) {
+		
+		var browseConfig = models.browseConfig;
+
+		
+		var MyItemView = ItemViewTd.extend({
+			events: {
+				'click span': function() {
+					var node = this.model.get("s").node;
+					models.model.set({selected: node});
 					//alert("Selected: " + this.model.get("x").label.value);
 				}
 			}
@@ -130,10 +176,6 @@
 				style: 'width: 200px; margin-left: auto; margin-right: auto;'
 			}
 		}).render().el);
-
-		
-		
-		return result;
 	};
 	
 	/**
@@ -141,9 +183,68 @@
 	 * 
 	 * 
 	 */
-	var createInfobox = function(sparqlService, containerEl, labelFetcher) {
+	var createInfoboxModels = function(sparqlService, labelFetcher) {
+		var tableConfig = createExecutorQuery(sparqlService, null); //query);
+		//console.log("tableConfig is", tableConfig);
 		
-		var container = $(containerEl);
+
+		
+		var browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
+
+		
+		var result = {
+				model: new Backbone.Model(),
+				browseConfig: browseConfig
+		};
+		
+		return result;
+	};
+
+
+
+	var createInfoboxView = function(container, models) {
+		var browseConfig = models.browseConfig;
+
+		
+		var MyView = widgets.ItemViewProject.extend({
+			// TODO Setting the pointer style here is to aggressive
+			attributes: { 'style': 'cursor:pointer' },
+			events: {
+				'click span': function() {
+					var node = this.model.get("p");
+					result.model.set({selected: node});
+				}
+			}
+		});
+		
+		
+		var tableFactory = function(options) {
+			
+			var o = _.extend({
+				//tagName: 'table',
+				attributes: {
+					'class': 'table table-bordered table-striped table-condensed',
+					'style': 'margin: 0px'
+				},
+				itemRenderer : new widgets.ItemRendererBackbone(MyView)
+			}, options);
+
+			
+			console.log("Table Factory", o);
+			
+			var result =  new TableView(o);
+
+			return result;
+		};
+		
+		createView(container, models, tableFactory);
+		
+	}
+
+	var createInfoboxViewOld = function(container, models) {
+		var browseConfig = models.browseConfig;
+
+	//var container = $(containerEl);
 
 		/*
 		var concept = widgets.createConceptPartnerState();
@@ -159,18 +260,6 @@
 		 */
 		//query.offset = 100;
 
-		var tableConfig = createExecutorQuery(sparqlService, null); //query);
-		//console.log("tableConfig is", tableConfig);
-		
-
-		
-		var browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
-
-		
-		var result = {
-				model: new Backbone.Model(),
-				browseConfig: browseConfig
-		};
 		
 
 		
@@ -223,7 +312,7 @@
 		container.append(tableView.render().el);
 		
 		return result;
-	}
+	};
 	
 
 	

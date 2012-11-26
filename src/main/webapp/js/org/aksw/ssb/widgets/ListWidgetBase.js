@@ -114,7 +114,7 @@
 	    	this.collection.bind('reset', this.reset, this);
 	    	//this.collection.remove('remove', this.unrender, this);
 	    	
-	    	this.render();
+	    	//this.render();
 	    },
 	    addModel: function(model) {
 			var renderer = this.getItemRenderer();	
@@ -132,6 +132,8 @@
 	    render: function() {
 			//this.clear();
 			
+	    	Backbone.View.prototype.render.apply(this);
+	    	
 			var self = this;
 
 			this.collection.each(function(model) {

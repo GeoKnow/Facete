@@ -75,10 +75,10 @@
 	    	//var createSparqlExplorer = function(sparqlService, queryFactory, containerEl, labelFetcher);
 	    };
 
-			var createView = function(container, models) {
+			var createView = function(container, models, tableViewFactory) {
 
-
-		    	var tableModel = models.browseConfig.config.tableModel;
+				var browseConfig = models.browseConfig;
+		    	var tableModel = browseConfig.config.tableModel;
 
 
 
@@ -265,14 +265,24 @@
 			    }
 			});
 
+			
+			
+			//var ViewTableClass = ViewTableCustom ? ViewTableCustom : TableView;
 
-	
-				var tableView = new TableView({
+			var tableView;
+			
+			var options = {
 					collection: browseConfig.collection,
 					model:tableModel
 					//options: { attributes: { style: "margin: 0px;" } }
-				});
-				
+			};
+			
+			if(tableViewFactory) {
+				tableView = tableViewFactory(options);
+			} else {
+				tableView = new TableView(options);				
+			}
+					
 				var el = tableView.render().el;
 		
 

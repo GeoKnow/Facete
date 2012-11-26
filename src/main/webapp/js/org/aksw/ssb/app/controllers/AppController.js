@@ -2367,72 +2367,112 @@
 		
 	
 	ns.AppController.prototype.showFeatureDetails = function(geom) {
-		var el = $('#box-resources');
 		
-		el.empty();
-		
-		el.append($('<h3>Projects related to this location</h3>'));
-		el.append($('<hr />'));
+		var listModels;
+		{
+			var el = $('#box-resources');
+			el.empty();
+			
+			//el.append($('<h3>Projects related to this location</h3>'));
+	
+			
+			var listQf = createListQueryFactory(geom);
+			listModels = createListModels(this.sparqlService, listQf, this.labelFetcher);
+			
+			listModels.model.set({title: "Projects related to this location"});
+			
+	    	createListView(el, listModels);
+	
+	    	
+	    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
+	    		events: {
+	    			'click': function() {
+	                    el.fadeOut('slow');
+	    			}
+	    		}
+	    	});
+	    	
+	    	var closeButton = new MyViewCloseButton();
+	    	var rendered = closeButton.render();
+	    	el.append(rendered.el);
+	
+			
+			el.show();
+		}
+		//createListView(el, listModels);
 
-		var listQf = createListQueryFactory(geom);
+//		el.append($('<hr style="background-color: #F0F0F0; padding: 0px; margin: 1px;" />'));
+
 		
-		var list = createList(this.sparqlService, listQf, el, this.labelFetcher);
 		
-		el.append($('<h3>Project partners</h3>'));
+		//var list = createList(this.sparqlService, listQf, el, this.labelFetcher);
+		
+		//el.append($('<h3>Project partners</h3>'));
 		//el.append($('<hr />'));
-		
-		var infobox = createInfobox(this.sparqlService, el, this.labelFetcher);
 
-		
-		list.model.on("change:selected", function() {
+		{
+			var el = $('#box-resources-secondary');
+			el.empty();
 			
-			var node = list.model.get("selected");
-			
-			//console.log("boo", arguments);
-			
-			//var geom = sparql.Node.uri("http://linkedgeodata.org/triplify/node1681920624");
-			
-			//var queryGenerator = queryGeneratorGeo.forGeoms([geom]);			
-			//var concept = queryGenerator.createDriverValues();
+			var infoboxModels = createInfoboxModels(this.sparqlService, this.labelFetcher);
+			infoboxModels.model.set({title: "Project partners"});
+	
+			createInfoboxView(el, infoboxModels);
 
-			var query = widgets.createPartnerQuery(node);
-			var queryFactory = new QueryFactoryQuery(query);
 			
-			//console.log("Query is now: ", queryFactory.createQuery());
+	    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
+	    		events: {
+	    			'click': function() {
+	                    el.fadeOut('slow');
+	    			}
+	    		}
+	    	});
+	    	
+	    	var closeButton = new MyViewCloseButton();
+	    	var rendered = closeButton.render();
+	    	el.append(rendered.el);
+	
 			
-			//var queryFactory = new QueryFactoryQueryGenerator(queryGenerator);
-			
-			/*
-			var tableConfig = createExecutorConcept(sparqlService, concept);
-			*/
-			var tableModel = infobox.browseConfig.config.tableModel;
-			tableModel.set({queryFactory: queryFactory});
-			
-			//console.log("Table model: ", tableModel);//.browseConfig.tableModel);
-		});
-		
-		
-    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
-    		events: {
-    			'click': function() {
-                    el.fadeOut('slow');
-    			}
-    		}
-    	});
-    	
-    	var closeButton = new MyViewCloseButton();
-    	var rendered = closeButton.render();
-    	el.append(rendered.el);
+			el.show();
 
-		
-		el.show();
-		//$('#box-resources').show();
+			
+			listModels.model.on("change:selected", function() {
+				
+				
+				var node = listModels.model.get("selected");
+
+				//console.log("Selected:", node);
+				
+				//console.log("boo", arguments);
+				
+				//var geom = sparql.Node.uri("http://linkedgeodata.org/triplify/node1681920624");
+				
+				//var queryGenerator = queryGeneratorGeo.forGeoms([geom]);			
+				//var concept = queryGenerator.createDriverValues();
+	
+				var query = widgets.createPartnerQuery(node);
+				var queryFactory = new QueryFactoryQuery(query);
+				
+				//console.log("Query is now: ", queryFactory.createQuery());
+				
+				//var queryFactory = new QueryFactoryQueryGenerator(queryGenerator);
+				
+				/*
+				var tableConfig = createExecutorConcept(sparqlService, concept);
+				*/
+				var tableModel = infoboxModels.browseConfig.config.tableModel;
+				tableModel.set({queryFactory: queryFactory});
+				
+				//console.log("Table model: ", tableModel);//.browseConfig.tableModel);
+			});
+			//$('#box-resources').show();
+		}
 	};
 	
 
-	ns.AppController.prototype.onInstanceClicked = function(uriStr) {
-		node = sparql.Node.uri(uriStr);
-	};
+//	ns.AppController.prototype.onInstanceClicked = function(uriStr) {
+//		node = sparql.Node.uri(uriStr);
+//	};
 	
 //	ns.AppController.prototype.showDescription = function(nodes) {		
 //		this.factBox.controller.setNodes(nodes);
@@ -2487,7 +2527,9 @@
 
 		
         // Show fact box
-		this.showFactBox(sparql.Node.uri(uriStr));
+		//var node = sparql.Node.uri(uriStr);
+		this.showFactBox(node);
+		this.showFeatureDetails(node);
 	};
 	
 	

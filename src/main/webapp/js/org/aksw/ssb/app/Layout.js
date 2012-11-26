@@ -102,18 +102,34 @@ function doSearch() {
 				at: 'left top',
 				offset: '60 70',
 				of: $('#map')
-//				offset: '60 70',
-//				of: $('#main')
 			});
 
+			$('#box-resources-secondary').position({
+				my: 'right top',
+				at: 'right top',
+				of: $('#map'),
+				offset: '0 70'
+			});
+
+			
 			$('#box-facts').position({
 				my: 'right top',
 				at: 'right top',
-				offset: '0 70',
-				of: $('#map')
-//				offset: '0 70',
-//				of: $('#main')
+				of: $('#map'),
+				offset: '0 300'
 			});
+			
+//			$('#box-facts').position({
+//				my: 'right top',
+//				at: 'right top',
+//				offset: '0 70',
+//				of: $('#map')
+//			});
+
+			
+			
+			
+			
 			
 		//});
 		

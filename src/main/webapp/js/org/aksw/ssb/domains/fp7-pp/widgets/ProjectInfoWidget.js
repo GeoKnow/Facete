@@ -30,7 +30,7 @@
 	
 	this.ItemViewRowBase = Backbone.View.extend({
 	    tagName: 'tr',
-	    attributes: {'class': "table"},
+	    //attributes: {'class': "table"},
 	    //attributes: {style: ""},
 	    events: { 
 	    },    
@@ -40,16 +40,24 @@
 	      this.model.bind('change', this.render, this);
 	      this.model.bind('remove', this.unrender, this);
 	    },
-	    render: function() {		      
+	    render: function() {
+	    
+			//this.constructor.__super__.render.apply(this);
+	    	Backbone.View.prototype.render.apply(this);
+
+			
+			
 	      var html;
 	      
 	      if(typeof(this.renderHtml) === 'function') {
 	          html = this.renderHtml();
 	      } else {
-	          html = "<div>No renderer set or renderer is not a function</div>";
+	          html = "<td>No renderer set or renderer is not a function</td>";
 	      }
 	    
-	      $(this.el).html(html); 
+	      //console.log("Row Status", this.el);
+	      
+	      this.$el.html(html); 
 	      return this;
 	    },
 	    unrender: function() {

@@ -30,8 +30,10 @@
 			
 			initialize: function(options) {
 
-				if(options.cols) {
-					this.cols = options.cols;
+				if(options) {
+					if(options.cols) {
+						this.cols = options.cols;
+					}
 				}
 
 				

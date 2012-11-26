@@ -62,7 +62,7 @@ $.widget("ui.ssb_map", {
 	    		
 	            //maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90),
 	            //minExtent: new OpenLayers.Bounds(-1, -1, 1, 1),
-	    		numZoomLevels: 19,
+	    		//numZoomLevels: 19,
 	    		units: 'm',
 
 	    		//maxExtent: [-18924313.432222, -15538711.094146, 18924313.432222, 15538711.094146],
@@ -131,15 +131,16 @@ $.widget("ui.ssb_map", {
 	        	graphicWidth: 31,
 	        	graphicHeight: 31,
 	        	graphicYOffset: -31,
+	        	graphicXOffset: -16,
 	
-                stroke: true,
-	            strokeColor: "#FF0000",
-	            strokeOpacity: 1,
-	            strokeWidth: 3,
-	            fillColor: "#FF5500",
-	            fillOpacity: 1.0,
-	            pointRadius: 6,
-	            pointerEvents: "visiblePainted",
+//                stroke: true,
+//	            strokeColor: "#0000FF",
+//	            strokeOpacity: 0.8,
+//	            strokeWidth: 1,
+//	            fillColor: "#0055FF",
+//	            fillOpacity: 0.6,
+//	            pointRadius: "${radius}",
+//	            pointerEvents: "visiblePainted",
 //	
 	        	fontColor: "#0000FF", //"#0000FF",
                 fontSize: "12px",
@@ -148,7 +149,7 @@ $.widget("ui.ssb_map", {
                 //labelAlign: "cm",
 //                
 	        	label: "${label}",
-	            labelXOffset: 0,
+	            //labelXOffset: 0,
 	            labelYOffset: 21,
 //	            labelOutlineColor: "#0080FF",
 //	            labelOutlineWidth: 3
@@ -693,7 +694,8 @@ $.widget("ui.ssb_map", {
     		OpenLayers.Util.extend({}, attrs), {
 	        	point: point,
 	        	nodeId: id,
-	        	label: attrs.abbr
+	        	label: attrs.abbr,
+	        	radius: 12
     		}
         );
         

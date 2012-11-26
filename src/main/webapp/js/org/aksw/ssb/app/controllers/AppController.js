@@ -2418,29 +2418,29 @@
 		//el.append($('<hr />'));
 
 		{
-			var el = $('#box-resources-secondary');
-			el.empty();
+			var el2 = $('#box-resources-secondary');
+			el2.empty();
 			
 			var infoboxModels = createInfoboxModels(this.sparqlService, this.labelFetcher);
 			infoboxModels.model.set({title: "Project partners"});
 	
-			createInfoboxView(el, infoboxModels);
+			createInfoboxView(el2, infoboxModels);
 
 			
 	    	var MyViewCloseButton = widgets.ViewCloseButton.extend({
 	    		events: {
 	    			'click': function() {
-	                    el.fadeOut('slow');
+	                    el2.fadeOut('slow');
 	    			}
 	    		}
 	    	});
 	    	
 	    	var closeButton = new MyViewCloseButton();
 	    	var rendered = closeButton.render();
-	    	el.append(rendered.el);
+	    	el2.append(rendered.el);
 	
 			
-			el.show();
+			el2.show();
 
 			
 			listModels.model.on("change:selected", function() {
@@ -2541,13 +2541,15 @@
 	
 	
 	ns.AppController.prototype.showFactBox = function(node) {
+		var self = this;
+		
 		var task = this.labelFetcher.fetch([node.value], false);
 		
 		task.done(function(labelInfo) {
 			var uriToLabel = labelInfo.uriToLabel;
 			var label = uriToLabel[node.value];
 			
-	    	var models = createQueryBrowser();
+	    	var models = createQueryBrowser(self.sparqlService, self.labelFetcher);
 			models.model.set({
 				selected: {
 					node: node,

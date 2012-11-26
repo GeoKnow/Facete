@@ -43,13 +43,13 @@
 	 * 
 	 */
 	ns.parseJsonRs = function(jsonRs) {
-		ns.transformJsonRs(jsonRs, function(plainNode) {
+		var result = ns.transformJsonRs(jsonRs, function(plainNode) {
 			var node = !plainNode ? null : sparql.Node.fromJson(plainNode);
 			
 			return node;
 		});
 		
-		return jsonRs;
+		return result;
 	};
 	
 	/**
@@ -63,14 +63,19 @@
 
 		var jsonRs = _.clone(tmpJsonRs);
 		
+		jsonRs.results = {
+			bindings: []	
+		};
+		
 		//jsonRs.results = _.clone(jsonRs.results);
 		//jsonRs.results.bindings = _.clone(jsonRs.results.bindings);
 		
 		
 		//console.log("transformJsonRs: jsonRs: ", jsonRs);
 		
-		var bindings = jsonRs.results.bindings;
-			
+		var bindings = tmpJsonRs.results.bindings;		
+		var newBindings = jsonRs.results.bindings;
+		
 		for(var i = 0; i < bindings.length; ++i) {
 		
 			var binding = bindings[i];
@@ -82,7 +87,8 @@
 				newBinding[varName] = newData;
 			});
 
-			bindings[i] = newBinding;			
+			//bindings[i] = newBinding;
+			newBindings.push(newBinding);
 		}
 		
 		return jsonRs;
@@ -114,13 +120,21 @@
 		return result;
 	};
 	
-	ns.extractUrisFromJsonRs = function(jsonRs) {
+	/**
+	 * 
+	 * 
+	 * Can deal with parsed and non-parsed json result sets
+	 * 
+	 * @returns An array of strings for the URIs in the jsonRs
+	 */
+	ns.extractUrisFromParsedJsonRs = function(jsonRs) {
 		var nodes = ns.extractNodesFromJsonRs(jsonRs);
 		
 		var uriStrs = _(nodes)
 			.chain()
 			.map(function(node) {
-				//if(node.type === "uri") {
+
+				//if(node.type === "uri" || (node instanceof sparql.Node && node.isUri())) {
 				if(node.isUri()) {
 					return node.value;
 				}

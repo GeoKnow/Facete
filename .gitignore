@@ -4,6 +4,8 @@
 .settings/
 
 target
+deleteme
+
 
 # Temporary excludes:
 install-rdf-author.sh

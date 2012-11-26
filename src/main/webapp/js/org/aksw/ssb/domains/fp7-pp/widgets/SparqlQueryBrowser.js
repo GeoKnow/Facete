@@ -1,16 +1,19 @@
 
 
-		function createQueryBrowser() {
+		function createQueryBrowser(sparqlService, labelFetcher) {
 			var uriUtils = Namespace("org.aksw.ssb.utils.uris");
-	    
+	
+			/*
 	    	config.sparqlServiceUri = "http://fts.publicdata.eu/sparql";
 	
 			var sparqlServiceHttp = new backend.SparqlServiceHttp(
 			config.sparqlServiceUri, config.defaultGraphUris,
 			config.sparqlProxyServiceUri, config.sparqlProxyParamName);
-	
+	*/
+			/*
 			var sparqlService = new backend.SparqlServicePaginator(sparqlServiceHttp, 1000);	
 			var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
+			*/
 	    
 	    
 	    	var models = createSparqlExplorer(sparqlService, labelFetcher);

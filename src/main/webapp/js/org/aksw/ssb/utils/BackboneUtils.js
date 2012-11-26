@@ -240,9 +240,21 @@
 		
 		var fn = function(plainJsonRs) {
 			
-			jsonRs = uriUtils.parseJsonRs(plainJsonRs);
+			var before = JSON.stringify(plainJsonRs);
 			
-			uris = uriUtils.extractUrisFromJsonRs(jsonRs);
+			jsonRs = uriUtils.parseJsonRs(plainJsonRs);
+			var after = JSON.stringify(plainJsonRs);
+
+			 
+			if(before !== after) {
+				console.log("Before: " + before);
+				console.log("After: " + after);
+				throw "Modification exception";
+			}
+			
+			console.log("JSON RS IS NOW", jsonRs);
+			uris = uriUtils.extractUrisFromParsedJsonRs(jsonRs);
+			
 			
 			var result = $.Deferred();
 			
@@ -251,19 +263,24 @@
 			
 			task.done(function(labelInfo) {
 			
-				uriUtils.transformJsonRs(jsonRs, function(node) {
+				var transformed = uriUtils.transformJsonRs(jsonRs, function(node) {
 						
 					var result = {node: node};
 					
 					//console.log("Node", jsonRs, node);
 					
 					if(node && node.isUri()) {
-						var label = labelInfo.uriToLabel[node.value];
+					//if(node && (node.type === "uri" || (node instanceof sparql.Node && node.isUri()))) {
 
+						var label = labelInfo.uriToLabel[node.value];
+						
 						if(!label) {
 							var str = uriUtils.extractLabelFromUri(node.value);
 							label = {value: str};
 						}
+						
+						console.log("Label for node " + node + " is " + label.value);
+						
 						
 						result.label = label;
 					}
@@ -272,7 +289,7 @@
 					return result;
 				});
 	
-				result.resolve(jsonRs);
+				result.resolve(transformed); //jsonRs);
 			}).fail(function() {					
 				result.fail();
 			});

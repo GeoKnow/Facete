@@ -56,8 +56,16 @@
 		
 		var self = this;
 		
+		
+		//console.log("Backend: ", this.backend);
+		
 		var queryExecution = this.backend.executeSelect(query); 
-		queryExecution.done(function(jsonRs) {
+		queryExecution.success(function(jsonRs) {
+
+			if(!jsonRs) {
+				throw "Null result set for query: " + query;
+			}
+			
 			// If result set size equals pageSize, request more data.			
 			var result;
 			if(!prevResult) {

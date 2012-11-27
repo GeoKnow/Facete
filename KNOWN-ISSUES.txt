@@ -2,5 +2,7 @@
   . Solution: Only refresh on zoom end, not zoom start
   . It seems the issue is already fixed after upgrading OpenLayers?
   
+- Race condition when clicking a project - sometimes NULL values appear
 
-RDF browser:
+- Click event on facets sometimes does not work
+

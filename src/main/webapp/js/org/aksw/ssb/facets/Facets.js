@@ -331,7 +331,7 @@
 	};
 	
 	ns.Path.fromString = function(pathStr) {
-		pathStr = pathStr.trim();
+		pathStr = $.trim(pathStr);
 		
 		var items = pathStr.length !== 0 ? pathStr.split(" ") : [];		
 		var steps = _.map(items, function(item) {

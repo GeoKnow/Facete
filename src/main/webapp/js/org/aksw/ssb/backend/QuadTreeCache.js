@@ -662,7 +662,7 @@
 		var self = this;
 			
 		
-		console.debug("Aquiring nodes for " + bounds);
+		console.log("Aquiring nodes for " + bounds);
 		var nodes = this.quadTree.aquireNodes(bounds, 2);
 
 		// Init the data attribute if needed

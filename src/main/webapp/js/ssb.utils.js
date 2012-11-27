@@ -64,7 +64,7 @@
 		
 		return result;
 	}
-
+	
 	/**
 	 * Clamp a value to a certain range
 	 * 

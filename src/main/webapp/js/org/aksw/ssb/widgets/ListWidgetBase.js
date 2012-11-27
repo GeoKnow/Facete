@@ -175,7 +175,7 @@
 	ns.ListView = ns.ListViewBase.extend({
 	    appendElement: function(el) {
 	    	$(this.el).append(el);
-	    },		
+	    }
 	});
 	
 	

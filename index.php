@@ -1,4 +1,8 @@
 ﻿<?php
+    // false: include minimized JavaScript, otherwise include original source
+    $debug = true;
+
+
     $defaultLanguage = "en";
 
     
@@ -34,10 +38,6 @@
      * Settings
      */
     $activeThemePath = "themes/odp";
-
-    // TODO Implement debug switch
-    // false: include minimized JavaScript, otherwise include original source
-    $debug = true;
 
 
     $configXml = simplexml_load_file("$activeThemePath/server-config.xml");
@@ -77,6 +77,8 @@
         <?php echo "$cssIncludes\n" ?>
         <link rel="stylesheet" type="text/css" href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" />    
 
+        <!-- <script type="text/javascript" src="src/main/webapp/js/prototypes.js"></script> -->
+
         <script type="text/javascript" src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
         <script type="text/javascript" src="lib/gettext/0.08/lib/Gettext.js"></script>
         <script type="text/javascript" src="lib/jquery/1.7.2/jquery-1.7.2.js"></script>
@@ -94,6 +96,7 @@
         <script type="text/javascript" src="lib/json-template/0.85/json-template.js"></script>
         <script type="text/javascript" src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
         <!-- <script type="text/javascript" src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script> -->
+
 
 
 
@@ -138,7 +141,7 @@
 			
 			var urlArgs = {};
             urlArgs.sparqlServiceUri = '<?php echo $sparqlServiceUri ?>';
-            var defaultGraphUri = '<?php echo $defaultGraphUri ?>'.trim();
+            var defaultGraphUri = jQuery.trim('<?php echo $defaultGraphUri ?>');
 			if(defaultGraphUri.length > 0) {
 				urlArgs.defaultGraphUris = [defaultGraphUri];
 			}
@@ -157,7 +160,7 @@
             var override = {};
 			$.each(urlArgs, function(key, value) {
 				if(value) {
-					var valueStr = ("" + value).trim();
+					var valueStr = jQuery.trim("" + value);
 					if(valueStr.length > 0) {
 						override[key] = value;
 					}

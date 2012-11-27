@@ -30,14 +30,18 @@
 			
 			initialize: function(options) {
 
-				if(options) {
-					if(options.cols) {
-						this.cols = options.cols;
-					}
+				if(typeof options === 'undefined') {
+					options = {};
+				}
+				
+				
+				if(options.cols) {
+					this.cols = options.cols;
 				}
 
 				
-				this.constructor.__super__.initialize.apply(this, options);
+				//this.constructor.__super__.initialize.apply(this, options);
+				widgets.ListViewBase.prototype.initialize.call(this, options);
 			},
 			
 			appendRow: function(targetEl) {
@@ -90,7 +94,7 @@
 		    	
 		    	
 		    	$(tr).append(elItem);
-		    },
+		    }
 
 		});
 		

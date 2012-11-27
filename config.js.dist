@@ -40,9 +40,14 @@
 
 	/*
 	 * Configurations of the icons shown on the map
+	 * 
+	 * Will fallback to gif versions of the images if svg is not supported. 
 	 */
-	config.markerUrlDefault = "src/main/resources/images/org/openclipart/people/mightyman/map-marker-blue.gif";
-	config.markerUrlSelected = "src/main/resources/images/org/openclipart/people/mightyman/map-marker-orange.gif";
+	var isSvgSupported = supportsSvg(); 
+	var suffix = isSvgSupported ? "svg" : "gif";
+	
+	config.markerUrlDefault = "src/main/resources/images/org/openclipart/people/mightyman/map-marker-blue." + suffix;
+	config.markerUrlSelected = "src/main/resources/images/org/openclipart/people/mightyman/map-marker-orange." + suffix;
 
 	
 	/*
@@ -76,4 +81,8 @@
 	config.pathManager = pathManager;
 
 
+	/*
+	 * Experimental features 
+	 */
+	config.isWriteEnabled = false;
 })();

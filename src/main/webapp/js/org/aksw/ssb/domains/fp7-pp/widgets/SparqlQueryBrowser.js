@@ -150,7 +150,7 @@
 			    		 	           	   //console.log("Model: ", model);
 			    		 	               var result = getLabel(model, name);
 			    		 	               if(!result) {
-			    		 	                   item = model.get(name);
+			    		 	            	   var item = model.get(name);
 			    		 	                   if(item) {
 			    		 	                       result = item.node.value;
 			    		 	                   }

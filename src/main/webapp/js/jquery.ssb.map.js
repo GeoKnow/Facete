@@ -150,7 +150,7 @@ $.widget("ui.ssb_map", {
 //                
 	        	label: "${label}",
 	            //labelXOffset: 0,
-	            labelYOffset: 21,
+	            labelYOffset: 21
 //	            labelOutlineColor: "#0080FF",
 //	            labelOutlineWidth: 3
 			}

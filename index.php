@@ -43,6 +43,10 @@
     $configXml = simplexml_load_file("$activeThemePath/server-config.xml");
     $title = (string)$configXml->title;
 
+    $semmapVersion = $configXml->version;
+    if(!$semmapVersion) {
+        $semmapVersion = "(not set)";
+    }
 
     $headerFile = "$activeThemePath/header.html";
 
@@ -401,6 +405,9 @@
 <!--		<div id="box-facts-content" /> -->
 	</div>
 
+        <div id="semmap-version" style="position:absolute; left: 10px; bottom: 5px; font-size: smaller; color:#396EA2;">
+            SemMap version: <?php echo $semmapVersion ?>
+        </div>
 
 </body>
 </html>

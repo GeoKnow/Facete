@@ -6,8 +6,9 @@
 
 	var rdfs = Namespace("org.aksw.ssb.vocabs.rdfs");
 	
+	var ns = Namespace("org.aksw.ssb.facets");
 	// TODO Change namespace
-	var ns = Namespace("org.aksw.ssb.widgets");
+	//var ns = Namespace("org.aksw.ssb.widgets");
 
 	
 

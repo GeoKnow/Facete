@@ -1,4 +1,9 @@
 lib usr/share/semmap
 src usr/share/semmap
+themes usr/share/semmap
+target/semmap/webapp/* usr/share/semmap/target/semmap/webapp
 index.php usr/share/semmap
+config.js /etc/semmap
+pom.xml usr/share/semmap
+index-utils.php usr/share/semmap
 debian/conf/apache2/*   etc/semmap

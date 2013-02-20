@@ -24,6 +24,7 @@
 	
 
 	
+	
 	/**
 	 * Returns a key from the model based on the binding.
 	 * 
@@ -35,13 +36,15 @@
 
 		if (b) {
 			if (typeof b === 'function') {
-				return b(model);
+				result = b(model);
 			} else {
-				return model.get(b);
+				result = model.get(b);
 			}
 		} else {
-			return model.get(key);
+			result = model.get(key);
 		}
+		
+		return result;
 	};
 
 	/**
@@ -155,7 +158,7 @@
 				var tmp = self.taskCounter;
 				
 				
-				queryExecution.done(function(jsonRs) {
+				queryExecution.success(function(jsonRs) {
 
 					if(self.taskCounter != tmp) {
 						result.fail();
@@ -169,15 +172,18 @@
 						postProcessTask = queryExecution;
 					}
 						
-					postProcessTask.done(function(jsonRs) {
+					postProcessTask.success(function(jsonRs) {
 						if(self.taskCounter != tmp) {
 							result.fail();
 							return;
 						}
 
-						var resolveData = self.processResult(jsonRs);
+						self.processResult(jsonRs);
+						//console.log("Rosult", jsonRs);
+						result.resolve(jsonRs);
+						//var resolveData = self.processResult(jsonRs);
 						
-						result.resolve(resolveData);
+						//result.resolve(resolveData);
 					}).fail(function() {
 						result.fail();
 					});
@@ -217,7 +223,7 @@
 	
 					this.collection.add(binding);
 				}
-	
+
 				for(var i = 0; i < destroyModels.length; ++i) {
 					var model = destroyModels[i];
 					model.destroy();
@@ -237,12 +243,13 @@
 	 * arbitrary information to resources.
 	 */
 	ns.createDefaultPostProcessor = function(labelFetcher) {
-		
+				
 		var fn = function(plainJsonRs) {
+			
 			
 			//var before = JSON.stringify(plainJsonRs);
 			
-			jsonRs = uriUtils.parseJsonRs(plainJsonRs);
+			var jsonRs = uriUtils.parseJsonRs(plainJsonRs);
 			//var after = JSON.stringify(plainJsonRs);
 
 			 /*
@@ -254,7 +261,7 @@
 			
 			console.log("JSON RS IS NOW", jsonRs);
 			*/
-			uris = uriUtils.extractUrisFromParsedJsonRs(jsonRs);
+			var uris = uriUtils.extractUrisFromParsedJsonRs(jsonRs);
 			
 			
 			var result = $.Deferred();
@@ -262,7 +269,7 @@
 			var task = labelFetcher.fetch(uris);
 	
 			
-			task.done(function(labelInfo) {
+			task.then(function(labelInfo) {
 			
 				var transformed = uriUtils.transformJsonRs(jsonRs, function(node) {
 						
@@ -297,6 +304,14 @@
 			
 			return result.promise();
 		};
+		
+		
+		// Assign an id for debug reasons 
+		if(!ns.createDefaultPostProcessor.id) {
+			ns.createDefaultPostProcessor.id = 0;
+		} 
+		fn.id = ++ns.createDefaultPostProcessor.id; 
+
 		
 		return fn;
 	};
@@ -338,7 +353,14 @@
 		this.fnPostProcess = fnPostProcess;
 		
 		this.taskCounter = 0;
+	
+		if(!ns.SyncerRdfCollection.id) {
+			ns.SyncerRdfCollection.id = 0;
+		}
+		
+		this.id = ++ns.SyncerRdfCollection.id; 
 	};
+	
 	
 	ns.SyncerRdfCollection.prototype = {
 			getCollection: function() {
@@ -346,32 +368,42 @@
 			},
 	
 			sync: function(jsonRs) {
-
+				//console.log("Sync [Start] ", this.id, "with " + JSON.stringify(jsonRs));
+				
 				var result = $.Deferred();
-				var self = this;
 
-				++self.taskCounter;
-				var tmp = self.taskCounter;
+				++this.taskCounter;
+				var tmp = this.taskCounter;
 				
 				
-				if(self.fnPostProcess) {
-					var postProcessTask = self.fnPostProcess(jsonRs);
+				if(this.fnPostProcess) {
+					var postProcessTask = this.fnPostProcess(jsonRs);
+	
 					
-					postProcessTask.done(function(jsonRs) {
+					//console.log("Post processor for ", this.id, " is ", this.fnPostProcess.id);
+					
+					var self = this;
+					postProcessTask.then(function(procJsonRs) {
+						//console.log("Sync [PostProcess] ", self.id, JSON.stringify(procJsonRs));
+						
 						if(self.taskCounter != tmp) {
 							result.fail();
+							console.log("Fail");
 							return;
 						}
-	
-						var resolveData = self.processResult(jsonRs);
 						
-						result.resolve(resolveData);
+						result.resolve(procJsonRs);
 					}).fail(function() {
 						result.fail();
 					});
 				} else {
 					result.resolve(jsonRs);
 				}
+
+				
+				result.then(function(resultJsonRs) {
+					self.processResult(resultJsonRs);
+				});
 				
 				return result.promise();
 			},
@@ -392,7 +424,8 @@
 					newModels.push(binding);
 				}
 	
-				//console.log("New models", newModels);
+				//console.log("New models", JSON.stringify(newModels));
+				//console.log("Sync [Reset] ", this.id, " with " + JSON.stringify(jsonRs));
 				this.collection.reset(newModels);
 			}			
 	};

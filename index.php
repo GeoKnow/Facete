@@ -37,7 +37,8 @@
     /*
      * Settings
      */
-    $activeThemePath = "themes/odp";
+    //$activeThemePath = "themes/odp";
+    $activeThemePath = "themes/lgd";
 
 
     $configXml = simplexml_load_file("$activeThemePath/server-config.xml");

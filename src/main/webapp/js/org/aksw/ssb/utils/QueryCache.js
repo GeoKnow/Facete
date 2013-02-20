@@ -46,6 +46,8 @@
 		
 	// Note: variable must be part of the projection
 	/**
+	 * Lookup result bindings by a variable that is bound to a list of nodes.
+	 * 
 	 * 
 	 * @param retain if true, the lookup does not invalidate cached entries
 	 */
@@ -88,6 +90,12 @@
 				    	resultBindings = resultBindings.concat(chunkBindings);		    	
 			    	}	    	
 			    				    	
+			    	
+			    	// TODO Better create a copy of the bindings, so we don't
+			    	// run into trouble with posterior modifications
+			    	// var copy = deepCopy(resultBindings);
+			    	
+			    	
 			    	resultJsonRs.results.bindings = resultBindings;
 			    	
 			    	result.resolve(resultJsonRs);

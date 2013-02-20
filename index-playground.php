@@ -367,25 +367,14 @@ Not needed; Twitter Bootstrap fires the neccessary event already.
 
 	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/SparqlQueryBrowser.js"></script>
 
+	<script type="text/javascript" src="src/main/webapp/js/org/aksw/ssb/domains/fp7-pp/widgets/NewFilterBox.js"></script>
 
 	<script type="text/javascript">
 
 	    $(document).ready(function() {
+	
+	        runNewFilterBox();    
 	    
-	    	var models = createQueryBrowser();
-			models.model.set({selected: {node:  sparql.Node.uri("http://dbpedia.org/resource/Belgium") } });
-
-			var container = $('#wrapper');	    	
-	    	createView(container, models);
-
-/*
-			var query = queryUtils.createQueryDescribe(sparql.Node.uri("http://dbpedia.org/resource/Belgium"));
-			var queryFactory = new QueryFactoryQuery(query);		    	
-	    	
-	    	
-	    	tableModel.set({queryFactory: queryFactory});
-*/    	
-
 
 		});
 

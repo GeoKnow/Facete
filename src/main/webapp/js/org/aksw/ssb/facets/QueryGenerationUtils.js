@@ -25,6 +25,94 @@
 	};
 	
 	
+	ns.createSearchElements = function(searchText, vars) {
+
+		
+		var langTags = ["en", ""];
+		
+		var finalOrs = [];
+
+		var evLabels = [];
+		var optionals = [];
+		for(var i = 0; i < vars.length; ++i) {
+			var v = vars[i];
+
+			/*
+			 * Filter URIs
+			 */
+			
+			var exprUri = createFilterExpr(new sparql.ExprVar(v), searchText);
+			finalOrs.push(exprUri);
+			
+			/*
+			 * Filter labels
+			 */
+		
+			var vLabel = sparql.Node.v(v.value + "_lbl");
+			var evLabel = new sparql.ExprVar(vLabel);
+
+			evLabels.push(evLabel);
+			
+			var triple = new sparql.Triple(v, rdfs.label, vLabel);				
+			var exprLabel = createFilterExpr(evLabel, searchText);
+
+			var exprLang;
+			
+			if(langTags) {
+				var exprLangs = [];
+				for(var j = 0; j < langTags.length; ++j) {
+					var langTag = langTags[j];
+					
+					var e = new sparql.E_LangMatches(new sparql.E_Lang(evLabel), sparql.Node.plainLit(langTag));
+					
+					exprLangs.push(e);
+				}
+			
+				exprLang = sparql.orify(exprLangs);
+			} else {
+				exprLang = null;
+			}
+
+			
+			var exprFinal;
+			if(exprLang) {
+				exprFinal = new sparql.E_LogicalAnd(exprLabel, exprLang);
+			} else {
+				exprFinal = exprLabel;
+			}
+
+			
+			var element = new sparql.ElementGroup([
+                new sparql.ElementTriplesBlock([triple]),
+                new sparql.ElementFilter([exprFinal])
+            ]);
+			
+			var optional = new sparql.ElementOptional(element); 				
+			optionals.push(optional);
+		}
+		
+		// One of the labels must be bound
+		for(var i = 0; i < evLabels.length; ++i) {
+			var evLabel = evLabels[i];
+			var boundLabel = new sparql.E_Bound(evLabel);
+			
+			finalOrs.push(boundLabel);
+		}
+		
+		var result = [];
+		result.push.apply(result, optionals);
+
+		if(finalOrs.length > 0) {
+			//console.log("Final ors: ", finalOrs);
+			var finalOr = sparql.orify(finalOrs);
+			var finalFilter = new sparql.ElementFilter([finalOr]);
+			
+			result.push(finalFilter);
+		}
+		
+		return result;
+	};
+	
 	/**
 	 * Creates a {?s ?p ?o} concept.
 	 * The subject must be specified. 

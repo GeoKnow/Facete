@@ -133,7 +133,7 @@
 		};
 		
 		createView(container, models, tableFactory);
-	}
+	};
 	
 	
 	
@@ -239,7 +239,7 @@
 		
 		createView(container, models, tableFactory);
 		
-	}
+	};
 
 	var createInfoboxViewOld = function(container, models) {
 		var browseConfig = models.browseConfig;
@@ -329,7 +329,7 @@
 		};
 		
 		return result;
-	}
+	};
 	
 	/*
 			setDescribeResource: function(node) {

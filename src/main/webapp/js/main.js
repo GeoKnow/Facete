@@ -47,12 +47,13 @@
 			
 		var exec = sparqlService.executeAsk("Prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> Ask { ?s geo:long ?x; geo:lat ?y . }");
 		
-		$.when(exec).then(function(jsonRdf) {
+		exec.success(function(jsonRdf) {
 			result.wgsPoint = jsonRdf.value; // boolean
 			self.checkReady(result, sparqlService);
-		}).fail(function() {
-			
-			alert("Error communicating with backend. Probably the configured SPARQL endpoint is down?");
+		}).fail(function(arg) {
+			var responseText = arg.responseText;
+			alert("Error communicating with backend. Probably the configured SPARQL endpoint is down?\nServer response: " + responseText);
+			//alert(responseText);
 			
 			result.wgsPoint = false;
 			self.checkReady(result, null);

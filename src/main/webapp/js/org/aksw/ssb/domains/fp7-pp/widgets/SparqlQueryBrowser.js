@@ -104,13 +104,17 @@
 				tagName: 'tr',
 				
 				initialize: function(options) {
-				    this.model.bind('change', this.render, this);
-				    this.model.bind('remove', this.unrender, this);
+					console.log("[RowView] Model: " + JSON.stringify(this.model));
+					
+				    this.model.on('change', this.reset, this);
+				    this.model.on('remove', this.unrender, this);
 				    
 				    this.columns = options.columns;
 				},
 				
 				render: function() {
+					console.log("[RowView] render()");
+
 					Backbone.View.prototype.render.call(this);
 					
 				    var cols = this.columns;
@@ -135,37 +139,50 @@
 				
 				unrender: function() {
 					this.$el.remove();
-				}
+				},
 			
+				reset: function() {
+					console.log("[RowView] reset()");
+					
+					//this.unrender();
+					this.$el.empty();
+					this.render();
+				},
 			});
 
 
 			var createColumn = function(name) {
-			    var result = {
-			    	name: name,
-			    	viewClass: MyItemView.extend({
-			    		 	       options: { attr: name,
-			    		 	           binding: { label:
-			    		 	           function(model) {
-			    		 	           	   //console.log("Model: ", model);
-			    		 	               var result = getLabel(model, name);
-			    		 	               if(!result) {
-			    		 	            	   var item = model.get(name);
-			    		 	                   if(item) {
-			    		 	                       result = item.node.value;
-			    		 	                   }
-			    		 	                   
-			    		 	                   if(!result) {
-			    		 	                   	result = "(null)";
-			    		 	                   	}
-			    		 	               }
-			    		 	               return result;
-			    		 	           }
-			    		 	       } }		    		 	       
-			    		 	   })
-			    		};
-			    		
-			   return result;
+				var r = {
+					name : name,
+					viewClass : MyItemView.extend({
+						options : {
+							attr : name,
+							binding : {
+								label : function(model) {
+									// console.log("Model: ", model);
+									var result = getLabel(model, name);
+									if (!result) {
+										var item = model.get(name);
+										if (item) {
+											result = item.node.value;
+										}
+		
+										if (!result) {
+											console.log("Null column. Name, Model: ", name, JSON.stringify(model), model);
+											
+											//model.on('change', function() { alert("Model changed afterwards"); });
+											
+											result = "(null)";
+										}
+									}
+									return result;
+								}
+							}
+						}
+					})
+				};
+
+				return r;
 			};
 			
 		
@@ -177,14 +194,17 @@
 				},
 
 			    /**
-			     * options:
-			     * colNames: [{id: "http://...", name: "age", cellRenderer:}] 
-			     * 
-			     */
+				 * options: colNames: [{id: "http://...", name: "age",
+				 * cellRenderer:}]
+				 * 
+				 */
 			    initialize: function(options) {	 
 			    	this.collection.bind('add', this.addModel, this);
 			    	this.collection.bind('remove', this.removeModel, this);
 			    	this.collection.bind('reset', this.reset, this);
+			    	
+			    	//this.collection.bind('change', this.reset, this);
+			    	
 			    	
 			    	this.model.bind('change', this.reset, this);
 			    },
@@ -231,6 +251,8 @@
 			    	for(var i = 0; i < vars.length; ++i) {
 			    	    var v = vars[i];
 			    	    
+			    	    
+			    	    //console.log("Creating column with " + v.value);
 			    	    columns.push(createColumn(v.value));
 			    	}
 			    	
@@ -262,8 +284,7 @@
 			    	this.$el.remove();	
 			    },
 			    reset: function() {
-			    	//this.tbody.children().remove();
-			    	this.$el.children().remove();
+			    	this.$el.empty();			    	
 	    			this.render();
 			    }
 			});
@@ -295,7 +316,7 @@
 					tagName: 'h3',
 					initialize: function() {
 				    	this.model.bind('change', this.render, this);
-				    	this.model.bind('remove', this.unrender, this);						
+				    	this.model.bind('remove', this.unrender, this);
 					},
 					render: function() {
 						Backbone.View.prototype.render.call(this);
@@ -333,4 +354,4 @@
 				
 				footer.append($().ssb.paginator({model: browseConfig.config.paginatorModel}).render().el);
 
-			}
+			};

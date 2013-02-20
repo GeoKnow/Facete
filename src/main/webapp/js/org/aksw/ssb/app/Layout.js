@@ -116,7 +116,8 @@ function doSearch() {
 				my: 'right top',
 				at: 'right top',
 				of: $('#map'),
-				offset: '0 300'
+				//offset: '0 300'
+				offset: '0 70' // [HACK] for LOD2
 			});
 			
 //			$('#box-facts').position({

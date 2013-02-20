@@ -1,13 +1,5 @@
 //(function($) {
 
-	var checkNotNull = function(obj) {
-		if(obj) {
-			return obj;
-		}
-		
-		throw "Object must not be null";
-	};
-
 
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 	var backend = Namespace("org.aksw.ssb.backend");
@@ -43,238 +35,8 @@
 	
 	
 	
-	var QueryFactory = function() {		
-	};
-	
-	QueryFactory.prototype = {
-		createQuery: function() {
-			throw new "Not implemented";
-		}
-	};
-	
-	
-	
-	/**
-	 * Sucks that JavaScript doesn't really have interfaces... anyway:
-	 * 
-	 * A QueryFactory  must have a method "create" which returns a query object,
-	 * configured according to the current state of the QueryFactory
-	 * 
-	 * 
-	 */
-	var QueryFactoryQueryGenerator = function(queryGenerator) {
-		this.queryGenerator = checkNotNull(queryGenerator);
-	};
-	
-	QueryFactoryQueryGenerator.prototype = {
-		createQuery: function() {
-			var result = this.queryGenerator.createQueryValues();
-			return result;
-		}
-	};
 	
 
-	/**
-	 * Query factory that always returns a specific preconfigured query
-	 * 
-	 */
-	var QueryFactoryQuery = function(query) {
-		this.query = query;
-	};
-	
-	QueryFactoryQuery.prototype = {
-		createQuery: function() {
-			
-			var result = this.query ? this.query.clone() : null;
-			return result;
-		}
-	};
-	
-	
-	/**
-	 * Note: A TableModelQuery is also a QueryFactory
-	 * 
-	 * Additionally, a table model features the getterns/setters:
-	 * 
-	 * limit
-	 * offset
-	 * projection
-	 * 
-	 * queryFactory // Enables exchanging the queryFactory
-	 * 
-	 */
-	var TableModelQueryFactory = function(queryFactory) {
-		this.queryFactory = queryFactory;
-		
-		// By default, the projection is the same as that of the query
-		this.projection = null; //query.getProjection().clone();
-		
-		// Limit and offset are relative to those of the query
-		this.limit = null;
-		this.offset = null;
-		
-		// Additional elements to be injected into the query
-		this.elements = [];
-	};
-
-	TableModelQueryFactory.prototype = {
-		getLimit: function() {
-			return this.limit;
-		},
-		setLimit: function(limit) {
-			this.limit = limit;
-		},
-	
-		setElements: function(elements) {
-			this.elements = elements;
-		},
-		
-		getElements: function() {
-			return this.elements;
-		},
-		
-		getOffset: function() {
-			return this.offset;
-		},
-		setOffset: function(offset) {
-			this.offset = offset;
-		},
-		getQueryFactory: function() {
-			return this.queryFactory;
-		},
-		setQueryFactory: function(queryFactory) {
-			this.queryFactory = queryFactory;
-		},
-			
-		createQuery: function() {
-			var baseQuery = this.queryFactory.createQuery();
-			
-			if(baseQuery == null) {
-				return null;
-			}
-			
-			if(this.projection) {
-				baseQuery.projection = projection;
-			}
-			
-			var elements = this.elements;
-			
-			for(var i = 0; i < elements.length; ++i) {
-				var element = elements[i];
-				
-				//var element = new sparql.ElementFilter([expr]);
-				
-				baseQuery.elements.push(element);
-			}
-			
-			// TODO Treat limit/offset as relative to the generated query
-			baseQuery.offset = this.offset;
-			baseQuery.limit = this.limit;
-			
-			
-			/*
-			if(this.offset) {
-				var newOffset = baseQuery.getOffset();
-				if(!newOffset) {
-					newOffset = 0;
-				}
-				
-				newOffset += this.offset;
-
-				baseQuery.offset = newOffset;
-			}
-			*/
-			
-			return baseQuery;
-		},
-	
-	
-		/**
-		 * Returns an array of expressions
-		 */
-		createFilters: function() {
-			var result = _.map(this.filters, function(varName, constraint) {
-				var v = sparql.Node.v(varName);
-				var expr = constraint.createExprVar(v);
-				return expr;
-			});
-			
-			return result;
-		}
-	};
-	
-
-	/**
-	 * Note: It is valid for queryFactory.createQuery() to result null,
-	 * but the queryFactory itself must not be null
-	 * 
-	 */
-	var ExecutorQueryFactory = function(sparqlService, queryFactory) {
-		this.sparqlService = checkNotNull(sparqlService);
-		this.queryFactory = checkNotNull(queryFactory);
-	};
-	
-	ExecutorQueryFactory.prototype = {
-		fetchResultSet: function() {			
-			var query = this.queryFactory.createQuery();
-			//sconsole.log("Query: ", "" + query);
-			
-			if(!query) {
-				var result = queryUtils.createEmptyResultSet([]);
-				return result;
-			}
-			
-			var promise = this.sparqlService.executeSelect(query);
-			
-			return promise;
-		},
-	
-		asElement: function(elements) {
-			var result;
-			
-			if(elements.length == 1) {
-				result = elements[0];
-			} else {
-				result = new sparql.ElementGroup(elements);
-			}
-			
-			return result;
-		},
-		
-		fetchResultSetSize: function(sampleLimit, options) {
-			var countVar = sparql.Node.v("__c");
-			
-			var query = this.queryFactory.createQuery(); 
-			
-			//console.log("Query:", query);
-			
-			if(!query) {
-				var result = $.Deferred();
-				
-				result.resolve({count: 0, isCutOff: false});
-				
-				return result.promise();
-			}
-
-			
-			
-			var elements = query.getElements();
-			var element = this.asElement(elements);
-			
-			var countQuery = queryUtils.createQueryCount(element, sampleLimit, null, countVar);
-
-			var promise = queryUtils.fetchInt(this.sparqlService, countQuery, countVar);
-	
-			var result = promise.pipe(function(value) {				
-				return {count: value, isCutOff: (value >= sampleLimit) };
-			});
-			
-			return result;
-		}
-
-	};
-	
-	
 	
 	
 	
@@ -355,6 +117,8 @@
 			*/
 			
 			this.tableModel.on("change", function() {
+				
+				console.log("Table model changed");
 				
 				self.syncState();
 
@@ -461,10 +225,10 @@
 
 			var offset = this.tableModel.get("offset");
 			
-			task.done(function(jsonRs) {
+			task.then(function(jsonRs) {
 				jsonRs.offset = offset;
 				
-				//console.log("Syncing", jsonRs);
+				console.log("Syncing", jsonRs);
 				self.syncer.sync(jsonRs);
 				
 			});
@@ -480,8 +244,10 @@
 
 	var setSearch = function(searchText, config) {
 		setSearch2(searchText, config.tableConfig, config.tableModel);
-	}
+	};
 
+	
+	
 	var setSearch2 = function(searchText, tableConfig, tableModel) {
 		/*
 		var diff = this.changedAttributes();
@@ -534,88 +300,7 @@
 		
 		*/
 
-		
-		var langTags = ["en", ""];
-		
-		var finalOrs = [];
-
-		var evLabels = [];
-		var optionals = [];
-		for(var i = 0; i < vars.length; ++i) {
-			var v = vars[i];
-
-			/*
-			 * Filter URIs
-			 */
-			
-			var exprUri = createFilterExpr(new sparql.ExprVar(v), searchText);
-			finalOrs.push(exprUri);
-			
-			/*
-			 * Filter labels
-			 */
-		
-			var vLabel = sparql.Node.v(v.value + "_lbl");
-			var evLabel = new sparql.ExprVar(vLabel);
-
-			evLabels.push(evLabel);
-			
-			var triple = new sparql.Triple(v, rdfs.label, vLabel);				
-			var exprLabel = createFilterExpr(evLabel, searchText);
-
-			var exprLang;
-			
-			if(langTags) {
-				var exprLangs = [];
-				for(var j = 0; j < langTags.length; ++j) {
-					var langTag = langTags[j];
-					
-					var e = new sparql.E_LangMatches(new sparql.E_Lang(evLabel), sparql.Node.plainLit(langTag));
-					
-					exprLangs.push(e);
-				}
-			
-				exprLang = sparql.orify(exprLangs);
-			} else {
-				exprLang = null;
-			}
-
-			
-			var exprFinal;
-			if(exprLang) {
-				exprFinal = new sparql.E_LogicalAnd(exprLabel, exprLang);
-			} else {
-				exprFinal = exprLabel;
-			}
-
-			
-			var element = new sparql.ElementGroup([
-                new sparql.ElementTriplesBlock([triple]),
-                new sparql.ElementFilter([exprFinal])
-            ]);
-			
-			var optional = new sparql.ElementOptional(element); 				
-			optionals.push(optional);
-		}
-		
-		// One of the labels must be bound
-		for(var i = 0; i < evLabels.length; ++i) {
-			var evLabel = evLabels[i];
-			var boundLabel = new sparql.E_Bound(evLabel);
-			
-			finalOrs.push(boundLabel);
-		}
-		
-		var finalElements = [];
-		finalElements.push.apply(finalElements, optionals);
-
-		if(finalOrs.length > 0) {
-			//console.log("Final ors: ", finalOrs);
-			var finalOr = sparql.orify(finalOrs);
-			var finalFilter = new sparql.ElementFilter([finalOr]);
-			
-			finalElements.push(finalFilter);
-		}
+		var finalElements = queryUtils.createSearchElements(searchText, vars);
 		
 		
 		//console.log("Final elements: " + finalElements);
@@ -712,7 +397,7 @@
 		};
 		
 		return result;
-	}
+	};
 	
 	
 	var createSparqlSearch = function(tableConfig, tableModelAttrs, labelFetcher) {

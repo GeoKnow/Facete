@@ -65,6 +65,15 @@
 		return result;
 	}
 	
+	var checkNotNull = function(obj) {
+		if(obj) {
+			return obj;
+		}
+		
+		throw "Object must not be null";
+	};
+
+	
 	/**
 	 * Clamp a value to a certain range
 	 * 

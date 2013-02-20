@@ -1,1 +1,2 @@
 /etc/semmap/apache.conf /etc/apache2/conf.d/semmap
+/etc/semmap/config.js usr/share/semmap/config.js

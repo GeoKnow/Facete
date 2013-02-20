@@ -284,37 +284,23 @@
 
 	ns.ItemViewLabel = Backbone.View.extend({
 		tagName: 'li',
-		
-		events: {
-			/*
-			'click span': function() {
-				$(this.options.parent).trigger("click", {isChild: true, item: this, model: this.model});				
-			}*/
-		},
-		
+
 		initialize: function() {
-			/*
-			if(!this.options.parent) {
-				console.error("No parent container provided");
-			}*/
-			
-			
-			this.model.bind('change', this.render, this);
-			this.model.bind('remove', this.unrender, this);
+			this.model.on('change', this.render, this);
+			this.model.on('remove', this.unrender, this);
 		},
 	
 	    render: function() {
 	    	var label = backboneUtils.getModelValue(this.model, "label", this.options.binding);
-	    	
-	    	
-	        $(this.el).html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
-	        // $(this.el).html('<span style="cursor: pointer;">' + "Label " + this.model.get("label") + '</span>');
+	    	console.log("[ItemViewLabel] render(); Rerendering label: " + label);
+
+	        this.$el.html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
 	        
-	        return this; // for chainable calls, like .render().el
+	        return this;
 	    },
 	    
 	    unrender: function() {
-	    	$(this.el).remove();
+	    	this.$el.remove();
 	    }
 	});
 	

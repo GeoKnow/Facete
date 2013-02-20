@@ -1369,12 +1369,12 @@
 
 		var promise = this.fetchNodesGeo(this.queryGeneratorGeo, bounds);
 		
-		$.when(promise).then(function(nodes) {
+		promise.done(function(nodes) {
 			
 			// TODO Properly check if an old request is running
 			// and schedule the next request
 			if(!nodes) {
-				console.log("Skipping refresh because as update is in progress");
+				console.log("Skipping refresh because an update is in progress");
 				return;
 			}
 			
@@ -2375,6 +2375,8 @@
 	
 	ns.AppController.prototype.showFeatureDetails = function(geom) {
 		
+		var isLod2HackEnabled = true;
+		
 		var listModels;
 		{
 			var el = $('#box-resources');
@@ -2386,7 +2388,7 @@
 			var listQf = createListQueryFactory(geom);
 			listModels = createListModels(this.sparqlService, listQf, this.labelFetcher);
 			
-			listModels.model.set({title: "Projects related to this location"});
+			listModels.model.set({title: "Resources related to this location"});
 			
 	    	createListView(el, listModels);
 	
@@ -2409,6 +2411,11 @@
 		//createListView(el, listModels);
 
 //		el.append($('<hr style="background-color: #F0F0F0; padding: 0px; margin: 1px;" />'));
+
+		
+		if(isLod2HackEnabled) {
+			return;
+		}
 
 		
 		

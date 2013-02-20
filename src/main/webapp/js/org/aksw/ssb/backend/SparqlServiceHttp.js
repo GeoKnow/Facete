@@ -215,9 +215,12 @@
 			querypart+=param.key+"="+encodeURIComponent(param.value)+"&";
 		});
 
+		var url = baseURL + "?" + querypart;
+		//alert("url: " + url);
+		
 		//return $.post(baseURL, querypart);
 		var result = $.ajax({
-			url: baseURL + "?" + querypart,
+			url: url,
 			dataType: 'json'
 		});
 			

@@ -114,6 +114,8 @@
 								<param>org/aksw/ssb/facets/QueryExecutionUtils.js</param>
 								<param>org/aksw/ssb/facets/QueryGenerator.js</param>
 								<param>org/aksw/ssb/facets/QueryExecutor.js</param>
+								<param>org/aksw/ssb/facets/QueryFactory.js</param>
+								<param>org/aksw/ssb/facets/DataTemplate.js</param>
 
 								<param>org/aksw/ssb/widgets/ListWidgetBase.js</param>
 								<param>org/aksw/ssb/widgets/ListWidgetBaseOld.js</param>
@@ -125,6 +127,7 @@
 								<param>org/aksw/ssb/widgets/BreadcrumbWidget.js</param>
 								<param>org/aksw/ssb/widgets/ConstraintWidget.js</param>
 								<param>org/aksw/ssb/widgets/BackboneWidgets.js</param>
+								<param>org/aksw/ssb/widgets/SearchWidget.js</param>
 
 								<param>org/aksw/ssb/collections/QuadTreeModel.js</param>
 								<param>org/aksw/ssb/backend/QuadTreeCache.js</param>
@@ -139,7 +142,7 @@
 								<param>org/aksw/ssb/app/controllers/ResourceDetailsController.js</param>
 
 								<!-- Layouting for this (p)HTML file -->
-								<param>org/aksw/ssb/app/Layout.js</param>
+<!-- 								<param>org/aksw/ssb/app/Layout.js</param> -->
 
 
 								<!-- OpenDataPortal specify layouting (header bar translations) -->
@@ -149,6 +152,8 @@
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/TestTableView.js</param>
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlQueryBrowser.js</param>
+
+								<param>org/aksw/ssb/domains/fp7-pp/widgets/NewFilterBox.js</param>
 							</jsSourceFiles>
 							<jsFinalFile>semmap.js</jsFinalFile>
 

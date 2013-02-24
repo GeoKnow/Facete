@@ -6,11 +6,11 @@
 
 	ns.QueryFactoryFacets = function(subQueryFactory, rootFacetNode, constraintManager) {
 		this.subQueryFactory = subQueryFactory;
-		this.rootFacetNode = rootFacetnode;
+		this.rootFacetNode = rootFacetNode;
 		this.constraintManager = constraintManager ? constraintManager : new ns.ConstraintManager();
 	};
 	
-	ns.QueryFactoryFacets.create(subQueryFactory, rootVarName, generator) {
+	ns.QueryFactoryFacets.create = function(subQueryFactory, rootVarName, generator) {
 		generator = generator ? generator : new facets.GenSym("fv");
 		var rootFacetNode = facets.FacetNode.createRoot(rootVarName, generator);
 		
@@ -20,6 +20,10 @@
 	};
 
 	ns.QueryFactoryFacets.prototype = {
+		getRootFacetNode: function() {
+			return this.rootFacetNode;
+		},
+			
 		getConstraintManager: function() {
 			return this.constraintManager;
 		},
@@ -388,15 +392,41 @@
 			
 		},
 		
+		createElement: function(facetNode, excludePath) {
+			var elements = this.createElements(facetNode, excludePath);
+			var result;
+			if(elements.length === 1) {
+				result = elements[0];
+			} else {
+				result = new sparql.ElementGroup(elements);
+			}
+			
+			return result;
+		},
+		
 		createElements: function(facetNode, excludePath) {
 			//var triples = [];
 			var elements = [];
 			
 			_.each(this.constraints, function(constraint) {
 				var paths = constraint.getPaths();
-								
-				_.each(paths, function(path) {
 
+				// Check if any of the paths is excluded
+				if(excludePath) {
+					var skip = _.some(paths, function(path) {
+						//console.log("Path.equals", excludePath, path);
+						
+						var tmp = excludePath.equals(path);
+						return tmp;
+					});
+
+					if(skip) {
+						return;
+					}
+				}
+				
+				
+				_.each(paths, function(path) {
 					
 					//if(path.equals(excludePath)) {
 						// TODO Exclude only works if there is only a single path
@@ -475,6 +505,10 @@
 	
 	ns.FacetNode.prototype = {
 		
+		getRootNode: function() {
+			return this.root;
+		},
+			
 		isRoot: function() {
 			var result = this.parent === null;
 			return result;
@@ -492,6 +526,22 @@
 		
 		getParent: function() {
 			return this.parent;
+		},
+		
+		getPath: function() {
+			var steps = [];
+			
+			var tmp = this;
+			while(tmp != this.root) {
+				steps.push(tmp.getStep());
+				tmp = tmp.getParent();
+			}
+			
+			steps.reverse();
+			
+			var result = new facets.Path(steps);
+			
+			return result;
 		},
 		
 		forPath: function(path) {
@@ -808,6 +858,89 @@
 			}
 	};
 	
+	
+	ns.SimpleFacetFacade = function(constraintManager, facetNode) {
+		this.constraintManager = constraintManager;
+		this.facetNode = facetNode;
+	};
 
+	ns.SimpleFacetFacade.prototype = {
+			wrap: function(facetNode) {
+				var result = new ns.SimpleFacetFacade(this.constraintManager, facetNode);
+				return result;
+			},
+			
+			forPathStr: function(pathStr) {
+				var path = facets.Path.fromString(pathStr);
+				var result = this.forPath(path);
+				
+				//console.log("path result is", result);
+				
+				return result;
+			},
+			
+			forPath: function(path) {
+				var fn = this.facetNode.forPath(path);
+				var result = this.wrap(fn);
+				return result;
+			},
+			
+			forProperty: function(propertyName, isInverse) {
+				var fn = this.facetNode.forProperty(propertyName, isInverse);
+				var result = this.wrap(fn);
+				return result;				
+			},
+
+			createConstraint: function(json) {
+				if(json.type != "equals") {
+					throw "Only equals supported";
+				}
+				
+				var node = json.node;
+
+				checkNotNull(node);
+				
+				var nodeValue = sparql.NodeValue.makeNode(node);
+				var result = facets.ConstraintUtils.createEquals(this.facetNode.getPath(), nodeValue);
+				
+				return result;
+			},
+			
+			/**
+			 * 
+			 * Support:
+			 * { type: equals, value: }
+			 * 
+			 * 
+			 * @param json
+			 */
+			addConstraint: function(json) {
+				var constraint = this.createConstraint(json);				
+				this.constraintManager.addConstraint(constraint);
+			},
+			
+			removeConstraint: function(json) {
+				var constraint = this.createConstraint(json);
+				this.constraintManager.moveConstraint(constraint);				
+			},
+			
+			/**
+			 * Returns a concept for the values at this node.
+			 * This concept can wrapped for getting the distinct value count
+			 * 
+			 * Also, the element can be extended with further elements
+			 */
+			createElements: function() {
+				var rootNode = this.facetNode.getRootNode();
+				var excludePath = this.facetNode.getPath();
+				
+				var elements = this.constraintManager.createElements(rootNode, excludePath);
+				
+				return elements;
+			},
+	};
+	
+	
+	
 	
 })();

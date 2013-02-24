@@ -332,7 +332,7 @@
 	};
 	
 	ns.StepFacet.prototype.equals = function(other) {
-		return _.isEquals(this, other);
+		return _.isEqual(this, other);
 	};
 
 	
@@ -397,7 +397,7 @@
 
 	
 			equals: function(other) {
-				return _.isEquals(this, other);
+				return _.isEqual(this, other);
 			},
 	
 			toString: function() {
@@ -468,7 +468,7 @@
 		return this.steps;
 	};
 	
-	ns.Path.prototype.equals = function() {
+	ns.Path.prototype.equals = function(other) {
 		var n = this.steps.length;
 		if(n != other.steps.length) {
 			return false;

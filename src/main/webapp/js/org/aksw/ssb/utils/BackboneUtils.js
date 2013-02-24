@@ -458,4 +458,82 @@
 	
 	});
 
+	
+	ns.CollectionCombine = function(collection) {
+		this.collection = collection ? collection : new Backbone.Collection();			
+		this.state = [];
+		this.syncId = 0;
+	};
+	
+	ns.CollectionCombine.prototype = {
+
+		getCollection: function() {
+			return this.collection;
+		},				
+	
+		sync: function(promises) {
+		
+			var state = this.state;
+			var collection = this.collection;
+			
+			// Add
+			{
+				var delta = promises.length - state.length;
+				for(var i = 0; i < delta; ++i) {
+					state[i] = [];
+				}
+			}
+			
+			// Remove
+			{
+				var delta = state.length - promises.length;
+				
+				for(var i = state.length - 1; i > promises.length; --i) {
+					var tmp = state[i];
+					collection.remove(tmp);					
+				}
+				state.splice(promises.length, delta);				
+			} 
+		
+			var self = this;
+			var syncId = ++this.syncId;
+		
+			//var dataProviders = this.dataProviders;
+			
+			var handleData = function(data, i) {
+				if(syncId != self.syncId) {
+					return;
+				}
+				
+				//console.log("Syncing with data: ", data);
+			
+				var tmp = self.state[i];
+				self.collection.remove(tmp);
+
+				state[i] = data;
+				if(data) { // FIXME only reject null and undefined.
+					self.collection.add(data);
+				}				
+			};
+			
+			_.each(promises, function(promise, i) {
+	
+				promise.done(function(data) {
+					handleData(data, i);
+				}).fail(function(json) {
+					// TODO Factor this out into error handling code
+					var data = {
+						id: "error" + i,
+						type: "error",
+						data: json
+					};
+					
+					handleData(data, i);
+				});
+									
+			});
+		}
+	};
+			
+	
 })();

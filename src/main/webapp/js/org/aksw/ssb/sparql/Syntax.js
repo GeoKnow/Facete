@@ -974,7 +974,7 @@
 	};
 	
 	ns.E_Equals.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.E_Equals(fnNodeMap(this.left), fnNodeMap(this.right));
+		return new ns.E_Equals(this.left.copySubstitute(fnNodeMap), this.right.copySubstitute(fnNodeMap));
 	};
 	
 	ns.newUnaryExpr = function(ctor, args) {
@@ -1330,6 +1330,7 @@
 		}
 		
 		var result = new ns.ExprVar(this.v);
+		return result;
 	};
 
 	ns.ExprVar.prototype.toString = function() {

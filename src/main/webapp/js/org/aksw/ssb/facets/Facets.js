@@ -14,7 +14,70 @@
 	var ns = Namespace("org.aksw.ssb.facets");
 	var sparql = Namespace("org.aksw.ssb.sparql.syntax");
 
+	ns.FacetUtils = {
+			createTriplesStepProperty: function(step, startVar, endVar) {
+				var s = startVar;
+				var p = sparql.Node.uri(step.propertyName);
+				var o = endVar;
+				
+				// Swap subject-object if inverse step
+				if(step.isInverse()) {
+					var tmp = s;
+					s = o;
+					o = tmp;
+				}
+				
+				
+				var triple = new sparql.Triple(s, p, o);
+				
+				return [triple];
+			},
+			
+			createTriplesStepFacets: function(generator, step, startVar, endVar) {
+				
+				//console.log("Generator:", generator);
+				var s = startVar;
+				var p = endVar;
+				var o = sparql.Node.v(generator.next()); // TODO Create a new unique var name
+				
+				// Swap subject-object if inverse step
+				if(step.direction < 0) {
+					var tmp = s;
+					s = o;
+					o = tmp;
+				}
+				
+				
+				var triple = new sparql.Triple(s, p, o);
+				
+				return [triple];
+				
+			}
+	};
 
+	/**
+	 * 
+	 * @param generator
+	 * @param blacklist Array of strings
+	 * @returns {ns.GeneratorBlacklist}
+	 */
+	ns.GeneratorBlacklist = function(generator, blacklist) {
+		this.generator = generator;
+		this.blacklist = blacklist;
+	};
+	
+	ns.GeneratorBlacklist.prototype = {
+		next: function() {
+			var result;
+			
+			do {
+				result = this.generator.next();
+			} while(_.contains(this.blacklist, result));
+				
+			return result;
+		}
+	};
+	
 	/**
 	 * Another class that mimics Jena's behaviour.
 	 * 
@@ -286,33 +349,79 @@
 		this._isInverse = isInverse;
 	};
 	
-	ns.Step.prototype.getPropertyName = function() {
-		return this.propertyName;
-	};
-	
-	ns.Step.prototype.isInverse = function() {
-		return this._isInverse;
+	/**
+	 * Create a Step from a json specification:
+	 * {
+	 *     propertyName: ... ,
+	 *     isInverse: 
+	 * }
+	 * 
+	 * @param json
+	 */
+	ns.Step.fromSpec = function(json) {
+		var propertyName = checkNotNull(json.propertyName);
+		var isInverse = json.IsInverse();
+		
+		var result = new ns.Step(propertyName, isInverse);
+		return result;
 	};
 	
 	ns.Step.fromString = function(str) {
+		var result;
 		if(strings.startsWith(str, "<")) {
-			return new ns.Step(str.substring(1), true);
+			result = new ns.Step(str.substring(1), true);
 		} else {
-			return new ns.Step(str, false);
+			result = new ns.Step(str, false);
 		}
-	};
+		return result;
+	},
 
 	
-	ns.Step.prototype.equals = function(other) {
-		return _.isEquals(this, other);
-	};
+	ns.Step.prototype = {
+			toSpec: function() {
+				var result = {
+					isInverse: this.isInverse,
+					propertyname: this.propertyName
+				};
+				
+				return result;
+			},
+			
+			getPropertyName: function() {
+				return this.propertyName;
+			},
 	
-	ns.Step.prototype.toString = function() {
-		if(this._isInverse) {
-			return "<" + this.propertyName;
-		} else {
-			return this.propertyName;
-		}
+			isInverse: function() {
+				return this._isInverse;
+			},
+
+	
+			equals: function(other) {
+				return _.isEquals(this, other);
+			},
+	
+			toString: function() {
+				if(this._isInverse) {
+					return "<" + this.propertyName;
+				} else {
+					return this.propertyName;
+				}
+			},
+			
+			createElement: function(sourceVar, targetVar, generator) {
+				var propertyNode = sparql.Node.uri(this.propertyName);
+				
+				var triple;
+				if(this._isInverse) {
+					triple = new sparql.Triple(targetVar, propertyNode, sourceVar);
+				} else {
+					triple = new sparql.Triple(sourceVar, propertyNode, targetVar);
+				}
+				
+				var result = new sparql.ElementTriplesBlock([triple]);
+				
+				return result;
+			}
 	};
 	
 

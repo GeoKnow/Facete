@@ -92,6 +92,8 @@
 
 		var backend = Namespace("org.aksw.ssb.backend");
 		var facets = Namespace("org.aksw.ssb.facets");
+		var backboneUtils = Namespace("org.aksw.utils.backbone");
+
 		//var facets = Namespace("org.aksw.ssb.widgets");
 
 	var ViewSearchItem = Backbone.View.extend({
@@ -117,81 +119,7 @@
 	});
 
 
-		var CollectionCombine = function(collection) {
-			this.collection = collection ? collection : new Backbone.Collection();			
-			this.state = [];
-			this.syncId = 0;
-		};
-		
-		CollectionCombine.prototype = {
-
-			getCollection: function() {
-				return this.collection;
-			},				
-		
-			sync: function(promises) {
-			
-				var state = this.state;
-				var collection = this.collection;
 				
-				// Add
-				{
-					var delta = promises.length - state.length;
-					for(var i = 0; i < delta; ++i) {
-						state[i] = [];
-					}
-				}
-				
-				// Remove
-				{
-					var delta = state.length - promises.length;
-					
-					for(var i = state.length - 1; i > promises.length; --i) {
-						var tmp = state[i];
-						collection.remove(tmp);					
-					}
-					state.splice(promises.length, delta);				
-				} 
-			
-				var self = this;
-				var syncId = ++this.syncId;
-			
-				var dataProviders = this.dataProviders;
-				
-				var handleData = function(data, i) {
-					if(syncId != self.syncId) {
-						return;
-					}
-				
-					var tmp = self.state[i];
-					self.collection.remove(tmp);
-
-					state[i] = data;
-					if(data) { // FIXME only reject null and undefined.
-						self.collection.add(data);
-					}				
-				};
-				
-				_.each(promises, function(promise, i) {
-		
-					promise.done(function(data) {
-						handleData(data, i);
-					}).fail(function(json) {
-						// TODO Factor this out into error handling code
-						var data = {
-							id: "error" + i,
-							type: "error",
-							data: json
-						};
-						
-						handleData(data, i);
-					});
-										
-				});
-			}
-		};
-				
-
 
 	var SearchMeta = function(searchProviders) {
 		this.searchProviders = searchProviders;
@@ -217,10 +145,7 @@
 				"lib/SparqlProxyPHP/current/sparql-proxy.php",
 				"service-uri");
 				
-				
-			var v = sparql.Node.v("s");
-			var element = new sparql.ElementString("?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [v]);		
-
+		
 			var myDataTemplate = function(binding) {
 					return {
 						id: "resource_" + binding.label.value,
@@ -239,6 +164,8 @@
 				label: "s"
 			};
 
+			var v = sparql.Node.v("s");
+			var element = new sparql.ElementString("?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [v]);		
 
 			var concept = new facets.ConceptInt(element, v);
 			
@@ -274,7 +201,7 @@
 					}
 			);
 			
-			this.constraintWidget = new widgets.ListView({
+			this.searchResultWidget = new widgets.ListView({
 				el: $("#searchResults"), 
 				collection: searchCollection, 
 				itemRenderer: searchItemRenderer
@@ -283,7 +210,7 @@
 			
 			
 			
-			var searchColCont = new CollectionCombine(searchCollection);
+			var searchColCont = new backboneUtils.CollectionCombine(searchCollection);
 			
 			
 			var searchInput = $("#searchInput"); 

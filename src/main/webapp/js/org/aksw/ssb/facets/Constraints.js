@@ -429,6 +429,24 @@
 	ns.ConstraintEquals.prototype.createExpr = function(breadcrumb) {
 		
 		var variable = breadcrumb.getTargetVariable();
+		
+		var result = this.createExprByVar(variable);
+		return result;
+	},
+
+	/*
+	ns.ConstraintEquals.prototype.createElement = function(variable) {
+		var result = new facets.ElementGroup(
+				[
+        ]);
+		
+	},
+	*/
+
+	
+	ns.ConstraintEquals.prototype.createExprByVar = function(variable) {
+		
+		
 		var varExpr = new sparql.ExprVar(variable); 		
 
 		//if(this.nodeValue.datatype)

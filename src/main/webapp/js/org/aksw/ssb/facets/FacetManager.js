@@ -1,0 +1,813 @@
+(function() {
+	
+	var ns = Namespace("org.aksw.ssb.facets");
+
+	
+
+	ns.QueryFactoryFacets = function(subQueryFactory, rootFacetNode, constraintManager) {
+		this.subQueryFactory = subQueryFactory;
+		this.rootFacetNode = rootFacetnode;
+		this.constraintManager = constraintManager ? constraintManager : new ns.ConstraintManager();
+	};
+	
+	ns.QueryFactoryFacets.create(subQueryFactory, rootVarName, generator) {
+		generator = generator ? generator : new facets.GenSym("fv");
+		var rootFacetNode = facets.FacetNode.createRoot(rootVarName, generator);
+		
+		var result = new ns.QueryFactoryFacets(subQueryFactory, rootFacetNode);
+
+		return result;
+	};
+
+	ns.QueryFactoryFacets.prototype = {
+		getConstraintManager: function() {
+			return this.constraintManager;
+		},
+			
+		createQuery: function() {
+			var query = this.subFactory.createQuery();
+			var varsMentioned = query.getVarsMentioned();
+			
+			var varNames = _.map(varsMentioned, function(v) {
+				return v.value;
+			});
+			
+			
+			var elements = this.constraintManager.createElements(rootFacetNode);
+			query.elements.push.apply(query.elements, elements);
+			
+			return query;
+		}	
+	};
+	
+	
+	ns.ArrayAdapterArray = {
+		
+	};
+	
+	
+	/*
+	ns.Breadcrumb = function(facetManager, path) {
+		this.facetManager = facetManager;
+		this.path = path;
+	}
+	*/
+	
+	ns.ConstraintNode = function(facetNode, parent) {
+		this.facetNode = facetNode;
+		this.parent = parent;
+		
+		this.idToConstraint = {};
+	};
+
+	
+	/**
+	 * A class for generating variables for step-ids.
+	 * So this class does not care about the concrete step taken.
+	 * 
+	 * @param variableName
+	 * @param generator
+	 * @param parent
+	 * @param root
+	 * @returns {ns.VarNode}
+	 */
+	ns.VarNode = function(variableName, generator, stepId, parent, root) {
+		this.variableName = variableName;
+		this.generator = generator;
+		this.stepId = stepId; // Null for root
+		this.parent = parent;
+		this.root = root;
+		
+		
+		//console.log("VarNode status" , this);
+		if(!this.root) {
+			if(this.parent) {
+				this.root = parent.root;
+			}
+			else {
+				this.root = this;
+			}
+		}
+
+		
+		this.idToChild = {};
+	};
+	
+	
+	ns.VarNode.prototype = {
+			isRoot: function() {
+				var result = this.parent === null;
+				return result;
+			},
+
+			/*
+			getSourceVarName: function() {
+				var result = this.root.variableName;
+				return result;
+			},
+			*/
+			
+			getVariableName: function() {
+				return this.variableName;
+			},
+			
+			/*
+			forPath: function(path) {
+				var steps = path.getSteps();
+				
+				var result;
+				if(steps.length === 0) {
+					result = this;
+				} else {
+					var step = steps[0];
+					
+					// TODO Allow steps back
+					
+					result = forStep(step);
+				}
+				
+				return result;
+			},
+			*/
+
+			getIdStr: function() {
+				var tmp = this.parent ? this.parent.getIdStr() : "";
+				
+				var result = tmp + this.variableName; 
+			},
+
+			getStepId: function(step) {
+				return "" + JSON.stringify(step);
+			},
+			
+			getSteps: function() {
+				return this.steps;
+			},
+				
+			/**
+			 * Convenience method, uses forStep
+			 * 
+			 * @param propertyUri
+			 * @param isInverse
+			 * @returns
+			 */
+			forProperty: function(propertyUri, isInverse) {
+				var step = new ns.Step(propertyUri, isInverse);
+				
+				var result = this.forStep(step);
+
+				return result;
+			},
+
+			forStepId: function(stepId) {
+				var child = this.idToChild[stepId];
+				
+				if(!child) {
+					
+					var subName = this.generator.next();
+					child = new ns.VarNode(subName, this.generator, stepId, this);
+					
+					//Unless we change something
+					// we do not add the node to the parent
+					this.idToChild[stepId] = child;				
+				}
+				
+				return child;
+			},
+	};
+	
+	
+	ns.SparqlDataflow = function(query, fnPostProcessor) {
+		this.query = query;
+		this.fnPostProcessor = fnPostProcessor;
+	};
+	
+	ns.SparqlDataflow.prototype = {
+		createDataProvider: function(sparqlServer) {
+
+			var executor = new facets.ExecutorQuery(sparqlService, query);
+			var result = new DataProvider(executor);
+			
+			// TODO Attach the postProcessing workflow
+			
+			return result;
+		}
+	};	
+	
+	ns.ElementDesc = function(element, focusVar, facetVar) {
+		this.element = element;
+		this.focusVar = focusVar;
+		this.facetVar = facetVar;
+	};
+	
+
+	ns.ElementDesc.prototype = {
+			createQueryFacetValueCounts: function() {
+				var element = this.element;
+				
+				var focusVar = this.focusVar;
+				var facetVar = this.facetVar;
+
+				var sampleLimit = null;
+								
+				countVar = countVar ? countVar : sparql.Node.v("__c");
+				var result = queryUtils.createQueryCount(element, sampleLimit, focusVar, countVar, [facetVar], options);
+				
+				return result;
+			},
+			
+			createQueryFacetValues: function() {
+				var element = this.element;
+								
+				var focusVar = this.focusVar;
+				var facetVar = this.facetVar;
+
+				var sampleLimit = null;
+				
+				countVar = countVar ? countVar : sparql.Node.v("__c");
+				var result = queryUtils.createQueryCountDistinct(element, sampleLimit, focusVar, countVar, [facetVar], options);
+
+				return result;
+			}
+	};
+	
+	
+	/**
+	 * Utility functions for creating constraints on paths.
+	 * 
+	 * TODO: What about an E_Range(givenExpr, minExpr, maxExpr)?
+	 * This one does not exist in the SPARQL standard,
+	 * but the effective expression would be
+	 * givenExpr > minExpr && givenEXpr < maxExpr
+	 * 
+	 * So it would be a useful abstraction.
+	 * The fundamental question is, whether this abstraction
+	 * should be done with the SPARQL classes in the first place.
+	 * 
+	 */
+	ns.ConstraintUtils = {
+		createEquals: function(path, expr) {
+			var v = sparql.Node.v("e");
+			var ev = new sparql.ExprVar(v);
+			
+			var ex = new sparql.E_Equals(ev, expr);			
+			var varToPath = {e: path};
+			
+			var result = new ns.ConstraintExpr(ex, varToPath);
+			return result;
+		}
+	};
+	
+	
+	
+	/**
+	 * An expressions whose variables are expressed in terms
+	 * of paths.
+	 * 
+	 * TODO What if we constrained a geo resource to a bounding box?
+	 * If the instance function accepted a facet node,
+	 * then a constraint could use it to create new triples (e.g. geoResource lat/long ?var)
+	 * 
+	 * On the other hand, as this essentially places constraints at
+	 * different paths (i.e. range constraints on lat/long paths),
+	 * so actually, we could expand this constraints to sub-constraints,
+	 * resulting in a hierarchy of constraints, and also resulting
+	 * in another layer of complexity...
+	 * 
+	 * 
+	 * 
+	 * 
+	 * Constraint.intstanciate(facetNode
+	 * 
+	 * 
+	 * @param expr
+	 * @param varToPath
+	 * @returns {ns.Constraint}
+	 */
+	ns.ConstraintExpr = function(expr, varToPath)  {
+		this.expr = expr;
+		this.varToPath = varToPath;
+	},
+	
+	ns.ConstraintExpr.prototype = {
+		/*
+		 * Get the paths used by this expression
+		 */
+		getPaths: function() {
+			var result = _.values(this.varToPath);
+			return result;
+		},
+			
+		getId: function() {
+			
+		},
+		
+		toString: function() {
+			return this.getId();
+		},
+		
+		/**
+		 * Returns an array of elements.
+		 * 
+		 * Replaces the variables in the expressions
+		 * with those for the paths.
+		 * 
+		 * 
+		 * Usually the facetNode should be the root node.
+		 * 
+		 * @param varNode
+		 */
+		instanciate: function(facetNode) {
+			var varMap = {};
+			
+			_.each(this.varToPath, function(path, varName) {
+				var targetFacetNode = facetNode.forPath(path);
+				var v = targetFacetNode.getVariable();
+				varMap[varName] = v;
+			});
+			
+			var fnSubstitute = function(node) {
+				//console.log("Node is", node);
+				if(node.isVar()) {
+					var varName = node.getValue();
+					var v = varMap[varName];
+					if(v) {
+						return v;
+					}
+				}
+				return node;
+			};
+			
+			//console.log("Substituting in ", this.expr);
+			var tmpExpr = this.expr.copySubstitute(fnSubstitute);
+			
+			var element = new sparql.ElementFilter([tmpExpr]);
+			var result = [element];
+			
+			return result;
+			//substitute
+		}
+	};
+
+	
+	/**
+	 * Are constraints connected to paths?
+	 * Actually we could do this:
+	 * E_GreaterThan(?a, 1000)
+	 * 
+	 * ?a = new Path(new Step("http://.../amount"));
+	 * 
+	 * This way we could reuse all expr classes, and just replace
+	 * the variables. 
+	 * 
+	 * @returns {ns.ConstraintManager}
+	 */
+	ns.ConstraintManager = function() {
+		this.constraints = [];
+		
+		//var pathIdToConstraints = {};
+	};
+	
+	ns.ConstraintManager.prototype = {
+		
+		/**
+		 * Yields all constraints having at least one
+		 * variable bound to the exact path
+		 * 
+		 * Note: In general, a constraint may make use of multiple paths
+		 */
+		getConstraintsByPath: function(path) {
+			
+		},
+			
+		addConstraint: function(constraint) {
+			this.constraints.push(constraint);
+		},
+		
+		removeConstraint: function() {
+			
+		},
+		
+		createElements: function(facetNode, excludePath) {
+			//var triples = [];
+			var elements = [];
+			
+			_.each(this.constraints, function(constraint) {
+				var paths = constraint.getPaths();
+								
+				_.each(paths, function(path) {
+
+					
+					//if(path.equals(excludePath)) {
+						// TODO Exclude only works if there is only a single path
+						// Or more generally, if all paths were excluded...
+						// At least that somehow seems to make sense
+					//}
+					
+					var fn = facetNode.forPath(path);
+					
+					//console.log("FNSTATE", fn);
+					
+					var tmpElements = fn.getElements();
+					elements.push.apply(elements, tmpElements);
+				});
+				
+				var constraintElements = constraint.instanciate(facetNode);
+				elements.push.apply(elements, constraintElements);
+			});
+
+			return elements;
+		},
+		
+	};
+	
+	/**
+	 * This class only has the purpose of allocating variables
+	 * and generating elements.
+	 * 
+	 * The purpose is NOT TO DECIDE on which elements should be created.
+	 * 
+	 * 
+	 * @param parent
+	 * @param root
+	 * @param generator
+	 * @returns {ns.FacetNode}
+	 */
+	ns.FacetNode = function(varNode, step, parent, root) {
+		this.parent = parent;
+		this.root = root;
+		if(!this.root) {
+			if(this.parent) {
+				this.root = parent.root;
+			}
+			else {
+				this.root = this;
+			}
+		}
+
+		
+		this.varNode = varNode;
+		
+		/**
+		 * The step for how this node can be  reached from the parent
+		 * Null for the root 
+		 */
+		this.step = step;
+
+
+		this._isActive = true; // Nodes can be disabled; in this case no triples/constraints will be generated
+		
+		this.idToChild = {};
+		
+		//this.idToConstraint = {};
+	};
+	
+	/**
+	 * Use this instead of the constructor
+	 * 
+	 */
+	ns.FacetNode.createRoot = function(varName, generator) {		
+		var varNode = new ns.VarNode(varName, generator);		
+		result = new ns.FacetNode(varNode);
+		return result;
+	};
+
+	
+	ns.FacetNode.prototype = {
+		
+		isRoot: function() {
+			var result = this.parent === null;
+			return result;
+		},
+		
+		getVariable: function() {
+			var varName = this.varNode.getVariableName();
+			var result = sparql.Node.v(varName);
+			return result;
+		},
+		
+		getStep: function() {
+			return this.step;
+		},
+		
+		getParent: function() {
+			return this.parent;
+		},
+		
+		forPath: function(path) {
+			var steps = path.getSteps();
+			
+			var result = this;
+			_.each(steps, function(step) {
+				// TODO Allow steps back
+				result = result.forStep(step);
+			});
+			
+			return result;
+		},		
+
+		getIdStr: function() {
+			// TODO concat this id with those of all parents
+		},
+		
+		getSteps: function() {
+			return this.steps;
+		},
+		
+		getConstraints: function() {
+			return this.constraints;
+		},
+		
+		isActiveDirect: function() {
+			return this._isActive;
+		},
+				
+		
+		getElements: function() {
+			var triples = this.getTriples();
+			var element = new sparql.ElementTriplesBlock(triples);
+			var result = [element];
+			
+			return result;
+		},
+		
+		/**
+		 * Get triples for the path starting from the root node until this node
+		 * 
+		 * @returns {Array}
+		 */
+		getTriples: function() {
+			var result = [];			
+			this.getTriples2(result);
+			return result;
+		},
+		
+		getTriples2: function(result) {
+			this.createDirectTriples2(result);
+			
+			if(this.parent) {
+				this.parent.getTriples2(result);
+			}
+			return result;			
+		},
+
+		/*
+		createTriples2: function(result) {
+			
+		},*/
+		
+		createDirectTriples: function() {
+			var result = [];
+			this.createDirectTriples2(result);
+			return result;
+		},
+				
+		
+		
+		/**
+		 * Create the element for moving from the parent to this node
+		 * 
+		 * TODO Cache the element, as the generator might allocate new vars on the next call
+		 */
+		createDirectTriples2: function(result) {
+			if(this.step) {
+				var sourceVar = this.parent.getVariable();
+				var targetVar = this.getVariable();
+				
+				var tmp = this.step.createElement(sourceVar, targetVar, this.generator);
+				
+				// FIXME
+				var triples = tmp.getTriples();
+				
+				result.push.apply(result, triples);
+				
+				//console.log("Created element", result);
+			}
+			
+			return result;
+			
+			/*
+			if(step instanceof ns.Step) {
+				result = ns.FacetUtils.createTriplesStepProperty(step, startVar, endVar);
+			} else if(step instanceof ns.StepFacet) {
+				result = ns.FacetUtils.createTriplesStepFacets(generator, step, startVar, endVar);
+			} else {
+				console.error("Should not happen: Step is ", step);
+			}
+			*/
+		},
+		
+		isActive: function() {
+			if(!this._isActive) {
+				return false;
+			}
+			
+			if(this.parent) {
+				return this.parent.isActive();
+			}
+			
+			return true;
+		},
+		
+		attachToParent: function() {
+			if(!this.parent) {
+				return
+			}
+			
+			this.parent[this.id] = this;			
+			this.parent.attachToParent();
+		},
+		
+		/*
+		hasConstraints: function() {
+			var result = _.isEmpty(idToConstraint);
+			return result;
+		},
+		
+		// Whether neither this nor any child have constraints
+		isEmpty: function() {
+			if(this.hasConstraints()) {
+				return false;
+			}
+			
+			var result = _.every(this.idConstraint, function(subNode) {
+				var subItem = subNode;
+				var result = subItem.isEmpty();
+				return result;
+			});
+			
+			return result;
+		},
+		*/
+			
+		/**
+		 * Convenience method, uses forStep
+		 * 
+		 * @param propertyUri
+		 * @param isInverse
+		 * @returns
+		 */
+		forProperty: function(propertyUri, isInverse) {
+			var step = new ns.Step(propertyUri, isInverse);
+			
+			var result = this.forStep(step);
+
+			return result;
+		},
+			
+		forStep: function(step) {
+			//console.log("Step is", step);
+			
+			var stepId = "" + JSON.stringify(step);
+			
+			var child = this.idToChild[stepId];
+			
+			if(!child) {
+				
+				var subVarNode = this.varNode.forStepId(stepId);
+				
+				child = new ns.FacetNode(subVarNode, step, this, this.root);
+				
+				/*
+				child = {
+						step: step,
+						child: facet
+				};*/
+				
+				//Unless we change something
+				// we do not add the node to the parent
+				this.idToChild[stepId] = child;				
+			}
+
+			return child;
+		},
+		
+		/**
+		 * Remove the step that is equal to the given one
+		 * 
+		 * @param step
+		 */
+		/*
+		removeConstraint: function(constraint) {
+			this.constraints = _.reject(this.constraints, function(c) {
+				_.equals(c, step);
+			});
+		},
+		
+		addConstraint: function(constraint) {
+			this.attachToParent();
+			
+			var id = JSON.stringify(constraint); //"" + constraint;
+
+			// TODO Exception if the id is object
+			//if(id == "[object]")
+			
+			this.idToConstraint[id] = constraint;
+		},
+		*/
+		
+		/**
+		 * Copy the state of this node to another one
+		 * 
+		 * @param targetNode
+		 */
+		copyTo: function(targetNode) {
+			//targetNode.variableName = this.variableName;
+			
+			_.each(this.getConstraints(), function(c) {
+				targetNode.addConstraint(c);
+			});			
+		},
+		
+		
+		/**
+		 * 
+		 * 
+		 * @returns the new root node.
+		 */
+		copyExclude: function() {
+			// Result is a new root node
+			var result = new ns.FacetNode();
+			console.log("Now root:" , result);
+			
+			this.root.copyExcludeRec(result, this);
+			
+			return result;
+		},
+			
+		copyExcludeRec: function(targetNode, excludeNode) {
+			
+			console.log("Copy:", this, targetNode);
+			
+			if(this === excludeNode) {
+				return;
+			}
+			
+			this.copyTo(targetNode);
+			
+			_.each(this.getSteps(), function(s) {
+				var childStep = s.step;
+				var childNode = s.child;
+				
+				console.log("child:", childStep, childNode);
+				
+				if(childNode === excludeNode) {
+					return;
+				}
+				
+				
+				
+				var newChildNode = targetNode.forStep(childStep);
+				console.log("New child:", newChildNode);
+				
+				childNode.copyExcludeRec(newChildNode, excludeNode);
+			});			
+
+			
+			//return result;
+		},
+	};
+	
+	
+	/**
+	 * The idea of this class is to have a singe object
+	 * for all this currently rather distributed facet stuff
+	 * 
+	 * 
+	 * 
+	 */
+	ns.FacetManager = function(varName, generator) { //rootNode, generator) {
+		
+		var varNode = new ns.VarNode(varName, generator);
+		
+		this.rootNode = new ns.FacetNode(varNode);
+
+		//this.rootNode = rootNode;
+		this.generator = generator;
+	};
+	
+	ns.FacetManager.prototype = {
+			/*
+			create: function(varName, generator) {
+				var v = checkNotNull(varName);
+				var g = checkNotNull(generator);
+				
+				var rootNode = new ns.FacetNode(this, v);
+				
+				var result = new ns.FacetManager(rootNode, g);
+				
+				return result;
+			},*/
+			
+			getRootNode: function() {
+				return this.rootNode;
+			},
+			
+			getGenerator: function() {
+				return this.generator;
+			}
+	};
+	
+
+	
+})();

@@ -116,6 +116,7 @@
 								<param>org/aksw/ssb/facets/QueryExecutor.js</param>
 								<param>org/aksw/ssb/facets/QueryFactory.js</param>
 								<param>org/aksw/ssb/facets/DataTemplate.js</param>
+								<param>org/aksw/ssb/facets/FacetManager.js</param>
 
 								<param>org/aksw/ssb/widgets/ListWidgetBase.js</param>
 								<param>org/aksw/ssb/widgets/ListWidgetBaseOld.js</param>

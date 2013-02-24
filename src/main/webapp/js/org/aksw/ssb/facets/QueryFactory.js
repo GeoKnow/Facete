@@ -236,6 +236,30 @@ var ns = Namespace("org.aksw.ssb.facets");
 	
 	
 	/**
+	 * A factory for DataProvider objects based on queries
+	 * 
+	 * @param sparqlService
+	 * @param fnPostProcessor
+	 * @returns {ns.DataProviderFactoryQuery}
+	 */
+	ns.DataProviderFactoryQuery = function(sparqlService) {
+		this.sparqlService = sparqlService;
+	};
+	
+	ns.DataProviderFactoryQuery.prototype = {
+		createDataProvider: function(query) {
+			
+			var qfq = new ns.QueryFactoryQuery(query);
+			var executor = new ns.ExecutorQueryFactory(this.sparqlService, qfq);			
+			
+			var dataProvider = new facets.DataProvider.Executor(executor);			
+			
+			return dataProvider;
+		}
+	};
+	
+	
+	/**
 	 * There is two types of post processors:
 	 * - Those that execute immediately and therefore .pipe can be used
 	 * - Those that form sub tasks 
@@ -407,6 +431,52 @@ var ns = Namespace("org.aksw.ssb.facets");
 
 	};
 
+	
+	/**
+	 * A query factory that filters a variable to an explicit list
+	 * of resources.  
+	 *
+	 * Intended for chunking extensional concepts
+	 */
+	ns.QueryFactoryFilter = function(subQueryFactory, v) {
+		this.subQueryFactory = subQueryFactory;
+		this.v = v;
+	};
+	
+	ns.QueryFactoryFilter.prototype = {
+		createQuery: function() {
+			throw "Not implemented yet because other things had higher priority";
+		}
+	};
+	
+	
+	
+	
+	/**
+	 * A query factory that supports 
+	 *
+	 * Usage:
+	 * FacetManager fm = queryFactoryFacets.getFacetManager();
+	 * 
+	 * The main question is, whether the fm should return "sub-fms" for the paths.
+	 * E.g.
+	 * var constraint = new ConstraintEquals(someValue);
+	 * constraint
+	 * 
+	 * constraintId = fm.addConstraint(constraint);
+	 * FacetManager subFm = fm.forProperty("rdfs:label");
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	ns.QueryFactoryFacets = function(subQueryFactory) {
+		this.subQueryFactory = subQueryFactory;
+	};
+	
+	//ns.QueryFactory
+	
+	
 })(ns);
 
 

@@ -4,7 +4,9 @@
 	var facets = Namespace("org.aksw.ssb.facets");
 	var backboneUtils = Namespace("org.aksw.utils.backbone");
 	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
+	var labelUtils = Namespace("org.aksw.ssb.utils");
 
+	
 	var ns = facets;
 
 
@@ -429,6 +431,7 @@
 		//var es = constraintManager.createElements(rootFacetNode);
 		//var es = facetFacade.createElements();
 		var es = facetFacade.forPathStr("http://fp7-pp.publicdata.eu/ontology/year").createElements();
+		
 		es.push(concept.getElement());
 		var e = new sparql.ElementGroup(es);
 		
@@ -438,6 +441,28 @@
 		
 		modelFacetUpdater.updateFacets(rootModel, conc);
 	
+		
+		var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
+
+		{
+			var queryGenerator = new facets.QueryGenerator(conc); 
+			var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator);
+			
+			
+			
+			var models = createQueryBrowser(sparqlService, labelFetcher);
+			
+			var tableModel = models.browseConfig.config.tableModel;
+			tableModel.set({queryFactory: queryFactory});
+		
+			
+			var container = $('#instances');
+			container.children().remove();
+			createView(container, models);
+		}		
+		
+		
+
 	};
 
 

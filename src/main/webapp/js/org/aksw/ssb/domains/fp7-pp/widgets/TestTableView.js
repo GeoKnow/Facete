@@ -1,4 +1,6 @@
 
+	var facets = Namespace("org.aksw.ssb.facets");
+
 	var ItemViewTd = widgets.ItemViewLabel.extend({
 		tagName: 'td',
 		options: {
@@ -319,7 +321,7 @@
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	
 	var createSparqlExplorer = function(sparqlService, labelFetcher) {
-		var queryFactory = new QueryFactoryQuery(null);
+		var queryFactory = new facets.QueryFactoryQuery(null);
 		this.tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
 		this.browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
 						
@@ -368,7 +370,7 @@
 	
 			//console.log("Concept is now: ", concept);
 			
-			var queryFactory = new QueryFactoryQueryGenerator(queryGenerator);
+			var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator);
 			return queryFactory;
 		}		
 	};
@@ -401,7 +403,7 @@ $(document).ready(function() {
 			//var concept = queryGenerator.createDriverValues();
 	
 			var query = widgets.createPartnerQuery(node);
-			var queryFactory = new QueryFactoryQuery(query);
+			var queryFactory = new facets.QueryFactoryQuery(query);
 			
 			//console.log("Query is now: ", queryFactory.createQuery());
 			

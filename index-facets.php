@@ -87,8 +87,11 @@
 	<div id="wrapper">
 	
 	<input id="searchInput" type="text" />
-	<ul id="facets" style="list-style: none; list-style-type:none;">
-	
+	<ul id="facets" style="list-style: none; list-style-type:none;">	
 	</ul>
+	
+	<div id="facetValues" />
+	<div id="instances" />
+	
 </body>
 </html>

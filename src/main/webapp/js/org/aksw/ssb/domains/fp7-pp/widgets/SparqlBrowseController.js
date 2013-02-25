@@ -335,9 +335,9 @@
 	};
 	
 	var createExecutorQueryFactory = function(sparqlService, queryFactory) {
-		var tableConfig = new TableModelQueryFactory(queryFactory);
+		var tableConfig = new facets.TableModelQueryFactory(queryFactory);
 
-		var tableExecutor = new ExecutorQueryFactory(sparqlService, tableConfig);
+		var tableExecutor = new facets.ExecutorQueryFactory(sparqlService, tableConfig);
 		
 		var result = {
 				config: tableConfig,

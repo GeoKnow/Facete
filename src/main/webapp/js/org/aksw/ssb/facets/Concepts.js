@@ -46,7 +46,11 @@
 			
 			getVariable: function() {
 				return this.variable;
-			}			
+			},
+			
+			toString: function() {
+				return "" + this.element + "; " +  this.variable;
+			}
 	});
 
 	

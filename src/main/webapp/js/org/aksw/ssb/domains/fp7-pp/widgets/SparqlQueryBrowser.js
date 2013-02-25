@@ -104,7 +104,7 @@
 				tagName: 'tr',
 				
 				initialize: function(options) {
-					console.log("[RowView] Model: " + JSON.stringify(this.model));
+					//console.log("[RowView] Model: " + JSON.stringify(this.model));
 					
 				    this.model.on('change', this.reset, this);
 				    this.model.on('remove', this.unrender, this);
@@ -113,7 +113,7 @@
 				},
 				
 				render: function() {
-					console.log("[RowView] render()");
+					//console.log("[RowView] render()");
 
 					Backbone.View.prototype.render.call(this);
 					
@@ -142,7 +142,7 @@
 				},
 			
 				reset: function() {
-					console.log("[RowView] reset()");
+					//console.log("[RowView] reset()");
 					
 					//this.unrender();
 					this.$el.empty();

@@ -206,6 +206,11 @@
 	
 
 	ns.ElementDesc.prototype = {
+			createConcept: function() {
+				var result = new facets.concept(this.element, this.facetVar);
+				return result;
+			},
+			
 			createQueryFacetValueCounts: function() {
 				var element = this.element;
 				
@@ -865,6 +870,11 @@
 	};
 
 	ns.SimpleFacetFacade.prototype = {
+			getVariable: function() {
+				var result = this.facetNode.getVariable();
+				return result;
+			},
+			
 			wrap: function(facetNode) {
 				var result = new ns.SimpleFacetFacade(this.constraintManager, facetNode);
 				return result;
@@ -925,6 +935,8 @@
 			},
 			
 			/**
+			 * TODO: Should the result include the path triples even if there is no constraint? Currently it includes them.
+			 * 
 			 * Returns a concept for the values at this node.
 			 * This concept can wrapped for getting the distinct value count
 			 * 
@@ -934,10 +946,44 @@
 				var rootNode = this.facetNode.getRootNode();
 				var excludePath = this.facetNode.getPath();
 				
+				// Create the constraint elements
 				var elements = this.constraintManager.createElements(rootNode, excludePath);
 				
-				return elements;
+				// Create the element for this path (if not exists)
+				var pathElements = this.facetNode.getElements();
+				
+				elements.push.apply(elements, pathElements);
+				
+				var result = sparql.ElementUtils.flatten(elements);
+				//console.log("Constraint and Path Elements:" + elements);
+				//console.log("Flattened: " + result);
+				
+				// Remove duplicates
+				
+				return result;
 			},
+			
+			
+			createConcept: function() {
+				var elements = this.createElements();
+				var element = new sparql.ElementGroup(elements);
+				var v = this.getVariable();
+				
+				var result = new facets.ConceptInt(element, v);
+				return result;
+			}
+			
+			/**
+			 * Creates a util class for common facet needs:
+			 * - Create a concept for sub-facets
+			 * - Create a concept for the facet values
+			 * - ? more?
+			 */
+			/*
+			createUtils: function() {
+				
+			}
+			*/
 	};
 	
 	

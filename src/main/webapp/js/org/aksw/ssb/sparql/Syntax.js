@@ -19,6 +19,15 @@
 
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 
+	ns.ElementUtils = {
+			flatten: function(elements) {
+				var result = _.map(elements, function(element) { return element.flatten(); });
+
+				return result;
+			}
+	};
+
+	
 	ns.orify = function(exprs) {
 		var result = ns.opify(exprs, ns.E_LogicalOr);
 		return result;
@@ -699,7 +708,7 @@
 		
 	
 	ns.ElementGroup.prototype.flatten = function() {
-		var processed = _.map(this.elements, function(element) { return element.flatten(); });
+		var processed = ns.ElementUtils.flatten(this.elements); 
 
 		if(processed.length === 1) {
 			return processed[0];

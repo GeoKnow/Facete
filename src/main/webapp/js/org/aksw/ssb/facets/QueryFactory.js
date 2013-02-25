@@ -23,13 +23,14 @@ var ns = Namespace("org.aksw.ssb.facets");
 	 * 
 	 * 
 	 */
-	ns.QueryFactoryQueryGenerator = function(queryGenerator) {
+	ns.QueryFactoryQueryGenerator = function(queryGenerator, options) {
 		this.queryGenerator = checkNotNull(queryGenerator);
+		this.options = options;
 	};
 	
 	ns.QueryFactoryQueryGenerator.prototype = {
 		createQuery: function() {
-			var result = this.queryGenerator.createQueryValues();
+			var result = this.queryGenerator.createQueryValues(this.options);
 			return result;
 		}
 	};

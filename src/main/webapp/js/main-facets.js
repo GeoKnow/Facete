@@ -18,11 +18,25 @@
 			//constraints: [], // contraints applying to this node
 			isExpanded: false, // when changing to true, the controller will start loading the children 
 			isLoading: false,
-			children: new Backbone.Collection(), // subFacets - NOT facet values!
-			facetNode: null, // Reference to a (non-model) FacetNode
-		}
+			/*
+			children: new Backbone.Collection({
+				//model: ns.ModelFacetNode
+			}), // subFacets - NOT facet values!
+			*/
+			facetFacadeNode: null, // Reference to a (non-model) FacetFacadeNode
+		},
+	
+		initialize: function() {
+			//console.log("Initializing ModelFacetNode", this);
+			
+		    this.set({children: new ns.CollectionFacetNode()});
+		},
 	});
 
+	ns.CollectionFacetNode = Backbone.Collection.extend({
+		model: ns.ModelFacetNode
+	});
+	
 	
 	ns.ControllerFacetNode = function(sparqlService, model, facetManager) {
 		this.sparqlService = sparqlService;
@@ -117,7 +131,7 @@
 					facetUri: binding.facetName.value,
 					facetCount: binding.facetCount.value,
 					isInverse: self.isInverse,
-					concept: null
+					//concept: null
 				};
 				
 				//console.log("Binding:", result);
@@ -148,7 +162,8 @@
 			return promise;
 		}
 	};
-				
+			
+	var foobarTableModel;
 
 	// A fact provider returns a promise that yields the name of the facet plus a concept for its values.
 	// { type: name: concept: } 
@@ -160,21 +175,43 @@
 
 
 	ns.ModelFacetUpdater.prototype = {
-		updateFacets: function(model, concept) {
-		
+		updateFacets: function(model, facetFacadeNode) {
+			
+			var concept = facetFacadeNode.createConcept();
+			//console.log("Loading facets for concept:" + concept);
+			//console.log("The model is: ", model);
+			
 			// If the node is not expanded, we omit it
 			var isExpanded = model.get("isExpanded");
 			if(!isExpanded) {
 				return;
 			}
 
-			var children = model.get("children");		
-			var syncer = new backboneUtils.CollectionCombine(children);
-		
+			var children = model.get("children");
+			var syncer = new backboneUtils.CollectionCombine(children);		
 		
 			// Get the facets of the concept
 			var promises = _.map(this.facetProviders, function(facetProvider) {
-				var promise = facetProvider.fetchFacets(concept);
+				var tmp = facetProvider.fetchFacets(concept);
+				
+				var promise = tmp.pipe(function(items) {
+					
+					var mapped = _.map(items, function(item) {
+					
+						var facetUri = item.facetUri;
+						var isInverse = item.isInverse;
+						
+						var subNode = facetFacadeNode.forProperty(facetUri, isInverse);
+						item.facetFacadeNode = subNode;
+					
+						//console.log("Mapped model:", item);
+
+						return item;
+					});
+										
+					return mapped;
+				});
+				
 				return promise;
 			});
 			
@@ -193,50 +230,133 @@
 	ns.ViewFacetItem = Backbone.View.extend({
 	    tagName: 'li',
 	    //attributes: {style: 'float: left'},
-	    initialize: function(){
-	      _.bindAll(this, 'render', 'unrender', 'remove'); // every function that uses 'this' as the current object should be in here
+	    initialize: function() {
+	    	_.bindAll(this, 'render', 'unrender', 'remove'); // every function that uses 'this' as the current object should be in here
+	    	
+	    	var options = this.options;
+	    	//console.log("Created view for facet item", options);
+	    	//this.parent = this.model.get("parent");
+	    	
+	    	var parent = options.parent;
+	    	var parentOptions = parent.options;
+	    	this.modelFacetUpdater = parentOptions.modelFacetUpdater;
 
-	      this.model.bind('change', this.render, this);
-	      this.model.bind('remove', this.unrender, this);
+	    
+	    	var model = this.model;
+	    	var children = model.get("children");
+
+	    	this.subFacetWidget = new widgets.ViewFacetTree({
+				collection: children,
+				modelFacetUpdater: this.modelFacetUpdater
+			});
+
+	    	//console.log("ModelFacetUpdater ", this.modelFacetUpdater);
+	    	
+	    	
+			//model.bind('change', this.render, this);
+			model.bind('remove', this.unrender, this);
+			model.on('change:isExpanded', this.changeIsExpanded, this);
+			//model.bind('change:isExpanded', function())
+			
+			//var children = model.get("children");
+			
+	      //children.bind('add', this.add)
+	      
+			if(this.el) {
+				this.render();
+			}
 	      
 	      
 	      this.facetValuesView = null;
 	      
 	    },
+
+	    changeIsExpanded: function() {
+    		var model = this.model;	    		
+    		var isExpanded = model.get('isExpanded');
+    		
+//    		var subFacetWidget = this.subFacetWidget; 
+//    		if(!subFacetWidget) {
+//    			return;
+//    		}
+    		
+    		var subEl = this.subFacetWidget.$el;
+    		if(isExpanded) {
+    			subEl.show();
+    		} else {
+    			subEl.hide();
+    		}	    	
+	    },
+
 	    events: {
-	    	'click .expandable': function() {
+	    	'click a.expandable': function(ev) {
+	    		ev.preventDefault();
+	    		var expectedTarget = this.$el.find("> a.expandable")[0];
+	    		if(ev.currentTarget != expectedTarget) {
+	    			return;
+	    		}
+	    		
+	    		//alert("eueue");
+	    		var model = this.model;	
+	    		var isExpanded = model.get('isExpanded');
+	    		if(isExpanded) {
+	    			model.set({'isExpanded': false});
+	    		} else {
+		    		var facetFacadeNode = model.get("facetFacadeNode");
+
+		    		model.set({'isExpanded': true});
+		    		this.modelFacetUpdater.updateFacets(model, facetFacadeNode);	    			
+	    		}
+	    		//e.stopImmediatePropagation();
+	    	},
+	    	'click .activate': function(ev) {
+	    		ev.preventDefault();
+	    		var expectedTarget = this.$el.find("> a.activate")[0];
+	    		if(ev.currentTarget != expectedTarget) {
+	    			return;
+	    		}
+	    		
+
 	    		var model = this.model;
-	    	
-	    		model.set({isExpanded: true});
+	    		// Show the facet values in the preconfigured area
+	    		var facetFacadeNode = model.get("facetFacadeNode");
 	    		
+	    		var concept = facetFacadeNode.createConcept(); 
 	    		
-	    		//console.log("Facet Model: ", model.attributes);
+				var queryGenerator = new facets.QueryGenerator(concept); 
+				var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct: true});
+				
+				//var models = createQueryBrowser(sparqlService, labelFetcher);
+				
+				//var tableModel = models.browseConfig.config.tableModel;
+				foobarTableModel.set({queryFactory: queryFactory});
+
 	    		
-	    		modelFacetUpdater.updateFacets(model, concept);
-	    		
-	    		
-	    		var facetNode = model.get("facetNode");
-	    		var facetManager = facetNode.copyExcludeThis();
-	    		
-	    		
-	    		
-	    		//var subFm = facetManager.copyExcludePath(model.id);
-	    		
-	    		var queryFactory = new QueryFactoryFacetManager(concept, subFm);
-	    		
-	    		var dataFetcher = dataFetcherFactory.create(queryFactory);
-	    		
-	    		
-	    	} 
+	    	}
 	    },
 	    render: function() {
-	    	var foo = JSON.stringify(this.model.attributes);
-	    	var text = this.model.get("facetUri");
-	    	var html = '<a class="expandable" href="#"><img src="src/main/resources/osm-logo-small.png" />' + text + '</a>';
-	    
 	    	
-	      $(this.el).html(html); 
-	      return this;
+	    	console.log("Rendering facet view to: ", this.$el);
+	    	
+	    	//var foo = JSON.stringify(this.model.attributes);
+	    	var text = this.model.get("facetUri");
+	    	var html = '<a class="expandable" href="#"><img src="src/main/resources/osm-logo-small.png" /></a><a class="activate" href="#">' + text + '</a>';
+	    	//html += '<ul></ul>';
+	    	
+	        this.$el.html(html);
+
+	        /*
+	    	var model = this.model;
+	    	var isExpanded = model.get("isExpanded");
+	    	if(!isExpanded) {
+	    		return this;
+	    	}
+	    	*/
+	    		    	
+	    	var subFacetWidgetEl = this.subFacetWidget.render().$el; 
+	    	this.$el.append(subFacetWidgetEl);
+	    	
+	        return this;
 	    },
 	    unrender: function() {
 	      $(this.el).remove();
@@ -244,6 +364,19 @@
 	    remove: function() {
 	      this.model.destroy();
 	    }
+	});
+
+	widgets.facetItemRenderer = new widgets.RendererItemView(
+			{},
+			null,
+			facets.ViewFacetItem,
+			{
+				label: "simpleLabel"
+			}
+	);
+
+	widgets.ViewFacetTree = widgets.ListView.extend({
+		itemRenderer: widgets.facetItemRenderer
 	});
 
 
@@ -265,7 +398,7 @@
 			var constraint = model.get("constraint");
 			
 			var node = rootFaceNode.forPath(path);
-			node.addConstraint(contraint);
+			node.addConstraint(constraint);
 		});
 	
 	};
@@ -395,24 +528,26 @@
 		
 	
 	
-	
 
-		var facetItemRenderer = new widgets.RendererItemView(
-				{},
-				null,
-				facets.ViewFacetItem,
-				{
-					label: "simpleLabel"
-				}
-		);
 
 		var rootCollection = rootModel.get("children");
-
+		//console.log("Root Collection: ", rootCollection);
+		
+		this.facetWidget = new widgets.ViewFacetTree({
+			el: $("#facets"), 
+			collection: rootCollection,
+			//options: {
+				modelFacetUpdater: modelFacetUpdater
+			//}
+		});
+		
+		/*
 		this.facetWidget = new widgets.ListView({
 			el: $("#facets"), 
 			collection: rootCollection, 
 			itemRenderer: facetItemRenderer
 		});
+		*/
 
 		rootModel.set("isExpanded", true);
 		
@@ -431,22 +566,29 @@
 		//var es = constraintManager.createElements(rootFacetNode);
 		//var es = facetFacade.createElements();
 		var es = facetFacade.forPathStr("http://fp7-pp.publicdata.eu/ontology/year").createElements();
+		//console.log("es", es);
 		
-		es.push(concept.getElement());
+		var conceptElement = concept.getElement();
+		es.push(conceptElement);
+		//console.log("plu concept element", conceptElement);
+		
 		var e = new sparql.ElementGroup(es);
+
+		//console.log("Final element: " + e);
 		
-		var v = rootFacetNode.forPath(facets.Path.fromString("")).getVariable();
+		//var v = rootFacetNode.forPath(facets.Path.fromString("")).getVariable();
+		var v = rootFacetNode.forPath(facets.Path.fromString("http://fp7-pp.publicdata.eu/ontology/year")).getVariable();
 		var conc = new facets.ConceptInt(e, v);
 
 		
-		modelFacetUpdater.updateFacets(rootModel, conc);
+		modelFacetUpdater.updateFacets(rootModel, facetFacade);
 	
 		
 		var labelFetcher = new labelUtils.LabelFetcher(sparqlService);
 
 		{
 			var queryGenerator = new facets.QueryGenerator(conc); 
-			var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator);
+			var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct: true});
 			
 			
 			
@@ -455,6 +597,7 @@
 			var tableModel = models.browseConfig.config.tableModel;
 			tableModel.set({queryFactory: queryFactory});
 		
+			foobarTableModel = tableModel;
 			
 			var container = $('#instances');
 			container.children().remove();

@@ -39,6 +39,12 @@
 	};
 
 	
+	/**
+	 * Deprecated
+	 * 
+	 * This object is overridden by opifyBalanced
+	 * 
+	 */
 	ns.opify = function(exprs, fnCtor) {
 		var open = exprs;
 		var next = [];
@@ -1745,7 +1751,7 @@
 	ns.opifyBalanced = function(exprs, ctor) {
 		//console.warn("Constructor", ctor);
 
-		if(exprs.length == 0) {
+		if(exprs.length === 0) {
 			return null;
 		}
 

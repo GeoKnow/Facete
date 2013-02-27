@@ -29,15 +29,18 @@
 		},
 			
 		createQuery: function() {
-			var query = this.subFactory.createQuery();
-			var varsMentioned = query.getVarsMentioned();
+			var query = this.subQueryFactory.createQuery();
+
+			//var varsMentioned = query.getVarsMentioned();
+			var varsMentioned = query.getProjectVars().getVarList();
 			
+
 			var varNames = _.map(varsMentioned, function(v) {
 				return v.value;
 			});
 			
 			
-			var elements = this.constraintManager.createElements(rootFacetNode);
+			var elements = this.constraintManager.createElements(this.rootFacetNode);
 			query.elements.push.apply(query.elements, elements);
 			
 			return query;
@@ -318,6 +321,9 @@
 		/**
 		 * Returns an array of elements.
 		 * 
+		 * Change: It now returns an element and a set of expressions.
+		 * The expressions get ORed when on the same path
+		 * 
 		 * Replaces the variables in the expressions
 		 * with those for the paths.
 		 * 
@@ -350,8 +356,14 @@
 			//console.log("Substituting in ", this.expr);
 			var tmpExpr = this.expr.copySubstitute(fnSubstitute);
 			
-			var element = new sparql.ElementFilter([tmpExpr]);
+			var result = {
+					elements: [], //element],
+					exprs: [tmpExpr]
+			};
+			
+			/*
 			var result = [element];
+			*/
 			
 			return result;
 			//substitute
@@ -413,8 +425,19 @@
 			//var triples = [];
 			var elements = [];
 			
+			
+			var pathToExprs = {};
+			
 			_.each(this.constraints, function(constraint) {
 				var paths = constraint.getPaths();
+				
+				var pathId = _.reduce(
+						paths,
+						function(memo, path) {
+							return memo + " " + path;
+						},
+						""
+				);
 
 				// Check if any of the paths is excluded
 				if(excludePath) {
@@ -447,9 +470,38 @@
 					elements.push.apply(elements, tmpElements);
 				});
 				
-				var constraintElements = constraint.instanciate(facetNode);
-				elements.push.apply(elements, constraintElements);
+				var ci = constraint.instanciate(facetNode);
+				var ciElements = ci.elements;
+				var ciExprs = ci.exprs;
+				
+				if(ciElements)
+				{
+					elements.push.apply(elements, ciElements);
+				}				
+				
+				if(ciExprs && ciExprs.length > 0) {
+				
+					var exprs = pathToExprs[pathId];
+					if(!exprs) {
+						exprs = [];
+						pathToExprs[pathId] = exprs;
+					}
+					
+					var andExpr = sparql.andify(ciExprs);
+					exprs.push(andExpr);
+				}				
 			});
+
+			_.each(pathToExprs, function(exprs) {
+				var orExpr = sparql.orify(exprs);
+				var element = new sparql.ElementFilter([orExpr]);
+
+				console.log("andExprs" +  element);
+
+				elements.push(element);
+			});
+
+			//console.log("pathToExprs", pathToExprs);
 
 			return elements;
 		},
@@ -518,6 +570,11 @@
 			var result = this.parent === null;
 			return result;
 		},
+		
+		/*
+		getVariableName: function() {
+			return this.varNode.getVariableName();
+		},*/
 		
 		getVariable: function() {
 			var varName = this.varNode.getVariableName();
@@ -864,6 +921,24 @@
 	};
 	
 	
+	/**
+	 * Ties together a facetNode (only responsible for paths) and a constraint collection.
+	 * Constraints can be declaratively set on the facade and are converted to
+	 * appropriate constraints for the constraint collection.
+	 * 
+	 * e.g. from
+	 * var constraint = {
+	 * 	type: equals,
+	 * 	path: ...,
+	 * 	node: ...}
+	 * 
+	 * a constraint object is compiled.
+	 * 
+	 * 
+	 * @param constraintManager
+	 * @param facetNode
+	 * @returns {ns.SimpleFacetFacade}
+	 */
 	ns.SimpleFacetFacade = function(constraintManager, facetNode) {
 		this.constraintManager = constraintManager;
 		this.facetNode = facetNode;
@@ -873,6 +948,10 @@
 			getVariable: function() {
 				var result = this.facetNode.getVariable();
 				return result;
+			},
+			
+			getPath: function() {
+				return this.facetNode.getPath();
 			},
 			
 			wrap: function(facetNode) {

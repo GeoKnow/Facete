@@ -292,7 +292,7 @@
 	
 	    render: function() {
 	    	var label = backboneUtils.getModelValue(this.model, "label", this.options.binding);
-	    	console.log("[ItemViewLabel] render(); Rerendering label: " + label);
+	    	//console.log("[ItemViewLabel] render(); Rerendering label: " + label);
 
 	        this.$el.html('<span style="cursor: pointer;">' + stringUtils.escapeHTML(label) + '</span>');
 	        

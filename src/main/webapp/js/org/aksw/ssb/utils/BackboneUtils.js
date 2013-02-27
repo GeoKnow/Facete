@@ -4,6 +4,100 @@
 
 	var ns = Namespace("org.aksw.utils.backbone");
 
+
+
+	/**
+	 * This class enables syncing data from (an array of) promises
+	 * into the target collection
+	 *
+	 * Obtained data is related to the parameter index of the promise.
+	 * If sync is called again with new promises, each
+	 * partition of the prior promises is updated.
+	 * 
+	 * Constraints:
+	 * - The data returned by the promises should have proper id-properties set
+	 * 
+	 * @param collection
+	 * @returns {ns.CollectionCombine}
+	 */
+	ns.CollectionCombine = function(collection) {
+		this.collection = collection ? collection : new Backbone.Collection();			
+		this.state = [];
+		this.syncId = 0;
+	};
+	
+	ns.CollectionCombine.prototype = {
+
+		getCollection: function() {
+			return this.collection;
+		},				
+	
+		sync: function(promises) {
+		
+			var state = this.state;
+			var collection = this.collection;
+			
+			// Add
+			{
+				var delta = promises.length - state.length;
+				for(var i = 0; i < delta; ++i) {
+					state[i] = [];
+				}
+			}
+			
+			// Remove
+			{
+				var delta = state.length - promises.length;
+				
+				for(var i = state.length - 1; i > promises.length; --i) {
+					var tmp = state[i];
+					collection.remove(tmp);					
+				}
+				state.splice(promises.length, delta);				
+			} 
+		
+			var self = this;
+			var syncId = ++this.syncId;
+		
+			//var dataProviders = this.dataProviders;
+			
+			var handleData = function(data, i) {
+				if(syncId != self.syncId) {
+					return;
+				}
+				
+				//console.log("Syncing with data: ", data);
+			
+				var tmp = self.state[i];
+				self.collection.remove(tmp);
+
+				state[i] = data;
+				if(data) { // FIXME only reject null and undefined.
+					self.collection.add(data);
+				}				
+			};
+			
+			_.each(promises, function(promise, i) {
+	
+				promise.done(function(data) {
+					handleData(data, i);
+				}).fail(function(json) {
+					// TODO Factor this out into error handling code
+					var data = {
+						id: "error" + i,
+						type: "error",
+						data: json
+					};
+					
+					handleData(data, i);
+				});
+									
+			});
+		}
+	};
+
+	
+	
 	
 	ns.DefaultModel = Backbone.Model.extend({
 		defaults: {
@@ -102,6 +196,46 @@
 		}
 
 	});
+
+	
+	ns.ControllerSlaveCollection = function(masterCollection, slaveCollection, fnTransform) {
+		this.masterCollection = masterCollection;
+		this.slaveCollection = slaveCollection;
+		this.fnTransform = fnTransform;
+		
+		this.bind();
+	};
+	
+	ns.ControllerSlaveCollection.prototype = {
+		bind: function() {
+			_.bindAll(this);
+			this.masterCollection.on('add', this.onAdd);
+			this.masterCollection.on('remove', this.onRemove);
+			this.masterCollection.on('reset', this.onReset);
+		},
+		
+		onAdd: function(model) {
+			var newModel = fnTransform(model);
+			
+			this.slaveCollection.add(newModel);			
+		},
+		
+		onRemove: function(model) {
+			var newModel = fnTransform(model);
+			
+			this.slaveCollection.remove(newModel.id);
+		},
+		
+		onReset: function(collection) {
+			var self = this;
+			var newModels = collection.map(function(model) {
+				var newModel = self.fnTransform(model);
+				return newModel;
+			});
+
+			this.slaveCollection.reset(newModels);
+		}
+	};
 	
 	/**
 	 * 
@@ -114,7 +248,7 @@
 
 			
 			var promise = fnPromise(clone);
-			$.when(promise).done(function(newState) {
+			promise.done(function(newState) {
 				// TODO Treat request order properly
 				slaveCollection.add(newState);
 				//var newState = fn(model.attributes);
@@ -125,7 +259,25 @@
 			// TODO Delete by id AND/OR cid
 			slaveCollection.remove(model.id);			
 		});
+		
+		masterCollection.on('reset', function(collection, options) {
+			
+			slaveCollection.reset();
+		});
 	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -234,6 +386,10 @@
 	};
 	
 	/**
+	 * Deprecated: Resource labels are set on the DOM level using SpanI18N
+	 * 
+	 * 
+	 * --
 	 * Returns a function that processes a json ResultSet:
 	 * - parses all plain Json Nodes to sparql.Node objects
 	 * - associates the label with each result set binding
@@ -459,81 +615,6 @@
 	});
 
 	
-	ns.CollectionCombine = function(collection) {
-		this.collection = collection ? collection : new Backbone.Collection();			
-		this.state = [];
-		this.syncId = 0;
-	};
-	
-	ns.CollectionCombine.prototype = {
-
-		getCollection: function() {
-			return this.collection;
-		},				
-	
-		sync: function(promises) {
-		
-			var state = this.state;
-			var collection = this.collection;
-			
-			// Add
-			{
-				var delta = promises.length - state.length;
-				for(var i = 0; i < delta; ++i) {
-					state[i] = [];
-				}
-			}
-			
-			// Remove
-			{
-				var delta = state.length - promises.length;
-				
-				for(var i = state.length - 1; i > promises.length; --i) {
-					var tmp = state[i];
-					collection.remove(tmp);					
-				}
-				state.splice(promises.length, delta);				
-			} 
-		
-			var self = this;
-			var syncId = ++this.syncId;
-		
-			//var dataProviders = this.dataProviders;
-			
-			var handleData = function(data, i) {
-				if(syncId != self.syncId) {
-					return;
-				}
-				
-				//console.log("Syncing with data: ", data);
-			
-				var tmp = self.state[i];
-				self.collection.remove(tmp);
-
-				state[i] = data;
-				if(data) { // FIXME only reject null and undefined.
-					self.collection.add(data);
-				}				
-			};
-			
-			_.each(promises, function(promise, i) {
-	
-				promise.done(function(data) {
-					handleData(data, i);
-				}).fail(function(json) {
-					// TODO Factor this out into error handling code
-					var data = {
-						id: "error" + i,
-						type: "error",
-						data: json
-					};
-					
-					handleData(data, i);
-				});
-									
-			});
-		}
-	};
 			
 	
 })();

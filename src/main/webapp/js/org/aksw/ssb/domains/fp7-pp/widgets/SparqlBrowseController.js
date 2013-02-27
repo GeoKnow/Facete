@@ -324,7 +324,7 @@
 		var result = createExecutorQueryFactory(sparqlService, queryFactory);
 		
 		return result;
-	}
+	};
 
 	var createExecutorQuery = function(sparqlService, query) {
 		var queryFactory = new QueryFactoryQuery(query);

@@ -46,7 +46,7 @@
         <!-- <script type="text/javascript" src="src/main/webapp/js/prototypes.js"></script> -->
 
         <script type="text/javascript" src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
-        <script type="text/javascript" src="lib/jquery/1.7.2/jquery-1.7.2.js"></script>
+        <script type="text/javascript" src="lib/jquery/1.9.1/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>
         <script type="text/javascript" src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
         <script type="text/javascript" src="lib/underscore/1.3.1/underscore.js"></script>
@@ -85,13 +85,19 @@
 
 
 	<div id="wrapper">
+		<span data-uri="http://example.org/ontology/Project"></span>
 	
-	<input id="searchInput" type="text" />
-	<ul id="facets" style="list-style: none; list-style-type:none;">	
-	</ul>
+		<span data-uri="http://fp7-pp.publicdata.eu/ontology/city"></span>
 	
-	<div id="facetValues" />
-	<div id="instances" />
+
+		<div id="testcheck"></div>
 	
+		<input id="searchInput" type="text" />
+		
+		<ul id="facets" style="list-style: none; list-style-type:none;"></ul>	
+	
+		<div id="facetValues"></div>
+		<div id="instances"></div>
+		</div>
 </body>
 </html>

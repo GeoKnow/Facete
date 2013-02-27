@@ -54,7 +54,7 @@
 		});
 		
 		return result;
-	}
+	};
 
 	$.fn.ssb.paginator = function(options) {
 		var el = this[0];

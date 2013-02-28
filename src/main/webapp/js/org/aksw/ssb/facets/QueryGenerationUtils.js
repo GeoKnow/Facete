@@ -143,6 +143,7 @@
 	ns.createQueryAnyResource = function(outputVar) {
 		var concept = new facets.ConceptInt(ns.createElementAnyResource(outputVar), outputVar);
 		var result = ns.createQuerySelect(concept, {distinct: true});
+		return result;
 	};
 	
 	/**

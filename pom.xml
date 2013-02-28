@@ -130,6 +130,9 @@
 								<param>org/aksw/ssb/widgets/ConstraintWidget.js</param>
 								<param>org/aksw/ssb/widgets/BackboneWidgets.js</param>
 								<param>org/aksw/ssb/widgets/SearchWidget.js</param>
+								<param>org/aksw/ssb/widgets/map/RdfGraph.js</param>
+								<param>org/aksw/ssb/widgets/map/jquery.ssb.map.js</param>
+								<param>org/aksw/ssb/widgets/map/MapView.js</param>
 
 								<param>org/aksw/ssb/collections/QuadTreeModel.js</param>
 								<param>org/aksw/ssb/backend/QuadTreeCache.js</param>

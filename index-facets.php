@@ -94,10 +94,7 @@
 			<div id="instances"></div>
 		</div>
 
-		<div class="span5">
-			<p>
-				Imagine there was a map
-			</p>
+		<div id="map" class="span5" style="height: 500px">
 		</div>
 
 	</div>

@@ -808,8 +808,10 @@
 		// facetManager: new
 		});
 
-		var facetProviders = [ new facets.FacetProviderSimple(sparqlService,
-				false) ];
+		var facetProviders = [
+		    new facets.FacetProviderSimple(sparqlService, false),
+		    //new facets.FacetProviderSimple(sparqlService, true)
+		];
 
 		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept);
 
@@ -1059,6 +1061,11 @@
 						});
 						
 						var constraint = model.get('constraint');
+						if(!constraint) {
+							console.log("No constraint available - should not happen");
+							return [];
+						}
+						
 						var node = constraint.node;
 						var c2;
 						if(node.isUri()) {
@@ -1281,6 +1288,7 @@
 		 * Initialize the result table list
 		 * 
 		 */
+		var rsTableModel;
 		{
 			//var queryGenerator = new facets.QueryGenerator(tableModel);
 			//var queryGenerator = tableModel;
@@ -1296,6 +1304,7 @@
 
 			
 			var tableModel = models.browseConfig.config.tableModel;
+			rsTableModel = tableModel;
 			tableModel.set({
 				queryFactory : queryFactory
 			});
@@ -1356,6 +1365,129 @@
 			
 		
 		
+		
+		/*
+		 * Add the map view
+		 * 
+		 * 
+		 */
+		var MapModel = Backbone.Model.extend({
+			/**
+			 * The collection of resources that should be displayed. 
+			 */
+			uris: [],
+			//resources: new ResourceCollection(),
+			
+			/**
+			 * Rdf data about these resources in Talis Json format
+			 */
+			json: {},		
+		});
+		
+		/*		
+		var MarkerModel = Backbone.Model.extend({
+			id: "http://example.org/defaultid",
+			data: {}
+		});
+		*/
+		
+		
+		
+		var mapModel = new MapModel();
+		
+		var mapView = new widgets.MapView({
+			el: $("#map"),
+			model: mapModel
+		});
+
+		mapView.on("mapevent", function() {
+			console.log("mapevent");
+		});
+		
+		mapView.on("markerclick", function(ev, data) {
+			//console.log("click", ev, data);
+			var id = data.id;
+			var json = data.json;
+			
+			alert("Clicked " + id + " with data " + JSON.stringify(json));
+		});
+		
+		mapView.render();
+		
+		
+		
+		var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
+		var geoPath = facets.Path.fromString(geoPathStr);
+		
+
+		
+		var sparqlServicePaginated = new backend.SparqlServicePaginator(sparqlService, 1000);
+		var queryCacheFactory = new labelUtils.QueryCacheFactory(sparqlServicePaginated);
+		var geomPointFetcher = new labelUtils.GeomPointFetcher(queryCacheFactory);
+
+		
+		
+		rsTableModel.on('change:queryFactory', function(model) {
+			
+			var concept = facetFacade.forPath(geoPath).createConcept();
+			var varName = concept.getVariable().value;
+			var query = queryUtils.createQuerySelect(concept, {distinct: true});
+			
+			console.log("GEO QUERY" + query);
+			
+			var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
+
+				var uris = _.map(jsonRs.results.bindings, function(binding) {
+					return sparql.Node.uri(binding[varName].value);
+				});
+				
+				//console.log("Related geomtery uris: ", uris.length, uris);
+				
+				var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
+
+					var rdfGraph = {};
+					
+					_.each(uriToPoint, function(point, uri) {
+						rdfGraph[uri] = {
+								'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.y}],
+								'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.x}],
+								//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
+						};
+					});
+
+					return rdfGraph;
+				});
+				
+				return promise;
+			});
+			
+			promise.done(function(rdfGraph) {
+				
+				//console.log("RDF GRAPH:", rdfGraph);
+				
+				var uris = _.keys(rdfGraph);
+				
+				mapModel.set({uris: uris, json: rdfGraph});
+			});
+			
+		
+			
+		});
+		
+		rsCollection.on('reset', function(collection) {
+			//Highlight the markers on the map
+			
+			// FIXME Get the query (factory) for the result set.
+			//queryFactory
+		});
+		
+		
+		
+
+		/* Does not work; Open Layers needs a non-zero size area to init
+		var $mapEl = mapView.render().$el;
+		$('#map').append($mapEl);
+		*/
 		
 		
 		

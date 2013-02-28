@@ -421,7 +421,12 @@ $.widget("ui.ssb_map2", {
 	 */
 	addItem: function(id, lonlat, attrs, visible) {
 		
-		
+		var feature = this.nodeToFeature[id];
+		if(feature) {
+			console.log("Feature already existed, replacing.")
+			
+			this.removeItem(id);
+		}
 		
 		
 		var feature = this.createMarker(id, lonlat, attrs);
@@ -480,7 +485,7 @@ $.widget("ui.ssb_map2", {
 		if(feature) {
 			//self.markerLayer.removeMarker(feature.marker);
 			this.featureLayer.removeFeatures([feature]);
-			delete self.nodeToFeature[id];
+			delete this.nodeToFeature[id];
 		}					
 	},
 	

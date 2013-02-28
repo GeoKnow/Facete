@@ -65,8 +65,8 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 	    	
 	    	var addedUris = _.difference(newUris, oldUris);
 	    	var removedUris = _.difference(oldUris, newUris);
-			console.log("[MapView::updateView@addedUris]", addedUris);
-			console.log("[MapView::updateView@removedUris]", removedUris);
+			//console.log("[MapView::updateView@addedUris]", addedUris);
+			//console.log("[MapView::updateView@removedUris]", removedUris);
 	    	
 			//debugger;
 			

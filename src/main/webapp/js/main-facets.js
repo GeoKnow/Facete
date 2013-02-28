@@ -1429,7 +1429,14 @@
 		
 		rsTableModel.on('change:queryFactory', function(model) {
 			
-			var concept = facetFacade.forPath(geoPath).createConcept();
+			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
+			//var queryFactory = new facets.QueryFactoryFacets(this.subQueryFactory, this.facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();
+			
+			
+			var hack = facetFacade.forPath(geoPath);
+			hack.constraintManager = constraintManager; 
+			
+			var concept = hack.createConcept();
 			var varName = concept.getVariable().value;
 			var query = queryUtils.createQuerySelect(concept, {distinct: true});
 			
@@ -1449,8 +1456,8 @@
 					
 					_.each(uriToPoint, function(point, uri) {
 						rdfGraph[uri] = {
-								'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.y}],
-								'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.x}],
+								'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.x}],
+								'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}],
 								//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
 						};
 					});

@@ -84,20 +84,22 @@
 <body>
 
 
-	<div id="wrapper">
-		<span data-uri="http://example.org/ontology/Project"></span>
-	
-		<span data-uri="http://fp7-pp.publicdata.eu/ontology/city"></span>
-	
-
-		<div id="testcheck"></div>
-	
-		<input id="searchInput" type="text" />
-		
-		<ul id="facets" style="list-style: none; list-style-type:none;"></ul>	
-	
-		<div id="facetValues"></div>
-		<div id="instances"></div>
+	<div class="row-fluid">
+		<div class="span2">
+			<ul id="facets" style="list-style: none; list-style-type:none;"></ul>			
 		</div>
+		
+		<div class="span5">
+			<div id="facetValues"></div>
+			<div id="instances"></div>
+		</div>
+
+		<div class="span5">
+			<p>
+				Imagine there was a map
+			</p>
+		</div>
+
+	</div>
 </body>
 </html>

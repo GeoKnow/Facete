@@ -169,20 +169,27 @@
 		this.datatype = datatype;
 	};
 	
-	ns.Node.prototype.getValue = function() {
-		return this.value;
-	};
+	ns.Node.prototype = {
+			getValue: function() {
+				return this.value;
+			},
 	
-	ns.Node.prototype.getType = function() {
-		return this.type;
-	};
+			getType: function() {
+				return this.type;
+			},
 	
-	ns.Node.prototype.getLanguage = function() {
-		return this.language;
-	};
+			getLanguage: function() {
+				return this.language;
+			},
 	
-	ns.Node.prototype.getDatatype = function() {
-		return this.datatype;
+			getDatatype: function() {
+				return this.datatype;
+			},
+			
+			equals: function(that) {
+				var result = _.isEqual(this, that);
+				return result;
+			}
 	};
 	
 	

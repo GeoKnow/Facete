@@ -13,6 +13,7 @@
 (function() {
 	
 	var self = this;
+	var ns = this;
 	
 	/**
 	 * A widget for displaying project information;
@@ -25,8 +26,135 @@
 	this.TableView = widgets.ListView.extend({
 		tagName: 'table'
 	});
-		
 
+
+	/*
+	this.ItemViewBase2 = Backbone.View.extend({
+	    initialize: function(){
+	    	_.bindAll(this);
+	    	
+	    	this.model.bind('change', this.render, this);
+	    	this.model.bind('remove', this.unrender, this);
+	    },
+	    unrender: function() {
+	      $(this.el).remove();
+	    },
+	    remove: function(){
+	      this.model.destroy();
+	    }
+	});
+	*/
+
+	this.RowView2 = Backbone.View.extend({
+		tagName: 'tr',
+	    initialize: function(){
+	    	_.bindAll(this);
+	    	
+	    	//this.model.bind('change', this.render, this);
+	    	this.model.bind('remove', this.unrender, this);
+	    },
+	    render: function() {
+	    	var els = this.options.rowItemRenderer(this.model);
+
+	    	var tds = _.map(els, function(el) {
+				var td = $('<td></td>');
+				td.append(el);
+				return td;
+			});
+	    	
+			var $el = this.$el;
+			_.each(tds, function(td) {
+				$el.append(td);
+			});
+			
+			return this;
+	    },
+	    unrender: function() {
+	      this.$el.remove();
+	    }
+	});
+
+	/**
+	 *
+	 */
+	this.TableView2 = Backbone.View.extend({
+		tagName: 'table',
+		initialize: function() {
+			_.bindAll(this);
+			
+	    	this.collection.bind('add', this.renderRow, this);
+	    	this.collection.bind('reset', this.reset, this);
+		},
+		render: function() {
+			this.collection.map(this.renderRow);
+			
+			return this;
+		},
+		renderRow: function(model) {
+			var rowView = new ns.RowView2({
+				model: model,
+				rowItemRenderer: this.options.rowItemRenderer
+			});
+			
+			var $rowViewEl = rowView.render().$el;
+			this.$el.append($rowViewEl);
+		},
+		unrender: function() {
+			this.$el.remove();
+		},
+	    reset: function() {
+	    	this.$el.empty();
+	    	this.render();
+	    }
+	});
+	
+	/*
+	this.TableViewMap = this.TableViewBase.extend({
+		renderRow: function(model) {
+			var nameToRenderer = this.nameToRenderer;
+			var defaultRenderer = this.defaultRenderer;
+			
+			_.each(this.columnNames, function(columnName) {
+				var renderer = this.nameToRenderer[columName];
+				if(!renderer) {
+					renderer = defaultRenderer;
+				}
+				
+				
+			});
+		}
+	});
+*/
+	
+	/**
+	 * 
+	 * I guess I want something like:
+	 * 
+	 * var MyItemView = ItemViewRowBase.extend({
+	 * 	renderMap: { 
+	 *      s: CheckBoxView
+	 *      p: FoobarView
+	 *  }
+	 * });
+	 * 
+	 * 
+	 */
+	
+/*
+	this.ItemViewRowBase = this.ItemViewBase2.extend({
+		tagName: 'tr',
+		render: function() {
+			this.constructor.__super__.render.apply(this);
+			Backbone.View.prototype.render.apply(this);
+			var tds = this.renderRow();
+			
+			var $el = this.$el;
+			_.each(tds, function(td) {
+				$el.append(td);
+			});
+		}
+	});
+*/ 
 	
 	this.ItemViewRowBase = Backbone.View.extend({
 	    tagName: 'tr',

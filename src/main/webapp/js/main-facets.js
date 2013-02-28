@@ -350,14 +350,22 @@
 	// a concept for its values.
 	// { type: name: concept: }
 
-	ns.ModelFacetUpdater = function(facetProviders) {
+	ns.ModelFacetUpdater = function(facetProviders, baseConcept) {
 		this.facetProviders = facetProviders;
+		this.baseConcept = baseConcept;
 	};
 
 	ns.ModelFacetUpdater.prototype = {
 		updateFacets : function(model, facetFacadeNode) {
 
-			var concept = facetFacadeNode.createConcept();
+			var tmpConcept = facetFacadeNode.createConcept();
+			
+			var tmpElement = new sparql.ElementGroup([this.baseConcept.getElement(), tmpConcept.getElement()]);
+			
+			//concept.getElement().push(this.baseConcept.getElement());
+			var concept = new facets.ConceptInt(tmpElement, tmpConcept.getVariable());
+			
+			
 			// console.log("Loading facets for concept:" + concept);
 			// console.log("The model is: ", model);
 
@@ -484,6 +492,8 @@
 				events : {
 					'click a.expandable' : function(ev) {
 						ev.preventDefault();
+						
+						// Workaround for backbone not supporting relative paths for event target selector
 						var expectedTarget = this.$el.find("> a.expandable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
@@ -507,6 +517,8 @@
 					},
 					'click .activate' : function(ev) {
 						ev.preventDefault();
+						
+						// Workaround for backbone not supporting relative paths for event target selector
 						var expectedTarget = this.$el.find("> a.activate")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
@@ -524,6 +536,8 @@
 								queryGenerator, {
 									distinct : true
 								});
+						
+						// TODO Combine the concept for the facet selection with the initial concept
 
 						// var models = createQueryBrowser(sparqlService,
 						// labelFetcher);
@@ -578,6 +592,9 @@
 			});
 
 	widgets.ViewFacetTree = widgets.ListView.extend({
+		attributes: {
+			'class': 'facet'
+		},
 		itemRenderer : widgets.facetItemRenderer
 	});
 
@@ -613,14 +630,25 @@
 		
 		existsEquals: function(path, node) {
 			var result = this.some(function(model) {
-				var constraint = model.constraint;
+				
+				//console.log("Comparing path and node to model:", path, node, model);
+				
+				var constraint = model.get('constraint');
 				//var constraint = model;
+
+				/*
+				console.log("Comparing path and node to model:", path, node, model);
+				console.log(constraint.type === 'equals');
+				console.log(path.equals(constraint.path));
+				console.log(node.equals(constraint.node));
+				*/
 				
 				var test
-					= model.type === 'equals'
+					= constraint.type === 'equals'
 					&& path.equals(constraint.path)
 					&& node.equals(constraint.node);
 			
+				
 				return test;
 			});
 			
@@ -783,7 +811,7 @@
 		var facetProviders = [ new facets.FacetProviderSimple(sparqlService,
 				false) ];
 
-		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders);
+		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept);
 
 		var rootModel = new facets.ModelFacetNode();
 
@@ -874,10 +902,13 @@
 				_.bindAll(this); //, 'render', 'unrender', 'remove', 'setCheckState'); // every
 					
 				//this.model.on('change:isChecked', 'setCheckState');
-				this.model.on('change:isChecked', this.setCheckState);
+				this.model.on('change:isChecked', this.updateCheckState);
+		    	this.model.bind('remove', this.unrender, this);
+		    	
+		    	this.updateCheckState();
 			},
-			setCheckState: function(model) {
-				var isChecked = model.get("isChecked");
+			updateCheckState: function() {
+				var isChecked = this.model.get("isChecked");
 				this.$el.attr('checked', isChecked);
 				console.log("setCheckState", isChecked, this.$el);
 			},
@@ -985,17 +1016,7 @@
 				}
 			}
 		});
-		
-
-		var checkViewItem = new ViewItemCheckConstraint({
-			model: new ModelItemCheckConstraint() 
-		});
-
-		var el = checkViewItem.render().$el;
-		
-		$("#testcheck").append(el);
-		console.log("this.$el", el);
-		
+				
 		
 
 		var labelFetcher = new labelUtils.LabelFetcher(sparqlService, ['de', 'en', '']);
@@ -1029,11 +1050,31 @@
 			models.browseConfig.collection = new CollectionItemCheckConstraint();
 			
 			createView(container, models, function(options) {
-				
 
+				var result = new widgets.TableView2({
+					collection : options.collection,
+					rowItemRenderer: function(model) {
+						var c1 = new ViewItemCheckConstraint({
+							model: model
+						});
+						
+						var constraint = model.get('constraint');
+						var node = constraint.node;
+						var c2;
+						if(node.isUri()) {
+							c2 = $('<span>' + node.value + '</span>');
+						}
+						
+						
+						
+						var result = [c1.render().$el, c2];
+						
+						return result;
+					}
+				});
+				return result;
 				
-				
-				
+				/*
 				var facetValueItemRenderer = new widgets.RendererItemView({}, null,
 						ViewItemCheckConstraint, {
 							label : "simpleLabel"
@@ -1042,7 +1083,7 @@
 				var ViewFacetValues = widgets.ListView.extend({
 					itemRenderer : facetValueItemRenderer
 				});
-
+				 */
 				
 				/*
 				var tableView = new TableView(
@@ -1058,27 +1099,14 @@
 				
 				
 				
-				var result = new ViewFacetValues(options);
-				return result;
+				//var result = new ViewFacetValues(options);
+				//return result;
 			});
 		}
 
 		console.log("Models:", models);
 		
 		var rsCollection = models.browseConfig.collection;
-		
-		console.log("Collection:", rsCollection);
-		
-				
-		rsCollection.on('add', function(model) {
-			alert("foobar");
-			console.log("added:", model);
-		});
-		
-		rsCollection.on('remove', function(model) {
-			console.log("remove:", model);
-		});
-		
 		
 
 		/**

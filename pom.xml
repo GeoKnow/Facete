@@ -47,6 +47,7 @@
 								<!-- <param>lib/Font-Awesome/current/css/font-awesome.css</param> -->
 								<!-- <param>lib/jquery-ui/1.8.16/themes/base/jquery-ui.css</param> -->
 								<param>style-old.css</param>
+								<param>style-ec.css</param>
 								<param>style.css</param>
 							</cssSourceFiles>
 							<cssFinalFile>semmap.css</cssFinalFile>

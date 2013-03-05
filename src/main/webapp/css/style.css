@@ -1,4 +1,26 @@
+
+/* Custom classes for SemMap */
 ul .facet {
 	list-style: none;
 	list-style-type:none;
 }
+
+
+/* Overrides of the ec css */
+.container {
+	width: 100% !important;
+}
+
+.header {
+	width: 100% !important;
+	height: 88px !important;
+}
+
+.header .span12 {
+	height: 88px !important;
+}
+
+.header .logo {
+	padding: 1em 1em 1em 3em;
+}
+

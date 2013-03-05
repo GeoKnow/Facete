@@ -5,7 +5,7 @@
 
 target
 deleteme
-
+tmp
 
 # Temporary excludes:
 install-rdf-author.sh

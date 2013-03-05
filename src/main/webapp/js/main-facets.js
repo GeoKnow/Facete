@@ -407,13 +407,18 @@
 			model.set({
 				isLoading : true
 			});
-			$.when(promises, function() {
+
+			var finalPromise = $.when(promises);
+			
+			finalPromise.done(function() {
 				model.set({
 					isLoading : false
 				});
 			});
 
 			syncer.sync(promises);
+			
+			return finalPromise;
 		}
 
 	};
@@ -423,22 +428,9 @@
 				tagName : 'li',
 				// attributes: {style: 'float: left'},
 				initialize : function() {
-					_.bindAll(this, 'render', 'unrender', 'remove'); // every
-																		// function
-																		// that
-																		// uses
-																		// 'this'
-																		// as
-																		// the
-																		// current
-																		// object
-																		// should
-																		// be in
-																		// here
+					_.bindAll(this); 
 
 					var options = this.options;
-					// console.log("Created view for facet item", options);
-					// this.parent = this.model.get("parent");
 
 					var parent = options.parent;
 					var parentOptions = parent.options;
@@ -458,6 +450,7 @@
 					// model.bind('change', this.render, this);
 					model.bind('remove', this.unrender, this);
 					model.on('change:isExpanded', this.changeIsExpanded, this);
+					model.on('change:isLoading', this.updateIsLoading, this);
 					// model.bind('change:isExpanded', function())
 
 					// var children = model.get("children");
@@ -469,13 +462,36 @@
 					}
 
 					this.facetValuesView = null;
-
 				},
 
+				updateIsLoading: function() {
+					var $elI = this.$el.find("> a.expandable > i");
+					var $elImg = $elI.find("> img");
+
+					$elImg.remove();
+
+					var isLoading = this.model.get("isLoading");
+					if(isLoading) {
+						//console.log("SHOWING ICON");
+						$elI.append('<img src="src/main/resources/icons/loading.gif" />');
+					}
+				},
+				
 				changeIsExpanded : function() {
 					var model = this.model;
 					var isExpanded = model.get('isExpanded');
 
+					var $elI = this.$el.find("> a.expandable > i");
+
+					if(isExpanded) {
+						$elI.removeClass("icon-plus");
+						$elI.addClass("icon-minus");
+					}
+					else {
+						$elI.removeClass("icon-minus");
+						$elI.addClass("icon-plus");					
+					}
+					
 					// var subFacetWidget = this.subFacetWidget;
 					// if(!subFacetWidget) {
 					// return;
@@ -509,10 +525,27 @@
 							var facetFacadeNode = model.get("facetFacadeNode");
 
 							model.set({
-								'isExpanded' : true
+								'isExpanded' : true,
 							});
-							this.modelFacetUpdater.updateFacets(model,
-									facetFacadeNode);
+
+							var simulateLoad = false;// true;
+							if(simulateLoad) {
+								model.set({isLoading: true});
+								var scheduler = new Scheduler(5000, true);
+								
+								var self = this;
+								scheduler.schedule(function() {
+									console.log("bar");
+									self.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+								});
+							} else {							
+								this.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+							}
+/*							
+							promise.done(function() {
+								console.log("DONE LOADING");
+							});
+							*/
 						}
 					},
 					'click .activate' : function(ev) {
@@ -557,7 +590,8 @@
 
 					var html
 						= '<a class="expandable" href="#">'
-						+ '    <img src="src/main/resources/osm-logo-small.png" />'
+						//+ '    <img src="src/main/resources/osm-logo-small.png" />'
+						+ '    <i class="icon-plus" />'
 						+ '</a>'
 						+ '<a class="activate" href="#">'
 						+ '    <span data-uri="' + text + '"></span>'
@@ -708,9 +742,16 @@
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
 
+//		var sparqlService = new backend.SparqlServiceHttp(
+//				"http://fts.publicdata.eu/sparql",
+//				[ "http://fts.publicdata.eu/" ],
+//				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
+
 		var v = sparql.Node.v("s");
 		var element = new sparql.ElementString(
 				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
+//		var element = new sparql.ElementString(
+//				"?s a <http://fts.publicdata.eu/ontology/Commitment>", [ v ]);
 
 		var concept = new facets.ConceptInt(element, v);
 		var queryGenerator = new facets.QueryGenerator(concept);

@@ -145,23 +145,34 @@ var SchedulerDeferred = function(timeout) {
  * 
  * @returns {Scheduler}
  */
-var Scheduler = function(requestPeriod) {
-	this.lastRequestTime = 0;
+var Scheduler = function(requestPeriod, useNow) {
+	this.lastRequestTime = useNow ? this.now() : 0;
 	this.requestPeriod = requestPeriod ? requestPeriod : 2000; // Minimum period between requests 
 };
 
-Scheduler.prototype.schedule = function(callback) {
-	var now = new Date().getTime();
-	var delay = Math.max(0, this.requestPeriod - (now - this.lastRequestTime));
+Scheduler.prototype = {
+		now: function() {
+			return new Date().getTime();
+		},
+		schedule: function(callback) {
+			var now = this.now();
+			var delay = Math.max(0, this.requestPeriod - (now - this.lastRequestTime));
 
-	clearTimeout(this.timeout);
-
-	var outer = this;
-	
-	this.timeout = setTimeout(function() {
-		outer.lastRequestTime = new Date().getTime();
-		callback();
-	}, delay);
+			// Abort a pending request and replace it with the new one
+			this.abort();
+		
+			var outer = this;
+			
+			var self = this;
+			this.timeout = setTimeout(function() {
+				outer.lastRequestTime = self.now();
+				callback();
+			}, delay);
+		},
+		
+		abort: function() {
+			clearTimeout(this.timeout);
+		}
 };
 
 function toOpenLayersBounds(bounds) {

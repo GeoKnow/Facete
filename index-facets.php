@@ -2,7 +2,7 @@
     // false: include minimized JavaScript, otherwise include original source
     $debug = true;
 
-    $activeThemePath = "themes/lgd";
+    $activeThemePath = "themes/odp2";
 
     $configXml = simplexml_load_file("$activeThemePath/server-config.xml");
     $title = (string)$configXml->title;
@@ -82,21 +82,22 @@
 	</script>
 </head>
 <body>
+	<div class="container">
+		<?php include($headerFile); ?>
 
 
-	<div class="row-fluid">
-		<div class="span2">
-			<ul id="facets" style="list-style: none; list-style-type:none;"></ul>			
-		</div>
+		<div class="row-fluid">
+			<div class="span2">
+				<ul id="facets" style="list-style: none; list-style-type:none;"></ul>			
+			</div>
 		
-		<div class="span5">
-			<div id="facetValues"></div>
-			<div id="instances"></div>
-		</div>
+			<div class="span5">
+				<div id="facetValues"></div>
+				<div id="instances"></div>
+			</div>
 
-		<div id="map" class="span5" style="height: 500px">
+			<div id="map" class="span5" style="height: 500px"></div>
 		</div>
-
-	</div>
+    </div>
 </body>
 </html>

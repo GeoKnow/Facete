@@ -92,7 +92,7 @@
 			</div>
 		
 			<div class="span5">
-				<div id="facetValues"></div>
+				<div id="facetValues" style="height: 300px"></div>
 				<div id="instances"></div>
 			</div>
 

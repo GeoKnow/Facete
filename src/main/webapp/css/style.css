@@ -1,12 +1,39 @@
+/*
+ * Bootstrap overrides for SemMap
+ */
+ 
+.pagination {
+	margin: 5px;
+	height: 17px;
+}
 
-/* Custom classes for SemMap */
+.pagination a {
+	padding: 0 7px;
+	line-height: 17px;
+}
+
+.table-striped tbody tr:nth-child(odd) td,
+.table-striped tbody tr:nth-child(odd) th {
+  background-color: #f0f0ff;
+}
+
+
+/*
+ * Custom classes for SemMap
+ */
+
 ul .facet {
 	list-style: none;
 	list-style-type:none;
 }
 
 
-/* Overrides of the ec css */
+
+
+/*
+ * Overrides of the ec css
+ */
+ 
 .container {
 	width: 100% !important;
 }
@@ -24,3 +51,12 @@ ul .facet {
 	padding: 1em 1em 1em 3em;
 }
 
+
+/*
+ * Fixes, workarounds and hacks
+ */
+ 
+ /* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
+img {
+	max-width: none !important;
+}

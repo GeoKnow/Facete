@@ -160,6 +160,16 @@
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlQueryBrowser.js</param>
 
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/NewFilterBox.js</param>
+								
+								<param>org/aksw/ssb/facets/mvc/models.js</param>
+								<param>org/aksw/ssb/facets/mvc/views.js</param>
+								<param>org/aksw/ssb/facets/mvc/controllers.js</param>
+								<param>org/aksw/ssb/facets/mvc/utils.js</param>
+
+
+								<param>org/aksw/ssb/utils/i18n/SpanI18n.js</param>
+								
+								
 							</jsSourceFiles>
 							<jsFinalFile>semmap.js</jsFinalFile>
 

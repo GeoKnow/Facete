@@ -52,8 +52,12 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 	      $(this.el).remove();
 	    },
 	    
-	    remove: function(){
+	    remove: function() {
 	      this.model.destroy();
+	    },
+	    
+	    getMap: function() {
+	    	return this.legacyWidget.map;
 	    },
 	    
 	    

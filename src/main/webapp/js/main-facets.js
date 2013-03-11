@@ -1,3 +1,4 @@
+	//TODO: Get rid of these global variables
 	var foobarI18N;
 	var foobarTableModel;
 
@@ -17,6 +18,9 @@
 
 	ns.facetTest = function() {
 
+
+		
+		
 		var sparqlService = new backend.SparqlServiceHttp(
 				"http://localhost:8810/sparql",
 				[ "http://fp7-pp.publicdata.eu/" ],
@@ -542,6 +546,39 @@
 		foobarI18N = new utils.SpanI18n(labelFetcher);
 		var tmpEl = $(document);
 		foobarI18N.update(tmpEl);
+		
+
+		
+		
+		
+		var $elCenterOnMap = $('#centerMapOnPosition');
+		
+		$elCenterOnMap.on('click', function(ev) {
+			ev.preventDefault();
+			
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+					var map = mapView.getMap();
+
+					var coords = position.coords;
+					var center = new OpenLayers.LonLat(coords.longitude, coords.latitude);
+				
+					center.transform(map.displayProjection, map.projection);
+
+					 
+					map.setCenter(center, 10);
+				}, function() {
+					  
+				});
+			} else {
+				// TODO Disable the button and indicate that the functionality is not available
+				// e.g. Grey out the button and add a tooltip
+				//$elCenterOnMap
+			}
+			
+		});
+
+
 	};
 
 	/*

@@ -96,7 +96,12 @@
 				<div id="instances"></div>
 			</div>
 
-			<div id="map" class="span5" style="height: 500px"></div>
+			<div id="mapContainer" class="span5" style="height: 500px; position:relative">
+				<div id="map" style="height: 500px;"></div>
+				<a id="centerMapOnPosition" href="#" style="position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
+			</div>
+ 
+			
 		</div>
     </div>
 </body>

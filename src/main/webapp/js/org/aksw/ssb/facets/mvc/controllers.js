@@ -76,6 +76,8 @@
 	
 	
 	/**
+	 * In a nutshell, this class add a 'isChecked' attribute the facet values
+	 * based on the status of the constraint collection.
 	 * This class can transform models according to the constraint collection state.
 	 * 
 	 * But what if the constraintCollection changes?

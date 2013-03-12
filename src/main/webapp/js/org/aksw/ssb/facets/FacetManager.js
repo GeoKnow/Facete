@@ -1050,7 +1050,27 @@
 				
 				var result = new facets.ConceptInt(element, v);
 				return result;
-			}
+			},
+			
+			
+			/**
+			 * Returns a list of steps of _this_ node for which constraints exist
+			 * 
+			 * Use the filter to only select steps that e.g. correspond to outgoing properties
+			 */
+			getConstrainedSteps: function(fnFilter) {
+				var result = this.constraintManager.getConstrainedSteps(fnFilter);
+				return result;
+			},
+			
+			
+			/**
+			 * Returns a list of steps for _this_ node for which constraints exists
+			 * 
+			 */
+			
+			
+			
 			
 			/**
 			 * Creates a util class for common facet needs:

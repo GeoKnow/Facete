@@ -88,15 +88,15 @@
 
 		<div class="row-fluid">
 			<div class="span2">
-				<ul id="facets" style="list-style: none; list-style-type:none;"></ul>			
+				<ul id="facets" style="list-style: none; list-style-type:none;"></ul>
+                <div id="facetValues" style="min-height: 300px"></div>
 			</div>
 		
-			<div class="span5">
-				<div id="facetValues" style="height: 300px"></div>
-				<div id="instances"></div>
+			<div class="span6">
+                <div id="instances"></div>
 			</div>
 
-			<div id="mapContainer" class="span5" style="height: 500px; position:relative">
+			<div id="mapContainer" class="span4">
 				<div id="map" style="height: 500px;"></div>
 				<a id="centerMapOnPosition" href="#" style="position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
 			</div>

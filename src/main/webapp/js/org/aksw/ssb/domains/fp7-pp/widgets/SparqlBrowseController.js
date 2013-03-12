@@ -372,7 +372,7 @@
 		
 		var tableModel = new TableModel(tmpAttrs);
 		var paginatorModel = new widgets.PaginatorModel({
-			maxSlotCount: 11
+			maxSlotCount: 9
 		});
 		
 		

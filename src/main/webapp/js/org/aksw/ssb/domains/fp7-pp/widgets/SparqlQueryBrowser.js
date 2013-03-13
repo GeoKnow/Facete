@@ -332,7 +332,7 @@
 					}
 				});
 
-				var header = $('<div style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
+				var header = $('<div />');//' style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
 				container.append(header);
 				
 				var titleView = new TitleView({model: models.model});
@@ -349,7 +349,7 @@
 				container.append(body);
 												
 				
-				var footer = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
+				var footer = $('<div />'); //style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
 				container.append(footer);
 				
 				footer.append($().ssb.paginator({model: browseConfig.config.paginatorModel}).render().el);

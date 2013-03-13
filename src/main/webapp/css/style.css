@@ -114,3 +114,42 @@ img {
 	/*width: 100%;*/
 }
 
+/*
+ * Central column styling
+ */
+
+#instances {
+	padding-top: 5px;
+	margin-left: -10px;
+}
+
+#instances input {
+	width: 80%;
+	margin-bottom: 5px;
+}
+
+#instances table {
+	margin-top: 5px;
+	width: 100%;
+}
+
+#instances table th {
+	background-color: #d9edf7;
+}
+
+#instances div:nth-last-child(1){
+	margin-top: 10px;
+}
+
+#instances ul {/*div:nth-last-child(1){*/
+	width: 40%;
+	margin: auto;
+}
+
+/*
+ * Right column styling
+ */
+
+#mapContainer {
+
+}

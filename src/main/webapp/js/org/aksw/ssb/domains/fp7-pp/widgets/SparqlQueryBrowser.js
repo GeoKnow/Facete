@@ -189,7 +189,7 @@
 			var TableView = Backbone.View.extend({
 				tagName: 'table',
 				attributes: {
-					'class': 'table table-bordered table-striped table-condensed',
+					'class': 'table table-bordered table-hover',
 					'style': 'margin: 0px'
 				},
 

@@ -339,7 +339,7 @@
 				header.append(titleView.render().el);
 
 			
-				header.append($('<span>Filter:</span>'));
+				//header.append($('<span>Filter:</span>'));
 				header.append($().ssb.searchBox(browseConfig.searchModel).render().el);
 				header.append('<br />');
 				

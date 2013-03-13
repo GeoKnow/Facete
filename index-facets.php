@@ -87,7 +87,7 @@
 
 
 		<div class="row-fluid">
-			<div class="span2">
+			<div class="span2 left-column">
 				<ul id="facets" style="list-style: none; list-style-type:none;"></ul>
                 <div id="facetValues" style="min-height: 300px"></div>
 			</div>

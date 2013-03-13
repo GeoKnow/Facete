@@ -76,8 +76,13 @@ img {
 }
 
 /*
- * Facets styling
+ * Left column facets styling
  */
+.left-column{
+	background-color: #eee;
+	height: 100%;
+}
+
 #facets {
 	margin-top: 10px;
 	margin-left: 10px;

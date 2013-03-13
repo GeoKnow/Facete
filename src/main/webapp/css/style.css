@@ -76,6 +76,10 @@ img {
 }
 
 /*
- * Helper css
+ * Facets styling
  */
-
+#facets {
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}

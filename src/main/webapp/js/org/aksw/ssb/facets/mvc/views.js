@@ -73,12 +73,12 @@
 					var $elI = this.$el.find("> a.expandable > i");
 
 					if(isExpanded) {
-						$elI.removeClass("icon-plus");
-						$elI.addClass("icon-minus");
+						$elI.removeClass("icon-caret-right");
+						$elI.addClass("icon-caret-down");
 					}
 					else {
-						$elI.removeClass("icon-minus");
-						$elI.addClass("icon-plus");					
+						$elI.removeClass("icon-caret-down");
+						$elI.addClass("icon-caret-right");					
 					}
 					
 					// var subFacetWidget = this.subFacetWidget;
@@ -180,7 +180,7 @@
 					var html
 						= '<a class="expandable" href="#">'
 						//+ '    <img src="src/main/resources/osm-logo-small.png" />'
-						+ '    <i class="icon-plus" />'
+						+ '    <i class="icon-caret-right" />'
 						+ '</a>'
 						+ '<a class="activate" href="#">'
 						+ '    <span data-uri="' + text + '"></span>'

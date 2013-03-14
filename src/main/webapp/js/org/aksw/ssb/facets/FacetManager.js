@@ -398,7 +398,19 @@
 		 * Note: In general, a constraint may make use of multiple paths
 		 */
 		getConstraintsByPath: function(path) {
+			var result = _.chain(this.constraints)
+			.filter(function(constraint) {
+				var paths = constraint.getPaths();
+				
+				var isPath = _.some(paths, function(p) {
+					var tmp = p.equals(path);
+					return tmp;
+				});
+				
+				return isPath;
+			}).value();
 			
+			return result;
 		},
 			
 		addConstraint: function(constraint) {
@@ -406,7 +418,7 @@
 		},
 		
 		removeConstraint: function() {
-			
+			// TODO implement
 		},
 		
 		createElement: function(facetNode, excludePath) {
@@ -1012,6 +1024,28 @@
 				var constraint = this.createConstraint(json);
 				this.constraintManager.moveConstraint(constraint);				
 			},
+			
+			// Returns the set of constraint that reference a path matching this one
+			getConstraints: function() {
+				var path = this.facetNode.getPath();
+				var constraints = this.constraintManager.getConstraintsByPath(path);
+				
+				return constraints;
+			},
+			
+			// Returns all steps for which there exist constraints 
+			getConstraintSteps: function() {
+				var result = [];
+				var constraints = this.getConstraints();
+				
+				
+				
+				//_.each dammit
+				
+				
+				return result;
+			},
+			
 			
 			/**
 			 * TODO: Should the result include the path triples even if there is no constraint? Currently it includes them.

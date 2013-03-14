@@ -89,9 +89,11 @@
 	// a concept for its values.
 	// { type: name: concept: }
 
-	ns.ModelFacetUpdater = function(facetProviders, baseConcept) {
+	// //@param constraintManagerFactory: An object that has a createConstraintManager method.
+	ns.ModelFacetUpdater = function(facetProviders, baseConcept /*, constraintManagerFactory */) {
 		this.facetProviders = facetProviders;
 		this.baseConcept = baseConcept;
+		/* this.constraintManagerFactory = constraintManagerFactory; */
 	};
 
 	ns.ModelFacetUpdater.prototype = {
@@ -119,6 +121,13 @@
 
 			// Get the facets of the concept
 			var promises = _.map(this.facetProviders, function(facetProvider) {
+				// TODO: We do not want the facets of the concept,
+				// but of the concept + constraints
+				
+				// This means: We need to get all constraints at the current path -
+				// or more specifically: All steps.
+				
+				
 				var tmp = facetProvider.fetchFacets(concept);
 
 				var promise = tmp.pipe(function(items) {

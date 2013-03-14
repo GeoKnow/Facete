@@ -71,8 +71,12 @@
 		];
 
 		// The update actually updates model objects
-		// TODO: This won't work like that.
-		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept);
+		// TODO: This won't work like that
+
+		// Paramaters to add:
+		// constraintCollection | or at least a constraintCollectionProvider
+		// 
+		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept, constraintCollection);
 
 		var rootModel = new facets.ModelFacetNode();
 
@@ -176,7 +180,10 @@
 					});
 
 			models = createQueryBrowser(sparqlService, labelFetcher);
-
+			//console.log("models:", models);
+			
+			models.browseConfig.config.paginatorModel.set('maxSlotCount', 5);
+			
 			var tableModel = models.browseConfig.config.tableModel;
 			tableModel.set({
 				queryFactory : queryFactory

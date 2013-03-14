@@ -44,7 +44,7 @@
 
 							<cssSourceFiles>
 								<!-- <param>lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css</param> -->
-								<param>../../../../lib/Font-Awesome/current/css/font-awesome.min.css</param>
+								<!-- <param>lib/Font-Awesome/current/css/font-awesome.css</param> -->
 								<!-- <param>lib/jquery-ui/1.8.16/themes/base/jquery-ui.css</param> -->
 								<!-- <param>style-old.css</param> -->
 								<param>style-ec.css</param>

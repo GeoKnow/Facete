@@ -73,12 +73,12 @@
 					var $elI = this.$el.find("> a.expandable > i");
 
 					if(isExpanded) {
-						$elI.removeClass("icon-caret-right");
-						$elI.addClass("icon-caret-down");
+						$elI.removeClass("icon-plus");
+						$elI.addClass("icon-minus");
 					}
 					else {
-						$elI.removeClass("icon-caret-down");
-						$elI.addClass("icon-caret-right");					
+						$elI.removeClass("icon-minus");
+						$elI.addClass("icon-plus");					
 					}
 					
 					// var subFacetWidget = this.subFacetWidget;
@@ -117,7 +117,7 @@
 								'isExpanded' : true,
 							});
 
-							var simulateLoad = false;// true;
+							var simulateLoad = true;// true;
 							if(simulateLoad) {
 								model.set({isLoading: true});
 								var scheduler = new Scheduler(5000, true);
@@ -180,7 +180,7 @@
 					var html
 						= '<a class="expandable" href="#">'
 						//+ '    <img src="src/main/resources/osm-logo-small.png" />'
-						+ '    <i class="icon-caret-right" />'
+						+ '    <i class="icon-plus" />'
 						+ '</a>'
 						+ '<a class="activate" href="#">'
 						+ '    <span data-uri="' + text + '"></span>'

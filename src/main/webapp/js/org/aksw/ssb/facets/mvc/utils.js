@@ -137,9 +137,22 @@
 						var facetUri = item.facetUri;
 						var isInverse = item.isInverse;
 
-						var subNode = facetFacadeNode.forProperty(facetUri,
-								isInverse);
+						var step = {
+							type: 'property',
+							property: facetUri,
+							isInverse: isInverse
+						};
+						
+						var subNode = facetFacadeNode.forProperty(facetUri, isInverse);
+						
+						/*
+						item = {
+								facetFacadeNode: subNode,
+								step: step
+						};
+						*/
 						item.facetFacadeNode = subNode;
+						item.step = step;
 
 						// console.log("Mapped model:", item);
 

@@ -140,7 +140,8 @@
 			getIdStr: function() {
 				var tmp = this.parent ? this.parent.getIdStr() : "";
 				
-				var result = tmp + this.variableName; 
+				var result = tmp + this.variableName;
+				return result;
 			},
 
 			getStepId: function(step) {
@@ -398,8 +399,13 @@
 		 * Note: In general, a constraint may make use of multiple paths
 		 */
 		getConstraintsByPath: function(path) {
-			var result = _.chain(this.constraints)
-			.filter(function(constraint) {
+			var result = [];
+			
+			var constraints = this.constraints;
+			
+			for(var i = 0; i < constraints.length; ++i) {
+				var constraint = constraints[i];
+				
 				var paths = constraint.getPaths();
 				
 				var isPath = _.some(paths, function(p) {
@@ -407,8 +413,38 @@
 					return tmp;
 				});
 				
-				return isPath;
-			}).value();
+				if(isPath) {
+					result.push(constraint);
+				}
+			}
+			
+			return result;
+		},
+		
+
+		getConstrainedSteps: function(path) {
+			var tmp = [];
+			
+			var steps = path.getSteps();
+			var constraints = this.constraints;
+			
+			for(var i = 0; i < constraints.length; ++i) {
+				var constraint = constraints[i];
+
+				var paths = constraint.getPaths();
+				for(var j = 0; j < paths.length; ++j) {
+					var p = paths[j];
+					var pSteps = p.getSteps();
+					var delta = pSteps.length - steps.length; 
+					
+					if(delta == 1 && p.startsWith(path)) {
+						var step = pSteps[pSteps.length - 1];
+						tmp.push(step);
+					}
+				}
+			}
+			
+			var result = _.uniq(tmp, function(step) { return "" + step; });
 			
 			return result;
 		},
@@ -957,6 +993,10 @@
 	};
 
 	ns.SimpleFacetFacade.prototype = {
+			getFacetNode: function() {
+				return this.facetNode;
+			},
+			
 			getVariable: function() {
 				var result = this.facetNode.getVariable();
 				return result;
@@ -1033,20 +1073,6 @@
 				return constraints;
 			},
 			
-			// Returns all steps for which there exist constraints 
-			getConstraintSteps: function() {
-				var result = [];
-				var constraints = this.getConstraints();
-				
-				
-				
-				//_.each dammit
-				
-				
-				return result;
-			},
-			
-			
 			/**
 			 * TODO: Should the result include the path triples even if there is no constraint? Currently it includes them.
 			 * 
@@ -1092,10 +1118,10 @@
 			 * 
 			 * Use the filter to only select steps that e.g. correspond to outgoing properties
 			 */
-			getConstrainedSteps: function(fnFilter) {
-				var result = this.constraintManager.getConstrainedSteps(fnFilter);
+			getConstrainedSteps: function() {
+				var result = this.constraintManager.getConstrainedSteps();
 				return result;
-			},
+			}
 			
 			
 			/**

@@ -11,6 +11,77 @@
 	var facets = Namespace("org.aksw.ssb.facets");
 	var ns = facets;
 
+	
+	
+	/**
+	 * Syncs a constraint collection with a modelFacetNode:
+	 * By this, we can show for each facets, how many values are selected.
+	 * 
+	 * 
+	 */
+	ns.ControllerSelectionCountSync = function(constraintCollection, rootFacetModel) { // {FacetNode) {
+		_.bindAll(this);
+
+		this.constraintCollection = constraintCollection;
+		//this.rootFacetNode = rootFacetNode;
+		this.rootFacetModel = rootFacetModel;
+		
+		this.bind();
+	};
+	
+	ns.ControllerSelectionCountSync.prototype = {
+		bind: function() {			
+			this.constraintCollection.on('add', this.onAddConstraint);
+			this.constraintCollection.on('remove', this.onRemoveConstraint);
+			this.constraintCollection.on('reset', this.onResetConstraints);
+		},
+		
+		updateByPath: function(path) {
+			console.log("[ControllerSelectionCountSync] rootFacetModel: ", this.rootFacetModel);
+
+			var facetFacadeNode = this.rootFacetModel.get('facetFacadeNode');
+			console.log("[ControllerSelectionCountSync] rootFacetNode", facetFacadeNode);
+			
+			var targetModel = this.rootFacetModel.forPath(path);
+			console.log("[ControllerSelectionCountSync] targetModel: ", targetModel);
+
+			//var facetFacadeNode = targetModel.get('facetFacadeNode');			
+			//console.log("[ControllerSelectionCountSync] FacetFacadeNode is: ", facetFacadeNode);
+			
+			var constraintManager = this.constraintCollection.createConstraintManager(facetFacadeNode);
+			var constraints = constraintManager.getConstraintsByPath(path);
+			
+			//var constraints = facetFacadeNode.getConstraints();
+			var n = constraints.length;
+			
+			
+			targetModel.set({selectionCount: n});
+			
+			console.log("Set selection count for path: " + path + " to " + n);
+		},
+		
+		updateByConstraintModel: function(model) {
+			//this.updateByModel(model);
+			var constraint = model.get("constraint");
+			
+			// FIXME We assume that the path exists
+			var path = constraint.path;
+			this.updateByPath(path);
+		},
+		
+		onAddConstraint: function(model) {
+			this.updateByConstraintModel(model);
+		},
+		
+		onRemoveConstraint: function(model) {
+			this.updateByConstraintModel(model);			
+		},
+		
+		onResetConstraints: function(collection) {
+			throw "Not implemented yet";
+		}
+	};
+	
 
 	ns.ControllerFacetNode = function(sparqlService, model, facetManager) {
 		this.sparqlService = sparqlService;
@@ -165,8 +236,8 @@
 			var isChecked = this.constraintCollection.existsEquals(path, node);
 			
 			var id = path + "@" + node;
-			console.log("Check state is " + isChecked + " for " + id);
-			console.log("ConstraintCollection", this.constraintCollection);
+			//console.log("Check state is " + isChecked + " for " + id);
+			//console.log("ConstraintCollection", this.constraintCollection);
 			
 			// TODO Update in place or sync a collection?
 			result = {

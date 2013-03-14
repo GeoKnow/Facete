@@ -13,6 +13,7 @@
 
 	ns.ModelFacetNode = Backbone.Model.extend({
 		defaults : {
+			//step: null, // The step leading to this node (null for root nodes)
 			// baseQueryFactory: null, // Query factory for the instances (can
 			// be seen as facet values)
 			// facetsQueryFactory: null, // Query factory for the facets (of the
@@ -36,6 +37,35 @@
 				children : new ns.CollectionFacetNode()
 			});
 		},
+		
+		forPath: function(path) {
+			var result = this;
+			var steps = path.getSteps();
+			
+			var children = this.get('children');
+			
+			for(var i = 0; i < steps.length; ++i) {
+				var step = steps[i];
+
+				
+				var subNode = children.find(function(child) {
+					var facetFacadeNode = child.get('facetFacadeNode');
+					var childStep = facetFacadeNode.getFacetNode().getStep();
+					var result = childStep.equals(step);
+					return result;
+				});
+
+				result = subNode;
+
+				if(!result) {
+					console.log("Path not found: " + path);
+					break;
+				}
+			}
+			
+			return result;
+		}
+		
 	});
 	
 
@@ -118,7 +148,11 @@
 					return
 				}
 				
-				facetFacadeNode.forPath(path).addConstraint({type: 'equals', node: node});
+				facetFacadeNode.forPath(path).addConstraint({
+					type: 'equals',
+					path: path,
+					node: node
+				});
 			});
 
 			return constraintManager;

@@ -38,8 +38,11 @@
 
 					// model.bind('change', this.render, this);
 					model.bind('remove', this.unrender, this);
+					model.on('change', this.reset);
+
 					model.on('change:isExpanded', this.changeIsExpanded, this);
 					model.on('change:isLoading', this.updateIsLoading, this);
+					
 					// model.bind('change:isExpanded', function())
 
 					// var children = model.get("children");
@@ -177,6 +180,10 @@
 					
 					var text = this.model.get("facetUri");
 
+					var selectionCount = this.model.get('selectionCount');
+					var selectionCountStr = selectionCount ? "" + selectionCount : ""; 
+					
+					
 					var html
 						= '<a class="expandable" href="#">'
 						//+ '    <img src="src/main/resources/osm-logo-small.png" />'
@@ -184,6 +191,7 @@
 						+ '</a>'
 						+ '<a class="activate" href="#">'
 						+ '    <span data-uri="' + text + '"></span>'
+						+ ' ' + selectionCountStr
 						+ '</a>'
 						;
 					
@@ -202,10 +210,15 @@
 
 					return this;
 				},
-				unrender : function() {
+				reset: function() {
+					//this.unrender();
+					this.$el.html('');//clear();
+					this.render();
+				},
+				unrender: function() {
 					this.$el.remove();
 				},
-				remove : function() {
+				remove: function() {
 					this.model.destroy();
 				}
 			});

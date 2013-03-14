@@ -435,10 +435,6 @@
 		this.steps = steps ? steps : [];
 	};
 	
-	ns.Path.prototype.toString = function() {
-		return this.steps.join(" ");		
-	};
-	
 	ns.Path.fromString = function(pathStr) {
 		pathStr = $.trim(pathStr);
 		
@@ -459,40 +455,58 @@
 		return result;
 	};
 	
+	ns.Path.prototype = {
+		toString: function() {
+			return this.steps.join(" ");		
+		},	
 	
-	ns.Path.prototype.concat = function(other) {
-		return new ns.Path(this.steps.concat(other.steps));
-	};
+		concat: function(other) {
+			var result = new ns.Path(this.steps.concat(other.steps));
+			return result;
+		},
 	
-	ns.Path.prototype.getSteps = function() {
-		return this.steps;
-	};
+		getSteps: function() {
+			return this.steps;
+		},
 	
-	ns.Path.prototype.equals = function(other) {
-		var n = this.steps.length;
-		if(n != other.steps.length) {
-			return false;
-		}
-		
-		for(var i = 0; i < n; ++i) {
-			if(!this.steps[i].equals(other.steps[i])) {
+		startsWith: function(other) {
+			var n = this.steps.length;
+			if(n < other.steps.length) {
 				return false;
 			}
-		}
+			
+			for(var i = 0; i < n; ++i) {
+				if(!this.steps[i].equals(other.steps[i])) {
+					return false;
+				}
+			}
+			
+			return true;			
+		},
 		
-		return true;
-	};
+		// a equals b = a startsWidth b && a.len = b.len
+		equals: function(other) {
+			var n = this.steps.length;
+			if(n != other.steps.length) {
+				return false;
+			}
+			
+			var result = this.startsWith(other);
+			return result;
+		},
 	
 	
 
-	// Create a new path with a step appended
-	ns.Path.prototype.copyAppendStep = function(step) {
-		var newSteps = this.steps.slice(0);
-		newSteps.push(step);
-		
-		var result = new ns.Path(newSteps);
-		
-		return result;
+		// Create a new path with a step appended
+		// TODO Maybe replace with clone().append()
+		copyAppendStep: function(step) {
+			var newSteps = this.steps.slice(0);
+			newSteps.push(step);
+			
+			var result = new ns.Path(newSteps);
+			
+			return result;
+		}
 	};
 
 	

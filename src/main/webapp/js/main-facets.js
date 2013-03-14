@@ -43,6 +43,7 @@
 				queryFactoryConcept, v.value);
 
 		var constraintManager = queryFactoryFacets.getConstraintManager();
+		// FIXME Rename to rootFacetFacadeNode
 		var rootFacetNode = queryFactoryFacets.getRootFacetNode();
 
 		var facetFacade = new facets.SimpleFacetFacade(constraintManager,
@@ -78,7 +79,9 @@
 		// 
 		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept, constraintCollection);
 
-		var rootModel = new facets.ModelFacetNode();
+		var rootModel = new facets.ModelFacetNode({
+			facetFacadeNode: rootFacetNode
+		});
 
 		var rootCollection = rootModel.get("children");
 		// console.log("Root Collection: ", rootCollection);
@@ -135,10 +138,16 @@
 						facets.Path
 								.fromString("")) //"http://fp7-pp.publicdata.eu/ontology/year"))
 				.getVariable();
-		var conc = new facets.ConceptInt(e, v);
-
+		var conc = new facets.ConceptInt(e, v);		
+		
+		
 		modelFacetUpdater.updateFacets(rootModel, facetFacade);
 
+		var selectionCountSync = new facets.ControllerSelectionCountSync(constraintCollection, rootModel);
+
+		
+		
+		
 		/**
 		 * Based on the constraint collection, we infer the check model
 		 * 

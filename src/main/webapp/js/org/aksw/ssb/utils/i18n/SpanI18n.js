@@ -19,7 +19,15 @@
 		update: function(parentEl) {
 			var uriToEls = {};
 			var attrName = 'data-uri';
-			$(parentEl).find('span[' + attrName + ']').each(function(index, el) {
+			
+			var selector = 'span[' + attrName + ']';
+			
+			var selfMatch = $(parentEl).filter(selector);
+			var matches = $(parentEl).find(selector).add(selfMatch);
+
+			matches.each(function(index, el) {
+				console.log("Found a span with data-uri attribute");
+				
 			    var uri = $(el).attr(attrName);
 			    
 			    var arr = uriToEls[uri];

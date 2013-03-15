@@ -230,6 +230,10 @@
 						var node = constraint.node;
 						var c2;
 						if(node.isUri()) {
+							c2 = $('<span data-uri="' + node.value + '" />');
+							foobarI18N.update(c2);
+
+						} else {
 							c2 = $('<span>' + node.value + '</span>');
 						}
 						

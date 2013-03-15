@@ -86,3 +86,44 @@ div.inline {
 .clearBoth {
 	clear:both;
 }
+
+
+
+/*
+* Left column facets styling
+*/
+.left-column {
+	background-color: #eee;
+	height: 100%;
+}
+
+#facets {
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+#facetValues {
+	padding-top: 5px;
+}
+
+#facetValues input {
+	width: 80%;
+}
+
+#facetValues table {
+	margin-top: 5px;
+	width: 80%;
+}
+
+#facetValues table td {
+	min-width: 15px;
+	word-wrap: break-word;
+	vertical-align: middle;
+}
+
+#facetValues table td span {
+	width:90%;
+	overflow:auto;
+	/*width: 100%;*/
+}

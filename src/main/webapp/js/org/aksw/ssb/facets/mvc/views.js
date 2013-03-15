@@ -120,7 +120,7 @@
 								'isExpanded' : true,
 							});
 
-							var simulateLoad = true;// true;
+							var simulateLoad = false;// true;
 							if(simulateLoad) {
 								model.set({isLoading: true});
 								var scheduler = new Scheduler(5000, true);
@@ -174,7 +174,40 @@
 							facetFacadeNode: facetFacadeNode // FIXME: Not sure if this should go here
 						});
 
-					}
+					},
+
+					'mouseenter': function(ev) {
+						//var expectedTarget = this.$el.find("> a.activate")[0];
+						var expectedTarget = this.el;
+						if (ev.currentTarget != expectedTarget) {
+							return;
+						}
+
+						
+						this.$el.find("> a.addToTable").show();						
+					},
+					
+					'mouseleave': function(ev) {
+						var expectedTarget = this.el;
+						if (ev.currentTarget != expectedTarget) {
+							return;
+						}
+
+						this.$el.find("> a.addToTable").hide();
+					},
+					
+					
+					// Pivoting action
+					'click a.addToTable' : function(ev) {
+						var expectedTarget = this.$el.find("> a.addToTable")[0];
+						if (ev.currentTarget != expectedTarget) {
+							return;
+						}
+
+						
+						//this.getParent().trigger("pivot", this);
+					},
+
 				},
 				render : function() {
 					
@@ -193,6 +226,8 @@
 						+ '    <span data-uri="' + text + '"></span>'
 						+ ' ' + selectionCountStr
 						+ '</a>'
+						+ ' '
+						+ '<a class="addToTable" href="#" style="display:none"><i class="add-to-table icon-circle-arrow-right" /i></a>'
 						;
 					
 					this.$el.html(html);

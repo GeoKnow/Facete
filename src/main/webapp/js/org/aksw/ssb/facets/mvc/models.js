@@ -41,13 +41,14 @@
 		forPath: function(path) {
 			var result = this;
 			var steps = path.getSteps();
-			
-			var children = this.get('children');
+
+			var result = this;
 			
 			for(var i = 0; i < steps.length; ++i) {
 				var step = steps[i];
 
-				
+				var children = result.get('children');
+
 				var subNode = children.find(function(child) {
 					var facetFacadeNode = child.get('facetFacadeNode');
 					var childStep = facetFacadeNode.getFacetNode().getStep();

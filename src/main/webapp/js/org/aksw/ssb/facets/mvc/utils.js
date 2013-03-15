@@ -106,6 +106,11 @@
 			//concept.getElement().push(this.baseConcept.getElement());
 			var concept = new facets.ConceptInt(tmpElement, tmpConcept.getVariable());
 			
+	
+			//var facetFacadeNode = model.get('facetFacadeNode');
+			//constraintCollection
+			
+			
 			
 			// console.log("Loading facets for concept:" + concept);
 			// console.log("The model is: ", model);

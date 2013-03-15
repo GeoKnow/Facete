@@ -21,7 +21,9 @@
 	var ViewTextBox = Backbone.View.extend({
 		tagName: 'input',
 		attributes: {
-			type: 'text'
+			type: 'text',
+			placeholder: 'Filter',
+			class: 'input-medium search-query'
 		},
 		events: {
 		    "change":  "contentChanged"
@@ -168,7 +170,7 @@
 
 		var paginatorModel = browseConfig.config.paginatorModel;
 		
-		container.append($("<span>Filter:</span>"));
+		//container.append($("<span>Filter:</span>"));
 		
 		container.append($().ssb.searchBox(browseConfig.searchModel).render().el);		
 		container.append(el);

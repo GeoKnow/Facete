@@ -189,7 +189,8 @@
 			var TableView = Backbone.View.extend({
 				tagName: 'table',
 				attributes: {
-					'class': 'table table-bordered table-striped table-condensed',
+					//'class': 'table table-bordered table-striped table-condensed',
+					'class': 'table table-bordered table-hover',
 					'style': 'margin: 0px'
 				},
 
@@ -332,14 +333,15 @@
 					}
 				});
 
-				var header = $('<div style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
+				//var header = $('<div style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
+				var header = $('<div />');//' style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
 				container.append(header);
 				
 				var titleView = new TitleView({model: models.model});
 				header.append(titleView.render().el);
 
 			
-				header.append($('<span>Filter:</span>'));
+				//header.append($('<span>Filter:</span>'));
 				header.append($().ssb.searchBox(browseConfig.searchModel).render().el);
 				header.append('<br />');
 				
@@ -349,7 +351,8 @@
 				container.append(body);
 												
 				
-				var footer = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
+				//var footer = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
+				var footer = $('<div />'); //style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />'); 
 				container.append(footer);
 				
 				footer.append($().ssb.paginator({model: browseConfig.config.paginatorModel}).render().el);

@@ -51,6 +51,20 @@ ul .facet {
 	padding: 1em 1em 1em 3em;
 }
 
+.top-breadcrumbs {
+	height: 20px;
+	padding-bottom: 0;
+}
+
+.region{
+	background: #1c3048 url("../../resources/images/header-bg.jpg") no-repeat right;
+	width:100%;
+	height:40px;
+}
+
+#header-menu ul li.leaf {
+	background: none;
+}
 
 /*
  * Fixes, workarounds and hacks
@@ -59,4 +73,16 @@ ul .facet {
  /* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
 img {
 	max-width: none !important;
+}
+
+/**
+ * Utility
+ */
+/* http://stackoverflow.com/questions/224602/how-do-you-make-div-elements-display-inline */
+div.inline {
+	float:left;
+}
+
+.clearBoth {
+	clear:both;
 }

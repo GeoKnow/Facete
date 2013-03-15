@@ -38,7 +38,7 @@
 
 					// model.bind('change', this.render, this);
 					model.bind('remove', this.unrender, this);
-					model.on('change', this.reset);
+					model.on('change:selectionCount', this.onChangeSelectionCount);
 
 					model.on('change:isExpanded', this.changeIsExpanded, this);
 					model.on('change:isLoading', this.updateIsLoading, this);
@@ -56,10 +56,21 @@
 					this.facetValuesView = null;
 				},
 
-				updateIsLoading: function() {
-					var $elI = this.$el.find("> a.expandable > i");
-					var $elImg = $elI.find("> img");
+				onChangeSelectionCount: function() {
+					var selectionCount = this.model.get('selectionCount');
+					var selectionCountStr = selectionCount ? "" + selectionCount : ""; 
 
+					
+					this.$el.find('> div > span.selectionCount').html(selectionCountStr);
+				},
+				
+				updateIsLoading: function() {
+					var $elI = this.$el.find("> div > a.expandable > i");
+					var $elImg = $elI.find("> img"); //$elI.find("> div > a.expandable > i > img");
+
+					console.log("$elI", $elI);
+					console.log("$elImg", $elImg);
+					
 					$elImg.remove();
 
 					var isLoading = this.model.get("isLoading");
@@ -76,12 +87,12 @@
 					var $elI = this.$el.find("> a.expandable > i");
 
 					if(isExpanded) {
-						$elI.removeClass("icon-plus");
-						$elI.addClass("icon-minus");
+						$elI.removeClass("icon-caret-right");
+						$elI.addClass("icon-caret-down");
 					}
 					else {
-						$elI.removeClass("icon-minus");
-						$elI.addClass("icon-plus");					
+						$elI.removeClass("icon-caret-down");
+						$elI.addClass("icon-caret-right");					
 					}
 					
 					// var subFacetWidget = this.subFacetWidget;
@@ -102,7 +113,7 @@
 						ev.preventDefault();
 						
 						// Workaround for backbone not supporting relative paths for event target selector
-						var expectedTarget = this.$el.find("> a.expandable")[0];
+						var expectedTarget = this.$el.find("> div > a.expandable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
@@ -144,7 +155,7 @@
 						ev.preventDefault();
 						
 						// Workaround for backbone not supporting relative paths for event target selector
-						var expectedTarget = this.$el.find("> a.activate")[0];
+						var expectedTarget = this.$el.find("> div > a.activate")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
@@ -176,30 +187,31 @@
 
 					},
 
-					'mouseenter': function(ev) {
-						//var expectedTarget = this.$el.find("> a.activate")[0];
-						var expectedTarget = this.el;
+					'mouseenter div': function(ev) {
+						//var expectedTarget = this.el;
+						var expectedTarget = this.$el.find("> div")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
 
 						
-						this.$el.find("> a.addToTable").show();						
+						this.$el.find("> div > a.addToTable").show();						
 					},
 					
-					'mouseleave': function(ev) {
-						var expectedTarget = this.el;
+					'mouseleave div': function(ev) {
+						//var expectedTarget = this.el;
+						var expectedTarget = this.$el.find("> div")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
 
-						this.$el.find("> a.addToTable").hide();
+						this.$el.find("> div > a.addToTable").hide();
 					},
 					
 					
 					// Pivoting action
 					'click a.addToTable' : function(ev) {
-						var expectedTarget = this.$el.find("> a.addToTable")[0];
+						var expectedTarget = this.$el.find("> div > a.addToTable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
@@ -218,16 +230,20 @@
 					
 					
 					var html
-						= '<a class="expandable" href="#">'
-						//+ '    <img src="src/main/resources/osm-logo-small.png" />'
-						+ '    <i class="icon-plus" />'
+						= '<div class="inline">'
+
+						+ '<a class="expandable" href="#">'
+						+ '  <i class="icon-caret-right" />'
 						+ '</a>'
 						+ '<a class="activate" href="#">'
-						+ '    <span data-uri="' + text + '"></span>'
-						+ ' ' + selectionCountStr
+						+ '  <span data-uri="' + text + '"></span>'
 						+ '</a>'
 						+ ' '
-						+ '<a class="addToTable" href="#" style="display:none"><i class="add-to-table icon-circle-arrow-right" /i></a>'
+						+ '<span class="selectionCount">' + selectionCountStr + '</span>'
+						+ ' '
+						+ '<a class="addToTable" href="#" style="display:none"><i class="add-to-table icon-circle-arrow-right" /></a>'
+						+ '</div>'
+						+ '<br class="clearBoth" />'
 						;
 					
 					this.$el.html(html);
@@ -247,11 +263,16 @@
 				},
 				reset: function() {
 					//this.unrender();
+					/*
+					this.subFacetWidget.unrender();
 					this.$el.html('');//clear();
 					this.render();
+					*/
 				},
 				unrender: function() {
+					this.subFacetWidget.unrender();
 					this.$el.remove();
+					
 				},
 				remove: function() {
 					this.model.destroy();

@@ -273,7 +273,7 @@ ul.menu li {
 	float: right;
 	padding:0 10px 4px 400px;
 	position: relative;
-	background:#fff url("../../resources/images/ec/languagebar.png") top right no-repeat;
+	/*background:#fff url("../../resources/images/ec/languagebar.png") top right no-repeat;*/
 }
 
 #header-menu ul li.leaf{
@@ -293,6 +293,9 @@ ul.menu li {
 	font-weight: normal;
 	line-height: 1.4;
 	font-size: 90%;
+	color: #07c;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 .header, .breadcrumb-custom, .menu, .content-custom, .datasets, .application-tags, .footer {

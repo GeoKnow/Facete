@@ -19,8 +19,8 @@
 	ns.facetTest = function() {
 
 		var sparqlService = new backend.SparqlServiceHttp(
-//				"http://fp7-pp.publicdata.eu/sparql",
-				"http://localhost:8810/sparql",
+				"http://fp7-pp.publicdata.eu/sparql",
+//				"http://localhost:8810/sparql",
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
 

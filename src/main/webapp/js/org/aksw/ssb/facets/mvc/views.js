@@ -216,7 +216,7 @@
 							return;
 						}
 
-						
+						//this.trigger(''; this.model);
 						//this.getParent().trigger("pivot", this);
 					},
 

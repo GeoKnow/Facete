@@ -33,6 +33,14 @@
 						modelFacetUpdater : this.modelFacetUpdater
 					});
 
+					
+					var self = this;
+					this.subFacetWidget.on('all', function() {
+						// Note: According to backbone doc, listing for all gives the event name as first argument
+						var p = self.options.parent;
+						p.trigger.apply(p, arguments);
+					});
+					
 					// console.log("ModelFacetUpdater ",
 					// this.modelFacetUpdater);
 
@@ -210,11 +218,15 @@
 					
 					
 					// Pivoting action
-					'click a.addToTable' : function(ev) {
+					'click .addToTable' : function(ev) {
+						ev.preventDefault();
+						//alert('addToTable');
 						var expectedTarget = this.$el.find("> div > a.addToTable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
+						
+						this.options.parent.trigger('addToTable', ev, this);//ev, this.model);
 
 						//this.trigger(''; this.model);
 						//this.getParent().trigger("pivot", this);

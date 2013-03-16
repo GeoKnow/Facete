@@ -308,4 +308,31 @@
 		}
 	};
 
+	
+	ns.ControllerColumnSelection = function(collectionColumns) {
+		_.bindAll(this);
+		
+		this.collectionColumns = collectionColumns;
+		
+		this.bind();
+	};
+	
+	
+	ns.ControllerColumnSelection.prototype = {
+		bind: function() {
+			this.collectionColumns.on('add', this.onColumnAdd);
+			this.collectionColumns.on('remove', this.onColumnRemove);
+		},
+		
+		onColumnAdd: function(model) {
+			var path = model.get('path');
+			console.log('add path', path);
+		},
+		
+		onColumnRemove: function(model) {
+			var path = model.get('path');
+			console.log('remove path', path);			
+		}
+	};
+	
 })();

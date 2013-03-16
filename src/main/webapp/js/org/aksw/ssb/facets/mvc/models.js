@@ -93,6 +93,43 @@
 	});
 
 	
+	ns.ModelColumn = Backbone.Model.extend({
+		defaults: {
+			path: null
+		}
+	});
+	
+	ns.CollectionColumns = Backbone.Collection.extend({
+		model: ns.ModelColumn,
+		
+		containsPath: function(path) {
+			var result = this.some(function(model) {
+				var p = model.get('path');
+				return p.equals(path);
+			});
+			
+			return result;
+		},
+		
+		/**
+		 * Avoids duplicates
+		 * 
+		 */
+		addPath: function(path) {
+			var contained = this.containsPath(path);
+			if(contained) {
+				return false;
+			}
+			
+			this.add({
+				path: path
+			});
+			
+			return true;
+		}
+	});
+	
+	
 	/**
 	 * A collection for contraints.
 	 * 

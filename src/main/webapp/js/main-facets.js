@@ -19,8 +19,8 @@
 	ns.facetTest = function() {
 
 		var sparqlService = new backend.SparqlServiceHttp(
-				"http://fp7-pp.publicdata.eu/sparql",
-//				"http://localhost:8810/sparql",
+//				"http://fp7-pp.publicdata.eu/sparql",
+				"http://localhost:8810/sparql",
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
 
@@ -94,6 +94,18 @@
 			modelFacetUpdater : modelFacetUpdater
 		// }
 		});
+		
+		
+		var collectionColumns = new facets.CollectionColumns(); 
+		
+		this.facetWidget.on('addToTable', function(ev, view) {
+			var path = view.model.get('facetFacadeNode').getPath();			
+			collectionColumns.addPath(path);
+		});
+		
+		var controllerColumnSelection = new facets.ControllerColumnSelection(collectionColumns);
+		
+		
 
 		/*
 		 * this.facetWidget = new widgets.ListView({ el: $("#facets"),

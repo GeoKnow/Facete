@@ -423,7 +423,7 @@ $.widget("ui.ssb_map2", {
 		
 		var feature = this.nodeToFeature[id];
 		if(feature) {
-			console.log("Feature already existed, replacing.")
+			//console.log("Feature already existed, replacing.")
 			
 			this.removeItem(id);
 		}

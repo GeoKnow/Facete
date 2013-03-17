@@ -80,6 +80,14 @@ var ns = Namespace("org.aksw.ssb.facets");
 	};
 
 	ns.TableModelQueryFactory.prototype = {
+		getProjection: function() {
+			return this.projection;
+		},
+		
+		setProjection: function(projection) {
+			this.projection = projection;
+		},
+			
 		getLimit: function() {
 			return this.limit;
 		},
@@ -116,7 +124,7 @@ var ns = Namespace("org.aksw.ssb.facets");
 			}
 			
 			if(this.projection) {
-				baseQuery.projection = projection;
+				baseQuery.setProjectVars(this.projection);
 			}
 			
 			var elements = this.elements;

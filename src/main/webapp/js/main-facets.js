@@ -98,11 +98,20 @@
 		
 		var collectionColumns = new facets.CollectionColumns(); 
 		
+		collectionColumns.addPath(facets.Path.fromString(""));
+		
 		this.facetWidget.on('addToTable', function(ev, view) {
 			var path = view.model.get('facetFacadeNode').getPath();			
 			collectionColumns.addPath(path);
 		});
 		
+		// This controller injects the projection into a query:
+		// First, based on collectionColumns, a pair is returned,
+		// containing
+		// - the element
+		// - the list of variables
+		// - a mapping from varName To path 
+		//
 		var controllerColumnSelection = new facets.ControllerColumnSelection(collectionColumns);
 		
 		
@@ -370,13 +379,16 @@
 			
 			createView(container, models);
 		
+			console.log("INIT VIEWS", models);
 		
 			
-			
+			// FIXME: This syncher updates the tableModel based on changes in the constraint collection
+			// However, we also need to update the list based on collectionColumns.
 			var ctrlInstaceListSyncer = new facets.ControllerInstanceListSyncer(
 					queryFactory,
 					rootFacetNode,
 					constraintCollection,
+					collectionColumns,
 					tableModel
 			);
 
@@ -438,6 +450,11 @@
 		
 		
 		rsTableModel.on('change:queryFactory', function(model) {
+		
+			if(true) {
+				// FIXME Fetching of markers disabled
+				return;
+			}
 			
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			//var queryFactory = new facets.QueryFactoryFacets(this.subQueryFactory, this.facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();

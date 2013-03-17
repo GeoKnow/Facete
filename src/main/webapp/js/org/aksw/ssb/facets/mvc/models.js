@@ -102,6 +102,82 @@
 	ns.CollectionColumns = Backbone.Collection.extend({
 		model: ns.ModelColumn,
 		
+		/*
+		toTree: function() {
+			var rootNode = facets.FacetNode.createRoot(varName, generator);
+			
+			this.each(function(model) {
+				var p = model.get('path');
+				
+				rootNode.forPath(p);
+			});
+			
+			return rootNode;
+		},
+		
+		createElementFromNodeRec: function(elements, facetNode) {
+			var result = [];
+			
+			var steps = facetNode.getSteps();
+			var elements = facetNode.getDirectTriples();
+			
+			if(elements.length > 0) {
+				var tmp = new sparql.ElementGroup(elements);
+				result.push(new sparql.ElementOptional(tmp));
+			}			
+			
+			for(var i = 0; i < steps.length; ++i) {
+				var step = steps[i];
+				
+			}
+		},
+		
+		createElementRec: function(facetNode) {
+			
+		},
+		*/
+		
+		createProjection: function(facetNode) {
+			var result = new sparql.VarExprList();
+			
+			this.each(function(model) {
+				var p = model.get('path');
+
+				var subFacetNode = facetNode.forPath(p);
+				var v = subFacetNode.getVariable();
+
+				result.add(v);
+			});
+			
+			return result;			
+		},
+		
+		/**
+		 * 
+		 * @returns Array of sparql.Element objects
+		 */
+		createElements: function(facetNode) {
+			var result = [];
+			
+			this.each(function(model) {
+				var p = model.get('path');
+
+				var subFacetNode = facetNode.forPath(p);
+				var triples = subFacetNode.getTriples();
+				
+				if(triples.length === 0) {
+					return;
+				}
+				
+				var block = new sparql.ElementTriplesBlock(triples);
+				var optional = new sparql.ElementOptional(block);
+				
+				result.push(optional);
+			});
+			
+			return result;
+		},
+		
 		containsPath: function(path) {
 			var result = this.some(function(model) {
 				var p = model.get('path');

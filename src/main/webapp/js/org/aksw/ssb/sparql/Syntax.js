@@ -1456,67 +1456,68 @@
 			
 		getExprMap: function() {
 			return this.varToExpr;
-		}	
-	};
-	
-	ns.VarExprList.prototype.add = function(v, expr) {
-		this.vars.push(v);
-		
-		if(expr) {
-			this.varToExpr[v.value] = expr;
-		}
-	};
-	
-	
-	ns.VarExprList.prototype.addAll = function(vars) {
-		this.vars.push.apply(this.vars, vars);
-	};
-	
-	ns.VarExprList.prototype.entries = function() {
-		var result = [];
-		for(var i = 0; i < this.vars.length; ++i) {
-			var v = this.vars[i];
-			var expr = this.varToExpr[v.value];
-			
-			result.push({v:v, expr:expr});
-		}
+		},
 
-		return result;
-	};
-	
-	ns.VarExprList.prototype.copySubstitute = function(fnNodeMap) {
-		var result = new ns.VarExprList();
-		
-		var entries = this.entries();
-		for(var i = 0; i < entries.length; ++i) {
-			var entry = entries[i];
-			var newVar = fnNodeMap(entry.v);
-			var newExpr = entry.expr ? entry.expr.copySubstitute(fnNodeMap) : null;
+		add: function(v, expr) {
+			this.vars.push(v);
 			
-			result.add(newVar, newExpr);
-		}
+			if(expr) {
+				this.varToExpr[v.value] = expr;
+			}
+		},
 		
-		return result;
+		
+		addAll: function(vars) {
+			this.vars.push.apply(this.vars, vars);
+		},
+		
+		entries: function() {
+			var result = [];
+			for(var i = 0; i < this.vars.length; ++i) {
+				var v = this.vars[i];
+				var expr = this.varToExpr[v.value];
+				
+				result.push({v:v, expr:expr});
+			}
+
+			return result;
+		},
+		
+		copySubstitute: function(fnNodeMap) {
+			var result = new ns.VarExprList();
+			
+			var entries = this.entries();
+			for(var i = 0; i < entries.length; ++i) {
+				var entry = entries[i];
+				var newVar = fnNodeMap(entry.v);
+				var newExpr = entry.expr ? entry.expr.copySubstitute(fnNodeMap) : null;
+				
+				result.add(newVar, newExpr);
+			}
+			
+			return result;
+		},
+		
+		toString: function() {
+			var arr = [];
+			var projEntries = this.entries();
+			for(var i = 0; i < projEntries.length; ++i) {
+				var entry = projEntries[i];
+				var v = entry.v;
+				var expr = entry.expr;
+			
+				if(expr) {
+					arr.push("(" + expr + " As " + v + ")");
+				} else {
+					arr.push("" + v);				
+				};
+			}
+			
+			var result = arr.join(" ");
+			return result;
+		}
 	};
 	
-	ns.VarExprList.prototype.toString = function() {
-		var arr = [];
-		var projEntries = this.entries();
-		for(var i = 0; i < projEntries.length; ++i) {
-			var entry = projEntries[i];
-			var v = entry.v;
-			var expr = entry.expr;
-		
-			if(expr) {
-				arr.push("(" + expr + " As " + v + ")");
-			} else {
-				arr.push("" + v);				
-			};
-		}
-		
-		var result = arr.join(" ");
-		return result;
-	};
 	
 	ns.SortCondition = function(expr, direction) {
 		this.expr = expr;
@@ -1585,10 +1586,14 @@
 		getElements: function() {
 			return this.elements;
 		},
-		
+				
 		getProjectVars: function() {
 			return this.projectVars;
-		}
+		},
+
+		setProjectVars: function(projectVars) {
+			this.projectVars = projectVars
+		},
 	};
 
 	

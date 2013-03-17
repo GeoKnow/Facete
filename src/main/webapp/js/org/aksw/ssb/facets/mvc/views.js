@@ -92,7 +92,7 @@
 					var model = this.model;
 					var isExpanded = model.get('isExpanded');
 
-					var $elI = this.$el.find("> a.expandable > i");
+					var $elI = this.$el.find("> div > a.expandable > i");
 
 					if(isExpanded) {
 						$elI.removeClass("icon-caret-right");

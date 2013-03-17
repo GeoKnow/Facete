@@ -32,9 +32,9 @@
 			
 			    //alert("Switching to: " + node.value);
 			    var query = queryUtils.createQueryDescribe(node);
-			    var queryFactory = new QueryFactoryQuery(query);
+			    var queryFactory = new facets.QueryFactoryQuery(query);
    	    	    tableModel.set({queryFactory: queryFactory});
-			});		    	
+			});
 	    	
 						
 	

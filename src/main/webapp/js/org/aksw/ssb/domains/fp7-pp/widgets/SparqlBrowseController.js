@@ -327,7 +327,7 @@
 	};
 
 	var createExecutorQuery = function(sparqlService, query) {
-		var queryFactory = new QueryFactoryQuery(query);
+		var queryFactory = new facets.QueryFactoryQuery(query);
 		
 		var result = createExecutorQueryFactory(sparqlService, queryFactory);
 		

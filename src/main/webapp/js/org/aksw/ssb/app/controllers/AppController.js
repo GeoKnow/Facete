@@ -2465,7 +2465,7 @@
 				//var concept = queryGenerator.createDriverValues();
 	
 				var query = widgets.createPartnerQuery(node);
-				var queryFactory = new QueryFactoryQuery(query);
+				var queryFactory = new facets.QueryFactoryQuery(query);
 				
 				//console.log("Query is now: ", queryFactory.createQuery());
 				

@@ -216,7 +216,54 @@
 	ns.ConstraintCollection2 = Backbone.Collection.extend({
 		model: ns.ModelConstraint,
 		
+		/**
+		 * 
+		 * @param path
+		 * @param node
+		 * @return the model holding this constraint or null
+		 */
+		findModelEquals: function(path, node) {
+			var result = this.find(function(model) {
+				
+				//console.log("Comparing path and node to model:", path, node, model);
+				
+				var constraint = model.get('constraint');
+				//var constraint = model;
+
+				/*
+				console.log("Comparing path and node to model:", path, node, model);
+				console.log(constraint.type === 'equals');
+				console.log(path.equals(constraint.path));
+				console.log(node.equals(constraint.node));
+				*/
+				
+				var test
+					= constraint.type === 'equals'
+					&& path.equals(constraint.path)
+					&& node.equals(constraint.node);
+			
+				
+				return test;
+			});
+			
+			return result;
+		},
+		
+		/**
+		 * Tests whether an equals constraint exists
+		 * 
+		 * @param path
+		 * @param node
+		 * @returns
+		 */
 		existsEquals: function(path, node) {
+			var model = this.findModelEquals(path, node);
+			var result = model ? true : false;
+			
+			return result;
+		},
+		
+		existsEqualsDeprecated: function(path, node) {
 			var result = this.some(function(model) {
 				
 				//console.log("Comparing path and node to model:", path, node, model);

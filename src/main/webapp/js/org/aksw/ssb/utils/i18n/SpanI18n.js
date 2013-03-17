@@ -26,7 +26,7 @@
 			var matches = $(parentEl).find(selector).add(selfMatch);
 
 			matches.each(function(index, el) {
-				console.log("Found a span with data-uri attribute");
+				//console.log("Found a span with data-uri attribute");
 				
 			    var uri = $(el).attr(attrName);
 			    

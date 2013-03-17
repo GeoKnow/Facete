@@ -175,7 +175,7 @@
 		 * 
 		 * 
 		 */
-
+/*
 		var CollectionConstraintChecked = Backbone.Collection.extend({
 
 		});
@@ -188,7 +188,7 @@
 			});
 
 		};
-
+*/
 		
 		
 		
@@ -237,6 +237,8 @@
 				var result = new widgets.TableView2({
 					collection : options.collection,
 					rowItemRenderer: function(model) {
+						
+						
 						var c1 = new widgets.ViewItemCheckConstraint({
 							model: model,
 							constraintCollection: constraintCollection
@@ -379,7 +381,7 @@
 			
 			createView(container, models);
 		
-			console.log("INIT VIEWS", models);
+			//console.log("INIT VIEWS", models);
 		
 			
 			// FIXME: This syncher updates the tableModel based on changes in the constraint collection

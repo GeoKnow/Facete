@@ -312,9 +312,11 @@
 		initialize : function() {
 			_.bindAll(this); //, 'render', 'unrender', 'remove', 'setCheckState'); // every
 			
+			//console.log("Initialized super class");
+			
 			//this.model.on('change:isChecked', 'setCheckState');
 			this.model.on('change:isChecked', this.updateCheckState);
-	    	this.model.bind('remove', this.unrender, this);
+	    	this.model.on('remove', this.unrender);
 	    	
 	    	this.updateCheckState();
 		},
@@ -348,8 +350,15 @@
 	
 	ns.ViewItemCheckConstraint = ns.ViewItemCheck.extend({
 		//tagName: 'li',
-		attributes: {type: 'checkbox', 'class': 'checkConstraint'},
+		tagName: 'input',
+		attributes: {
+			type: 'checkbox',
+			'class': 'checkConstraint'
+		},
 		initialize: function() {
+			//this.constructor.__super__.initialize.apply(this);
+			ns.ViewItemCheck.prototype.initialize.apply(this);
+
 			this.constraintCollection = checkNotNull(this.options.constraintCollection);
 		},
 		events: {
@@ -382,7 +391,7 @@
 				}
 				//var nodeValue = sparql.NodeValue.makeNode(node);
 				
-				var constraint = {
+				var modelData = {
 					constraint: {
 						type : "equals",
 						path : path,
@@ -390,16 +399,17 @@
 					}
 				};
 				
-				var id = JSON.stringify(constraint);
-				constraint.id = id;
-				
-				
+				//var id = JSON.stringify(modelData.constraint);
+				//modelData.id = id;
+
 				var constraintCollection = this.constraintCollection;
-				// TODO: toggle the constraint
-				if(constraintCollection.get(id)) {
-					constraintCollection.remove(id);
+
+				var priorModel = constraintCollection.findModelEquals(path, node);
+				if(priorModel) {
+					constraintCollection.remove(priorModel);
+					//priorModel.destroy();
 				} else {
-					constraintCollection.add(constraint);
+					constraintCollection.add(modelData);
 				}
 				
 				

@@ -181,6 +181,10 @@
 			
 			this.checkCollection.each(function(model) {
 				var c = model.get("constraint");
+				
+				//console.log("Comparision of constraint A:", c);
+				//console.log("Comparision of constraint B:", constraint);
+				
 				if(_.isEqual(constraint, c)) {
 					model.set({isChecked: true});
 				}
@@ -235,13 +239,19 @@
 			// Check the constraint model for the state of this var
 			var isChecked = this.constraintCollection.existsEquals(path, node);
 			
-			var id = path + "@" + node;
+			
+//			console.log("[cc] cc", this.constraintCollection);
+//			console.log("[cc] path --- node", path, node);
+//			console.log("[cc] isChecked: ", isChecked);
+			
+			
+			//var id = path + "@" + node;
 			//console.log("Check state is " + isChecked + " for " + id);
 			//console.log("ConstraintCollection", this.constraintCollection);
 			
 			// TODO Update in place or sync a collection?
 			result = {
-				id: id,
+				//id: id,
 				isChecked: isChecked,
 				
 				constraint: {
@@ -250,6 +260,8 @@
 					node: node
 				}
 			};
+			
+			//console.log("Processed: " + JSON.stringify(result));
 			
 			return result;
 		}
@@ -315,8 +327,8 @@
 			var tmp = qfProjection.getElements();
 			tmp.push.apply(tmp, projEles);
 
-			console.log("Query IS", qfProjection.createQuery());
-			console.log("QueryFACTORY IS", qfProjection);
+			//console.log("Query IS", qfProjection.createQuery());
+			//console.log("QueryFACTORY IS", qfProjection);
 			
 			this.modelQueryFactory.set({
 				queryFactory: qfProjection,

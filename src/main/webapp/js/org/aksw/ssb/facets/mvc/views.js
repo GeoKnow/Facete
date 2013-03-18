@@ -36,7 +36,7 @@
 			var path = this.path;
 			var containsPath = this.collectionColumns.containsPath(path);
 
-			console.log("ContainsPath " + containsPath, this + " " + this.path + " ", this.collectionColumns);
+			//console.log("ContainsPath " + containsPath, this + " " + this.path + " ", this.collectionColumns);
 			
 			this.targetModel.set({isAddedToTable: containsPath});
 		}
@@ -84,11 +84,100 @@
 					model.on('change:isExpanded', this.changeIsExpanded, this);
 					model.on('change:isLoading', this.updateIsLoading, this);
 					
-					model.on('change:isAddedToTable', this.onChangeIsAddedToTable);
+					//model.on('change:isAddedToTable', this.onChangeIsAddedToTable);
 					// model.bind('change:isExpanded', function())
 
 					// var children = model.get("children");
 
+					var self = this;
+					
+					/*
+					var ViewItemAddToTable = ns.ViewItemIcon.extend({
+						events: {
+							'click': function() {
+								self.collectionColumns.addPath(self.path);
+								/////ev.preventDefault();
+							}
+						}
+					});
+					
+					this.viewItemAddToTable = new ViewItemAddToTable({
+						model: this.model,
+						attributes: {
+							'class': 'icon-circle-arrow-right'
+						},
+						fnState: function(model) {
+							return '' + model.get('isAddedToTable');
+						},
+						stateToAttrs: {
+							'false': { style: 'display: block'},
+							'true': { style: 'display: none'}
+						}
+					});
+					*/
+
+
+					var ViewItemAddToTable = ns.ViewItemLink.extend({
+						/*
+						initialize: function() {
+							ns.ViewItemLink.prototype.initialize.apply(this);
+							
+							_.bindAll(this);
+						},
+						*/
+						events: {
+							'click': function() {
+								self.collectionColumns.addPath(self.path);
+								/////ev.preventDefault();
+							}
+						}
+					});
+					
+					this.viewItemAddToTable = new ViewItemAddToTable({
+						model: this.model,
+						subView: new ns.ViewItemIcon({
+							model: this.model,
+							attributes: {
+								'class': 'icon-circle-arrow-right'
+							},
+							fnState: function(model) {
+								return '' + model.get('isAddedToTable');
+							},
+							stateToAttrs: {
+								'false': { style: 'display: block'},
+								'true': { style: 'display: none'}
+							}
+						})
+					});
+
+					
+					var ViewItemRemoveFromTable = ns.ViewItemLink.extend({
+						events: {
+							'click': function() {
+								self.collectionColumns.removePath(self.path);
+								/////ev.preventDefault();
+							}
+						}					
+					});
+
+					this.viewItemRemoveFromTable = new ViewItemRemoveFromTable({
+						model: this.model,
+						subView: new ns.ViewItemIcon({
+							model: this.model,
+							attributes: {
+								'class': 'icon-remove-circle'
+							},
+							fnState: function(model) {
+								return '' + model.get('isAddedToTable');
+							},
+							stateToAttrs: {
+								'false': { style: 'display: none'},
+								'true': { style: 'display: block'}
+							}
+						})
+					});
+					
+					
 					var facetFacadeNode = model.get('facetFacadeNode');
 					this.path = facetFacadeNode.getPath();
 					
@@ -107,6 +196,7 @@
 					this.facetValuesView = null;
 				},
 
+				/*
 				onChangeIsAddedToTable: function() {
 					var isAddedToTable = this.model.get('isAddedToTable');
 					console.log("isAddedToTable", isAddedToTable);
@@ -127,7 +217,7 @@
 						
 					} else {
 					}
-				},
+				},*/
 				
 				onChangeSelectionCount: function() {
 					var selectionCount = this.model.get('selectionCount');
@@ -182,14 +272,14 @@
 				},
 
 				events : {
-					'click a.expandable' : function(ev) {
-						ev.preventDefault();
+					'click .expandable' : function(ev) {
 						
 						// Workaround for backbone not supporting relative paths for event target selector
 						var expectedTarget = this.$el.find("> div > div > a.expandable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
+						/////ev.preventDefault();
 
 						var model = this.model;
 						var isExpanded = model.get('isExpanded');
@@ -225,13 +315,13 @@
 						}
 					},
 					'click .activate' : function(ev) {
-						ev.preventDefault();
 						
 						// Workaround for backbone not supporting relative paths for event target selector
 						var expectedTarget = this.$el.find("> div > div > a.activate")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
+						/////ev.preventDefault();
 
 						var model = this.model;
 						// Show the facet values in the preconfigured area
@@ -282,7 +372,7 @@
 					},
 					
 					
-					// Pivoting action
+					/*
 					'click .addToTable' : function(ev) {
 						ev.preventDefault();
 						//alert('addToTable');
@@ -296,6 +386,7 @@
 						//this.trigger(''; this.model);
 						//this.getParent().trigger("pivot", this);
 					},
+					*/
 
 				},
 				render : function() {
@@ -322,7 +413,6 @@
 						+ '<div class="permaOptions inline">'
 						+ '</div>'
 						+ '<div class="hoverOptions inline" style="display:none">'
-						+ '<a class="addToTable" href="#"><i class="add-to-table icon-circle-arrow-right" /></a>'
 						+ '</div>'
 						+ '</div>'
 						+ '<br class="clearBoth" />'
@@ -330,19 +420,45 @@
 					
 					this.$el.html(html);
 
-					// TODO: This is not the best place to do the update,
-					// as it fires one query per element
-					foobarI18N.update(this.$el);
+					this.$elPermaDiv = this.$el.find("> div > div.permaOptions");
+					this.$elHoverDiv = this.$el.find("> div > div.hoverOptions");
+
+
+					
 					/*
 					 * var model = this.model; var isExpanded =
 					 * model.get("isExpanded"); if(!isExpanded) { return this; }
 					 */
 
-					var subFacetWidgetEl = this.subFacetWidget.render().$el;
-					this.$el.append(subFacetWidgetEl);
+					var $elSubFacetWidget = this.subFacetWidget.render().$el;
+					this.$el.append($elSubFacetWidget);
+
 
 					
-					this.onChangeIsAddedToTable();
+					var $elRemoveFromTable = this.viewItemRemoveFromTable.render().$el;
+					this.$elPermaDiv.append($elRemoveFromTable);
+					
+					var self = this;
+					$elRemoveFromTable.click(function(){
+						self.collectionColumns.removePath(self.path);
+					});
+					//$elRemoveFromTable.delegateEvents();
+					
+					
+					
+					var $elAddToTable = this.viewItemAddToTable.render().$el;
+					this.$elHoverDiv.append($elAddToTable);
+
+					$elAddToTable.click(function(){
+						self.collectionColumns.addPath(self.path);
+					});
+
+					
+					// TODO: This is not the best place to do the update,
+					// as it fires one query per element
+					foobarI18N.update(this.$el);
+
+					//this.onChangeIsAddedToTable();
 					
 					
 					return this;
@@ -358,11 +474,14 @@
 				unrender: function() {
 					this.subFacetWidget.unrender();
 					this.$el.remove();
-					
-				},
+									
+				}
+				/*
+				,
 				remove: function() {
 					this.model.destroy();
 				}
+				*/
 			});
 
 	ns.facetItemRenderer = new widgets.RendererItemView({}, null,
@@ -491,5 +610,86 @@
 			}
 		}
 	});
+	
+	
+	
+	ns.ViewItemIcon = Backbone.View.extend({
+		tagName: 'i',
+		
+		fnState: null,
+		stateToAttrs: null,
+		
+		initialize: function() {
+			_.bindAll(this);
+			
+			this.model.on('change', this.onChange);
+	    	this.model.on('remove', this.unrender);
+	    	
+	    	this.fnState = this.options.fnState;
+	    	this.stateToAttrs = this.options.stateToAttrs;
+		},
+		
+		onChange: function() {
+			//myElement.attr('class')
+			var $el = this.$el;
+			if(!$el) {
+				return;
+			}
+			
+			var state = this.fnState(this.model);
+			var attrs = this.stateToAttrs[state];
+			
+			_.each(attrs, function(value, key) {
+				$el.attr(key, value);
+			});
+		},
+		
+		render: function() {
+
+			this.onChange();
+			
+			return this;
+		},
+
+		unrender: function() {
+			this.$el.remove();
+		}
+	});
+	
+	
+	ns.ViewItemLink = Backbone.View.extend({
+		tagName : 'a',
+		subView : null,
+
+		attributes: {href: '#'},
+		initialize : function() {
+			_.bindAll(this);
+			
+	    	if(this.options.subView) {
+	    		this.subView = this.options.subView;
+	    	}			
+		},
+		
+		render : function() {
+			
+//			if(true) {
+//				this.$el.html("test");
+//				return this;
+//			}
+			
+			var subView = this.subView;
+			if(subView) {
+				$elSubView = subView.render().$el;
+				this.$el.append($elSubView);
+			}
+			
+			return this;
+		},
+
+		unrender : function() {
+			this.$el.remove();
+		}
+	});
+
 
 })();

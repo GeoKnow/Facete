@@ -103,10 +103,10 @@
 		
 		
 		// Add the path to the collectionColumns
-		this.facetWidget.on('addToTable', function(ev, view) {
-			var path = view.model.get('facetFacadeNode').getPath();			
-			collectionColumns.addPath(path); 
-		});
+//		this.facetWidget.on('addToTable', function(ev, view) {
+//			var path = view.model.get('facetFacadeNode').getPath();			
+//			collectionColumns.addPath(path); 
+//		});
 
 		// FIXME: We need to set the state for the facets
 		// of whether it was already added as a column to the table
@@ -467,7 +467,7 @@
 		
 			if(true) {
 				// FIXME Fetching of markers disabled
-				return;
+				//return;
 			}
 			
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);

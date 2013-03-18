@@ -87,24 +87,35 @@
 		var rootCollection = rootModel.get("children");
 		// console.log("Root Collection: ", rootCollection);
 
+		var collectionColumns = new facets.CollectionColumns(); 		
+		collectionColumns.addPath(facets.Path.fromString(""));
+
+		
 		this.facetWidget = new widgets.ViewFacetTree({
 			el : $("#facets"),
-			collection : rootCollection,
+			collection: rootCollection,
 			// options: {
-			modelFacetUpdater : modelFacetUpdater
+			modelFacetUpdater: modelFacetUpdater,
+			collectionColumns: collectionColumns
 		// }
 		});
 		
 		
-		var collectionColumns = new facets.CollectionColumns(); 
 		
-		collectionColumns.addPath(facets.Path.fromString(""));
-		
+		// Add the path to the collectionColumns
 		this.facetWidget.on('addToTable', function(ev, view) {
 			var path = view.model.get('facetFacadeNode').getPath();			
-			collectionColumns.addPath(path);
+			collectionColumns.addPath(path); 
 		});
+
+		// FIXME: We need to set the state for the facets
+		// of whether it was already added as a column to the table
 		
+		
+
+		//collectionColumns.on('add', funct)
+		
+
 		// This controller injects the projection into a query:
 		// First, based on collectionColumns, a pair is returned,
 		// containing
@@ -246,7 +257,8 @@
 						
 						var constraint = model.get('constraint');
 						if(!constraint) {
-							console.log("No constraint available - should not happen");
+							// TODO Make sure that this does not fail
+							//console.log("No constraint available - should not happen");
 							return [];
 						}
 						

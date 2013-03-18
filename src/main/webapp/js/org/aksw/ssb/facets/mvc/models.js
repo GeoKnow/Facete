@@ -178,11 +178,18 @@
 			return result;
 		},
 		
-		containsPath: function(path) {
-			var result = this.some(function(model) {
+		findByPath: function(path) {
+			var result = this.find(function(model) {
 				var p = model.get('path');
 				return p.equals(path);
-			});
+			});			
+			
+			return result;
+		},
+		
+		containsPath: function(path) {
+			var model = this.findByPath(path);
+			var result = model ? true : false;
 			
 			return result;
 		},
@@ -202,6 +209,12 @@
 			});
 			
 			return true;
+		},
+		
+		removePath: function(path) {
+			var model = this.findByPath(path);
+			
+			this.remove(model);
 		}
 	});
 	

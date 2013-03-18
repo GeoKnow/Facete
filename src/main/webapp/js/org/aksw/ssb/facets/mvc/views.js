@@ -12,8 +12,38 @@
 	var ns = widgets;
 
 	
-	ns.ViewItemFacet = Backbone.View
-			.extend({
+	ns.ControllerColumnSync = function(path, targetModel, collectionColumns) {
+		_.bindAll(this);
+
+		this.path = path;
+		this.targetModel = targetModel;
+		this.collectionColumns = collectionColumns;
+		
+		this.bind();
+		this.updateModel();
+	};
+	
+	
+	ns.ControllerColumnSync.prototype = {
+		bind: function() {
+			this.collectionColumns.on('add', this.updateModel);
+			this.collectionColumns.on('remove', this.updateModel);
+			this.collectionColumns.on('reset', this.updateModel);
+		},
+
+		updateModel: function() {			
+			//var path = this.targetModelmodel.get('path');
+			var path = this.path;
+			var containsPath = this.collectionColumns.containsPath(path);
+
+			console.log("ContainsPath " + containsPath, this + " " + this.path + " ", this.collectionColumns);
+			
+			this.targetModel.set({isAddedToTable: containsPath});
+		}
+	};
+
+
+	ns.ViewItemFacet = Backbone.View.extend({
 				tagName : 'li',
 				// attributes: {style: 'float: left'},
 				initialize : function() {
@@ -28,11 +58,14 @@
 					var model = this.model;
 					var children = model.get("children");
 
+					this.collectionColumns = parentOptions.collectionColumns;
+					
 					this.subFacetWidget = new widgets.ViewFacetTree({
-						collection : children,
-						modelFacetUpdater : this.modelFacetUpdater
+						collection: children,
+						modelFacetUpdater: this.modelFacetUpdater,
+						collectionColumns: this.collectionColumns
 					});
-
+					
 					
 					var self = this;
 					this.subFacetWidget.on('all', function() {
@@ -51,12 +84,22 @@
 					model.on('change:isExpanded', this.changeIsExpanded, this);
 					model.on('change:isLoading', this.updateIsLoading, this);
 					
+					model.on('change:isAddedToTable', this.onChangeIsAddedToTable);
 					// model.bind('change:isExpanded', function())
 
 					// var children = model.get("children");
 
+					var facetFacadeNode = model.get('facetFacadeNode');
+					this.path = facetFacadeNode.getPath();
+					
 					// children.bind('add', this.add)
+					var controllerColumnSync = new ns.ControllerColumnSync(
+							this.path,
+							this.model,
+							this.collectionColumns
+					);
 
+					
 					if (this.el) {
 						this.render();
 					}
@@ -64,16 +107,38 @@
 					this.facetValuesView = null;
 				},
 
+				onChangeIsAddedToTable: function() {
+					var isAddedToTable = this.model.get('isAddedToTable');
+					console.log("isAddedToTable", isAddedToTable);
+					
+					
+					var $elPermaDiv = this.$el.find("> div > div.permaOptions");
+					//console.log("PermaDiv", $elPermaDiv);
+					
+					if(isAddedToTable) {
+						var $elTmp = $('<span>X</span>');
+						$elPermaDiv.append($elTmp);
+						
+						var self = this;
+						$elTmp.click(function() {
+							self.collectionColumns.removePath(self.path);
+							$elPermaDiv.remove();
+						});
+						
+					} else {
+					}
+				},
+				
 				onChangeSelectionCount: function() {
 					var selectionCount = this.model.get('selectionCount');
 					var selectionCountStr = selectionCount ? "" + selectionCount : ""; 
 
 					
-					this.$el.find('> div > span.selectionCount').html(selectionCountStr);
+					this.$el.find('> div > div > span.selectionCount').html(selectionCountStr);
 				},
 				
 				updateIsLoading: function() {
-					var $elI = this.$el.find("> div > a.expandable > i");
+					var $elI = this.$el.find("> div > div > a.expandable > i");
 					var $elImg = $elI.find("> img"); //$elI.find("> div > a.expandable > i > img");
 
 					console.log("$elI", $elI);
@@ -92,7 +157,7 @@
 					var model = this.model;
 					var isExpanded = model.get('isExpanded');
 
-					var $elI = this.$el.find("> div > a.expandable > i");
+					var $elI = this.$el.find("> div > div > a.expandable > i");
 
 					if(isExpanded) {
 						$elI.removeClass("icon-caret-right");
@@ -121,7 +186,7 @@
 						ev.preventDefault();
 						
 						// Workaround for backbone not supporting relative paths for event target selector
-						var expectedTarget = this.$el.find("> div > a.expandable")[0];
+						var expectedTarget = this.$el.find("> div > div > a.expandable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
@@ -163,7 +228,7 @@
 						ev.preventDefault();
 						
 						// Workaround for backbone not supporting relative paths for event target selector
-						var expectedTarget = this.$el.find("> div > a.activate")[0];
+						var expectedTarget = this.$el.find("> div > div > a.activate")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
@@ -203,7 +268,7 @@
 						}
 
 						
-						this.$el.find("> div > a.addToTable").show();						
+						this.$el.find("> div > div.hoverOptions").show();
 					},
 					
 					'mouseleave div': function(ev) {
@@ -213,7 +278,7 @@
 							return;
 						}
 
-						this.$el.find("> div > a.addToTable").hide();
+						this.$el.find("> div > div.hoverOptions").hide();
 					},
 					
 					
@@ -221,7 +286,7 @@
 					'click .addToTable' : function(ev) {
 						ev.preventDefault();
 						//alert('addToTable');
-						var expectedTarget = this.$el.find("> div > a.addToTable")[0];
+						var expectedTarget = this.$el.find("> div > div > a.addToTable")[0];
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
@@ -243,17 +308,22 @@
 					
 					var html
 						= '<div class="inline">'
-
-						+ '<a class="expandable" href="#">'
-						+ '  <i class="icon-caret-right" />'
-						+ '</a>'
-						+ '<a class="activate" href="#">'
-						+ '  <span data-uri="' + text + '"></span>'
-						+ '</a>'
+                        + '  <div class="inline">'
+						+ '    <a class="expandable" href="#">'
+						+ '      <i class="icon-caret-right" />'
+						+ '    </a>'
+						+ '  <a class="activate" href="#">'
+						+ '    <span data-uri="' + text + '"></span>'
+						+ '  </a>'
 						+ ' '
 						+ '<span class="selectionCount">' + selectionCountStr + '</span>'
 						+ ' '
-						+ '<a class="addToTable" href="#" style="display:none"><i class="add-to-table icon-circle-arrow-right" /></a>'
+						+ '</div>'
+						+ '<div class="permaOptions inline">'
+						+ '</div>'
+						+ '<div class="hoverOptions inline" style="display:none">'
+						+ '<a class="addToTable" href="#"><i class="add-to-table icon-circle-arrow-right" /></a>'
+						+ '</div>'
 						+ '</div>'
 						+ '<br class="clearBoth" />'
 						;
@@ -271,6 +341,10 @@
 					var subFacetWidgetEl = this.subFacetWidget.render().$el;
 					this.$el.append(subFacetWidgetEl);
 
+					
+					this.onChangeIsAddedToTable();
+					
+					
 					return this;
 				},
 				reset: function() {
@@ -323,7 +397,7 @@
 		updateCheckState: function() {
 			var isChecked = this.model.get("isChecked");
 			this.$el.attr('checked', isChecked);
-			console.log("setCheckState", isChecked, this.$el);
+			//console.log("setCheckState", isChecked, this.$el);
 		},
 		
 		render : function() {

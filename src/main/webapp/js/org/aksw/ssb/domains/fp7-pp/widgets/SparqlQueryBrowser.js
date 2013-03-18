@@ -168,7 +168,7 @@
 										}
 		
 										if (!result) {
-											console.log("Null column. Name, Model: ", name, JSON.stringify(model), model);
+											//console.log("Null column. Name, Model: ", name, JSON.stringify(model), model);
 											
 											//model.on('change', function() { alert("Model changed afterwards"); });
 											

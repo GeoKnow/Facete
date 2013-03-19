@@ -96,7 +96,7 @@
 						events: {
 							'click': function() {
 								self.collectionColumns.addPath(self.path);
-								/////ev.preventDefault();
+								ev.preventDefault();
 							}
 						}
 					});
@@ -128,7 +128,7 @@
 						events: {
 							'click': function() {
 								self.collectionColumns.addPath(self.path);
-								/////ev.preventDefault();
+								ev.preventDefault();
 							}
 						}
 					});
@@ -155,7 +155,7 @@
 						events: {
 							'click': function() {
 								self.collectionColumns.removePath(self.path);
-								/////ev.preventDefault();
+								ev.preventDefault();
 							}
 						}					
 					});
@@ -279,7 +279,7 @@
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
-						/////ev.preventDefault();
+						ev.preventDefault();
 
 						var model = this.model;
 						var isExpanded = model.get('isExpanded');
@@ -321,7 +321,7 @@
 						if (ev.currentTarget != expectedTarget) {
 							return;
 						}
-						/////ev.preventDefault();
+						ev.preventDefault();
 
 						var model = this.model;
 						// Show the facet values in the preconfigured area
@@ -439,8 +439,10 @@
 					this.$elPermaDiv.append($elRemoveFromTable);
 					
 					var self = this;
-					$elRemoveFromTable.click(function(){
+					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
+					$elRemoveFromTable.click(function(ev) {
 						self.collectionColumns.removePath(self.path);
+						ev.preventDefault();
 					});
 					//$elRemoveFromTable.delegateEvents();
 					
@@ -449,8 +451,10 @@
 					var $elAddToTable = this.viewItemAddToTable.render().$el;
 					this.$elHoverDiv.append($elAddToTable);
 
-					$elAddToTable.click(function(){
+					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
+					$elAddToTable.click(function(ev) {
 						self.collectionColumns.addPath(self.path);
+						ev.preventDefault();
 					});
 
 					

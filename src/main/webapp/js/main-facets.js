@@ -17,21 +17,38 @@
 
 
 	ns.facetTest = function() {
+		var v = sparql.Node.v("s");
 
+		
 		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fp7-pp.publicdata.eu/sparql",
 				"http://localhost:8810/sparql",
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
+		var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 
+		var element = new sparql.ElementString(
+				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
+
+
+
+		var sparqlService = new backend.SparqlServiceHttp(
+//				"http://fp7-pp.publicdata.eu/sparql",
+				"http://localhost:8810/sparql",
+				[ "http://localhost/wkdgeo" ],
+				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
+		var geoPathStr = "";
+
+		var element = new sparql.ElementString("?s a <http://geovocab.org/spatial#Feature>", [ v ]);
+		//var element = new sparql.ElementString("?s a <http://www.w3.org/2004/02/skos/core#Concept>", [ v ]);
+		
 //		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fts.publicdata.eu/sparql",
 //				[ "http://fts.publicdata.eu/" ],
 //				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
 
-		var v = sparql.Node.v("s");
-		var element = new sparql.ElementString(
-				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
+		
+		
 //		var element = new sparql.ElementString(
 //				"?s a <http://fts.publicdata.eu/ontology/Commitment>", [ v ]);
 
@@ -452,7 +469,6 @@
 		
 		
 		
-		var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 		var geoPath = facets.Path.fromString(geoPathStr);
 		
 
@@ -485,11 +501,20 @@
 			
 			var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
 
-				var uris = _.map(jsonRs.results.bindings, function(binding) {
-					return sparql.Node.uri(binding[varName].value);
-				});
+				console.log("jsonRs", jsonRs);
 				
-				//console.log("Related geomtery uris: ", uris.length, uris);
+				var uris = _
+					.chain(jsonRs.results.bindings)
+					.filter(function(binding) {
+						return varName in binding && binding[varName] && binding[varName].type === 'uri';
+					})
+					.map(function(binding) {
+						console.log("Binding: ", binding);
+						return sparql.Node.uri(binding[varName].value);
+					})
+					.value();
+				
+				console.log("Related geomtery uris: ", uris.length, uris);
 				
 				var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
 

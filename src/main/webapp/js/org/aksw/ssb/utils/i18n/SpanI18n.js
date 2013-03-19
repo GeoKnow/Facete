@@ -1,6 +1,8 @@
 (function() {
 	
 	var utils = Namespace("org.aksw.ssb.utils");
+	var uriUtils = Namespace("org.aksw.ssb.utils.uris");
+	
 	var ns = utils;
 
 	
@@ -59,7 +61,7 @@
 					}
 					
 					if(!text || text === "") {
-						text = "foo";
+						text = uriUtils.extractLabelFromUri(uriStr);
 					}
 					
 					var els = uriToEls[uriStr];					

@@ -423,6 +423,9 @@
 		
 
 		getConstrainedSteps: function(path) {
+			//console.log("getConstrainedSteps: ", path);
+			checkNotNull(path);
+			
 			var tmp = [];
 			
 			var steps = path.getSteps();
@@ -430,14 +433,21 @@
 			
 			for(var i = 0; i < constraints.length; ++i) {
 				var constraint = constraints[i];
+				//console.log("  Constraint: " + constraint);
 
 				var paths = constraint.getPaths();
+				//console.log("    Paths: " + paths.length + " - " + paths);
+				
 				for(var j = 0; j < paths.length; ++j) {
 					var p = paths[j];
 					var pSteps = p.getSteps();
 					var delta = pSteps.length - steps.length; 
 					
-					if(delta == 1 && p.startsWith(path)) {
+					//console.log("      Compare: " + delta, p, path);
+					
+					var startsWith = p.startsWith(path);
+					//console.log("      Startswith: " + startsWith);
+					if(delta == 1 && startsWith) {
 						var step = pSteps[pSteps.length - 1];
 						tmp.push(step);
 					}
@@ -445,6 +455,8 @@
 			}
 			
 			var result = _.uniq(tmp, function(step) { return "" + step; });
+			
+			//console.log("Constraint result", constraints.length, result.length);
 			
 			return result;
 		},
@@ -1006,6 +1018,18 @@
 				return this.facetNode.getPath();
 			},
 			
+			forProperty: function(propertyName, isInverse) {
+				var fn = this.facetNode.forProperty(propertyName, isInverse);
+				var result = this.wrap(fn);
+				return result;								
+			},
+			
+			forStep: function(step) {
+				var fn = this.facetNode.forStep(step);
+				var result = this.wrap(fn);
+				return result;				
+			},
+			
 			wrap: function(facetNode) {
 				var result = new ns.SimpleFacetFacade(this.constraintManager, facetNode);
 				return result;
@@ -1119,7 +1143,8 @@
 			 * Use the filter to only select steps that e.g. correspond to outgoing properties
 			 */
 			getConstrainedSteps: function() {
-				var result = this.constraintManager.getConstrainedSteps();
+				var path = this.getPath();
+				var result = this.constraintManager.getConstrainedSteps(path);
 				return result;
 			}
 			

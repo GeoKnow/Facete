@@ -31,7 +31,7 @@
 				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
 
 
-
+/*
 		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fp7-pp.publicdata.eu/sparql",
 				"http://localhost:8810/sparql",
@@ -41,6 +41,7 @@
 
 		var element = new sparql.ElementString("?s a <http://geovocab.org/spatial#Feature>", [ v ]);
 		//var element = new sparql.ElementString("?s a <http://www.w3.org/2004/02/skos/core#Concept>", [ v ]);
+*/
 		
 //		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fts.publicdata.eu/sparql",
@@ -72,6 +73,8 @@
 		// The backbone collection for constraints
 		var constraintCollection = new facets.ConstraintCollection2();
 		
+		
+		
 
 		/* 
 		 * The "table model" is a query factory, but provides functions
@@ -95,7 +98,7 @@
 		// Paramaters to add:
 		// constraintCollection | or at least a constraintCollectionProvider
 		// 
-		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept, constraintCollection);
+		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept, constraintCollection, sparqlService);
 
 		var rootModel = new facets.ModelFacetNode({
 			facetFacadeNode: rootFacetNode
@@ -191,8 +194,20 @@
 		var conc = new facets.ConceptInt(e, v);		
 		
 		
-		modelFacetUpdater.updateFacets(rootModel, facetFacade);
+		//modelFacetUpdater.updateFacets(rootModel, facetFacade);
 
+		var fnUpdateFacets = function() {
+			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
+			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
+			
+			modelFacetUpdater.updateFacets(rootModel, facetFacadeNode);
+		};
+
+		fnUpdateFacets();
+		
+		constraintCollection.on('add remove reset', fnUpdateFacets);
+		
+		
 		var selectionCountSync = new facets.ControllerSelectionCountSync(constraintCollection, rootModel);
 
 		
@@ -501,7 +516,7 @@
 			
 			var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
 
-				console.log("jsonRs", jsonRs);
+				//console.log("jsonRs", jsonRs);
 				
 				var uris = _
 					.chain(jsonRs.results.bindings)
@@ -509,12 +524,12 @@
 						return varName in binding && binding[varName] && binding[varName].type === 'uri';
 					})
 					.map(function(binding) {
-						console.log("Binding: ", binding);
+						//console.log("Binding: ", binding);
 						return sparql.Node.uri(binding[varName].value);
 					})
 					.value();
 				
-				console.log("Related geomtery uris: ", uris.length, uris);
+				//console.log("Related geomtery uris: ", uris.length, uris);
 				
 				var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
 

@@ -49,9 +49,9 @@
         <script type="text/javascript" src="lib/jquery/1.9.1/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>
         <script type="text/javascript" src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
-        <script type="text/javascript" src="lib/underscore/1.3.1/underscore.js"></script>
+        <script type="text/javascript" src="lib/underscore/1.4.4/underscore.js"></script>
         <script type="text/javascript" src="lib/underscore.string/current/dist/underscore.string.min.js"></script>
-        <script type="text/javascript" src="lib/backbone/0.9.2/backbone.js"></script>
+        <script type="text/javascript" src="lib/backbone/1.0.0/backbone.js"></script>
         <script type="text/javascript" src="lib/twitter-bootstrap/2.0.3/js/bootstrap.js"></script>
         <script type="text/javascript" src="lib/agility/current/agility.js" charset="utf-8"></script>
         <script type="text/javascript" src="lib/CryptoJS/3.0.2/components/core-min.js"></script>

@@ -48,6 +48,7 @@
 			//var facetFacadeNode = targetModel.get('facetFacadeNode');			
 			//console.log("[ControllerSelectionCountSync] FacetFacadeNode is: ", facetFacadeNode);
 			
+			// TODO facetFacade is WRONG here - should be facetNode
 			var constraintManager = this.constraintCollection.createConstraintManager(facetFacadeNode);
 			var constraints = constraintManager.getConstraintsByPath(path);
 			

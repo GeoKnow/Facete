@@ -27,7 +27,7 @@
 			 * }), // subFacets - NOT facet values!
 			 */
 			facetFacadeNode : null, // Reference to a (non-model)
-									// FacetFacadeNode
+			// FacetFacadeNode
 		},
 
 		initialize : function() {
@@ -39,7 +39,6 @@
 		},
 		
 		forPath: function(path) {
-			var result = this;
 			var steps = path.getSteps();
 
 			var result = this;
@@ -312,8 +311,7 @@
 				var constraint = model.get('constraint');
 
 				var path = constraint.path;
-				var node = constraint.node; 
-
+				var node = constraint.node;
 				
 				checkNotNull(constraint);
 				

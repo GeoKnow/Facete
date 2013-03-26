@@ -470,13 +470,17 @@
 		},
 	
 		startsWith: function(other) {
-			var n = this.steps.length;
-			if(n < other.steps.length) {
+			var n = other.steps.length;
+			if(n > this.steps.length) {
 				return false;
 			}
 			
 			for(var i = 0; i < n; ++i) {
-				if(!this.steps[i].equals(other.steps[i])) {
+				var thisStep = this.steps[i];
+				var otherStep = other.steps[i];
+				
+				//console.log("      ", thisStep, otherStep);
+				if(!thisStep.equals(otherStep)) {
 					return false;
 				}
 			}

@@ -79,7 +79,8 @@
 
 					// model.bind('change', this.render, this);
 					model.bind('remove', this.unrender, this);
-					model.on('change:selectionCount', this.onChangeSelectionCount);
+					model.on('change:selectionCount', this.onChangeFacetStats); //onChangeSelectionCount);
+					model.on('change:facetCount', this.onChangeFacetStats);
 
 					model.on('change:isExpanded', this.changeIsExpanded, this);
 					model.on('change:isLoading', this.updateIsLoading, this);
@@ -219,20 +220,32 @@
 					}
 				},*/
 				
-				onChangeSelectionCount: function() {
-					var selectionCount = this.model.get('selectionCount');
-					var selectionCountStr = selectionCount ? "" + selectionCount : ""; 
+				onChangeFacetStats: function() {
+					var selectionCount = this.model.get('selectionCount');					
+					var facetCount = this.model.get('facetCount');
+
+					//console.log('selection / facet' + selectionCount, facetCount);
+					
+					var html = '';
+					if(selectionCount) {
+						html
+							= '<span class="selectionCount">' + selectionCount + '</span>'
+							+ '<span>/</span>'
+							;
+					}
+					
+					html += '<span class="facetCount">' + facetCount + '</span>';
 
 					
-					this.$el.find('> div > div > span.selectionCount').html(selectionCountStr);
+					this.$el.find('> div > div.facetStats').html(html);
 				},
 				
 				updateIsLoading: function() {
 					var $elI = this.$el.find("> div > div > a.expandable > i");
 					var $elImg = $elI.find("> img"); //$elI.find("> div > a.expandable > i > img");
 
-					console.log("$elI", $elI);
-					console.log("$elImg", $elImg);
+//					console.log("$elI", $elI);
+//					console.log("$elImg", $elImg);
 					
 					$elImg.remove();
 
@@ -301,7 +314,7 @@
 								
 								var self = this;
 								scheduler.schedule(function() {
-									console.log("bar");
+									//console.log("bar");
 									self.modelFacetUpdater.updateFacets(model, facetFacadeNode);
 								});
 							} else {							
@@ -393,9 +406,6 @@
 					
 					var text = this.model.get("facetUri");
 
-					var selectionCount = this.model.get('selectionCount');
-					var selectionCountStr = selectionCount ? "" + selectionCount : ""; 
-					
 					
 					var html
 						= '<div class="inline">'
@@ -406,9 +416,15 @@
 						+ '  <a class="activate" href="#">'
 						+ '    <span data-uri="' + text + '"></span>'
 						+ '  </a>'
-						+ ' '
+						/*
 						+ '<span class="selectionCount">' + selectionCountStr + '</span>'
+						+ '<span class="valueSeparator">/</span>'
+						+ '<span class="facetCount">' + facetCountStr + '</span>'
 						+ ' '
+						*/
+						+ '</div>'
+						+ ' '
+						+ '<div class="facetStats inline" style="margin-left: 5px">'
 						+ '</div>'
 						+ '<div class="permaOptions inline">'
 						+ '</div>'
@@ -464,6 +480,7 @@
 
 					//this.onChangeIsAddedToTable();
 					
+					this.onChangeFacetStats();
 					
 					return this;
 				},

@@ -33,12 +33,12 @@
 			var sampleSize = null; // 50000;
 			var facetVar = sparql.Node.v("__p");
 			var countVar = sparql.Node.v("__c");
-
-			
 			
 			var query = queryUtils.createQueryFacetCount(concept, facetVar,
 					countVar, this.isInverse, sampleSize);
 
+			console.log("Fetching facets with query: " + query);
+			
 			var uris = [];
 			if(steps && steps.length > 0) {
 				
@@ -188,6 +188,7 @@
 				var limit = null;
 
 				var query = queryUtils.createQueryCountDistinct(element, null, variable, outputVar, null, null);
+				console.log("Fetching facets with ", query);
 				var queryExecution = queryUtils.fetchInt(sparqlService, query, outputVar);
 
 				

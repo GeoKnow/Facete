@@ -578,7 +578,7 @@
 	 * 
 	 */
 	ns.createQueryFacetCount = function(concept, facetVar, countFacetVar, isInverse, sampleSize) {
-		
+
 		//var facetVar = sparql.Node.v("__p");
 		var valueVar = sparql.Node.v("__o");
 		var element = ns.createElementFacetCount(concept, isInverse, facetVar, valueVar, sampleSize);
@@ -956,8 +956,7 @@
 	 * 
 	 */
 	ns.createQueryCountDistinct = function(element, limit, variable, outputVar, groupVars, options) {
-		
-		
+
 		var result = new sparql.Query();
 		if(limit) {
 			var subQuery = new sparql.Query();
@@ -968,6 +967,7 @@
 				for(var i = 0; i < groupVars.length; ++i) {					
 					var groupVar = groupVars[i];					
 					subQuery.projectVars.add(groupVar);
+					//subQuery.groupBy.push(groupVar);
 				}
 			}
 			subQuery.projectVars.add(variable);
@@ -978,12 +978,13 @@
 			result.elements.push(element);
 		}
 		
-
+		//result.groupBy.push(outputVar);
 		if(groupVars) {
 			for(var i = 0; i < groupVars.length; ++i) {
 				var groupVar = groupVars[i];				
 				if(groupVar.value !== variable.value) {
 					result.projectVars.add(groupVar);
+					result.groupBy.push(new sparql.ExprVar(groupVar));
 				}
 			}
 		}

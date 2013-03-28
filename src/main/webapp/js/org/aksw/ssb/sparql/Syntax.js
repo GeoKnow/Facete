@@ -1570,6 +1570,7 @@
 		
 		//this.order = []; // A list of expressions
 		
+		this.groupBy = []; 
 		this.orderBy = [];
 
 		
@@ -1592,8 +1593,28 @@
 		},
 
 		setProjectVars: function(projectVars) {
-			this.projectVars = projectVars
+			this.projectVars = projectVars;
 		},
+		
+		getGroupBy: function() {
+			return this.groupBy;
+		},
+		
+		toStringOrderBy: function() {
+			var result = (this.orderBy && this.orderBy.length > 0)
+				? "Order By " + this.orderBy.join(" ") + " "
+				: "";
+				//console.log("Order: ", this.orderBy);
+			return result;
+		},
+
+		toStringGroupBy: function() {
+			var result = (this.groupBy && this.groupBy.length > 0)
+				? "Group By " + this.groupBy.join(" ") + " "
+				: "";
+				//console.log("Order: ", this.orderBy);
+			return result;
+		}
 	};
 
 	
@@ -1645,6 +1666,10 @@
 		result.orderBy = this.orderBy == null
 			? null
 			:  _.map(this.orderBy, function(item) { return item.copySubstitute(fnNodeMap); });			
+
+		result.groupBy = this.groupBy == null
+			? null
+			:  _.map(this.groupBy, function(item) { return item.copySubstitute(fnNodeMap); });			
 
 
 		result.elements = _.map(this.elements, function(element) { return element.copySubstitute(fnNodeMap); });		
@@ -1728,19 +1753,12 @@
 	};
 	
 	
-	ns.Query.prototype.toStringOrderBy = function() {
-		var result = (this.orderBy && this.orderBy.length > 0)
-			? result = "Order By " + this.orderBy.join(" ") + " "
-			: "";
-			//console.log("Order: ", this.orderBy);
-		return result;
-	};
 	
 	ns.Query.prototype.toStringSelect = function() {
 		var distinctStr = this.distinct ? "Distinct " : "";
 		
 		//console.log("Elements: ", this.elements);
-		var result = "Select " + distinctStr + this.toStringProjection() + " {" + ns.joinElements(" . ", this.elements) + "} " + this.toStringOrderBy() + this.toStringLimitOffset();
+		var result = "Select " + distinctStr + this.toStringProjection() + " {" + ns.joinElements(" . ", this.elements) + "} " + this.toStringGroupBy() + this.toStringOrderBy() + this.toStringLimitOffset();
 		
 		return result;		
 	};

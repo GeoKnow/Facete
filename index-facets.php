@@ -94,6 +94,8 @@
 		
 			<div class="span6">
                 <div id="instances"></div>
+                <a id="exportCsv" href="#">Export CSV</a>
+                <a id="exportRdf" href="#">Export RDF</a>
 			</div>
 
 			<div id="mapContainer" class="span4">

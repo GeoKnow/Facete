@@ -90,7 +90,7 @@
 	
 	ns.SparqlServiceHttp.prototype.executeAny = function(query) {
 		
-		//console.log("Preparing SPARQL query: " + query);
+		console.log("Preparing SPARQL query: " + query);
 		
 		// TODO Make this a switch
 		if(true) {

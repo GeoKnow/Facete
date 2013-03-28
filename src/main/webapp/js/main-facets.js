@@ -19,10 +19,12 @@
 	ns.facetTest = function() {
 		var v = sparql.Node.v("s");
 
+		//var sparqlServiceUri = "http://localhost:8810/sparql";
+		var sparqlServiceUri = "http://localhost/sparql-analytics/sparql";
 		
 		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fp7-pp.publicdata.eu/sparql",
-				"http://localhost:8810/sparql",
+				sparqlServiceUri,
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
 		var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
@@ -616,7 +618,70 @@
 			
 		});
 
+		
+		/* CSV export */
 
+		var semmapServiceUri = "http://localhost/semmap/service";
+		
+		var btnExportCsv = $('#exportCsv'); 
+		rsTableModel.on('change:queryFactory', function(model) {
+			var queryFactory = model.get('queryFactory');
+			
+			var query = queryFactory.createQuery();
+			var queryString;
+			if(query) {
+				queryString = "" + query;
+			} else {
+				queryString = "Select * { ?s ?p ?o . Filter(FALSE) }";
+			}
+			
+			var data = {
+				'service-uri': sparqlServiceUri,
+				'query': queryString
+			};
+			var qs = $.param(data);
+
+			var href = semmapServiceUri + "/exportCsv?" + qs;
+			
+			
+			btnExportCsv.attr('href', href);
+		});
+
+		
+		var btnExportRdf = $('#exportRdf'); 
+		rsTableModel.on('change:queryFactory', function(model) {
+			var queryFactory = model.get('queryFactory');
+			
+			var query = queryFactory.createQuery();
+			var queryString;
+			if(query) {
+				queryString = "" + query;
+			} else {
+				queryString = "Select * { ?s ?p ?o . Filter(FALSE) }";
+			}
+			
+			var data = {
+				'service-uri': sparqlServiceUri,
+				'query': queryString
+			};
+			var qs = $.param(data);
+
+			var href = semmapServiceUri + "/exportRdf?" + qs;
+			
+			
+			btnExportRdf.attr('href', href);
+		});
+		
+		
+		/*
+		var btnPrepareExportCsv = $('#prepareExportCsv');
+		var btnExportCsv = $('#exportCsv'); 
+		btnPrepareExportCsv.click(function() {
+			//alert("test");
+			//btnExportCsv.attr('href', 'data:text/csv;base64,'+Base64.encode("3;2;1"));
+			btnExportCsv.attr('href', 'data:text/csv;utf8,3;2;1');
+		});
+		 */
 	};
 
 	/*

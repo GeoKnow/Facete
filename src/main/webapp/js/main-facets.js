@@ -19,8 +19,9 @@
 	ns.facetTest = function() {
 		var v = sparql.Node.v("s");
 
-		//var sparqlServiceUri = "http://localhost:8810/sparql";
-		var sparqlServiceUri = "http://localhost/sparql-analytics/sparql";
+		var sparqlServiceUri = "http://localhost:8810/sparql";
+		//var sparqlServiceUri = "http://localhost:5522/sparql-analytics/api/sparql";
+		//var sparqlServiceUri = "http://fp7-pp.publicdata.eu/sparql-analytics/api/sparql";
 		
 		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fp7-pp.publicdata.eu/sparql",
@@ -31,7 +32,7 @@
 
 		var element = new sparql.ElementString(
 				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
-
+		//element = null;
 
 /*
 		var sparqlService = new backend.SparqlServiceHttp(

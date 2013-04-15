@@ -324,7 +324,29 @@
 					
 					items.push.apply(items, args);
 				}
+
+                                var itemIds = [];
+                                for(var i = 0; i < items.length; ++i) {
+                                    var item = items[i];
+                                    var itemId = item.id;
+                                    itemIds.push(itemId);
+                                }
+
 				
+                                // Find all children, whose ID was not yeld
+                                var childIds = children.map(function(child) {
+                                    return child.id;
+                                });
+
+
+                                var removeChildIds = _.difference(childIds, itemIds);
+                                children.remove(removeChildIds);
+/*
+                                for(var i = 0; i < removeChildIds.length; ++i) {
+                                    var childId = removeChildIds
+                                }
+*/
+
 				for(var i = 0; i < items.length; ++i) {
 					var item = items[i];
 					

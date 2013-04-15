@@ -16,7 +16,15 @@
 
 
 
-	ns.facetTest = function() {
+	ns.facetTest = function(options) {
+/*
+		var sparqlServiceUri = options.sparqlServiceUri;
+		var defaultGraphUris = options.defaultGraphsUris;
+		var concept = options.concept;
+		var state = options.state; // State is a generic object holding the application state
+*/
+
+
 		var v = sparql.Node.v("s");
 
 		var sparqlServiceUri = "http://localhost:8810/sparql";
@@ -32,6 +40,8 @@
 
 		var element = new sparql.ElementString(
 				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
+		
+		element = new sparql.ElementString("?s ?p ?o", [v]);
 		//element = null;
 
 /*
@@ -65,11 +75,9 @@
 				queryFactoryConcept, v.value);
 
 		var constraintManager = queryFactoryFacets.getConstraintManager();
-		// FIXME Rename to rootFacetFacadeNode
-		var rootFacetNode = queryFactoryFacets.getRootFacetNode();
 
-		var facetFacade = new facets.SimpleFacetFacade(constraintManager,
-				rootFacetNode);
+		var rootFacetNode = queryFactoryFacets.getRootFacetNode();
+		var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
 
 		
 		
@@ -87,11 +95,9 @@
 		tableModel.setLimit(10);
 
 
-
-
 		// A facet provider enables fetching the facets for a specific concept
 		var facetProviders = [
-		    new facets.FacetProviderSimple(sparqlService, false),
+		    new facets.FacetProviderSimple(sparqlService, false)
 		    //new facets.FacetProviderSimple(sparqlService, true)
 		];
 
@@ -103,16 +109,30 @@
 		// 
 		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept, constraintCollection, sparqlService);
 
+		
+		var metaFacetCollection = new ns.CollectionFacetNode();
+		
+		console.log("FacetFacadeNode: ", rootFacetFacadeNode);
 		var rootModel = new facets.ModelFacetNode({
-			facetFacadeNode: rootFacetNode
+			facetFacadeNode: rootFacetFacadeNode
 		});
-
-		var rootCollection = rootModel.get("children");
+		
+		//var rootCollection = rootModel.get("children");
+		var rootCollection = metaFacetCollection;
 		// console.log("Root Collection: ", rootCollection);
 
+                /*
+                 * Model for which facets are mapped to table columns
+                 */
 		var collectionColumns = new facets.CollectionColumns(); 		
 		collectionColumns.addPath(facets.Path.fromString(""));
 
+		
+		/*
+		this.facetWidget = new widget.ViewItemFacet({
+			el : $("#facets"),
+		});
+		*/
 		
 		this.facetWidget = new widgets.ViewFacetTree({
 			el : $("#facets"),
@@ -155,7 +175,6 @@
 		 * collection: rootCollection, itemRenderer: facetItemRenderer });
 		 */
 
-		rootModel.set("isExpanded", true);
 
 		/*
 		 * 
@@ -174,7 +193,7 @@
 		var es = facetFacade.forPathStr(
 				"http://fp7-pp.publicdata.eu/ontology/year").createElements();
 		*/
-		var es = facetFacade.forPathStr("").createElements();
+		var es = rootFacetFacadeNode.forPathStr("").createElements();
 		
 		
 		// console.log("es", es);
@@ -189,7 +208,7 @@
 
 		// var v =
 		// rootFacetNode.forPath(facets.Path.fromString("")).getVariable();
-		var v = rootFacetNode
+		var v = rootFacetFacadeNode
 				.forPath(
 						facets.Path
 								.fromString("")) //"http://fp7-pp.publicdata.eu/ontology/year"))
@@ -508,7 +527,7 @@
 			//var queryFactory = new facets.QueryFactoryFacets(this.subQueryFactory, this.facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();
 			
 			
-			var hack = facetFacade.forPath(geoPath);
+			var hack = rootFacetFacadeNode.forPath(geoPath);
 			hack.constraintManager = constraintManager; 
 			
 			var concept = hack.createConcept();
@@ -585,6 +604,12 @@
 		
 		
 		foobarI18N = new utils.SpanI18n(labelFetcher);
+
+
+		metaFacetCollection.add(rootModel);
+		rootModel.set("isExpanded", true);
+
+
 		var tmpEl = $(document);
 		foobarI18N.update(tmpEl);
 		

@@ -23,9 +23,22 @@
 		var concept = options.concept;
 		var state = options.state; // State is a generic object holding the application state
 */
-
-
-		var v = sparql.Node.v("s");
+		
+		
+		/* TODO
+		 * Initialize a collection with the master catalog service IRIs
+		 */
+		//SELECT Distinct ?o WHERE {?s <http://www.w3.org/ns/dcat#accessURL> ?o . Filter(regex(?o, '/sparql', 'i')) . }
+		var catalogServiceConfig = {
+			serviceUri: 'http://semantic.ckan.net/sparql',
+			defaultGraphUris: ['http://datahub.io']
+		};
+		
+		var catalogSparqlService = new backend.SparqlServiceHttp(
+				catalogServiceConfig.serviceUri,
+				catalogServiceConfig.defaultGraphUris,
+				'lib/SparqlProxyPHP/current/sparql-proxy.php', 'service-uri');
+		
 
 		var sparqlServiceUri = "http://localhost:8810/sparql";
 		//var sparqlServiceUri = "http://localhost:5522/sparql-analytics/api/sparql";
@@ -36,6 +49,111 @@
 				sparqlServiceUri,
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
+
+
+		//var catalogSparqlService =
+		var collectionMasterCatalogServiceIris = ['http://semantic.ckan.net/sparql'];
+
+		/*
+		 * GUI controls for SPARQL service selection 
+		 * 
+		 */
+                var scheduler = new Scheduler(1000);
+
+	    $("#sparql-service-selector").select2({
+	        minimumInputLength: 1,
+	        query: function (query) {
+	        	var term = query.term;
+	        
+			var sparqlQueryString = "Select Distinct ?o WHERE {?s <http://www.w3.org/ns/dcat#accessURL> ?o . Filter(Regex(?o, '" + term + "', 'i')) . Filter(IsUri(?o)) . } Limit 10";
+                        scheduler.schedule(function() {
+				var qe = catalogSparqlService.executeSelect(sparqlQueryString);
+
+		                qe.done(function(jsonRs) {
+		                    var bindings = jsonRs.results.bindings;
+
+		                    var data = {
+		                        results: []
+		                    };
+
+                                    // Add the current input as an option
+                                    data.results.push({
+                                        id: 0,
+                                        text: term
+                                    });
+
+
+		                    for(var i = 0; i < bindings.length; ++i) {
+		                        var binding = bindings[i];
+		                        var item = {
+		                            id: term + i,
+		                            text: binding.o.value
+		                        };
+		                        data.results.push(item);
+		                    }
+		                    query.callback(data);
+		                });
+                        });
+	        }
+	    });
+
+            var $elDefaultGraphSelector = $('#default-graph-selector');
+	    //$elDefaultGraphSelector.select2({data: []});
+
+            var graphVar = sparql.Node.v('g');
+            var query = queryUtils.createQueryGetNamedGraphs(graphVar);
+            //alert("Query: " + query);
+            var qe = sparqlService.executeSelect(query);
+            qe.done(function(json) {
+
+                var bindings = json.results.bindings;
+                var data = [];
+                for(var i = 0; i < bindings.length; ++i) {
+
+                    var binding = bindings[i];
+                    var g = binding.g;
+                    var uri = g.value;
+
+                    var item = {
+                        id: uri,
+                        text: uri
+                    }
+                    data.push(item);
+                }
+console.log("Data is", data);
+                $elDefaultGraphSelector.select2({tags: data}); //'data', data);
+            });
+
+
+
+    var handlers = [1, 8, 12, 14];
+    var colors = ["#ff0000", "#00ff00", "#0000ff", "#00ffff"];
+    //updateColors(handlers);
+
+    var $elLodSlider = $('.lod-slider');
+    $elLodSlider.slider({
+        range: true,
+        animate: true,
+        step: 1,
+        min: 0,
+        max: 18,
+        values: handlers,
+        slide: function(event, ui) {
+            console.log(ui);
+/*            if ( (ui.values[0] + 20) >= ui.values[1] ) {
+                return false;
+            }*/
+        }
+/*        slide: function (evt, ui) {
+alert("foobar");
+            //updateColors(ui.values);
+        }*/
+    });
+
+
+
+		var v = sparql.Node.v("s");
+
 		var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 
 		var element = new sparql.ElementString(

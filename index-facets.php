@@ -41,14 +41,16 @@
 
         <link rel="stylesheet" href="lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" />
         <?php echo "$cssIncludes\n" ?>
-        <link rel="stylesheet" type="text/css" href="lib/jquery-ui/1.8.16/themes/base/jquery-ui.css" />    
+        <link rel="stylesheet" type="text/css" href="lib/select2/3.3.2/select2.css"></script>
+        <link rel="stylesheet" type="text/css" href="lib/jquery-ui/1.10.2/themes/base/jquery-ui.css" />    
 
         <!-- <script type="text/javascript" src="src/main/webapp/js/prototypes.js"></script> -->
 
         <script type="text/javascript" src="lib/namespacedotjs/a28da387ce/Namespace.js"></script>
         <script type="text/javascript" src="lib/jquery/1.9.1/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>
-        <script type="text/javascript" src="lib/jquery-ui/1.8.16/ui/jquery-ui.js"></script>
+        <script type="text/javascript" src="lib/jquery-ui/1.8.16x/ui/jquery-ui.js"></script>
+        <script type="text/javascript" src="lib/jquery-ui/1.10.2/ui/jquery-ui.js"></script>
         <script type="text/javascript" src="lib/underscore/1.4.4/underscore.js"></script>
         <script type="text/javascript" src="lib/underscore.string/current/dist/underscore.string.min.js"></script>
         <script type="text/javascript" src="lib/backbone/1.0.0/backbone.js"></script>
@@ -62,6 +64,7 @@
         <script type="text/javascript" src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
         <!-- <script type="text/javascript" src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script> -->
 
+        <script type="text/javascript" src="lib/select2/3.3.2/select2.js"></script>
 
 
 
@@ -85,6 +88,16 @@
 	<div class="container">
 		<?php include($headerFile); ?>
 
+		<div class="row-fluid">
+			<form>
+				<label><input type="radio" name="group1" checked="checked"/>Global</label>
+				<div class="service-config"></div>
+				<hr>
+				<label><input type="radio" name="group1" />Level of Detail</label>
+				<div class="lod-slider inline" style="width: 300px;"></div>
+				<div class="lod-service-condfig"></div>
+			<form>
+		</div>
 
 		<div class="row-fluid">
 			<div class="span2 left-column">

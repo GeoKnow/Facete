@@ -19,7 +19,7 @@
 (function($) {
 	
 	
-$.widget("ui.ssb_map2", {
+$.widget("custom.ssbMap2", {
 
 	// TODO: Add _init method for backward compatibility
 

@@ -25,10 +25,10 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 	    render: function() {
 
 	    	// Create the old map widget (this call returns a domElement)
-	      this.$el.ssb_map2();
+	      this.$el.ssbMap2();
 	      
 	      // Get the actual widget (not the domElement, but the object)
-	      this.legacyWidget = this.$el.data("ssb_map2");
+	      this.legacyWidget = this.$el.data("custom-ssbMap2");
 	      
 	      // Extract the map
 	      this.map = this.legacyWidget.map;

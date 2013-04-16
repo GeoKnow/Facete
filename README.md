@@ -1,4 +1,4 @@
-# SemMap Spatial RDF Browser
+# Welcome to SemMap, the Spatial RDF Browser
 
 # Notes on the devel branch: We are currently working hard on SemMap; for our devs:
     git checkout devel

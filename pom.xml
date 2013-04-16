@@ -85,7 +85,6 @@
 								<param>jsonrdf-extraction-utils.js</param>
 								<param>facet-controller.js</param>
 								<param>jquery.ssb.instances.js</param>
-								<param>jquery.ssb.map.js</param>
 								<param>jquery.ssb.search.js</param>
 
 								<param>org/aksw/ssb/backend/SparqlServiceHttp.js</param>

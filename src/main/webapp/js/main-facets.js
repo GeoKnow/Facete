@@ -14,19 +14,117 @@
 	var ns = facets;
 
 
+	
+    ns.nodesToAutocomplete = function(nodes) {
+		var result = [];
+        for(var i = 0; i < nodes.length; ++i) {
+
+            var node = nodes[i];
+            var uri = node.value;
+
+            var item = {
+                id: uri,
+                text: uri
+            };
+            result.push(item);
+        }
+        return result;
+    };
+
 
 
 	ns.facetTest = function(options) {
+		
+		/*
+		 * Toggle button for the config section 
+		 */
+		$("#btn-open-settings").click(function(ev) {
+			$("#div-settings").slideToggle();
+			ev.preventDefault();
+		});
+		
+		
 /*
 		var sparqlServiceUri = options.sparqlServiceUri;
 		var defaultGraphUris = options.defaultGraphsUris;
 		var concept = options.concept;
 		var state = options.state; // State is a generic object holding the application state
 */
+
+		// Maybe we want such global model?
+		var appContext = new Backbone.Model({
+			defaults: {
+				
+			}
+		});
+		
+		var configModel = new Backbone.Model({
+			defaults : {
+				sparqlServiceIri: "",
+				defaultGraphIris: []
+			}
+		});
+		
+		var sparqlService;
+
+		configModel.on('change', function() {
+			var sparqlServiceIri = this.get('sparqlServiceIri');
+			var defaultGraphIris = this.get('defaultGraphIris');
+			
+			sparqlService = new backend.SparqlServiceHttp(
+						sparqlServiceIri,
+						defaultGraphIris,
+						"lib/SparqlProxyPHP/current/sparql-proxy.php",
+						"service-uri");
+			
+		});
 		
 		
-		/* TODO
-		 * Initialize a collection with the master catalog service IRIs
+        var $elDefaultGraphSelector = $('#default-graph-selector');
+
+        var defaultGraphCollection = new Backbone.Collection();
+
+		
+		configModel.on('change:sparqlServiceIri', function() {
+			var sparqlServiceIri = this.get('sparqlServiceIri');
+			//var sparqlService = new backend.SparqlServiceHttp(sparqlServiceIri);
+			var sparqlService = new backend.SparqlServiceHttp(
+					sparqlServiceIri,
+					[],
+					'lib/SparqlProxyPHP/current/sparql-proxy.php',
+					'service-uri'
+			);
+			
+			var qe = queryUtils.fetchDefaultGraphs(sparqlService);
+			qe.pipe(ns.nodesToAutocomplete).done(function(list) {
+				defaultGraphCollection.reset(list);
+			});
+		});
+
+		defaultGraphCollection.on('add remove reset', function() {
+			var tags = this.toJSON();
+			console.log("tags: ", tags);
+            $elDefaultGraphSelector.select2({tags: tags});
+		});
+		
+		
+		$elDefaultGraphSelector.on('change', function(ev) {
+			var data = $elDefaultGraphSelector.select2('data');
+			var defaultGraphIris = [];
+			for(var i = 0; i < data.length; ++i) {
+				var item = data[i];
+				var graphIri = item.id;
+
+				defaultGraphIris.push(graphIri);
+			}
+			
+			//defaultGraphCollection.reset(data);
+			configModel.set({defaultGraphIris: defaultGraphIris});
+		});
+		
+		
+		/*
+		 * TODO Initialize a collection with the master catalog service IRIs
 		 */
 		//SELECT Distinct ?o WHERE {?s <http://www.w3.org/ns/dcat#accessURL> ?o . Filter(regex(?o, '/sparql', 'i')) . }
 		var catalogServiceConfig = {
@@ -40,15 +138,21 @@
 				'lib/SparqlProxyPHP/current/sparql-proxy.php', 'service-uri');
 		
 
-		var sparqlServiceUri = "http://localhost:8810/sparql";
 		//var sparqlServiceUri = "http://localhost:5522/sparql-analytics/api/sparql";
 		//var sparqlServiceUri = "http://fp7-pp.publicdata.eu/sparql-analytics/api/sparql";
 		
+		/*
 		var sparqlService = new backend.SparqlServiceHttp(
 //				"http://fp7-pp.publicdata.eu/sparql",
 				sparqlServiceUri,
 				[ "http://fp7-pp.publicdata.eu/" ],
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
+		*/
+		
+		configModel.set({
+			sparqlServiceIri: "http://localhost:8810/sparql",
+			defaultGraphIris: []
+		});
 
 
 		//var catalogSparqlService =
@@ -60,69 +164,50 @@
 		 */
                 var scheduler = new Scheduler(1000);
 
-	    $("#sparql-service-selector").select2({
+        var $elSparqlServiceSelector = $("#sparql-service-selector");
+        $elSparqlServiceSelector.select2({
 	        minimumInputLength: 1,
 	        query: function (query) {
 	        	var term = query.term;
 	        
 			var sparqlQueryString = "Select Distinct ?o WHERE {?s <http://www.w3.org/ns/dcat#accessURL> ?o . Filter(Regex(?o, '" + term + "', 'i')) . Filter(IsUri(?o)) . } Limit 10";
-                        scheduler.schedule(function() {
+
+			scheduler.schedule(function() {
 				var qe = catalogSparqlService.executeSelect(sparqlQueryString);
 
-		                qe.done(function(jsonRs) {
-		                    var bindings = jsonRs.results.bindings;
-
-		                    var data = {
-		                        results: []
-		                    };
-
-                                    // Add the current input as an option
-                                    data.results.push({
-                                        id: 0,
-                                        text: term
-                                    });
-
-
-		                    for(var i = 0; i < bindings.length; ++i) {
-		                        var binding = bindings[i];
-		                        var item = {
-		                            id: term + i,
-		                            text: binding.o.value
-		                        };
-		                        data.results.push(item);
-		                    }
-		                    query.callback(data);
-		                });
-                        });
+		        qe.done(function(jsonRs) {
+			        var bindings = jsonRs.results.bindings;
+	
+	                var data = {
+	                    results: []
+	                };
+	
+	                // Add the current input as an option
+	                data.results.push({
+	                    id: 0,
+	                    text: term
+	                });
+	
+	
+	                for(var i = 0; i < bindings.length; ++i) {
+	                    var binding = bindings[i];
+	                    var iri = binding.o.value;
+	                    var item = {
+	                        id: iri,
+	                        text: iri
+	                    };
+	                    data.results.push(item);
+	                }
+	                query.callback(data);
+	            });
+            });
 	        }
 	    });
-
-            var $elDefaultGraphSelector = $('#default-graph-selector');
-	    //$elDefaultGraphSelector.select2({data: []});
-
-            var graphVar = sparql.Node.v('g');
-            var query = queryUtils.createQueryGetNamedGraphs(graphVar);
-            //alert("Query: " + query);
-            var qe = sparqlService.executeSelect(query);
-            qe.done(function(json) {
-
-                var bindings = json.results.bindings;
-                var data = [];
-                for(var i = 0; i < bindings.length; ++i) {
-
-                    var binding = bindings[i];
-                    var g = binding.g;
-                    var uri = g.value;
-
-                    var item = {
-                        id: uri,
-                        text: uri
-                    }
-                    data.push(item);
-                }
-console.log("Data is", data);
-                $elDefaultGraphSelector.select2({tags: data}); //'data', data);
-            });
+        
+        $elSparqlServiceSelector.on('change', function(ev) {
+        	var sparqlServiceIri = ev.val;
+        	configModel.set({sparqlServiceIri: sparqlServiceIri});
+        });
 
 
 

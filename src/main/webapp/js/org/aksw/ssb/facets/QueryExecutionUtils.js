@@ -41,6 +41,13 @@
 		return result;
 	};
 
+	ns.fetchDefaultGraphs = function(sparqlService) {
+        var g = sparql.Node.v('g');
+        var query = queryUtils.createQueryGetNamedGraphs(g);
+
+        var result = ns.fetchList(sparqlService, query, g);
+        return result;
+	};
 
 	ns.fetchClasses = function(sparqlService) {
 		var c = sparql.Node.v("c");
@@ -450,12 +457,15 @@
 	ns.fetchList = function(sparqlService, query, variable) {
 		var result = sparqlService.executeSelect(query).pipe(function(data) {
 			//console.debug("fetchList got data:", "" + query, data);
-			var list = _.map(data.results.bindings, function(binding) {
+			var list = [];
+			var bindings = data.results.bindings;
+			for(var i = 0; i < bindings.length; ++i) {
+				var binding = bindings[i];
 				var item = binding[variable.value];
 				var node = sparql.Node.fromJson(item);
 				
-				return node;
-			});
+				list.push(node);
+			};
 			
 			return list;
 		});

@@ -88,14 +88,18 @@
 	<div class="container">
 		<?php include($headerFile); ?>
 
-		<div class="row-fluid">
+		<div id="div-settings" class="row-fluid" style="display: none">
 			<form>
 				<label><input type="radio" name="group1" checked="checked"/>Global</label>
 				<div class="service-config"></div>
+				<div class="inline">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 300px;"></div>
+    			<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 300px;"></div>
+				<br class="clearBoth" />
 				<hr>
 				<label><input type="radio" name="group1" />Level of Detail</label>
 				<div class="lod-slider inline" style="width: 300px;"></div>
 				<div class="lod-service-condfig"></div>
+				<br class="clearBoth" />
 			<form>
 		</div>
 

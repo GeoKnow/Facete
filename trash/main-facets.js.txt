@@ -1,0 +1,15 @@
+		var sparqlService;
+
+//		configModel.on('change', function() {
+//			var sparqlServiceIri = this.get('sparqlServiceIri');
+//			var defaultGraphIris = this.get('defaultGraphIris');
+//			
+//			sparqlService = new backend.SparqlServiceHttp(
+//						sparqlServiceIri,
+//						defaultGraphIris,
+//						"lib/SparqlProxyPHP/current/sparql-proxy.php",
+//						"service-uri");
+//			
+//		});
+//		
+

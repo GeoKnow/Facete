@@ -26,7 +26,8 @@
 			 * children: new Backbone.Collection({ //model: ns.ModelFacetNode
 			 * }), // subFacets - NOT facet values!
 			 */
-			facetFacadeNode : null, // Reference to a (non-model)
+		    /////facetFacadeNode : null, // Reference to a (non-model)
+			facetNode: null
 			// FacetFacadeNode
 		},
 
@@ -49,8 +50,11 @@
 				var children = result.get('children');
 
 				var subNode = children.find(function(child) {
-					var facetFacadeNode = child.get('facetFacadeNode');
-					var childStep = facetFacadeNode.getFacetNode().getStep();
+					///// var facetFacadeNode = child.get('facetFacadeNode');
+					///// var childStep = facetFacadeNode.getFacetNode().getStep();
+					var facetNode = child.get('facetNode');
+					var childStep = facetNode.getStep();
+
 					var result = childStep.equals(step);
 					return result;
 				});

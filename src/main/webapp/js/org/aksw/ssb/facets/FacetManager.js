@@ -613,7 +613,10 @@
 	 * Use this instead of the constructor
 	 * 
 	 */
-	ns.FacetNode.createRoot = function(varName, generator) {		
+	ns.FacetNode.createRoot = function(varName, generator) {
+
+		generator = generator ? generator : new facets.GenSym("fv");
+		
 		var varNode = new ns.VarNode(varName, generator);		
 		result = new ns.FacetNode(varNode);
 		return result;

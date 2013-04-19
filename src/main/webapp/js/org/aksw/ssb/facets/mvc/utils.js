@@ -278,7 +278,7 @@
 							isInverse: isInverse
 						};
 						
-						var subNode = facetFacadeNode.forProperty(facetUri, isInverse);
+						var subFacadeNode = facetFacadeNode.forProperty(facetUri, isInverse);
 						
 						/*
 						item = {
@@ -286,7 +286,8 @@
 								step: step
 						};
 						*/
-						item.facetFacadeNode = subNode;
+						//item.facetFacadeNode = subNode;
+						item.facetNode = subFacadeNode.getFacetNode();
 						item.step = step;
 
 						console.log("Mapped model:", item);
@@ -325,26 +326,26 @@
 					items.push.apply(items, args);
 				}
 
-                                var itemIds = [];
-                                for(var i = 0; i < items.length; ++i) {
-                                    var item = items[i];
-                                    var itemId = item.id;
-                                    itemIds.push(itemId);
-                                }
-
-				
-                                // Find all children, whose ID was not yeld
-                                var childIds = children.map(function(child) {
-                                    return child.id;
-                                });
+                var itemIds = [];
+                for(var i = 0; i < items.length; ++i) {
+                    var item = items[i];
+                    var itemId = item.id;
+                    itemIds.push(itemId);
+                }
 
 
-                                var removeChildIds = _.difference(childIds, itemIds);
-                                children.remove(removeChildIds);
+                // Find all children, whose ID was not yeld
+                var childIds = children.map(function(child) {
+                    return child.id;
+                });
+
+
+                var removeChildIds = _.difference(childIds, itemIds);
+                children.remove(removeChildIds);
 /*
-                                for(var i = 0; i < removeChildIds.length; ++i) {
-                                    var childId = removeChildIds
-                                }
+                for(var i = 0; i < removeChildIds.length; ++i) {
+                    var childId = removeChildIds
+                }
 */
 
 				for(var i = 0; i < items.length; ++i) {

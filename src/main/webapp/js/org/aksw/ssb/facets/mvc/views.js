@@ -53,7 +53,8 @@
 
 					var parent = options.parent;
 					var parentOptions = parent.options;
-					this.modelFacetUpdater = parentOptions.modelFacetUpdater;
+					//this.modelFacetUpdater = parentOptions.modelFacetUpdater;
+					this.fnUpdateFacets = parentOptions.fnUpdateFacets;
 
 					var model = this.model;
 					var children = model.get("children");
@@ -62,16 +63,25 @@
 					
 					this.subFacetWidget = new widgets.ViewFacetTree({
 						collection: children,
-						modelFacetUpdater: this.modelFacetUpdater,
+						//modelFacetUpdater: this.modelFacetUpdater,
+						fnUpdateFacets: this.fnUpdateFacets,
 						collectionColumns: this.collectionColumns
 					});
 					
 					
 					var self = this;
+
 					this.subFacetWidget.on('all', function() {
 						// Note: According to backbone doc, listing for all gives the event name as first argument
 						var p = self.options.parent;
 						p.trigger.apply(p, arguments);
+					});
+
+					
+					
+					this.on('all', function() {
+						var p = self.options.parent;
+						p.trigger.apply(p, arguments);						
 					});
 					
 					// console.log("ModelFacetUpdater ",
@@ -179,8 +189,10 @@
 					});
 					
 					
-					var facetFacadeNode = model.get('facetFacadeNode');
-					this.path = facetFacadeNode.getPath();
+					/////var facetFacadeNode = model.get('facetFacadeNode');
+					/////this.path = facetFacadeNode.getPath();
+					var facetNode = model.get('facetNode');
+					this.path = facetNode.getPath();
 					
 					// children.bind('add', this.add)
 					var controllerColumnSync = new ns.ControllerColumnSync(
@@ -301,7 +313,7 @@
 								'isExpanded' : false
 							});
 						} else {
-							var facetFacadeNode = model.get("facetFacadeNode");
+							//var facetFacadeNode = model.get("facetFacadeNode");
 
 							model.set({
 								'isExpanded' : true,
@@ -315,10 +327,15 @@
 								var self = this;
 								scheduler.schedule(function() {
 									//console.log("bar");
-									self.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+									//self.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+									var promise = self.fnUpdateFacets(model);
+									// Trigger a postRender event
+									self.trigger('facetUpdate', promise);
 								});
 							} else {							
-								this.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+								//this.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+								var promise = this.fnUpdateFacets(model);
+								this.trigger('facetUpdate', promise);							
 							}
 /*							
 							promise.done(function() {
@@ -337,30 +354,15 @@
 						ev.preventDefault();
 
 						var model = this.model;
-						// Show the facet values in the preconfigured area
-						var facetFacadeNode = model.get("facetFacadeNode");
-						//var path = facetFacadeNodep.getPath();
+
+						var facetNode = model.get('facetNode'); 
 						
-						var concept = facetFacadeNode.createConcept();
-
-						var queryGenerator = new facets.QueryGenerator(concept);
-						var queryFactory = new facets.QueryFactoryQueryGenerator(
-								queryGenerator, {
-									distinct : true
-								});
+						//var concept = facetFacadeNode.createConcept();
+						var data = {
+							facetNode: facetNode	
+						};
 						
-						// TODO Combine the concept for the facet selection with the initial concept
-
-						// var models = createQueryBrowser(sparqlService,
-						// labelFetcher);
-
-						// var tableModel =
-						// models.browseConfig.config.tableModel;
-						foobarTableModel.set({
-							queryFactory : queryFactory,
-							facetFacadeNode: facetFacadeNode // FIXME: Not sure if this should go here
-						});
-
+						this.trigger('facetSelected', data);
 					},
 
 					'mouseenter div': function(ev) {
@@ -476,7 +478,9 @@
 					
 					// TODO: This is not the best place to do the update,
 					// as it fires one query per element
-					foobarI18N.update(this.$el);
+					//foobarI18N.update(this.$el);
+					
+					
 
 					//this.onChangeIsAddedToTable();
 					

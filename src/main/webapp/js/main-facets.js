@@ -2,6 +2,29 @@
 	var foobarI18N;
 	var foobarTableModel;
 
+	
+Backbone.linkModels = function(sourceModel, targetModel, properties) {
+		
+	var fnCopy = function(property) {
+		var val = this.get(property);
+		
+		var data = {};
+		data[property] = val;
+		
+		targetModel.set(data);
+	};
+
+	for(var i = 0; i < properties.length; ++i) {
+		var property = properties[i];
+	
+		fnCopy.call(sourceModel, property);
+		
+		sourceModel.on('change:' + property, function() {
+			fnCopy(property);
+		});
+	}
+};
+	
 (function() {
 
 	var backend = Namespace("org.aksw.ssb.backend");
@@ -32,60 +55,31 @@
     };
 
 
+	/**
+	 * Initialize the user interface
+	 * TODO This is domain specific, so this routine should be part of a framework.
+	 * 
+	 */
+    ns.initUi = function(configModel) {
 
-	ns.facetTest = function(options) {
-		
-		/*
+    	/*
 		 * Toggle button for the config section 
 		 */
 		$("#btn-open-settings").click(function(ev) {
 			$("#div-settings").slideToggle();
 			ev.preventDefault();
 		});
+    	
 		
-		
-/*
-		var sparqlServiceUri = options.sparqlServiceUri;
-		var defaultGraphUris = options.defaultGraphsUris;
-		var concept = options.concept;
-		var state = options.state; // State is a generic object holding the application state
-*/
 
-		// Maybe we want such global model?
-		var appContext = new Backbone.Model({
-			defaults: {
-				
-			}
-		});
-		
-		var configModel = new Backbone.Model({
-			defaults : {
-				sparqlServiceIri: "",
-				defaultGraphIris: []
-			}
-		});
-		
-		var sparqlService;
-
-		configModel.on('change', function() {
-			var sparqlServiceIri = this.get('sparqlServiceIri');
-			var defaultGraphIris = this.get('defaultGraphIris');
-			
-			sparqlService = new backend.SparqlServiceHttp(
-						sparqlServiceIri,
-						defaultGraphIris,
-						"lib/SparqlProxyPHP/current/sparql-proxy.php",
-						"service-uri");
-			
-		});
-		
-		
         var $elDefaultGraphSelector = $('#default-graph-selector');
 
         var defaultGraphCollection = new Backbone.Collection();
 
 		
-		configModel.on('change:sparqlServiceIri', function() {
+		configModel.on('change:sparqlService', function() {
+			var sparqlService = this.get('sparqlService');
+			/*
 			var sparqlServiceIri = this.get('sparqlServiceIri');
 			//var sparqlService = new backend.SparqlServiceHttp(sparqlServiceIri);
 			var sparqlService = new backend.SparqlServiceHttp(
@@ -94,6 +88,7 @@
 					'lib/SparqlProxyPHP/current/sparql-proxy.php',
 					'service-uri'
 			);
+			*/
 			
 			var qe = queryUtils.fetchDefaultGraphs(sparqlService);
 			qe.pipe(ns.nodesToAutocomplete).done(function(list) {
@@ -149,11 +144,6 @@
 				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
 		*/
 		
-		configModel.set({
-			sparqlServiceIri: "http://localhost:8810/sparql",
-			defaultGraphIris: []
-		});
-
 
 		//var catalogSparqlService =
 		var collectionMasterCatalogServiceIris = ['http://semantic.ckan.net/sparql'];
@@ -210,83 +200,561 @@
         });
 
 
+	
+	    var handlers = [1, 8, 12, 14];
+	    var colors = ["#ff0000", "#00ff00", "#0000ff", "#00ffff"];
+	    //updateColors(handlers);
+	
+	    var $elLodSlider = $('.lod-slider');
+	    $elLodSlider.slider({
+	        range: true,
+	        animate: true,
+	        step: 1,
+	        min: 0,
+	        max: 18,
+	        values: handlers,
+	        slide: function(event, ui) {
+	            console.log(ui);
+	/*            if ( (ui.values[0] + 20) >= ui.values[1] ) {
+	                return false;
+	            }*/
+	        }
+	/*        slide: function (evt, ui) {
+	alert("foobar");
+	            //updateColors(ui.values);
+	        }*/
+	    });
+	
 
-    var handlers = [1, 8, 12, 14];
-    var colors = ["#ff0000", "#00ff00", "#0000ff", "#00ffff"];
-    //updateColors(handlers);
+    };
 
-    var $elLodSlider = $('.lod-slider');
-    $elLodSlider.slider({
-        range: true,
-        animate: true,
-        step: 1,
-        min: 0,
-        max: 18,
-        values: handlers,
-        slide: function(event, ui) {
-            console.log(ui);
-/*            if ( (ui.values[0] + 20) >= ui.values[1] ) {
-                return false;
-            }*/
-        }
-/*        slide: function (evt, ui) {
-alert("foobar");
-            //updateColors(ui.values);
-        }*/
-    });
-
-
-
-		var v = sparql.Node.v("s");
-
-		var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
-
+    
+	ns.facetTest = function(options) {
+		
+    	var v = sparql.Node.v("s");
 		var element = new sparql.ElementString(
 				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
 		
 		element = new sparql.ElementString("?s ?p ?o", [v]);
-		//element = null;
-
-/*
-		var sparqlService = new backend.SparqlServiceHttp(
-//				"http://fp7-pp.publicdata.eu/sparql",
-				"http://localhost:8810/sparql",
-				[ "http://localhost/wkdgeo" ],
-				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
-		var geoPathStr = "";
-
-		var element = new sparql.ElementString("?s a <http://geovocab.org/spatial#Feature>", [ v ]);
-		//var element = new sparql.ElementString("?s a <http://www.w3.org/2004/02/skos/core#Concept>", [ v ]);
-*/
-		
-//		var sparqlService = new backend.SparqlServiceHttp(
-//				"http://fts.publicdata.eu/sparql",
-//				[ "http://fts.publicdata.eu/" ],
-//				"lib/SparqlProxyPHP/current/sparql-proxy.php", "service-uri");
-
-		
-		
-//		var element = new sparql.ElementString(
-//				"?s a <http://fts.publicdata.eu/ontology/Commitment>", [ v ]);
-
 		var concept = new facets.ConceptInt(element, v);
+
+		
+
+		
+		
+		
+		var ModelConfigSparqlService = Backbone.Model.extend({
+			defaults: {
+				sparqlServiceIri: "http://localhost:8010/sparql",
+				defaultGraphIris: [],
+				preferredLanguages: ['de', 'en', ''],
+			
+				/*
+				 * Services based on above properties
+				 */
+				sparqlService: null,
+				labelFetcher: null,
+			}
+		});
+
+		
+		var ModelConfigConcept = ModelConfigSparqlService.extend({
+			defaults: {
+				concept: concept,
+				constraintCollection: new facets.ConstraintCollection2()				
+			}
+		});
+
+		/*
+		var ModelConfigFacetValue = ModelConfigConcept.extend({
+			defaults: {
+				facetProviders: null,
+			}
+		});
+		*/
+
+
+		var ModelConfigFacetValues = ModelConfigConcept.extend({
+			defaults: {
+				facetNode: null
+			}
+		});
+		
+		var ModelConfigDataTable = ModelConfigConcept.extend({
+			defaults: {
+				collectionColumns: new facets.CollectionColumns() 		
+			},
+			
+			initialize: function() {
+				this.get('collectionColumns').addPath(facets.Path.fromString(""));
+			}
+		});
+		
+		
+		/*
+		 * This model should hold all information required to instanciate the browsing
+		 * component
+		 */
+		var ConfigModel = Backbone.Model.extend({
+			defaults: {
+				sparqlServiceIri: "http://localhost:8810/sparql",
+				defaultGraphIris: [],
+				facetProviders: [],
+				concept: concept,
+				rootFacetNode: facets.FacetNode.createRoot(concept.getVariable().getValue()),
+				constraintCollection: new facets.ConstraintCollection2(),
+				preferredLanguages: ['de', 'en', ''],
+				
+				collectionColumns: new facets.CollectionColumns(),
+		
+				/*
+				 * Services based on above properties
+				 */
+				sparqlService: null,
+				labelFetcher: null,
+				facetUpdater: null,
+				i18n: null
+			}
+		});
+
+		
+		
+		var configModel = new ConfigModel();
+
+    	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
+		var geoPath = facets.Path.fromString(geoPathStr);
+
+		
+		// Initialize the user interface
+		// TODO Move to a different place
+		ns.initUi(configModel);
+		
+		
+		ns.initServices(configModel);
+
+		// Init model by triggering a change event
+		configModel.trigger('change');		
+
+		
+		var facetTree = ns.createFacetTreeView(configModel);
+		
+		
+		ns.createDataTableView(configModel);
+
+		
+		//ns.createMapView(configModel, geoPath);
+
+		// Get the models for the facet tree and the data table 
+		//var facetedBrowsingModels = ns.createAppInstance(configModel);
+		
+		//ns.createExportServices(configModel);
+		
+		//ns.createCenterOnPosition();
+		
+		
+		/*
+		 * Wire up the individual components
+		 */
+		
+		var facetValuesConfigModel = new ModelConfigFacetValues({
+			defaults: {
+				tableModel: null,
+			}
+		});
+
+		Backbone.linkModels(configModel, facetValuesConfigModel, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'i18n']);
+
+		console.log("Linked model: ", facetValuesConfigModel.attributes);
+		var facetValues = ns.createFacetValuesView(facetValuesConfigModel);
+		
+		facetTree.facetWidget.on('facetSelected', function(ev) {
+			var facetNode = ev.facetNode;
+
+			facetValuesConfigModel.set({
+				facetNode: facetNode
+			});
+
+			console.log("Select facet: ", facetNode);			
+		});
+		
+	};
+
+    
+    ns.initServices = function(configModel) {
+    
+    	
+		/*
+		 * Reset services if the configuration changes
+		 * 
+		 */
+		var resetServices = function() {
+			var attrs = this.attributes;
+			
+			console.log("Resetting services - attributes are: ", attrs);
+			
+			var sparqlService = new backend.SparqlServiceHttp(
+					attrs.sparqlServiceIri,
+					attrs.defaultGraphIris,
+					"lib/SparqlProxyPHP/current/sparql-proxy.php",
+					"service-uri");
+			
+			var labelFetcher = new utils.LabelFetcher(sparqlService, attrs.preferredLanguages);
+			
+			this.set({
+				sparqlService: sparqlService,
+				labelFetcher: labelFetcher,
+				modelFacetUpdater: new facets.ModelFacetUpdater(attrs.facetProviders, attrs.concept, attrs.constraintCollection, attrs.sparqlService),
+				facetProviders: [
+				    new facets.FacetProviderSimple(sparqlService, false)
+			        //new facets.FacetProviderSimple(sparqlService, true)
+			    ],
+			    i18n: new utils.SpanI18n(labelFetcher)
+			});
+		};
+		
+		configModel.on('change', resetServices);
+
+    };
+
+    
+    ns.createDataTableView = function(configModel) {
+
+    	var sparqlService = configModel.get('sparqlService');
+    	var labelFetcher = configModel.get('labelFetcher');
+
+    	var concept = configModel.get('concept');
+    	var constraintCollection = configModel.get('constraintCollection');
+    	
+    	var rootFacetNode = configModel.get('rootFacetNode');
+    	
+    	var collectionColumns = configModel.get('collectionColumns');
+    	
+
+		var queryGenerator = new facets.QueryGenerator(concept);
+		/*
+		var queryFactoryConcept = new facets.QueryFactoryQueryGenerator(
+				queryGenerator);
+
+		var queryFactoryFacets = facets.QueryFactoryFacets.create(queryFactoryConcept, concept.getVariable().getValue()); //v.value);
+
+		var constraintManager = queryFactoryFacets.getConstraintManager();
+*/
+    	
+    	
+		collectionColumns.addPath(facets.Path.fromString(""));
+
+
+		/*
+		 * This controller injects the projection into a query:
+		 * First, based on collectionColumns, a pair is returned, containing:
+		 * 
+		 * - the element
+		 * - the list of variables
+		 * - a mapping from varName To path 
+		 */		
+		var controllerColumnSelection = new facets.ControllerColumnSelection(collectionColumns);
+
+		/*
+		var es = rootFacetFacadeNode.forPathStr("").createElements();
+		
+
+		var conceptElement = concept.getElement();
+		es.push(conceptElement);
+		var e = new sparql.ElementGroup(es);
+
+		var v = rootFacetFacadeNode.forPath(facets.Path.fromString("")).getVariable();
+		var conc = new facets.ConceptInt(e, v);		
+		*/
+		
+
+
+		/*
+		 * Initialize the result table list
+		 * 
+		 */
+		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator);
+		dataTabelModel = createQueryBrowser(sparqlService, labelFetcher);
+		
+		var tableModel = dataTabelModel.browseConfig.config.tableModel;
+		tableModel.set({
+			queryFactory : queryFactory
+		});
+
+		var container = $('#instances');
+		container.children().remove();
+
+		
+		createView(container, dataTabelModel);
+	
+		//console.log("INIT VIEWS", models);
+	
+		
+		// FIXME: This syncher updates the tableModel based on changes in the constraint collection
+		// However, we also need to update the list based on collectionColumns.
+		var ctrlInstaceListSyncer = new facets.ControllerInstanceListSyncer(
+				queryFactory,
+				rootFacetNode,
+				constraintCollection,
+				collectionColumns,
+				tableModel
+		);
+
+		
+    };
+
+
+    ns.createFacetTreeView = function(configModel) {
+
+		//var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
+
+		// The initial facet collection only has a single model for the empty facet path
+		var rootFacetNode = configModel.get('rootFacetNode');
+    	var constraintCollection = configModel.get('constraintCollection');
+    	var modelFacetUpdater = configModel.get('modelFacetUpdater');
+    	var collectionColumns = configModel.get('collectionColumns');
+
+		//var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
+
+    	/**
+    	 * 
+    	 * @returns A promise that becomes resolved once updating the facets completes. 
+    	 */
+		var fnUpdateFacets = function(model) {
+			var facetNode = model.get('facetNode');
+			var modelFacetUpdater = configModel.get('modelFacetUpdater');
+			
+			var constraintManager = constraintCollection.createConstraintManager(facetNode);
+			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
+			
+			var promise = modelFacetUpdater.updateFacets(model, facetFacadeNode);
+			return promise;
+		};
+
+    	
+    	var rootFacetCollection = new ns.CollectionFacetNode({
+    		fnUpdateFacets: fnUpdateFacets
+    	});
+
+    	
+    	console.log("TEST", modelFacetUpdater);
+    	
+		console.log("FacetFacadeNode: ", rootFacetNode);
+		var rootFacetModel = new facets.ModelFacetNode({
+			facetNode: rootFacetNode
+		});
+		
+		// Controller for syncing the number of selected facets in the facet tree
+		var selectionCountSync = new facets.ControllerSelectionCountSync(constraintCollection, rootFacetModel);
+
+		
+
+		//fnUpdateFacets(rootFacetNode);
+		
+		
+		// Whenever the constraints change, the facets and facet counts must be updated
+		constraintCollection.on('add remove reset', function() {
+			fnUpdateFacets(rootFacetModel);
+		});
+
+		
+		/*
+		 * View for the facet tree
+		 * 
+		 * TODO Maybe the view should use a model, and listen for changes in the config
+		 */		
+		var facetWidget = new widgets.ViewFacetTree({
+			el : $("#facets"),
+			collection: rootFacetCollection,
+			// options: {
+			// TODO Add indirection: don't point to a modelFacetUpdate directly, but introduce a function that returns one
+			//modelFacetUpdater: modelFacetUpdater,
+			fnUpdateFacets: fnUpdateFacets,
+			
+			// TODO Indirection plus this should be part of a separate controller
+			collectionColumns: collectionColumns
+			// }
+		});
+    	
+		var self = this;
+		facetWidget.on('facetUpdate', function(promise) {
+			promise.done(function() {
+				var i18n = configModel.get('i18n');
+				i18n.update(facetWidget.$el);
+			});
+		});
+		
+		
+    	rootFacetCollection.add(rootFacetModel);
+    	
+    	
+    	fnUpdateFacets(rootFacetModel);
+    	
+		var result = {
+			facetWidget: facetWidget
+		};
+			
+		return result;
+    };
+
+    
+    
+    ns.createFacetValuesView = function(configModel) {
+    	
+    	var sparqlService = configModel.get('sparqlService');
+    	var labelFetcher = configModel.get('labelFetcher');
+    	var concept = configModel.get('concept');
+    	var constraintCollection = configModel.get('constraintCollection');
+    	
+    	// This is a hack :/
+    	var i18n = configModel.get('i18n');
+    	
+    	
+		// TODO service must be configurable
+
+		var models = createQueryBrowser(sparqlService, labelFetcher);
+
+    	// We need to replace the model for the query result set
+		// with our own version that gets special handling because
+		// we need to set the 'checked' state for selected facets 
+		var sourceCollection = models.browseConfig.collection;
+		var targetCollection = new Backbone.Collection();
+		models.browseConfig.collection = targetCollection;
+
+		
+		var controllerFacetValueEnricher = new facets.ControllerFacetValueEnricher(constraintCollection, targetCollection);
+
+		// FIXME Some configuration - should be done elsewhere
+		models.browseConfig.config.paginatorModel.set('maxSlotCount', 5);
+		var tableModel = models.browseConfig.config.tableModel;
+
+		
+		/*
+		 * When a facet is selected, create the corresponding concept
+		 * and update the facetValue widget
+		 * 
+		 */
+		configModel.on('change', function(ev) {
+			
+			var facetNode = this.get('facetNode');
+			var concept = this.get('concept');
+			var constraintCollection = this.get('constraintCollection');
+			
+			
+			// TODO Make a 1-line helper for these three lines
+			var constraintManager = constraintCollection.createConstraintManager(facetNode);
+			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
+			var concept = facetFacadeNode.createConcept();
+			
+			var queryGenerator = new facets.QueryGenerator(concept);
+			var queryFactory = new facets.QueryFactoryQueryGenerator(
+					queryGenerator, {
+						distinct : true
+					});
+			
+			console.log("Query Factory: ", queryFactory);
+
+			controllerFacetValueEnricher.setFacetNode(facetNode);
+
+			tableModel.set({
+				queryFactory : queryFactory
+			});			
+		});
+
+		
+		
+		/*
+		 * TODO: The result set of the facet-values query must be enriched with the following
+		 * information:
+		 *
+		 * - the path for which the facet-value is obtained
+		 * 
+		 */
+		var facetValueSync = new backboneUtils.ControllerSlaveCollection(
+			sourceCollection,
+			targetCollection,
+			function(model) {
+				var result = controllerFacetValueEnricher.process(model);
+				return result;
+			}
+		);
+		
+		
+		
+		
+    	var container = $('#facetValues');
+		container.children().remove();
+
+		
+		var facetValuesWidget = createView(container, models, function(options) {
+
+			var result = new widgets.TableView2({
+				collection : options.collection,
+				rowItemRenderer: function(model) {
+					
+					
+					var c1 = new widgets.ViewItemCheckConstraint({
+						model: model,
+						constraintCollection: constraintCollection
+					});
+					
+					var constraint = model.get('constraint');
+					if(!constraint) {
+						// TODO Make sure that this does not fail
+						//console.log("No constraint available - should not happen");
+						return [];
+					}
+					
+					var node = constraint.node;
+					var c2;
+					if(node.isUri()) {
+						c2 = $('<span data-uri="' + node.value + '" />');
+						//foobarI18N.update(c2);
+						//this.trigger("test");
+						i18n.update(c2);
+
+					} else {
+						c2 = $('<span>' + node.value + '</span>');
+					}
+					
+					
+					
+					var result = [c1.render().$el, c2];
+					
+					return result;
+				}
+			});
+			
+			result.on('test', function() {
+				alert("yay");
+			});
+			
+			return result;
+		});
+		
+		var result = {
+				facetValuesWidget: facetValuesWidget,
+				tableModel: tableModel,
+		};
+
+		return result;
+    };
+    
+    
+    ns.createAppInstance = function(configModel) {
+		
+    	var concept = configModel.get('concept');
+
 		var queryGenerator = new facets.QueryGenerator(concept);
 		var queryFactoryConcept = new facets.QueryFactoryQueryGenerator(
 				queryGenerator);
 
-		var queryFactoryFacets = facets.QueryFactoryFacets.create(
-				queryFactoryConcept, v.value);
+		var queryFactoryFacets = facets.QueryFactoryFacets.create(queryFactoryConcept, concept.getVariable().getValue()); //v.value);
 
 		var constraintManager = queryFactoryFacets.getConstraintManager();
 
 		var rootFacetNode = queryFactoryFacets.getRootFacetNode();
 		var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
 
-		
-		
-		// The backbone collection for constraints
-		var constraintCollection = new facets.ConstraintCollection2();
-		
 		
 		
 
@@ -298,395 +766,36 @@ alert("foobar");
 		tableModel.setLimit(10);
 
 
-		// A facet provider enables fetching the facets for a specific concept
-		var facetProviders = [
-		    new facets.FacetProviderSimple(sparqlService, false)
-		    //new facets.FacetProviderSimple(sparqlService, true)
-		];
-
-		// The update actually updates model objects
-		// TODO: This won't work like that
-
-		// Paramaters to add:
-		// constraintCollection | or at least a constraintCollectionProvider
-		// 
-		var modelFacetUpdater = new facets.ModelFacetUpdater(facetProviders, concept, constraintCollection, sparqlService);
+						
 
 		
-		var metaFacetCollection = new ns.CollectionFacetNode();
-		
-		console.log("FacetFacadeNode: ", rootFacetFacadeNode);
-		var rootModel = new facets.ModelFacetNode({
-			facetFacadeNode: rootFacetFacadeNode
-		});
-		
-		//var rootCollection = rootModel.get("children");
-		var rootCollection = metaFacetCollection;
-		// console.log("Root Collection: ", rootCollection);
-
-                /*
-                 * Model for which facets are mapped to table columns
-                 */
-		var collectionColumns = new facets.CollectionColumns(); 		
-		collectionColumns.addPath(facets.Path.fromString(""));
 
 		
-		/*
-		this.facetWidget = new widget.ViewItemFacet({
-			el : $("#facets"),
-		});
-		*/
-		
-		this.facetWidget = new widgets.ViewFacetTree({
-			el : $("#facets"),
-			collection: rootCollection,
-			// options: {
-			modelFacetUpdater: modelFacetUpdater,
-			collectionColumns: collectionColumns
-		// }
-		});
 		
 		
+
+	
+		var facetValueModel = ns.createFacetValuesModel();
+		var foobarTableModel = facetValueModel.browseConfig.config.tableModel;
+
 		
-		// Add the path to the collectionColumns
-//		this.facetWidget.on('addToTable', function(ev, view) {
-//			var path = view.model.get('facetFacadeNode').getPath();			
-//			collectionColumns.addPath(path); 
+
+    };
+    
+    
+    ns.createMapView = function(configModel, geoPath) {		
+		
+    	
+    	var sparqlService = configModel.get('sparqlService');
+    	
+    	
+//		TODO Do we want a marker model? I guess eventually yes.		
+//		var MarkerModel = Backbone.Model.extend({
+//			id: "http://example.org/defaultid",
+//			data: {}
 //		});
 
-		// FIXME: We need to set the state for the facets
-		// of whether it was already added as a column to the table
-		
-		
-
-		//collectionColumns.on('add', funct)
-		
-
-		// This controller injects the projection into a query:
-		// First, based on collectionColumns, a pair is returned,
-		// containing
-		// - the element
-		// - the list of variables
-		// - a mapping from varName To path 
-		//
-		var controllerColumnSelection = new facets.ControllerColumnSelection(collectionColumns);
-		
-		
-
-		/*
-		 * this.facetWidget = new widgets.ListView({ el: $("#facets"),
-		 * collection: rootCollection, itemRenderer: facetItemRenderer });
-		 */
-
-
-		/*
-		 * 
-		 *  /* SimpleFacetFacade sff = new SimpleFacetFacade(baseConcept);
-		 * sff.forPathStr(...).
-		 *  /
-		 * 
-		 * 
-		 * console.log("Concept:", conc);
-		 */
-		// var es = constraintManager.createElements(rootFacetNode);
-		// var es = facetFacade.createElements();
-		
-		
-		/*
-		var es = facetFacade.forPathStr(
-				"http://fp7-pp.publicdata.eu/ontology/year").createElements();
-		*/
-		var es = rootFacetFacadeNode.forPathStr("").createElements();
-		
-		
-		// console.log("es", es);
-
-		var conceptElement = concept.getElement();
-		es.push(conceptElement);
-		// console.log("plu concept element", conceptElement);
-
-		var e = new sparql.ElementGroup(es);
-
-		// console.log("Final element: " + e);
-
-		// var v =
-		// rootFacetNode.forPath(facets.Path.fromString("")).getVariable();
-		var v = rootFacetFacadeNode
-				.forPath(
-						facets.Path
-								.fromString("")) //"http://fp7-pp.publicdata.eu/ontology/year"))
-				.getVariable();
-		var conc = new facets.ConceptInt(e, v);		
-		
-		
-		//modelFacetUpdater.updateFacets(rootModel, facetFacade);
-
-		var fnUpdateFacets = function() {
-			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
-			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
-			
-			modelFacetUpdater.updateFacets(rootModel, facetFacadeNode);
-		};
-
-		fnUpdateFacets();
-		
-		constraintCollection.on('add remove reset', fnUpdateFacets);
-		
-		
-		var selectionCountSync = new facets.ControllerSelectionCountSync(constraintCollection, rootModel);
-
-		
-		
-		
-		/**
-		 * Based on the constraint collection, we infer the check model
-		 * 
-		 * 
-		 */
-/*
-		var CollectionConstraintChecked = Backbone.Collection.extend({
-
-		});
-
-		CollectionConstraintChecked.create = function(constraintCollection)
-		{
-
-			constraints.on("add", function(model) {
-
-			});
-
-		};
-*/
-		
-		
-		
-		
-		
-		
-		
-				
-		
-
-		var labelFetcher = new utils.LabelFetcher(sparqlService, ['de', 'en', '']);
-
-		
-		var models;
-		{
-			var queryGenerator = new facets.QueryGenerator(conc);
-			var queryFactory = new facets.QueryFactoryQueryGenerator(
-					queryGenerator, {
-						distinct : true
-					});
-
-			models = createQueryBrowser(sparqlService, labelFetcher);
-			//console.log("models:", models);
-			
-			models.browseConfig.config.paginatorModel.set('maxSlotCount', 5);
-			
-			var tableModel = models.browseConfig.config.tableModel;
-			tableModel.set({
-				queryFactory : queryFactory
-			});
-
-			foobarTableModel = tableModel;
-
-			var container = $('#facetValues');
-			container.children().remove();
-
-			
-			//var facetViewModels = _.clone(models);
-			
-			// Replace the original collection; we will sync it
-			var sourceCollection = models.browseConfig.collection;
-			models.browseConfig.collection = new facets.CollectionItemCheckConstraint();
-			
-			createView(container, models, function(options) {
-
-				var result = new widgets.TableView2({
-					collection : options.collection,
-					rowItemRenderer: function(model) {
-						
-						
-						var c1 = new widgets.ViewItemCheckConstraint({
-							model: model,
-							constraintCollection: constraintCollection
-						});
-						
-						var constraint = model.get('constraint');
-						if(!constraint) {
-							// TODO Make sure that this does not fail
-							//console.log("No constraint available - should not happen");
-							return [];
-						}
-						
-						var node = constraint.node;
-						var c2;
-						if(node.isUri()) {
-							c2 = $('<span data-uri="' + node.value + '" />');
-							foobarI18N.update(c2);
-
-						} else {
-							c2 = $('<span>' + node.value + '</span>');
-						}
-						
-						
-						
-						var result = [c1.render().$el, c2];
-						
-						return result;
-					}
-				});
-				return result;
-				
-				/*
-				var facetValueItemRenderer = new widgets.RendererItemView({}, null,
-						ViewItemCheckConstraint, {
-							label : "simpleLabel"
-						});
-
-				var ViewFacetValues = widgets.ListView.extend({
-					itemRenderer : facetValueItemRenderer
-				});
-				 */
-				
-				/*
-				var tableView = new TableView(
-						{
-							el : $("#table"),
-							// attributes: {style: {'list-style': 'none'}},
-							collection : viewCollection,
-							itemRenderer : new widgets.ItemRendererBackbone(
-									widgets.ItemViewProject)
-						});
-				*/
-
-				
-				
-				
-				//var result = new ViewFacetValues(options);
-				//return result;
-			});
-		}
-
-		console.log("Models:", models);
-		
-		var rsCollection = models.browseConfig.collection;
-		
-
-
-
-		var controllerFacetValueEnricher = new facets.ControllerFacetValueEnricher(constraintCollection, rsCollection);
-		
-		foobarTableModel.on('change:facetFacadeNode', function(model) {
-			var facetFacadeNode = model.get('facetFacadeNode');
-			controllerFacetValueEnricher.setFacetFacadeNode(facetFacadeNode);
-		});
-
-		/**
-		 * TODO: The result set of the facet-values query must be enriched with the following
-		 * information:
-		 *
-		 * - the path for which the facet-value is obtained
-		 * 
-		 */
-		var facetValueSync = new backboneUtils.ControllerSlaveCollection(
-			sourceCollection,
-			rsCollection,
-			function(model) {
-				var result = controllerFacetValueEnricher.process(model);
-				return result;
-			}
-		);
-
-		
-
-//		controllerFacetValueEnricher.bind(rsCollection);
-		
-		
-		/*
-		rsCollection.on('reset', function(collection, options) {
-
-			var node = sparql.Node
-					.uri("http://dbpedia.org/resource/year/2008");
-
-			console.log("EQUALS TEST", constraintCollection.existsEquals(facets.Path.fromString(''), node));			
-		});
-		*/
-
-		
-		
-
-		
-		
-
-		/*
-		 * Initialize the result table list
-		 * 
-		 */
-		var rsTableModel;
-		{
-			//var queryGenerator = new facets.QueryGenerator(tableModel);
-			//var queryGenerator = tableModel;
-			var queryFactory = new facets.QueryFactoryQueryGenerator(
-					queryGenerator);
-			/*
-			var queryFactory = new facets.QueryFactoryQueryGenerator(
-					queryGenerator, {
-						distinct : true
-					});
-			 */
-			models = createQueryBrowser(sparqlService, labelFetcher);
-
-			
-			var tableModel = models.browseConfig.config.tableModel;
-			rsTableModel = tableModel;
-			tableModel.set({
-				queryFactory : queryFactory
-			});
-
-			var container = $('#instances');
-			container.children().remove();
-
-			
-			createView(container, models);
-		
-			//console.log("INIT VIEWS", models);
-		
-			
-			// FIXME: This syncher updates the tableModel based on changes in the constraint collection
-			// However, we also need to update the list based on collectionColumns.
-			var ctrlInstaceListSyncer = new facets.ControllerInstanceListSyncer(
-					queryFactory,
-					rootFacetNode,
-					constraintCollection,
-					collectionColumns,
-					tableModel
-			);
-
-			
-			
-			
-		}
-			
-		
-		
-		
-		/*
-		 * Add the map view
-		 * 
-		 * 
-		 */
-		
-		/*		
-		var MarkerModel = Backbone.Model.extend({
-			id: "http://example.org/defaultid",
-			data: {}
-		});
-		*/
-		
-		
-		
-		var mapModel = new facets.MapModel();
+    	var mapModel = new facets.MapModel();
 		
 		var mapView = new widgets.MapView({
 			el: $("#map"),
@@ -709,7 +818,6 @@ alert("foobar");
 		
 		
 		
-		var geoPath = facets.Path.fromString(geoPathStr);
 		
 
 		
@@ -805,7 +913,7 @@ alert("foobar");
 		
 		
 		
-		
+		/*
 		foobarI18N = new utils.SpanI18n(labelFetcher);
 
 
@@ -815,11 +923,18 @@ alert("foobar");
 
 		var tmpEl = $(document);
 		foobarI18N.update(tmpEl);
-		
+		*/
 
 		
 		
 		
+
+		
+	};
+
+	
+	
+	ns.createCenterOnPosition = function() {
 		var $elCenterOnMap = $('#centerMapOnPosition');
 		
 		$elCenterOnMap.on('click', function(ev) {
@@ -845,9 +960,11 @@ alert("foobar");
 				//$elCenterOnMap
 			}
 			
-		});
-
-		
+		});		
+	};
+	
+	
+	ns.createExportServices = function() {
 		/* CSV export */
 
 		var semmapServiceUri = "http://localhost/semmap/service";
@@ -913,22 +1030,8 @@ alert("foobar");
 		 */
 	};
 
-	/*
-	 * var FacetMasterView = Backbone.View.extand({ tagName: 'li', attributes:
-	 * {style: 'float: left'}, initialize: function(){ _.bindAll(this, 'render',
-	 * 'unrender', 'remove'); // every function that uses 'this' as the current
-	 * object should be in here
-	 * 
-	 * this.model.bind('change', this.render, this); this.model.bind('remove',
-	 * this.unrender, this); }, render: function() { var children =
-	 * model.get("children");
-	 * 
-	 * 
-	 * 
-	 * var html = JSON.stringify(this.model.attributes); $(this.el).html(html);
-	 * return this; }, unrender: function() { $(this.el).remove(); }, remove:
-	 * function(){ this.model.destroy(); } });
-	 */
+    
+
 
 })();
 

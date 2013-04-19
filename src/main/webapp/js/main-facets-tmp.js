@@ -1,4 +1,20 @@
-		// var amountPath =
+
+		// Whever the config changes, we must update
+		// TODO Untested
+		//configModel.on('change', fnUpdateFacets)
+
+    	
+		
+		
+		var queryGenerator = new facets.QueryGenerator(conc);
+		var queryFactory = new facets.QueryFactoryQueryGenerator(
+				queryGenerator, {
+					distinct : true
+				});
+
+
+
+// var amountPath =
 		// facets.Path.fromString("http://fp7-pp.publicdata.eu/ontology/project
 		// http://example.org/beneficiary http://ex.org/amount");
 		// var cityPath =

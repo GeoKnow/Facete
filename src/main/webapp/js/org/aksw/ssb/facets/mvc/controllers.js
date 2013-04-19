@@ -1,3 +1,4 @@
+
 (function() {
 
 	/*
@@ -39,8 +40,8 @@
 		updateByPath: function(path) {
 			console.log("[ControllerSelectionCountSync] rootFacetModel: ", this.rootFacetModel);
 
-			var facetFacadeNode = this.rootFacetModel.get('facetFacadeNode');
-			console.log("[ControllerSelectionCountSync] rootFacetNode", facetFacadeNode);
+			var facetNode = this.rootFacetModel.get('facetNode');
+			console.log("[ControllerSelectionCountSync] rootFacetNode", facetNode);
 			
 			var targetModel = this.rootFacetModel.forPath(path);
 			console.log("[ControllerSelectionCountSync] targetModel: ", targetModel);
@@ -49,7 +50,7 @@
 			//console.log("[ControllerSelectionCountSync] FacetFacadeNode is: ", facetFacadeNode);
 			
 			// TODO facetFacade is WRONG here - should be facetNode
-			var constraintManager = this.constraintCollection.createConstraintManager(facetFacadeNode);
+			var constraintManager = this.constraintCollection.createConstraintManager(facetNode);
 			var constraints = constraintManager.getConstraintsByPath(path);
 			
 			//var constraints = facetFacadeNode.getConstraints();
@@ -156,11 +157,11 @@
 	 * Then we need to know the original collection so that we can update it
 	 * 
 	 */
-	ns.ControllerFacetValueEnricher = function(constraintCollection, checkCollection, facetFacadeNode) {
+	ns.ControllerFacetValueEnricher = function(constraintCollection, checkCollection, facetNode) {
 		_.bindAll(this);
 		
 		this.constraintCollection = constraintCollection;
-		this.facetFacadeNode = facetFacadeNode;
+		this.facetNode = facetNode;
 		this.checkCollection = checkCollection;
 		
 		this.bind();
@@ -208,8 +209,8 @@
 			throw "Reset not supported yet";
 		},
 
-		setFacetFacadeNode: function(facetFacadeNode) {
-			this.facetFacadeNode = facetFacadeNode;
+		setFacetNode: function(facetNode) {
+			this.facetNode = facetNode;
 		},
 		
 		/**
@@ -225,14 +226,14 @@
 		 * @returns
 		 */
 		process: function(model) {
-			var facetFacadeNode = this.facetFacadeNode;
-			if(!facetFacadeNode) {
-				console.log("FacetFacadeNode not set. Should not happen");
+			var facetNode = this.facetNode;
+			if(!facetNode) {
+				console.log("FacetNode not set. Should not happen");
 				return;
 			}
 			
-			var path = facetFacadeNode.getPath();
-			var varName = facetFacadeNode.getVariable().value; //Name();
+			var path = facetNode.getPath();
+			var varName = facetNode.getVariable().value; //Name();
 			
 			var facetVal = model.get(varName);
 			var node = facetVal.node;

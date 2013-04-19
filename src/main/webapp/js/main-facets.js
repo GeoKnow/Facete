@@ -523,7 +523,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			var facetNode = model.get('facetNode');
 			var modelFacetUpdater = configModel.get('modelFacetUpdater');
 			
-			var constraintManager = constraintCollection.createConstraintManager(facetNode);
+			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
 			
 			var promise = modelFacetUpdater.updateFacets(model, facetFacadeNode);
@@ -536,11 +536,15 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     		fnUpdateFacets: fnUpdateFacets
     	});
     	
+    	
+    	
     	var superFacetModel = new facets.ModelFacetNode({
-			facetNode: null,
-			children: rootFacetCollection
+			facetNode: facets.FacetNode.createRoot(rootFacetNode.getVariable().getValue()),
+			children: rootFacetCollection,
+			isExpanded: true
 		});
-    	//metaFacetModel.get('children').add(rootFacetModel);
+    	superFacetModel.get('children').add(rootFacetModel);
+    	
     	//fnUpdateFacets(metaFacetModel);
 
 

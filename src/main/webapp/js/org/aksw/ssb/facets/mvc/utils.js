@@ -286,7 +286,7 @@
 								step: step
 						};
 						*/
-						//item.facetFacadeNode = subNode;
+						item.facetFacadeNode = subFacadeNode;
 						item.facetNode = subFacadeNode.getFacetNode();
 						item.step = step;
 

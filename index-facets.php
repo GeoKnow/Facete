@@ -92,7 +92,7 @@
 				<label><input type="radio" name="group1" checked="checked"/>Global</label>
 				<div class="service-config"></div>
 				<div class="inline">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 300px;"></div>
-    			<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 300px;"></div>
+    			<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 600px;"></div>
 				<br class="clearBoth" />
 				<hr>
 				<label><input type="radio" name="group1" />Level of Detail</label>

@@ -20,7 +20,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		fnCopy.call(sourceModel, property);
 		
 		sourceModel.on('change:' + property, function() {
-			fnCopy(property);
+			fnCopy.call(this, property);
 		});
 	}
 };
@@ -362,14 +362,14 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			}
 		});
 
-		Backbone.linkModels(configModel, facetValuesConfigModel, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'i18n']);
+		Backbone.linkModels(configModel, facetValuesConfigModel, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
 
 		console.log("Linked model: ", facetValuesConfigModel.attributes);
 		var facetValues = ns.createFacetValuesView(facetValuesConfigModel);
 		
 		facetTree.facetWidget.on('facetSelected', function(ev) {
 			var facetNode = ev.facetNode;
-
+			
 			facetValuesConfigModel.set({
 				facetNode: facetNode
 			});
@@ -531,12 +531,21 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		};
 
     	
+
     	var rootFacetCollection = new ns.CollectionFacetNode({
     		fnUpdateFacets: fnUpdateFacets
     	});
+    	
+    	var superFacetModel = new facets.ModelFacetNode({
+			facetNode: null,
+			children: rootFacetCollection
+		});
+    	//metaFacetModel.get('children').add(rootFacetModel);
+    	//fnUpdateFacets(metaFacetModel);
+
 
     	
-    	console.log("TEST", modelFacetUpdater);
+    	//console.log("TEST", modelFacetUpdater);
     	
 		console.log("FacetFacadeNode: ", rootFacetNode);
 		var rootFacetModel = new facets.ModelFacetNode({
@@ -554,6 +563,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		// Whenever the constraints change, the facets and facet counts must be updated
 		constraintCollection.on('add remove reset', function() {
 			fnUpdateFacets(rootFacetModel);
+			//fnUpdateFacets(superFacetModel);
 		});
 
 		
@@ -587,6 +597,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     	rootFacetCollection.add(rootFacetModel);
     	
     	
+    	
+    	
     	fnUpdateFacets(rootFacetModel);
     	
 		var result = {
@@ -604,6 +616,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     	var labelFetcher = configModel.get('labelFetcher');
     	var concept = configModel.get('concept');
     	var constraintCollection = configModel.get('constraintCollection');
+    	
+    	var rootFacetNode = configModel.get('rootFacetNode');
     	
     	// This is a hack :/
     	var i18n = configModel.get('i18n');
@@ -628,36 +642,54 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var tableModel = models.browseConfig.config.tableModel;
 
 		
-		/*
-		 * When a facet is selected, create the corresponding concept
-		 * and update the facetValue widget
-		 * 
-		 */
-		configModel.on('change', function(ev) {
-			
-			var facetNode = this.get('facetNode');
-			var concept = this.get('concept');
-			var constraintCollection = this.get('constraintCollection');
-			
+		
+		var fnUpdateFacetValues = function() {
+			var facetNode = this.facetNode;
+			var constraintCollection = this.constraintCollection;
+						
 			
 			// TODO Make a 1-line helper for these three lines
-			var constraintManager = constraintCollection.createConstraintManager(facetNode);
+			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
 			var concept = facetFacadeNode.createConcept();
+			
+			//console.log("FacetValue concept: ", concept);
 			
 			var queryGenerator = new facets.QueryGenerator(concept);
 			var queryFactory = new facets.QueryFactoryQueryGenerator(
 					queryGenerator, {
 						distinct : true
-					});
+					}
+			);
 			
-			console.log("Query Factory: ", queryFactory);
+			//console.log("FacetValue Query Factory: ", queryFactory);
 
 			controllerFacetValueEnricher.setFacetNode(facetNode);
 
 			tableModel.set({
 				queryFactory : queryFactory
 			});			
+		};
+		
+		
+		/*
+		 * When a facet is selected, create the corresponding concept
+		 * and update the facetValue widget
+		 * 
+		 */
+		configModel.on('change', function() {
+			var model = this;
+			fnUpdateFacetValues.call({
+				facetNode: model.get('facetNode'),
+				constraintCollection: configModel.get('constraintCollection')
+			});			
+		});
+		
+		constraintCollection.on('change', function() {
+			fnUpdateFacetValues.call({
+				facetNode: configModel.get('facetNode'),
+				constraintCollection: configModel.get('constraintCollection')
+			});
 		});
 
 		
@@ -740,6 +772,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     };
     
     
+    
+    // @deprecated - do not use
     ns.createAppInstance = function(configModel) {
 		
     	var concept = configModel.get('concept');

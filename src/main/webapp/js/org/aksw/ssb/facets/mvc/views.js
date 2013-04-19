@@ -617,6 +617,8 @@
 					}
 				};
 				
+				console.log("Setting constraint: ", modelData);
+				
 				//var id = JSON.stringify(modelData.constraint);
 				//modelData.id = id;
 

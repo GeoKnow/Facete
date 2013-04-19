@@ -290,7 +290,7 @@
 						item.facetNode = subFacadeNode.getFacetNode();
 						item.step = step;
 
-						console.log("Mapped model:", item);
+						//console.log("Mapped model:", item);
 
 						return item;
 					});

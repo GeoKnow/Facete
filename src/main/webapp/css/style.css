@@ -75,9 +75,12 @@ img {
 	max-width: none !important;
 }
 /* Fix for strange background on font-awesome icons --- http://stackoverflow.com/questions/11452356/duplicated-icon-issue-with-twitter-bootstrap-and-font-awesome */
+/* Fix for wrong vertical align */
 [class^="icon-"], [class*=" icon-"]{
-  background:none;
+  background: none;
+  vertical-align: baseline;
 }
+
 
 
 /**

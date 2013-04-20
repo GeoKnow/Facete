@@ -15,7 +15,14 @@
 		
 				var view = new this.viewCtor({model: model});
 		
-				return view.render().el;
+				var el = view.render().el;
+				
+				var result = {
+					view: view,
+					el: el
+				};
+				
+				return result;
 			}
 	};
 	
@@ -111,16 +118,85 @@
 	    	//this.collection.bind('add', this.appendItem); // collection event binder
 
 	    	this.collection.bind('add', this.addModel, this);
+	    	this.collection.bind('remove', this.removeModel, this);
 	    	this.collection.bind('reset', this.reset, this);
+	    	
+	    	
+	    	this.viewModels = new Backbone.Collection();
+	    	
 	    	//this.collection.remove('remove', this.unrender, this);
 	    	
 	    	//this.render();
 	    },
+	    
+	    /**
+	     * Returns models holding data on the item views.
+	     * Do not confuse with the item view's models.
+	     * 
+	     * @returns
+	     */
+	    getViewModels: function() {
+	    	return this.viewModels;
+	    },
+	    
+	    removeModel: function(model) {
+	    	console.log("Remove model invoked - currently having " + this.viewModels.length + " models");
+	    	// Remove any corresponding view
+	    	
+	    	// Consistency check: If a model without a corresponding view gets
+	    	// removed, something may went wrong
+	    	// TODO I hope this assumption holds: If a model gets destroyed, it is removed FIRST
+	    	var didRemove = false;
+	    	
+	    	
+	    	var self = this;
+	    	this.viewModels.each(function(viewModel) {
+	    		
+	    		if(viewModel.get('view').model === model) {
+	    			
+	    			self.trigger('itemRemoved', {
+	    				target: self,
+	    				viewModel: viewModel
+	    			});
+	    			
+	    			viewModel.destroy();
+	    			didRemove = true;
+	    			
+	    			console.log("TODO Use the iterator where we can abort early - didn't have internet to look the method up when I wrote this");
+	    			return;
+	    		}
+	    	});
+	    	
+	    	
+	    	if(!didRemove) {
+	    		console.log("[WARN] No corresponding view found for model: ", model);
+	    	}
+	    },
+	    
 	    addModel: function(model) {
 			var renderer = this.getItemRenderer();	
 			
-			var el = renderer.create(model, this);
-			this.appendElement(el);
+			var viewData = renderer.create(model, this);
+			
+			//var view = viewData.view;
+			
+			var viewModel = new Backbone.Model(viewData);
+			
+			this.viewModels.add(viewModel);
+
+			/*
+			viewData.view.model.on('remove', function() {
+				viewModel.destroy();
+			});
+			*/
+			
+			this.appendElement(viewData.el);
+			
+			
+			this.trigger("itemAdded", {
+				target: this,
+				viewModel: viewModel
+			});
 	    },
 	    
 	    /*
@@ -164,8 +240,18 @@
 	    },
 
 	    reset: function() {
+	    	console.log("Resetting list.");
+	    	
 	    	//console.log("Reset", arguments);
 	    	this.$el.empty();
+	    	
+	    	this.trigger('itemsReset', {
+	    			target: this,
+	    			viewModels: this.viewModels
+	    	});
+	    	
+	    	this.viewModels.reset();
+
 	    	//$(this.el).children().remove();
 	    	this.render();
 	    }
@@ -326,9 +412,20 @@
 		
 		//console.debug("Rendering id: " + id);
 		
-		var itemView = new this.ctor({parent: parent, model: model, binding: this.binding});
+		var itemViewData = {
+				parent: parent,
+				model: model,
+				binding: this.binding
+		};
 		
-		var result = itemView.render().el;
+		var itemView = new this.ctor(itemViewData);
+		
+		var el = itemView.render().el;
+		
+		var result = {
+			el: el,
+			view: itemView
+		};
 		
 		return result;
 	};

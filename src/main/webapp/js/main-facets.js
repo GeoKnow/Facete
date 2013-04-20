@@ -1,10 +1,17 @@
-	//TODO: Get rid of these global variables
-	var foobarI18N;
-	var foobarTableModel;
-
 	
+
+/**
+ * TODO Move this to backboneUtils.
+ * 
+ */
 Backbone.linkModels = function(sourceModel, targetModel, properties) {
-		
+	
+	// Link the live of the target model to that of the source model
+	sourceModel.on('remove', function() {
+		targetModel.destroy();
+	});
+	
+	
 	var fnCopy = function(property) {
 		var val = this.get(property);
 		
@@ -338,6 +345,22 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 		var facetTree = ns.createFacetTreeView(configModel);
 		
+		var facetWidget = facetTree.facetWidget;
+		/*
+		facetWidget.on('itemAdded', function(ev) {
+			console.log("[FacetTree] Item Added: ", ev);
+		});
+		
+		facetWidget.on('itemsReset', function(ev) {
+			console.log("[FacetTree] Items Reset: ", ev);
+		});
+		
+		
+		facetWidget.on('itemRemoved', function(ev) {
+			console.log('[FacetTree] Item Removed', ev);
+		});
+		*/
+		
 		
 		ns.createDataTableView(configModel);
 
@@ -364,7 +387,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 
 		Backbone.linkModels(configModel, facetValuesConfigModel, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
 
-		console.log("Linked model: ", facetValuesConfigModel.attributes);
+		//console.log("Linked model: ", facetValuesConfigModel.attributes);
 		var facetValues = ns.createFacetValuesView(facetValuesConfigModel);
 		
 		facetTree.facetWidget.on('facetSelected', function(ev) {
@@ -390,7 +413,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var resetServices = function() {
 			var attrs = this.attributes;
 			
-			console.log("Resetting services - attributes are: ", attrs);
+			//console.log("Resetting services - attributes are: ", attrs);
 			
 			var sparqlService = new backend.SparqlServiceHttp(
 					attrs.sparqlServiceIri,
@@ -588,6 +611,15 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			collectionColumns: collectionColumns
 			// }
 		});
+		
+		
+		
+		var plugin = new widgets.PluginFacetTree({
+			facetWidget: facetWidget,
+			collectionColumns: collectionColumns
+		});
+		
+		
     	
 		var self = this;
 		facetWidget.on('facetUpdate', function(promise) {

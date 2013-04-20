@@ -166,9 +166,9 @@
 								<param>org/aksw/ssb/facets/mvc/controllers.js</param>
 								<param>org/aksw/ssb/facets/mvc/utils.js</param>
 
-
 								<param>org/aksw/ssb/utils/i18n/SpanI18n.js</param>
 								
+								<param>org/aksw/ssb/facets/mvc/plugins/table-plugin.js</param>
 								
 							</jsSourceFiles>
 							<jsFinalFile>semmap.js</jsFinalFile>

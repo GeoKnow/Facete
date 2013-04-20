@@ -12,6 +12,16 @@
 	var ns = widgets;
 
 	
+	
+	/**
+	 * In the target model, sets the state of whether the model was added
+	 * to the table
+	 * 
+	 * @param path
+	 * @param targetModel
+	 * @param collectionColumns
+	 * @returns {ns.ControllerColumnSync}
+	 */
 	ns.ControllerColumnSync = function(path, targetModel, collectionColumns) {
 		_.bindAll(this);
 
@@ -26,9 +36,7 @@
 	
 	ns.ControllerColumnSync.prototype = {
 		bind: function() {
-			this.collectionColumns.on('add', this.updateModel);
-			this.collectionColumns.on('remove', this.updateModel);
-			this.collectionColumns.on('reset', this.updateModel);
+			this.collectionColumns.on('add remove reset', this.updateModel);
 		},
 
 		updateModel: function() {			
@@ -45,6 +53,13 @@
 
 	ns.ViewItemFacet = Backbone.View.extend({
 				tagName : 'li',
+				
+				// Extension points: These selectors point to DOM elements which other plugins may use
+				permaAreaSelector: '> div > div.permaOptions',
+				hoverAreaSelector: '> div > div.hoverOptions',
+				collapseAreaSelector: 'not implemented yet',
+				
+				
 				// attributes: {style: 'float: left'},
 				initialize : function() {
 					_.bindAll(this); 
@@ -102,104 +117,81 @@
 
 					var self = this;
 					
-					/*
-					var ViewItemAddToTable = ns.ViewItemIcon.extend({
-						events: {
-							'click': function() {
-								self.collectionColumns.addPath(self.path);
-								ev.preventDefault();
-							}
-						}
-					});
-					
-					this.viewItemAddToTable = new ViewItemAddToTable({
-						model: this.model,
-						attributes: {
-							'class': 'icon-circle-arrow-right'
-						},
-						fnState: function(model) {
-							return '' + model.get('isAddedToTable');
-						},
-						stateToAttrs: {
-							'false': { style: 'display: block'},
-							'true': { style: 'display: none'}
-						}
-					});
-					*/
 
 
-					var ViewItemAddToTable = ns.ViewItemLink.extend({
-						/*
-						initialize: function() {
-							ns.ViewItemLink.prototype.initialize.apply(this);
-							
-							_.bindAll(this);
-						},
-						*/
-						events: {
-							'click': function() {
-								self.collectionColumns.addPath(self.path);
-								ev.preventDefault();
-							}
-						}
-					});
-					
-					this.viewItemAddToTable = new ViewItemAddToTable({
-						model: this.model,
-						subView: new ns.ViewItemIcon({
-							model: this.model,
-							attributes: {
-								'class': 'icon-circle-arrow-right'
-							},
-							fnState: function(model) {
-								return '' + model.get('isAddedToTable');
-							},
-							stateToAttrs: {
-								'false': { style: 'display: block'},
-								'true': { style: 'display: none'}
-							}
-						})
-					});
 
-					
-					var ViewItemRemoveFromTable = ns.ViewItemLink.extend({
-						events: {
-							'click': function() {
-								self.collectionColumns.removePath(self.path);
-								ev.preventDefault();
-							}
-						}					
-					});
-
-					this.viewItemRemoveFromTable = new ViewItemRemoveFromTable({
-						model: this.model,
-						subView: new ns.ViewItemIcon({
-							model: this.model,
-							attributes: {
-								'class': 'icon-remove-circle'
-							},
-							fnState: function(model) {
-								return '' + model.get('isAddedToTable');
-							},
-							stateToAttrs: {
-								'false': { style: 'display: none'},
-								'true': { style: 'display: block'}
-							}
-						})
-					});
-					
-					
-					/////var facetFacadeNode = model.get('facetFacadeNode');
-					/////this.path = facetFacadeNode.getPath();
-					var facetNode = model.get('facetNode');
-					this.path = facetNode.getPath();
-					
-					// children.bind('add', this.add)
-					var controllerColumnSync = new ns.ControllerColumnSync(
-							this.path,
-							this.model,
-							this.collectionColumns
-					);
+//					var ViewItemAddToTable = ns.ViewItemLink.extend({
+//						/*
+//						initialize: function() {
+//							ns.ViewItemLink.prototype.initialize.apply(this);
+//							
+//							_.bindAll(this);
+//						},
+//						*/
+//						events: {
+//							'click': function() {
+//								self.collectionColumns.addPath(self.path);
+//								ev.preventDefault();
+//							}
+//						}
+//					});
+//					
+//					this.viewItemAddToTable = new ViewItemAddToTable({
+//						model: this.model,
+//						subView: new ns.ViewItemIcon({
+//							model: this.model,
+//							attributes: {
+//								'class': 'icon-circle-arrow-right'
+//							},
+//							fnState: function(model) {
+//								return '' + model.get('isAddedToTable');
+//							},
+//							stateToAttrs: {
+//								'false': { style: 'display: block'},
+//								'true': { style: 'display: none'}
+//							}
+//						})
+//					});
+//
+//					
+//					var ViewItemRemoveFromTable = ns.ViewItemLink.extend({
+//						events: {
+//							'click': function() {
+//								self.collectionColumns.removePath(self.path);
+//								ev.preventDefault();
+//							}
+//						}					
+//					});
+//
+//					this.viewItemRemoveFromTable = new ViewItemRemoveFromTable({
+//						model: this.model,
+//						subView: new ns.ViewItemIcon({
+//							model: this.model,
+//							attributes: {
+//								'class': 'icon-remove-circle'
+//							},
+//							fnState: function(model) {
+//								return '' + model.get('isAddedToTable');
+//							},
+//							stateToAttrs: {
+//								'false': { style: 'display: none'},
+//								'true': { style: 'display: block'}
+//							}
+//						})
+//					});
+//					
+//					
+//					/////var facetFacadeNode = model.get('facetFacadeNode');
+//					/////this.path = facetFacadeNode.getPath();
+//					var facetNode = model.get('facetNode');
+//					this.path = facetNode.getPath();
+//					
+//					// children.bind('add', this.add)
+//					var controllerColumnSync = new ns.ControllerColumnSync(
+//							this.path,
+//							this.model,
+//							this.collectionColumns
+//					);
 
 					
 					if (this.el) {
@@ -296,6 +288,25 @@
 					}
 				},
 
+				/**
+				 * The view for the list of child-nodes
+				 */
+				getChildView: function() {
+					return this.subFacetWidget;
+				},
+				
+				getPermaArea: function() {
+					return this.$el.find(this.permaAreaSelector);
+				},
+				
+				getHoverArea: function() {
+					return this.$el.find(this.hoverAreaSelector);
+				},
+				
+				getCollapseArea: function() {
+					return this.$el.find(this.collapseAreaSelector);
+				},
+				
 				events : {
 					'click .expandable' : function(ev) {
 						
@@ -373,7 +384,8 @@
 						}
 
 						
-						this.$el.find("> div > div.hoverOptions").show();
+						this.getHoverArea().show();
+						//this.$el.find("> div > div.hoverOptions").show();
 					},
 					
 					'mouseleave div': function(ev) {
@@ -383,7 +395,8 @@
 							return;
 						}
 
-						this.$el.find("> div > div.hoverOptions").hide();
+						this.getHoverArea().hide();
+						//this.$el.find("> div > div.hoverOptions").hide();
 					},
 					
 					
@@ -453,28 +466,28 @@
 
 
 					
-					var $elRemoveFromTable = this.viewItemRemoveFromTable.render().$el;
-					this.$elPermaDiv.append($elRemoveFromTable);
+//					var $elRemoveFromTable = this.viewItemRemoveFromTable.render().$el;
+//					this.$elPermaDiv.append($elRemoveFromTable);
+//					
+//					var self = this;
+//					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
+//					$elRemoveFromTable.click(function(ev) {
+//						self.collectionColumns.removePath(self.path);
+//						ev.preventDefault();
+//					});
+//					//$elRemoveFromTable.delegateEvents();
 					
-					var self = this;
-					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
-					$elRemoveFromTable.click(function(ev) {
-						self.collectionColumns.removePath(self.path);
-						ev.preventDefault();
-					});
-					//$elRemoveFromTable.delegateEvents();
 					
 					
-					
-					var $elAddToTable = this.viewItemAddToTable.render().$el;
-					this.$elHoverDiv.append($elAddToTable);
-
-					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
-					$elAddToTable.click(function(ev) {
-						self.collectionColumns.addPath(self.path);
-						ev.preventDefault();
-					});
-
+//					var $elAddToTable = this.viewItemAddToTable.render().$el;
+//					this.$elHoverDiv.append($elAddToTable);
+//
+//					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
+//					$elAddToTable.click(function(ev) {
+//						self.collectionColumns.addPath(self.path);
+//						ev.preventDefault();
+//					});
+//
 					
 					// TODO: This is not the best place to do the update,
 					// as it fires one query per element

@@ -50,6 +50,52 @@
 		}
 	};
 
+	
+	
+	/**
+	 * Syncs the boolean targetPropery value of the targetModel based on the state
+	 * of the stateCollection on whether it contains a specific path.
+	 * 
+	 * @param path
+	 * @param targetModel
+	 * @param stateCollection The collection from which to infer the state of the model
+	 * @returns {ns.ControllerModelSync}
+	 */
+	ns.ControllerModelSync = function(path, targetModel, targetProperty, stateCollection, fnContainsPath) {
+		_.bindAll(this);
+
+		this.path = path;
+		this.targetModel = targetModel;
+		this.targetProperty = targetProperty;
+		this.stateCollection = stateCollection;
+		this.fnContainsPath = fnContainsPath;
+		
+		this.bind();
+		this.updateModel();
+	};
+	
+	
+	ns.ControllerModelSync.prototype = {
+		bind: function() {
+			this.stateCollection.on('add remove reset', this.updateModel);
+		},
+
+		updateModel: function() {
+			var containsPath = this.fnContainsPath.call(this.stateCollection, this.path);
+
+			//console.log("ContainsPath " + containsPath, this + " " + this.path + " ", this.collectionColumns);
+			
+			var data = {};
+			data[this.targetProperty] = containsPath;
+			
+			this.targetModel.set(data);
+		}
+	};
+	
+	
+	
+	
+	
 
 	ns.ViewItemFacet = Backbone.View.extend({
 				tagName : 'li',

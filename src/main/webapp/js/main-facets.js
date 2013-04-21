@@ -614,9 +614,9 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 		
 		
-		var plugin = new widgets.PluginFacetTree({
+		var plugin = new widgets.FacetTreeTablePlugin({
 			facetWidget: facetWidget,
-			collectionColumns: collectionColumns
+			collection: collectionColumns
 		});
 		
 		

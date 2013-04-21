@@ -1,40 +1,7 @@
 (function() {
-
+ 
 	var ns = Namespace("org.aksw.ssb.widgets");
 
-	ns.ViewItemLink = Backbone.View.extend({
-		tagName : 'a',
-		subView : null,
-
-		attributes: {href: '#'},
-		initialize : function() {
-			_.bindAll(this);
-			
-	    	if(this.options.subView) {
-	    		this.subView = this.options.subView;
-	    	}			
-		},
-		
-		render : function() {
-			
-//			if(true) {
-//				this.$el.html("test");
-//				return this;
-//			}
-			
-			var subView = this.subView;
-			if(subView) {
-				$elSubView = subView.render().$el;
-				this.$el.append($elSubView);
-			}
-			
-			return this;
-		},
-
-		unrender : function() {
-			this.$el.remove();
-		}
-	});
 
 
 	/*
@@ -93,21 +60,29 @@
 	 * that we can validate the set up and detect e.g. missing plugins
 	 * 
 	 */
-	ns.PluginFacetTree = function(options) {
-		_.bindAll(this);
-		
-		
-		this.facetWidget = options.facetWidget;
-		this.collectionColumns = options.collectionColumns;
-		
-		this.bind();
-		
-		//this.rootNode = rootNode;
-	};
+	ns.PluginFacetTree = Backbone.View.extend({
 	
-	ns.PluginFacetTree.prototype = {
-		bind: function() {
+		initialize: function() {
+			console.log("[Base Plugin] initialize", this);
+
+			_.bindAll(this);
 			
+			var options = this.options;
+			
+			console.log("[PluginFacetTree] Options: ", options);
+			
+			
+			
+			this.facetWidget = options.facetWidget;
+			this.collectionColumns = options.collectionColumns;
+			
+			this.fnInstall = options.fnInstall;
+			
+			this.bind();			
+			//this.rootNode = rootNode;
+		},
+	
+		bind: function() {
 			console.log("binding facet tree");
 			
 			var facetWidget = this.facetWidget;
@@ -120,7 +95,6 @@
 			// added model
 			facetWidget.on('itemAdded', this.onItemAdded);
 			
-			
 			//node.on('nodeCreated', onNodeCreated);
 			//node.on('nodeDestroyed', onNodeDestroyed);
 			
@@ -131,16 +105,16 @@
 		},
 	
 		onItemAdded: function(ev) {
-			
 			console.log("yeah", ev);
 			
 			var viewItem = ev.viewModel.get('view');
+			//this.fnInstall(viewItem);
 			this.install(viewItem);
-			
 		},
 		
 		initRecItem: function(viewItem) {
-			install(viewItem);
+			llthis.fnInstall(viewItem);
+			this.install(viewItem);
 			
 			var childView = node.getChildView();
 			
@@ -158,10 +132,34 @@
 			});
 		},
 		
-		
+		install: function() {
+			console.log("[Base Plugin] install");
+			//console.log("fuck", this);
+			//throw "This method should not be called";
+		}
+	});
+	
+
+	ns.FacetTreeTogglePlugin = ns.PluginFacetTree.extend({
+
+		initialize: function() {
+			console.log("[Toggle Plugin] initialize", this);
+			ns.PluginFacetTree.prototype.initialize.apply(this, arguments);
+		},
 		
 		install: function(viewItem) {
-		
+			console.log("[Toggle Plugin] install");
+
+			ns.PluginFacetTree.prototype.install.apply(this, arguments);
+			
+			// The property whose state to toggle
+			var property = this.options.property;
+			console.log("[Toggle Plugin] Property: ", property);
+			
+			
+			var self = this;
+
+			
 			var viewItemModel = viewItem.model;
 			
 			console.log("Installing table plugin on: ", viewItem);
@@ -172,14 +170,9 @@
 			var $elHover = viewItem.getHoverArea();
 
 			
-			var facetNode = viewItemModel.get('facetNode');
-			var path = facetNode.getPath();
-
-			var collectionColumns = this.collectionColumns;
-
 			// NOTE By setting the view's model to that of viewItemModel,
 			// we bind the life time of the plugin's additions to that of the original model
-			var viewItemAddToTable = new widgets.ViewItemLink({
+			var viewItemEnable = new widgets.ViewItemLink({
 				model: viewItemModel,
 				subView: new ns.ViewItemIcon({
 					model: viewItemModel,
@@ -187,7 +180,7 @@
 						'class': 'icon-circle-arrow-right'
 					},
 					fnState: function(model) {
-						return '' + model.get('isAddedToTable');
+						return '' + model.get(property);
 					},
 					stateToAttrs: {
 						'false': { style: 'display: block'},
@@ -196,13 +189,14 @@
 				}),
 				events: {
 					'click': function() {
-						collectionColumns.addPath(path);
+						//collectionColumns.addPath(path);
+						self.enable(viewItem);
 					}
 				}
 			});
 
 
-			var viewItemRemoveFromTable = new widgets.ViewItemLink({
+			var viewItemDisable = new widgets.ViewItemLink({
 				model: viewItemModel,
 				subView: new ns.ViewItemIcon({
 					model: viewItemModel,
@@ -210,7 +204,7 @@
 						'class': 'icon-remove-circle'
 					},
 					fnState: function(model) {
-						return '' + model.get('isAddedToTable');
+						return '' + model.get(property);
 					},
 					stateToAttrs: {
 						'false': { style: 'display: none'},
@@ -218,40 +212,127 @@
 					},
 					events: {
 						'click': function() {
-							collectionColumns.removePath(path);
+							//collectionColumns.removePath(path);
+							self.disable(viewItem);
 						}
 					}
 				})
 			});
-
-			/////var facetFacadeNode = model.get('facetFacadeNode');
-			/////this.path = facetFacadeNode.getPath();
 			
-			// children.bind('add', this.add)
-			var controllerColumnSync = new ns.ControllerColumnSync(
-					path,
-					viewItemModel,
-					this.collectionColumns
-			);
-
-
-			var $elAddToTable = viewItemAddToTable.render().$el;
+			var $elAddToTable = viewItemEnable.render().$el;
 			$elHover.append($elAddToTable);
 
 			
-			var $elRemoveFromTable = viewItemRemoveFromTable.render().$el;
-			$elPerma.append($elRemoveFromTable);
+			var $elRemoveFromTable = viewItemDisable.render().$el;
+			$elPerma.append($elRemoveFromTable);			
+		}
+	});
 
+	
+	/**
+	 * 
+	 * 
+	 */
+	ns.FacetTreeTablePlugin = ns.FacetTreeTogglePlugin.extend({
+		// These attributes must be set upon initialization
+		collection: null,
+		facetWidget: null,
+		
+		property: 'isAddedToTable',
+		enabledClass: 'icon-circle-arrow-right',
+		disabledClass: 'icon-remove-circle',
+		
+		initialize: function() {
+			console.log("[Table Plugin] initialize", this);
+			_.bindAll(this);
+			
+			ns.FacetTreeTogglePlugin.prototype.initialize.apply(this, arguments);
+		},
+		
+		getPath: function(viewItem) {
+			var viewItemModel = viewItem.model;
+			var facetNode = viewItemModel.get('facetNode');
+			var path = facetNode.getPath();
+
+			return path;
+		},
+		enable: function(viewItem) {
+			var path = this.getPath(viewItem);
+			this.collection.addPath(path);
+		},
+		disable: function(viewItem) {
+			var path = this.getPath(viewItem);
+			this.collection.removePath(path);			
+		},
+		fnInstall: function(viewItem) {
+			this.install(viewItem);
+		},
+		install: function(viewItem) {
+			console.log("[Table Plugin] install");
+
+			// Invoke parent install
+			ns.FacetTreeTogglePlugin.prototype.install.apply(this, arguments);
+			
+			var viewItemModel = viewItem.model;
+			var facetNode = viewItemModel.get('facetNode');
+			var path = facetNode.getPath();
+			
+			var self = this;
+			var controllerModelSync = new ns.ControllerModelSync(
+					path,
+					viewItemModel,
+					this.options.property,
+					this.collection,
+					(function() {
+						return self.collection.containsPath(path);
+					})
+			);
 			
 		}
-	};
-	
-	
-	
-	
+	});
 
-	
-	
-	
+//	
+//		fnInstall: function(viewItem) {
+//		
+//			this.fnInstall.call(this, viewItem);
+//			
+//			var viewItemModel = viewItem.model;
+//			
+//			console.log("Installing table plugin on: ", viewItem);
+//
+//
+//			// get the node's hover and perma areas
+//			var $elPerma = viewItem.getPermaArea();
+//			var $elHover = viewItem.getHoverArea();
+//
+//			
+//			var facetNode = viewItemModel.get('facetNode');
+//			var path = facetNode.getPath();
+//
+//			var collectionColumns = this.collectionColumns;
+//
+//
+//			/////var facetFacadeNode = model.get('facetFacadeNode');
+//			/////this.path = facetFacadeNode.getPath();
+//			
+//			// children.bind('add', this.add)
+//			var controllerColumnSync = new ns.ControllerColumnSync(
+//					path,
+//					viewItemModel,
+//					this.collectionColumns
+//			);
+//
+//
+//			var $elAddToTable = viewItemAddToTable.render().$el;
+//			$elHover.append($elAddToTable);
+//
+//			
+//			var $elRemoveFromTable = viewItemRemoveFromTable.render().$el;
+//			$elPerma.append($elRemoveFromTable);
+//		}
+//
+//		
+//	}); 
+//	
 	
 })();

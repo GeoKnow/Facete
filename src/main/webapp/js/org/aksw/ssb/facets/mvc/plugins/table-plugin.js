@@ -76,7 +76,7 @@
 			this.facetWidget = options.facetWidget;
 			this.collectionColumns = options.collectionColumns;
 			
-			this.fnInstall = options.fnInstall;
+			//this.fnInstall = options.fnInstall;
 			
 			this.bind();			
 			//this.rootNode = rootNode;
@@ -113,7 +113,7 @@
 		},
 		
 		initRecItem: function(viewItem) {
-			llthis.fnInstall(viewItem);
+			//this.fnInstall(viewItem);
 			this.install(viewItem);
 			
 			var childView = node.getChildView();
@@ -152,9 +152,9 @@
 
 			ns.PluginFacetTree.prototype.install.apply(this, arguments);
 			
-			// The property whose state to toggle
-			var property = this.options.property;
-			console.log("[Toggle Plugin] Property: ", property);
+			// The property whose state to toggle 
+			var property = this.property;
+			console.log("[Toggle Plugin] Property: ", property, this);
 			
 			
 			var self = this;
@@ -177,7 +177,7 @@
 				subView: new ns.ViewItemIcon({
 					model: viewItemModel,
 					attributes: {
-						'class': 'icon-circle-arrow-right'
+						'class': self.enabledClass
 					},
 					fnState: function(model) {
 						return '' + model.get(property);
@@ -201,7 +201,7 @@
 				subView: new ns.ViewItemIcon({
 					model: viewItemModel,
 					attributes: {
-						'class': 'icon-remove-circle'
+						'class': self.disabledClass
 					},
 					fnState: function(model) {
 						return '' + model.get(property);
@@ -230,7 +230,6 @@
 
 	
 	/**
-	 * 
 	 * 
 	 */
 	ns.FacetTreeTablePlugin = ns.FacetTreeTogglePlugin.extend({
@@ -264,9 +263,9 @@
 			var path = this.getPath(viewItem);
 			this.collection.removePath(path);			
 		},
-		fnInstall: function(viewItem) {
-			this.install(viewItem);
-		},
+//		fnInstall: function(viewItem) {
+//			this.install(viewItem);
+//		},
 		install: function(viewItem) {
 			console.log("[Table Plugin] install");
 
@@ -281,7 +280,7 @@
 			var controllerModelSync = new ns.ControllerModelSync(
 					path,
 					viewItemModel,
-					this.options.property,
+					this.property,
 					this.collection,
 					(function() {
 						return self.collection.containsPath(path);
@@ -291,6 +290,60 @@
 		}
 	});
 
+	
+	
+	
+	ns.FacetTreeMapPlugin = ns.FacetTreeTogglePlugin.extend({
+		// These attributes must be set upon initialization
+		collection: null,
+		facetWidget: null,
+		
+		property: 'isAddedToMap',
+		enabledClass: 'icon-globe',
+		disabledClass: 'icon-globe',
+		
+		initialize: function() {
+			_.bindAll(this);
+			
+			ns.FacetTreeTogglePlugin.prototype.initialize.apply(this, arguments);
+		},
+		
+		getPath: function(viewItem) {
+			var viewItemModel = viewItem.model;
+			var facetNode = viewItemModel.get('facetNode');
+			var path = facetNode.getPath();
+
+			return path;
+		},
+		enable: function(viewItem) {
+			var path = this.getPath(viewItem);
+			this.collection.addPath(path);
+		},
+		disable: function(viewItem) {
+			var path = this.getPath(viewItem);
+			this.collection.removePath(path);			
+		},
+		install: function(viewItem) {
+			// Invoke parent install
+			ns.FacetTreeTogglePlugin.prototype.install.apply(this, arguments);
+			
+			var viewItemModel = viewItem.model;
+			var facetNode = viewItemModel.get('facetNode');
+			var path = facetNode.getPath();
+			
+			var self = this;
+			var controllerModelSync = new ns.ControllerModelSync(
+					path,
+					viewItemModel,
+					this.property,
+					this.collection,
+					(function() {
+						return self.collection.containsPath(path);
+					})
+			);
+			
+		}
+	});
 //	
 //		fnInstall: function(viewItem) {
 //		

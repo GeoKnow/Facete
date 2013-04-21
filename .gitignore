@@ -1,7 +1,7 @@
 .classpath
 .buildpath
 .project
-.settings/
+.settings
 
 target
 deleteme
@@ -9,28 +9,28 @@ tmp
 
 # Temporary excludes:
 install-rdf-author.sh
-lib/jPages/
-lib/jscache/
+facete-client/lib/jPages/
+facete-client/lib/jscache/
 
-lib/RDFauthor/current
-lib/Font-Awesome/current
+facete-client/lib/RDFauthor/current
+facete-client/lib/Font-Awesome/current
 
 config.js
 *.tar.gz
 
 
-debian/semmap
-debian/semmap.debhelper.log
-debian/semmap.postinst.debhelper
-debian/semmap.prerm.debhelper
-debian/semmap.substvars
+facete-client/debian/semmap
+facete-client/debian/semmap.debhelper.log
+facete-client/debian/semmap.postinst.debhelper
+facete-client/debian/semmap.prerm.debhelper
+facete-client/debian/semmap.substvars
 
 
 config.js.sparqlify
 
-lib/SparqlProxyPHP
-lib/agility
-lib/jQuery-ajaxTransport-XDomainRequest
-lib/twitter-bootstrap
-lib/underscore.string
+facete-client/lib/SparqlProxyPHP
+facete-client/lib/agility
+facete-client/lib/jQuery-ajaxTransport-XDomainRequest
+facete-client/lib/twitter-bootstrap
+facete-client/lib/underscore.string
 

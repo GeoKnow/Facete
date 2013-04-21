@@ -183,7 +183,7 @@
 						return '' + model.get(property);
 					},
 					stateToAttrs: {
-						'false': { style: 'display: block'},
+						'false': { style: 'display: inline'},
 						'true': { style: 'display: none'}
 					}
 				}),
@@ -208,7 +208,7 @@
 					},
 					stateToAttrs: {
 						'false': { style: 'display: none'},
-						'true': { style: 'display: block'}
+						'true': { style: 'display: inline'}
 					},
 					events: {
 						'click': function() {
@@ -238,8 +238,8 @@
 		facetWidget: null,
 		
 		property: 'isAddedToTable',
-		enabledClass: 'icon-circle-arrow-right',
-		disabledClass: 'icon-remove-circle',
+		enabledClass: 'facete-icon icon-circle-arrow-right',
+		disabledClass: 'facete-icon icon-circle-arrow-right', //icon-remove-circle',
 		
 		initialize: function() {
 			console.log("[Table Plugin] initialize", this);
@@ -299,8 +299,8 @@
 		facetWidget: null,
 		
 		property: 'isAddedToMap',
-		enabledClass: 'icon-globe',
-		disabledClass: 'icon-globe',
+		enabledClass: 'facete-icon icon-globe',
+		disabledClass: 'facete-icon icon-globe',
 		
 		initialize: function() {
 			_.bindAll(this);

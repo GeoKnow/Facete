@@ -103,12 +103,12 @@
 		</div>
 
 		<div class="row-fluid">
-			<div class="span2 left-column">
+			<div class="span3 left-column">
 				<ul id="facets" style="list-style: none; list-style-type:none;"></ul>
                 <div id="facetValues" style="min-height: 300px"></div>
 			</div>
 		
-			<div class="span6">
+			<div class="span5">
                 <div id="instances"></div>
                 <a id="exportCsv" href="#">Export CSV</a>
                 <a id="exportRdf" href="#">Export RDF</a>

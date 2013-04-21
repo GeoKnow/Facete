@@ -95,7 +95,10 @@ div.inline {
 	clear:both;
 }
 
-
+.facete-icon {
+    margin-left: 2px;
+    margin-right: 2px;
+}
 
 /*
 * Left column facets styling

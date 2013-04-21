@@ -313,6 +313,9 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 				preferredLanguages: ['de', 'en', ''],
 				
 				collectionColumns: new facets.CollectionColumns(),
+				
+				// Map collection is the collection of paths added to the map
+				mapCollection: new facets.CollectionColumns(),
 		
 				/*
 				 * Services based on above properties
@@ -365,7 +368,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		ns.createDataTableView(configModel);
 
 		
-		//ns.createMapView(configModel, geoPath);
+		ns.createMapView(configModel, geoPath);
 
 		// Get the models for the facet tree and the data table 
 		//var facetedBrowsingModels = ns.createAppInstance(configModel);
@@ -620,7 +623,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		});
 
 		
-		var mapCollection =  new facets.CollectionColumns();
+		var mapCollection =  configModel.get('mapCollection');
 		var mapPlugin = new widgets.FacetTreeMapPlugin({
 			facetWidget: facetWidget,
 			collection: mapCollection
@@ -861,10 +864,13 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     };
     
     
-    ns.createMapView = function(configModel, geoPath) {		
+    ns.createMapView = function(configModel) {		
 		
     	
+    	var mapCollection = configModel.get('mapCollection');    	
     	var sparqlService = configModel.get('sparqlService');
+		var constraintCollection = configModel.get('constraintCollection');
+		var rootFacetNode = configModel.get('rootFacetNode');
     	
     	
 //		TODO Do we want a marker model? I guess eventually yes.		
@@ -904,84 +910,90 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var geomPointFetcher = new utils.GeomPointFetcher(queryCacheFactory);
 
 		
+		// Whenever the facet selection changes (or the concept) update the map.
 		
-		rsTableModel.on('change:queryFactory', function(model) {
 		
+		
+				
+ 		
+		var updateMap = function() {		
 			if(true) {
 				// FIXME Fetching of markers disabled
 				//return;
 			}
 			
-			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
-			//var queryFactory = new facets.QueryFactoryFacets(this.subQueryFactory, this.facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();
 			
-			
-			var hack = rootFacetFacadeNode.forPath(geoPath);
-			hack.constraintManager = constraintManager; 
-			
-			var concept = hack.createConcept();
-			var varName = concept.getVariable().value;
-			var query = queryUtils.createQuerySelect(concept, {distinct: true});
-			
-			console.log("GEO QUERY" + query);
-			
-			var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
+			mapCollection.each(function(model) {
+				var geoPath = model.get('path');
 
-				//console.log("jsonRs", jsonRs);
+			
+				var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
+				//var queryFactory = new facets.QueryFactoryFacets(this.subQueryFactory, this.facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();
+		    	//var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
+				//var geoPath = facets.Path.fromString(geoPathStr);
+	
+	
+				var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
+				var hack = rootFacetFacadeNode.forPath(geoPath);
+				hack.constraintManager = constraintManager; 
 				
-				var uris = _
-					.chain(jsonRs.results.bindings)
-					.filter(function(binding) {
-						return varName in binding && binding[varName] && binding[varName].type === 'uri';
-					})
-					.map(function(binding) {
-						//console.log("Binding: ", binding);
-						return sparql.Node.uri(binding[varName].value);
-					})
-					.value();
+				var concept = hack.createConcept();
+				var varName = concept.getVariable().value;
+				var query = queryUtils.createQuerySelect(concept, {distinct: true});
 				
-				//console.log("Related geomtery uris: ", uris.length, uris);
+				console.log("GEO QUERY" + query);
 				
-				var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
-
-					var rdfGraph = {};
+				var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
+	
+					//console.log("jsonRs", jsonRs);
 					
-					_.each(uriToPoint, function(point, uri) {
-						rdfGraph[uri] = {
-								'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.x}],
-								'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}],
-								//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
-						};
+					var uris = _
+						.chain(jsonRs.results.bindings)
+						.filter(function(binding) {
+							return varName in binding && binding[varName] && binding[varName].type === 'uri';
+						})
+						.map(function(binding) {
+							//console.log("Binding: ", binding);
+							return sparql.Node.uri(binding[varName].value);
+						})
+						.value();
+					
+					//console.log("Related geomtery uris: ", uris.length, uris);
+					
+					var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
+	
+						var rdfGraph = {};
+						
+						_.each(uriToPoint, function(point, uri) {
+							rdfGraph[uri] = {
+									'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.x}],
+									'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}],
+									//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
+							};
+						});
+	
+						return rdfGraph;
 					});
-
-					return rdfGraph;
+					
+					return promise;
 				});
 				
-				return promise;
-			});
-			
-			promise.done(function(rdfGraph) {
+				promise.done(function(rdfGraph) {
+					
+					//console.log("RDF GRAPH:", rdfGraph);
+					
+					var uris = _.keys(rdfGraph);
+					
+					mapModel.set({uris: uris, json: rdfGraph});
+				});
 				
-				//console.log("RDF GRAPH:", rdfGraph);
-				
-				var uris = _.keys(rdfGraph);
-				
-				mapModel.set({uris: uris, json: rdfGraph});
-			});
+			});		
 			
+		};
 		
-			
-		});
-		
-		rsCollection.on('reset', function(collection) {
-			//Highlight the markers on the map
-			
-			// FIXME Get the query (factory) for the result set.
-			//queryFactory
-		});
-		
-		
-		
+		constraintCollection.on('add remove reset', updateMap);
+		mapCollection.on('add remove reset', updateMap);
+
 
 		/* Does not work; Open Layers needs a non-zero size area to init
 		var $mapEl = mapView.render().$el;
@@ -1081,6 +1093,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			if(query) {
 				queryString = "" + query;
 			} else {
+				console.log("Warning: got empty query string");
 				queryString = "Select * { ?s ?p ?o . Filter(FALSE) }";
 			}
 			

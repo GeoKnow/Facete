@@ -7,14 +7,14 @@ This project will be released soon - stay tuned!
 Facete offers out-of-the-box faceted search over SPARQL endpoints.
 Current features:
 * Slicing and Dicing: Filter RDF data by any property / dimension
-* Hierarchical facets: Constraint the facets of elements of another facets using a simple tree structure. Pivoting made easy!
+* Hierarchical facets: Constrain the facets of another facet's values using a simple tree structure. Pivoting made easy!
 * Freely link facets to table columns (using the arrow-right icon)
 * Freely link facets to a map view (using the glob icon)
 
 Limitations:
 * At the moment facete always queries for the exact facet / facet value counts. Therefore, Facete may not work with low selective facet selections on large datasets.
 
-![Screenshot](https://raw.github.com/AKSW/Facete/master/images/2013-04-21-Facete-Screenshot.png)
+![Screenshot](https://raw.github.com/AKSW/Facete/devel/images/2013-04-21-Facete-Screenshot.png)
 
 
 ## Architecture

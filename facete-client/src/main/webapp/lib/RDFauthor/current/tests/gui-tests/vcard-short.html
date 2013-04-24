@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
+    "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head xmlns:u="http://ns.aksw.org/update/">
+    <title>RDFauthor vCard Test Page</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    
+    <link about="http://localhost/rdfauthor/test/" rel="u:queryEndpoint" href="http://localhost/OntoWiki/sparql" />
+    <link about="http://localhost/rdfauthor/test/" rel="u:updateEndpoint" href="http://localhost/OntoWiki/update/" />
+    
+    <script type="text/javascript" src="../../libraries/jquery.js"></script>
+    <script type="text/javascript" src="../../libraries/jquery-ui.js"></script>
+    <script type="text/javascript" src="../../libraries/jquery.rdfquery.core.js"></script>
+    
+    <script type="text/javascript">
+        var RDFAUTHOR_BASE = 'http://localhost/rdfauthor';
+        RDFAUTHOR_READY_CALLBACK = function() {
+            RDFauthor.start();
+        }
+    </script>
+    <script type="text/javascript" src="../../src/rdfauthor.js"></script>
+    
+    <style type="text/css">
+        /* semantic css :) */
+        .vcard *[rel="foaf:depiction"] {float: left;}
+        .vcard span.block {display: block;}
+        .vcard *[property="foaf:name"] {font-weight: bold;}
+        .vcard p {margin-left: 120px;}
+    </style>
+</head>
+
+<body>
+    <div xmlns:u="http://ns.aksw.org/update/" u:from="http://localhost/rdfauthor/test/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:ldap="http://purl.net/net/ldap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:dc="http://purl.org/dc/terms/" class="vcard" about="http://bis.ontowiki.net/ThomasRiechert" typeof="foaf:Person">
+        <p>
+            <span property="dc:description" content="&lt;em&gt;ttt&lt;/em&gt;" datatype="rdf:XMLLiteral"><em>ttt</em></span>
+            <span class="block" property="foaf:name">Thomas Riechert</span>
+            <!--span property="ldap:street" datatype="xsd:string">Johannisgasse 26</span-->
+            <span property="foaf:birthday" datatype="xsd:date">1973-05-09</span>
+        </p>
+    </div>
+</body>
+
+</html>

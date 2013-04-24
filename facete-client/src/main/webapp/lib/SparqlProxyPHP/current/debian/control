@@ -1,0 +1,21 @@
+Source: sparqlproxy-php
+Section: web
+Priority: extra
+Maintainer: Claus Stadler <cstadler@informatik.uni-leipzig.de>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.2
+Homepage: https://github.com/AKSW/SparqlProxyPHP
+Vcs-Git: git://github.com/AKSW/SparqlProxyPHP.git
+Vcs-Browser: https://github.com/AKSW/SparqlProxyPHP
+
+Package: sparqlproxy-php
+Architecture: all
+Depends: apache2, php5 | libapache2-mod-php5, ${misc:Depends}
+Description: A PHP forward proxy for remote access to SPARQL endpoints
+ SparqlProxyPHP introduces an additional "service-uri" query string parameter which
+ supports specifying a remote endpoint. The main motivation is to enable remote
+ access to SPARQL endpoints from within JavaScript. Note that this proxy consists
+ of a single file that only does the forwarding of requests and response (headers).
+ .
+ SparqlProxyPHP is part of the LOD2 Technology Stack.
+

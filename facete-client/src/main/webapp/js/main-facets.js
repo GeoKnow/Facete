@@ -305,7 +305,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var ConfigModel = Backbone.Model.extend({
 			defaults: {
 				sparqlServiceIri: "http://localhost:8810/sparql",
-				defaultGraphIris: [],
+				//defaultGraphIris: ['http://fp7-pp.publicdata.eu/'],
+                                defaultGraphIris: ['http://localhost/hotels'],
 				facetProviders: [],
 				concept: concept,
 				rootFacetNode: facets.FacetNode.createRoot(concept.getVariable().getValue()),

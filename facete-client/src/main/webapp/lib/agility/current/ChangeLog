@@ -1,0 +1,40 @@
+2012.9.3, Version 0.1.3
+
+* Added event bubbling (Pindi Albert)
+
+* Added multi-event binding (Pindi Albert)
+
+* Default input type is "text" (Tristan Slominski)
+
+* .set() fires model change event when reset is true (Tristan Slominski)
+
+* Accept data-bind events in any order (Tristan Slominski)
+
+* Documentation updates
+
+
+2011.12.17, Version 0.1.2
+
+* New data-bind notation: equal sign (Tristan Slominski)
+
+* Documentation updates (Artur Adib)
+
+
+2011.12.11, Version 0.1.1
+
+* gh-pages is now production branch, master is development
+
+* Documents are now hosted in docs/ in master (to be periodically merged with gh-pages)
+
+* pre: and post: event prefixes (Tristan Slominski)
+
+* before() and after() DOM insertion methods (Fabio Ferrari)
+
+* New method isAgility() (Tristan Slominski)
+
+* Bug fixes and new unit tests (thanks Tristan Slominski, David Ascher, Fabio Ferrari)
+
+
+2011.07.21, Version 0.1.0
+
+* First release

@@ -302,7 +302,7 @@
 					var isLoading = this.model.get("isLoading");
 					if(isLoading) {
 						//console.log("SHOWING ICON");
-						$elI.append('<img src="src/main/resources/icons/loading.gif" />');
+						$elI.append('<img src="resources/icons/loading.gif" />');
 					}
 				},
 				

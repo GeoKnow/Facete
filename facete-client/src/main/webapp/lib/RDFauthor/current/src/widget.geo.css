@@ -1,0 +1,18 @@
+#geo-widget {
+  z-index: 10000;
+  /*background-color: #FFF;*/
+  /*border: 1px solid #FFF;*/
+  width: 300px;
+  overflow: hidden !important;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding-left: 0px !important;
+  padding-top: 0px !important;
+  margin-left: 0px !important;
+  margin-top: 0px !important;
+}
+
+.globe-icon { background: white url('../img/globe.png') left center no-repeat !important; }
+
+.geo { padding-left: 20px !important; }

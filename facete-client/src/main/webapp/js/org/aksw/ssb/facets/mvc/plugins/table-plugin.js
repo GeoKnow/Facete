@@ -63,13 +63,13 @@
 	ns.PluginFacetTree = Backbone.View.extend({
 	
 		initialize: function() {
-			console.log("[Base Plugin] initialize", this);
+			////console.log("[Base Plugin] initialize", this);
 
 			_.bindAll(this);
 			
 			var options = this.options;
 			
-			console.log("[PluginFacetTree] Options: ", options);
+			////console.log("[PluginFacetTree] Options: ", options);
 			
 			
 			
@@ -83,7 +83,7 @@
 		},
 	
 		bind: function() {
-			console.log("binding facet tree");
+			////console.log("binding facet tree");
 			
 			var facetWidget = this.facetWidget;
 			
@@ -99,13 +99,13 @@
 			//node.on('nodeDestroyed', onNodeDestroyed);
 			
 			var viewModels = facetWidget.getViewModels();
-			console.log('viewItems: ', viewModels);
+			//console.log('viewItems: ', viewModels);
 			
 			this.initRecCollection(viewModels);
 		},
 	
 		onItemAdded: function(ev) {
-			console.log("yeah", ev);
+			//console.log("yeah", ev);
 			
 			var viewItem = ev.viewModel.get('view');
 			//this.fnInstall(viewItem);
@@ -133,8 +133,8 @@
 		},
 		
 		install: function() {
-			console.log("[Base Plugin] install");
-			//console.log("fuck", this);
+			//console.log("[Base Plugin] install");
+			////console.log("fuck", this);
 			//throw "This method should not be called";
 		}
 	});
@@ -143,18 +143,18 @@
 	ns.FacetTreeTogglePlugin = ns.PluginFacetTree.extend({
 
 		initialize: function() {
-			console.log("[Toggle Plugin] initialize", this);
+			//console.log("[Toggle Plugin] initialize", this);
 			ns.PluginFacetTree.prototype.initialize.apply(this, arguments);
 		},
 		
 		install: function(viewItem) {
-			console.log("[Toggle Plugin] install");
+			//console.log("[Toggle Plugin] install");
 
 			ns.PluginFacetTree.prototype.install.apply(this, arguments);
 			
 			// The property whose state to toggle 
 			var property = this.property;
-			console.log("[Toggle Plugin] Property: ", property, this);
+			//console.log("[Toggle Plugin] Property: ", property, this);
 			
 			
 			var self = this;
@@ -162,7 +162,7 @@
 			
 			var viewItemModel = viewItem.model;
 			
-			console.log("Installing table plugin on: ", viewItem);
+			//console.log("Installing table plugin on: ", viewItem);
 
 
 			// get the node's hover and perma areas
@@ -242,7 +242,7 @@
 		disabledClass: 'facete-icon icon-circle-arrow-right', //icon-remove-circle',
 		
 		initialize: function() {
-			console.log("[Table Plugin] initialize", this);
+			//console.log("[Table Plugin] initialize", this);
 			_.bindAll(this);
 			
 			ns.FacetTreeTogglePlugin.prototype.initialize.apply(this, arguments);
@@ -267,7 +267,7 @@
 //			this.install(viewItem);
 //		},
 		install: function(viewItem) {
-			console.log("[Table Plugin] install");
+			//console.log("[Table Plugin] install");
 
 			// Invoke parent install
 			ns.FacetTreeTogglePlugin.prototype.install.apply(this, arguments);
@@ -351,7 +351,7 @@
 //			
 //			var viewItemModel = viewItem.model;
 //			
-//			console.log("Installing table plugin on: ", viewItem);
+//			//console.log("Installing table plugin on: ", viewItem);
 //
 //
 //			// get the node's hover and perma areas

@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
+    "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head xmlns:update="http://ns.aksw.org/update/">
+    <title>RDFauthor vCard Test Page</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+
+    <script type="text/javascript" src="../../libraries/jquery.js"></script>
+    <script type="text/javascript" src="../../libraries/jquery-ui.js"></script>
+    <script type="text/javascript">
+        var RDFAUTHOR_BASE = 'http://localhost/semmap-dev/lib/RDFauthor/current/';
+    </script>
+    <script type="text/javascript" src="../../src/rdfauthor.js"></script>
+    <script type="text/javascript">
+        var rdfjson = {                
+            "http://jondoe.example.org/#me": {
+                "http://www.w3.org/2000/01/rdf-schema#type": [
+                    {
+                        "value": "http://xmlns.com/foaf/0.1/Person",
+                        "type": "uri"
+                    }
+                ],
+               "http://xmlns.com/foaf/0.1/name": [
+                    {
+                        "value": "Jon",
+                        "type": "literal"
+                    }
+                ],
+                "http://example.org/icollide#name": [
+                    {
+                        "value": "Jon",
+                        "type": "literal"
+                    }
+                ],
+                "http://xmlns.com/foaf/0.1/depiction": [
+                    {
+                        "value": "http://jondoe.example.org/me.jpg",
+                        "type": "uri"
+                    }
+                ],
+                "http://xmlns.com/foaf/0.1/knows": [
+                    {
+                      "value": "http://janedoe.example.org/#me",
+                      "type": "uri"
+                    },
+                ],                  
+                "http://xmlns.com/foaf/0.1/birthday": [
+                    {
+                        "value": "2010-03-23T13:40:22.489+00:00",
+                        "type": "literal",
+                        "datatype": "http://www.w3.org/2001/XMLSchema#dateTime"
+                    }
+                ],
+              "http://xmlns.com/foaf/0.1/age": [
+                  {
+                      "value": 1,
+                      "type": "literal"
+                  }
+              ],
+              "http://xmlns.com/foaf/0.1/description": [
+                  {
+                      "value": "Just another Jon Doe",
+                      "type": "literal",
+                      "lang": "en"
+                  },
+                  {
+                      "value": "Justement un autre Jon Doe",
+                      "type": "literal",                      
+                      "lang": "fr"
+                  }
+              ],                  
+              "http://xmlns.com/foaf/0.1/phone": [
+                  {
+                      "value": "tel:+49-12-3546789",
+                      "type": "uri"
+                  }
+              ]
+            },
+            "http://example.org/about" : 
+            {
+               "http://purl.org/dc/elements/1.1/title": [ { "type" : "literal" , "value" : "Anna's Homepage", "lang": "en"} ]
+            }
+        };
+        var rdfjson2 = {
+            "http://example.org/about" : 
+            {
+               "http://purl.org/dc/elements/1.1/title": [ { "type" : "literal" , "value" : "Anna's Homepage", "lang": "en"} ]
+            }
+        };
+        RDFauthor.edit({
+            view: 'popover',
+            useSPARQL11: true, /* default false */
+            // onSubmitSuccess: function() { alert('onSubmitSuccess'); },
+            // title: 'Edit Property Title for ' + 'http://jondoe.example.org/#me',
+            // saveButtonTitle: 'Custom Save',
+            // cancelButtonTitle: 'Custom Cancel',
+            targetSparqlEndpoint: 'http://localhost/sparql',
+            targetUpdateEndpoint: 'http://localhost/update',
+            targetGraph: 'http://aksw.org',
+            // http://jondoe.example.org/#me | http://example.org/about
+            targetResource: 'http://jondoe.example.org/#me',
+
+			// BUG: targetResourceData must exist..., no query is done if not set; also, ie7 does not add null-keys to a map; so our code should not rely on a distinction between null and undefined.
+			targetResourceData: rdfjson
+
+            //targetResource: 'http://example.org/about',
+        });
+        
+    </script>
+
+    <style type="text/css">
+        /* semantic css :) */
+        .vcard *[rel="foaf:depiction"] {float: left;}
+        .vcard span.block {display: block;}
+        .vcard *[property="foaf:name"] {font-weight: bold;}
+        .vcard p {margin-left: 120px;}
+    </style>
+</head>
+
+<body xmlns:update="http://ns.aksw.org/update/">
+    
+</body>
+
+</html>
+

@@ -14,6 +14,13 @@ nothing:
 
 all: clean-deps deploy-sparql-proxy
 	
+links:
+	ln -s ../../../pom.xml src/main/webapp/facete-pom.xml
+	ln -s facete-index.php src/main/webapp/index.php
+
+clean-links:
+	rm src/main/webapp/facete-pom.xml
+	rm src/main/webapp/index.php
 
 clean-deps:
 	rm -rf lib/twitter-bootstrap/current

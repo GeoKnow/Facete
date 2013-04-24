@@ -75,7 +75,7 @@ h2 a:hover{
 	float:right;
 	width:19px;
 	height:19px;
-	background: url("../../resources/images/ec/icons.png") 0px 0px no-repeat;
+	background: url("../resources/images/ec/icons.png") 0px 0px no-repeat;
 	cursor:pointer;
 	margin: 5px 0 0 5px;
 }
@@ -85,13 +85,13 @@ h2 a:hover{
 	float:left;
 	width:19px;
 	height:19px;
-	background: url("../../resources/images/ec/icons.png") -17px 0px no-repeat;
+	background: url("../resources/images/ec/icons.png") -17px 0px no-repeat;
 	margin: 0px 0 0 -25px;
 }
 
 
 h2 a:hover .resource, a.item_link:hover .resource {
-	background: url("../../resources/images/ec/icons.png") -17px -17px no-repeat;
+	background: url("../resources/images/ec/icons.png") -17px -17px no-repeat;
 }
 
 
@@ -100,12 +100,12 @@ h2 a:hover .resource, a.item_link:hover .resource {
 	float:left;
 	width:19px;
 	height:19px;
-	background: url("../../resources/images/ec/icons.png") -34px 0px no-repeat;
+	background: url("../resources/images/ec/icons.png") -34px 0px no-repeat;
 	margin: 0px 0 0 -25px;
 }
 
 h2 a:hover .publisher, a.item_link:hover .publisher {
-	background: url("../../resources/images/ec/icons.png") -34px -17px no-repeat;
+	background: url("../resources/images/ec/icons.png") -34px -17px no-repeat;
 }
 
 .tag {
@@ -113,12 +113,12 @@ h2 a:hover .publisher, a.item_link:hover .publisher {
 	float:left;
 	width:19px;
 	height:19px;
-	background: url("../../resources/images/ec/icons.png") -102px 0px no-repeat;
+	background: url("../resources/images/ec/icons.png") -102px 0px no-repeat;
 	margin: 0px 0 0 -25px;
 }
 
 h2 a:hover .tag, a.item_link:hover .tag {
-	background: url("../../resources/images/ec/icons.png") -102px -17px no-repeat;
+	background: url("../resources/images/ec/icons.png") -102px -17px no-repeat;
 }
 
 h2 a div {
@@ -159,7 +159,7 @@ ul.menu li {
 }
 
 
-	background-image:url("../../resources/images/ec/buttons.png");
+	background-image:url("../resources/images/ec/buttons.png");
 
 
 #odp-search{
@@ -273,12 +273,12 @@ ul.menu li {
 	float: right;
 	padding:0 10px 4px 400px;
 	position: relative;
-	/*background:#fff url("../../resources/images/ec/languagebar.png") top right no-repeat;*/
+	/*background:#fff url("../resources/images/ec/languagebar.png") top right no-repeat;*/
 }
 
 #header-menu ul li.leaf{
 	display: inline;
-	background: url("../../resources/images/ec/services-separator.gif") transparent left center no-repeat;
+	background: url("../resources/images/ec/services-separator.gif") transparent left center no-repeat;
 	margin: 0;
 	padding: 0;
 	padding-left: 5px;
@@ -376,7 +376,7 @@ ul.menu li {
 
 .menu .region{
 	/*margin-right: 30px;*/
-	background: #1c3048 url("../../resources/images/ec/menu.png") no-repeat right;
+	background: #1c3048 url("../resources/images/ec/menu.png") no-repeat right;
 }
 
 .menu ul li{
@@ -391,7 +391,7 @@ ul.menu li {
 	padding: 5px 13px;
 	line-height:27px;
 	margin-right: -3px;
-	background: repeat-x center center url("../../resources/images/ec/menubuttonbg.png") ; /* Old browsers */
+	background: repeat-x center center url("../resources/images/ec/menubuttonbg.png") ; /* Old browsers */
 	background: -moz-linear-gradient(top, #6c7dac 0%, #353d66 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6c7dac), color-stop(100%,#353d66)); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top, #6c7dac 0%,#353d66 100%); /* Chrome10+,Safari5.1+ */
@@ -429,7 +429,7 @@ ul.menu li {
 
 .view-linked-data-new-articles ul li,
 .view-new-articles ul li {
-	background: url("../../resources/images/ec/article-item.png") no-repeat 0 0;
+	background: url("../resources/images/ec/article-item.png") no-repeat 0 0;
 	text-indent: 15px;
 	margin-left: 0;
 }
@@ -583,7 +583,7 @@ ul li span{
 
 
 .region-tabdesc{
-	background:	#fff url("../../resources/images/ec/descborder.png") bottom center no-repeat;
+	background:	#fff url("../resources/images/ec/descborder.png") bottom center no-repeat;
 	margin: 0px auto 10px auto;
 	position:relative;
 	padding: 30px 30px 20px 30px;
@@ -630,7 +630,7 @@ input#txtSearchData {
 	position: absolute;
 	right: 86px;
 	top: 32px;
-	background: url("../../resources/images/ec/search_button.png") top right no-repeat !important;
+	background: url("../resources/images/ec/search_button.png") top right no-repeat !important;
 	width: 33px;
 	fiter: none !important;
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false) !important;
@@ -663,7 +663,7 @@ input#txtSearchData {
 	margin: 0px auto 10px auto;
 	padding-left: 25px;
 	color: #7082b1;
-	background: url("../../resources/images/ec/videocapture.png") center left no-repeat;
+	background: url("../resources/images/ec/videocapture.png") center left no-repeat;
 }
 #ckan-form p{
 	margin: 0px 65px;
@@ -690,7 +690,7 @@ input#txtSearchData {
 }
 
 .grouped-buttons a:link, .grouped-buttons a{
-	background-image:url("../../resources/images/ec/buttons.png");
+	background-image:url("../resources/images/ec/buttons.png");
 	height:30px;
 	font-size:14px;
 	font-style:italic;

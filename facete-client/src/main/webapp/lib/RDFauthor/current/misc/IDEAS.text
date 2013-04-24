@@ -1,0 +1,39 @@
+# RDFauthor advanced ideas #
+
+## Events ##
+- views etc. throw events
+- RDFauthor registers for event (e.g. subject selected), thus is informed about current subject
+- Possiblity to fetch widgets for Triples that have been parsed from children of a given node
+- Option to load a widget by for a specific element
+
+## Widgets ##
+- when registering, widgets can register properties that are queried for all properties (rdfs:domain, rdfs:range, rdfs:label etc.)
+- RDFauthor fetches these automatically and provides widgets easy access to the results
+- Widgets need a way to tell whether they were just added or whether something was edited already
+
+## Property Selector ##
+- shows a cloud or a dropdown box of possible properties for easier access
+
+## Architecture ##
+- real singleton for RDFauthor with private attributes and methods
+- different view types (global, inline) via factory pattern
+- make sure, views can be used interchangeably and at the same time
+- widget hierarchy (not necessarily by means of a class hierarchy) and widget replacement with more general one (suffice to be built based on hook hierarchy)
+- how to deal with xml:lang attribute in header (inherited)
+- graph defined on the same element as a statement before
+
+## Usage Variants ##
+- Overlay
+  * `parse()`  &rarr; `addStatement()` &hellip;
+  * `start()`
+- Inline
+  * `setRootElement()`
+  * `parse()`
+  * `start()`
+- Template
+  * `addStatement()`
+  * `setParse(false) // disable auto-parsing`
+  * `start()`
+- Bookmarklet
+  * contains calls to inline
+  * sets default resource, graph, endpoints etc.

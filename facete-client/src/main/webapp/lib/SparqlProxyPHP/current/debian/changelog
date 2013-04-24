@@ -1,0 +1,5 @@
+sparqlproxy-php (0.1) lod2; urgency=low
+
+  * initial rdfauthor package from tag v0.1
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Mon, 13 Jul 2012 16:42:49 +0100

@@ -1,0 +1,4 @@
+sparql-proxy.php usr/share/sparqlproxy-php/index.php
+README.md usr/share/doc/sparqlproxy-php
+LICENSE.txt usr/share/doc/sparqlproxy-php
+debian/conf/apache2/*   etc/sparqlproxy-php

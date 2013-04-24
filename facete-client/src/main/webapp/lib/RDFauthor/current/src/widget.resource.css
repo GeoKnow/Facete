@@ -1,0 +1,92 @@
+/* Component containers
+----------------------------------*/
+.ui-widget { font-family: Helvetica, Arial, sans-serif; font-size: 1.1em; }
+.ui-widget .ui-widget { font-size: 1em; }
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Helvetica, Arial, sans-serif; font-size: 1em; }
+.ui-widget-content { border: 1px solid #dddddd; background: #ffffff url(../libraries/images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #444444; }
+.ui-widget-content a { color: #444444; }
+.ui-widget-header { border: 1px solid #dddddd; background: #dddddd url(../libraries/images/ui-bg_highlight-soft_50_dddddd_1x100.png) 50% 50% repeat-x; color: #444444; font-weight: bold; }
+.ui-widget-header a { color: #444444; }
+
+/* Autocomplete
+----------------------------------*/
+.ui-autocomplete { position: absolute; cursor: default; }
+.ui-autocomplete-loading { background: white url('../img/spinner.gif') right center no-repeat !important;}
+
+
+.resource-value {
+    width: 100%;
+}
+
+.resource-edit-input {
+    padding-right: 18px !important;
+    width: 100%;
+    box-sizing: border-box;         /* CSS3, Opera */
+    -moz-box-sizing: border-box;    /* Firefox */
+    -webkit-box-sizing: border-box; /* Safari, Chrome */
+}
+
+.resource-autocomplete-uri {
+    background: white url('../img/uri.png') right center no-repeat !important;
+}
+
+.resource-autocomplete-uri-name {
+    background: white url('../img/uri_name.png') right center no-repeat !important;
+}
+
+/* workarounds */
+* html .ui-autocomplete { width:1px; } /* without this, the menu expands to 100% in IE6 */
+
+li.ui-menu-item {
+    padding: 0;
+    overflow: hidden;
+}
+
+li.ui-menu-item a.resource-edit-item {
+    margin: 0 !important;
+    margin-top: 0.2em !important;
+    padding: 0.2em;
+}
+
+li.ui-menu-item:first-child a.resource-edit-item {
+    margin-top: 0 !important;
+}
+
+li.ui-menu-item a.resource-edit-item .resource-edit-source {
+    float: right;
+    margin-top: 0.3em;
+    font-size: 0.7em;
+    color: #888
+}
+
+li.ui-menu-item a.resource-edit-item .resource-edit-label {
+    margin: 0;
+    padding: 0.1em;
+    display: block;
+    font-size: 0.8em;
+    overflow: hidden
+}
+
+li.ui-menu-item a.resource-edit-item .resource-edit-uri {
+    margin: 0;
+    padding: 0.1em;
+    display: block;
+    font-size: 0.7em;
+    color: #888;
+    font-family: monospace;
+}
+
+li.ui-menu-item a.ui-state-hover {
+    background-color: transparent !important;
+    border: 1px solid #0073ea !important;
+}
+
+li.ui-menu-item a.ui-state-hover .resource-edit-source,
+li.ui-menu-item a.ui-state-hover .resource-edit-uri {
+    color: #fff;
+}
+
+li.ui-menu-item * em {
+    font-weight: bold;
+    font-style: normal;
+}

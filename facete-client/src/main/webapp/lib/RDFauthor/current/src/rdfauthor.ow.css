@@ -1,0 +1,967 @@
+/* Will be loaded when rdfauthor is running without ontowiki */
+
+/* -- 1.2. Windows ---------------------------------------------------------- */
+
+div.window {
+    font-size: 0.8em;
+    font-weight: 500;
+    color: #333;
+    background-color: #f3f3f3;
+    margin: 1em 0.5em;
+    position: relative;
+    border: solid 1px #666;
+    width: auto;
+/*    overflow: hidden;*/ /* this is now set on the window content instead */
+}
+
+div.window .title {
+    font-size: 1em;
+    font-weight: 900;
+    color: #fff;
+    border-bottom: solid 1px #666;
+    padding: 0.3em 0.5em 0.2em 0.5em !important;
+    margin: 0 !important;
+    line-height: 1;
+    background: url(../img/ow/layout-windowtitle-gradient.png) repeat-x center #999;
+}
+
+div.window .title a {
+    color: #fff;
+    text-decoration: none;
+}
+
+div.window .title a:focus, div.window .title a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* ------ 1.2.1. Drop down menu --------------------------------------------- */
+
+/* see clickmenu.css */
+
+/* ------ 1.2.2. Context Menu ----------------------------------------------- */
+
+div.window .contextmenu {
+    background-color: transparent;
+    border-top: solid 1px #000;
+}
+
+.contextmenu {
+    background-color: #efefef;
+    padding: 1px;
+}
+
+.contextmenu ul, .contextmenu ol {
+    list-style: none;
+    margin-top: 0;
+    padding-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.contextmenu > ul, .contextmenu > ol {
+    margin-left: 0;
+}
+
+.contextmenu ul a, .contextmenu ol a, .contextmenu ul span, .contextmenu ol span {
+    border: solid 1px transparent;
+    display: block;
+    color: #000;
+    padding: 0 0.5em;
+}
+
+.contextmenu ul a:hover, .contextmenu ol a:hover, .contextmenu ul span:hover, .contextmenu ol span:hover {
+    border-color: #cdd7dd;
+    background: url(./../img/ow/layout-button-menu-hover-gradient.png) repeat-x bottom center #eff9ff;
+}
+
+hr.menusep, .contextmenu hr {
+    border-top: solid 1px #ccc;
+    border-bottom: solid 1px #fff;
+    border-left-style: none;
+    border-right-style: none;
+    margin: 0.25em 0.5em
+}
+
+/* ------ 1.2.3. Window Tabs ------------------------------------------------ */
+
+div.window .tabs {
+    margin-top: 0.5em;
+    list-style: none;
+    margin-left: 0;
+    padding: 0 0.5em;
+}
+
+div.window .tabs li {
+    float: left;
+    white-space: nowrap;
+}
+
+div.window .tabs li a {
+    display: block;
+    position: relative;
+    top: 0.1em;
+    border-color: #999;
+    border-bottom-color: #666;
+    border-width: 1px 1px 0.1em 1px;
+    border-style: solid;
+    border-left-style: none;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    color: #333;
+    background: url(./../img/ow/layout-tab-gradient.png) repeat-x bottom center #dfdfdf;
+}
+
+div.window .tabs li:first-child a {
+    border-left-style: solid;
+}
+
+div.window .tabs li a:focus, div.window .tabs li a:hover {
+    background-color: #eff9ff;
+/*    text-decoration: underline;*/
+}
+
+div.window .tabs li.active a {
+    border-color: #666;
+    border-bottom: none;
+    padding-bottom: 0.6em;
+    background: url(./../img/ow/layout-tabactive-gradient.png) repeat-x top center #f2f2f2;
+    z-index: 1;
+    color: #333;
+    font-weight: bold;
+}
+
+/* ------ 1.2.4. Window Content --------------------------------------------- */
+
+div.window .slidehelper {
+    overflow: hidden;
+}
+
+div.window .content {
+    padding: 0.25em 0.5em;
+    width: auto;
+    border: solid 1px transparent;
+    border-top-style: none;
+    overflow: auto;
+    color: #333;
+    clear: both;
+    background: url(../img/ow/layout-window-gradient.png) repeat-x top center #fff;
+}
+
+div.tabbed > .slidehelper > .content {
+    border-top: solid 1px #666;
+}
+
+body.javascript-off div.window div.window-buttons {
+    display: none;
+}
+
+div.window span.resizer-vertical {
+    display: none;
+}
+
+/* -------- 1.2.4.1. Inner Window in content -------------------------------- */
+
+div.window div.has-innerwindows div.innercontent { /* content contains inner windows */
+    width: 70%;
+    padding-top: 1em;
+    float: left;
+    overflow: auto;
+}
+
+div.window .content div.innerwindows {
+    width: 29%;
+    float: right;
+    position: relative;
+}
+
+div.window .content .innerwindows .window {
+    border-color: #ccc;
+    font-size: 1em;
+    min-height: auto;
+}
+
+div.window .content .innerwindows .window .title {
+    background-color: #ddd;
+    color: #000;
+    border-color: #ccc;
+    font-weight: normal;
+}
+
+/* -- 1.2.5. Versatile windows and popups ----------------------------------- */
+
+/**
+ * Versatile windows and popups
+ *
+ * @since 0.9.5
+ *
+ * @option .shadowed versatile window get a shadow in the back
+ * @option .centered versatile window will be shown appr. centered
+ *
+ * <div class="overlay"></div> <!-- optional -->
+ * <div class="versatile shadowed centered">
+ *     ###CONTENT###
+ * </div>
+ *
+ * use inline styles for height/width (and negative margins for centered option)
+ * on the div.versatile
+ *
+ */
+ 
+/* option- overlay background to prevent interaction with other elements from behind */
+
+div.overlay
+{
+    position:absolute;
+    z-index:999;
+    height:100%; width:100%;
+    top:0; left:0;
+    background-color:#fff;
+    opacity:0.5;
+}
+
+/* versatile window */
+
+div.versatile
+{
+    position:absolute;
+    width:20em;
+    z-index:1000;
+}
+
+/* shadow option */
+
+div.versatile.shadowed
+{
+    padding:10px;
+    background:rgba(204, 204, 204, 0.5); /* #ccc */
+    border-radius:10px;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+}
+
+div.versatile.shadowed > *
+{
+    margin:0 !important;
+}
+
+/* do not use .shadow element, I just let it here as workaround idea for the IE */
+div.versatile.shadowed > .shadow
+{
+    display:block;
+    position:absolute; top:0; left:0; 
+    width:100%; height:100%;
+    background-color:#ccc;
+    opacity:0.5;
+    border-radius:10px;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+}
+
+/* center option */
+
+div.versatile.centered
+{
+    top:25%;
+    left:50%; margin-left:-10em;
+}
+
+/* -- 1.3. Generic layout helper -------------------------------------------- */
+
+.width25 { width: 25%; }
+
+.width33 { width: 33.3%; }
+
+.width50 { width: 50%; }
+
+.width67 { width: 66.6%; }
+
+.width75 { width: 75%; }
+
+.width90 { width: 90% !important; }
+
+.width95 { width: 95% !important; }
+
+.width98 { width: 98% !important; }
+
+.width99 { width: 99% !important; }
+
+.width100 { width: 100% !important; }
+
+.width-auto { width: auto !important; }
+
+.width25.float-left  { width: 24%; padding-right: 1%; }
+
+.width25.float-right { width: 24%; padding-left: 1%; }
+
+.width33.float-left  { width: 32.3%; padding-right: 1%; }
+
+.width33.float-right { width: 32.3%; padding-left: 1%; }
+
+.width50.float-left  { width: 49%; padding-right: 1%; }
+
+.width50.float-right { width: 49%; padding-left: 1%; }
+
+.width67.float-left  { width: 66.6%; padding-right: 1%; }
+
+.width67.float-right { width: 65.6%; padding-left: 1%; }
+
+.width75.float-left  { width: 74%; padding-right: 1%; }
+
+.width75.float-right { width: 74%; padding-left: 1%; }
+
+.float-left { float: left; clear: none !important; overflow: hidden;}
+
+.float-right { float: right; clear: none !important; overflow: hidden; }
+
+/* ---- 1.3.2. Message boxes ------------------------------------------------ */
+
+.messagebox {
+    width: auto;
+    border: solid 1px #eee;
+    background-color: #f6f6f6;
+    padding: 0.5em;
+    margin-bottom: 0.75em;
+    overflow: hidden;
+    display: block;
+    float: none;
+    clear: both;
+}
+
+
+
+.info {
+    border-color: #eee;
+    background-color: #f9f9f9;
+    padding-left: 26px;
+    background: url(./../img/ow/icon-info.png) no-repeat 5px 0.6em #f9f9f9;
+}
+
+.search {
+    border-color: #eee;
+    background-color: #f9f9f9;
+    padding-left: 26px;
+    background: url(./../img/ow/icon-search.png) no-repeat 5px 0.6em #f9f9f9;
+}
+
+.warning {
+    background-color: #ffb;
+    border-color: #eea;
+    color: #000;
+    padding-left: 26px;
+    background: url(./../img/ow/icon-warning.png) no-repeat 5px 0.6em #ffb;
+}
+
+.error {
+    border-color: #eaa;
+    background-color: #fbb;
+    color: #000;
+    padding-left: 26px;
+    background: url(./../img/ow/icon-error.png) no-repeat 5px 0.6em #fbb;
+}
+
+.success {
+    border-color: #aea;
+    background-color: #bfb;
+    color: #000;
+    padding-left: 26px;
+    background: url(./../img/ow/icon-success.png) no-repeat 5px 0.6em #bfb;
+}
+
+.feed {
+    color: #000;
+    padding-left: 26px;
+    background: url(./../img/ow/icon-feed.png) no-repeat 5px 0.6em #f6f6f6;
+}
+
+.content .feed h2 {margin-top: 0;}
+
+/* ------ 1.3.2.1. Status  bar ---------------------------------------------- */
+
+.messagebox .statustool {
+    float: left;
+    margin-left: 2em;
+}
+
+.messagebox .statustool ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.messagebox .statustool ul li {
+    float: left;
+}
+
+.statusbar {
+    margin-bottom: 0;
+}
+
+.toolbar {
+    float: right;
+    font-size: 0.9em;
+}
+
+
+/* 2. Typography ------------------------------------------------------------ */
+
+/* -- 2.1. Headings --------------------------------------------------------- */
+
+.content h1, .content h2, .content h3, .content h4, .content legend {
+    color: #000;
+    padding-left: 0;
+    margin-left: 0;
+    padding-right: 1em;
+    font-weight: normal;
+}
+
+.content h1 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.5em;
+}
+
+.content h2, .content fieldset legend {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.5em;
+}
+
+.content h3, .content fieldset fieldset legend {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    font-size: 1.25em;
+}
+
+.content h4, .content fieldset fieldset fieldset legend {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* -- 2.2. Lists ------------------------------------------------------------ */
+
+ul, ol {
+    list-style-position: outside;
+    /* margin-left: 1em; */
+}
+
+ul ol, ol ul, ul ul, ol ol {
+    list-style-position: inside;
+    /* margin-left: 1em !important; cannot see any sense for this anymore (mh) */
+}
+
+/* ---- 2.2.1. Bullets and Numbers ------------------------------------------ */
+
+.bullets-none {
+    list-style-type: none;
+    margin-left: 0;
+}
+
+.bullets-disc {
+    list-style-type: disc;
+}
+
+.bullets-square {
+    list-style-type: square;
+}
+
+.bullets-decimal {
+    list-style-type: decimal;
+}
+
+/* ---- 2.2.2. Horizontal/Inline lists -------------------------------------- */
+
+/**
+ * Inline lists (items aligned horizontally inline)
+ * @deprecated 0.9.5
+ *
+ * - Usage: <ul class="inline">[...]</ul>
+ */
+ul.inline, ol.inline
+{
+    list-style:none;
+    margin-left:0;
+}
+
+ul.inline li, ol.inline li
+{
+    display:inline-block;
+    margin-right:1em;
+}
+
+
+/* ---- 2.2.3. Separations -------------------------------------------------- */
+
+/**
+ * Vertically separated lists -- old solution
+ * @deprecated 0.9.5
+ *
+ * - please use just <ul class="separated">...</ul>
+ */
+ul.separated-vertical > li,
+ol.separated-vertical > li {
+    padding: 0.1em 0;
+    border-top: dotted 1px #ccc;
+}
+ul.separated-vertical > li:first-child,
+ol.separated-vertical > li:first-child {
+    border-top: none;
+}
+/* for nested lists we want a upper border */
+ul.separated-vertical > li:first-child ol.separated-vertical > li:first-child, 
+ol.separated-vertical > li:first-child ul.separated-vertical > li:first-child, 
+ul.separated-vertical > li:first-child ul.separated-vertical > li:first-child, 
+ol.separated-vertical > li:first-child ol.separated-vertical > li:first-child {
+    border-top: dotted 1px #ccc;
+}
+
+/**
+ * Vertically separated lists
+ * @since 0.9.5
+ *
+ * - usage: <ul class="separated">...</ul>
+ */
+ul.separated > li,
+ol.separated > li {
+    padding: 0.1em 0;
+    border-top: dotted 1px #ccc;
+}
+ul.separated > li:first-child,
+ol.separated > li:first-child {
+    border-top: none;
+}
+/* for nested lists we want a upper border */
+ul.separated > li:first-child ol.separated > li:first-child, 
+ol.separated > li:first-child ul.separated > li:first-child, 
+ul.separated > li:first-child ul.separated > li:first-child, 
+ol.separated > li:first-child ol.separated > li:first-child {
+    border-top: dotted 1px #ccc;
+}
+
+/**
+ * Horizontally separated lists -- old solution
+ * @deprecated 0.9.5
+ *
+ * - please use just <ul class="inline separated">...</ul> or
+ *   <ul class="inline">...</ul> for horizontal/inline lists without separation
+ *   between items
+ */
+ul.separated-horizontal > li,
+ol.separated-horizontal > li {
+    display: inline-block;
+    padding-right:0.5em;
+    border-right: dotted 1px #ccc;
+}
+
+ul.separated-horizontal > li.last-child,
+ol.separated-horizontal > li.last-child
+{
+	border-right: none;
+}
+
+
+/**
+ * Horizontally separated lists
+ * @since 0.9.5
+ *
+ * - Usage: <ul class="inline separated">...</ul>
+ */
+ul.inline.separated li, ol.inline.separated li
+{
+    display:inline-block;
+    margin:0;
+    padding:0;
+    border-top:none !important;
+}
+ul.inline.separated li:after, ol.inline.separated li:after
+{
+    content:" • ";
+    color:#ccc;
+}
+ul.inline.separated li:last-child:after, ol.inline.separated li:last-child:after,
+ul.inline.separated li.last-child:after, ol.inline.separated li.last-child:after
+{
+    content:"" !important;
+}
+
+/**
+ * Horizontally comma-separated lists
+ * @since 0.9.5
+ *
+ * - Usage: <ul class="inline separated comma">...</ul>
+ */
+ul.inline.separated.comma li:after, ol.inline.separated.comma li:after
+{
+    content:", ";
+    color:#333;
+}
+
+/* -- 2.3. Standard margins and paddings ------------------------------------ */
+
+.display-block,
+p {
+
+    display: block;
+    width: auto;
+    margin-bottom: 0.5em;
+}   
+
+/* -- 2.4. Images ----------------------------------------------------------- */
+
+img {
+    border: none;
+    vertical-align: middle;
+}
+
+img.object {
+    max-width: 10em;
+}
+
+table img {
+    vertical-align: top;
+}
+
+img.boxed {border: solid 1px #333;}
+
+img.clickicon, a.clickicon img {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    vertical-align: middle;
+    min-height: 1em;
+    max-height: 1.2em;
+}
+
+/* -- 2.4.1. Icons ---------------------------------------------------------- */
+
+/**
+ * Icon
+ * should be work with most inline and block elements
+ *
+ * @since 0.9.5
+ *
+ * <span class="icon icon-####"></span> Text
+ * <a class="icon icon-####" title="Actionname"><span>Actionname</span></a>
+ */
+
+.icon
+{
+    display:inline-block;
+    line-height:1;
+    padding:0; margin:0;
+    font-size:16px !important; /* as long we cannot use svg */
+    height:1em;
+    width:1em;
+    vertical-align:middle;
+    background-color:transparent;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-image:url(./../img/ow/icons/icon-not-available.png);
+}
+
+.icon span
+{
+    position:absolute;
+    left:-5000em;
+}
+
+.icon-cancel { background-image:url(./../img/ow/icons/cancel.png); }
+.icon-close  { background-image:url(./../img/ow/icons/close.png); }
+.icon-delete { background-image:url(./../img/ow/icons/delete.png); }
+.icon-edit   { background-image:url(./../img/ow/icons/edit.png); }
+.icon-list   { background-image:url(./../img/ow/icons/list.png); }
+.icon-save   { background-image:url(./../img/ow/icons/save.png); }
+.icon-copy   { background-image:url(./../img/ow/icons/copy.png); }
+.icon-add    { background-image:url(./../img/ow/icons/add.png); }
+.icon-accept { background-image:url(./../img/ow/icon-add-grey.png); }
+.icon-ignore { background-image:url(./../img/ow/icons/close.png); }
+
+.icon-arrow-first    { background-image:url(./../img/ow/icons/arrow-first.png); }
+.icon-arrow-last     { background-image:url(./../img/ow/icons/arrow-last.png); }
+.icon-arrow-next     { background-image:url(./../img/ow/icons/arrow-next.png); }
+.icon-arrow-previous { background-image:url(./../img/ow/icons/arrow-previous.png); }
+.icon-arrow-top      { background-image:url(./../img/ow/icons/arrow-top.png); }
+.icon-arrow-up       { background-image:url(./../img/ow/icons/arrow-up.png); }
+.icon-arrow-down     { background-image:url(./../img/ow/icons/arrow-down.png); }
+.icon-arrow-bottom   { background-image:url(./../img/ow/icons/arrow-bottom.png); }
+
+.icon-toggle-on   { background-image:url(./../img/ow/icons/toggle-on.png); }
+.icon-toggle-off  { background-image:url(./../img/ow/icons/toggle-off.png); }
+
+/* -- 2.5. Links ------------------------------------------------------------ */
+
+a {
+    color: #07c;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:focus, a:hover {
+    color: #07f;
+    text-decoration: underline;
+}
+
+a img.boxed { border-color: #07c; }
+
+a:focus img.boxed, a:hover img.boxed { border-color: #07f; }
+
+a.clickicon img, a img.clickicon {
+    opacity: 0.6;
+}
+
+a.clickicon:focus img, a:focus img.clickicon, a.clickicon:hover img, a:hover img.clickicon {
+    opacity: 1;
+}
+
+a.externalLink {
+    background: url(./../img/ow/icon-ext-link.png) no-repeat scroll right center transparent;
+    padding: 10px 10px 0 0;
+}
+
+/* -- 3.2. Input fields ----------------------------------------------------- */
+
+input.text,
+input.password,
+input.checkbox,
+input.radio,
+textarea {
+
+    display: inline-block;
+    border-left-color: #888;
+    border-top-color: #888;
+    border-right-color: #ddd;
+    border-bottom-color: #ddd;
+    border-style: solid;
+    border-width: 1px;
+    margin: 0;
+    vertical-align: baseline;
+    line-height: 1;
+    padding: 2px;
+    font-family: sans-serif;
+    font-size: 1.1em;
+    font-weight: normal;
+    color: #333;
+    background: url(./../img/ow/layout-button-menu-hover-gradient.png) repeat-x bottom center #f6f6f6;
+}
+
+/* 6. Etcetera -------------------------------------------------------------- */
+
+.hide {display: none !important;}
+
+.onlyAural {position: absolute !important; left: -5000em !important;}
+
+.clearall {
+    float: none;
+    clear: both;
+    border-style: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 0.1%;
+    line-height: 0.1;
+    overflow: inherit !important;
+}
+
+.clearfloat {
+    float: none;
+    clear: both;
+}
+
+.ui-draggable { position:relative; z-index:998; }
+
+/* ---- 4.1.4. Context Menu ------------------------------------------------- */
+
+body.javascript-on div.window-buttons {
+    display: block;
+    position: static;
+}
+
+body.javascript-on div.window-buttons div.window-buttons-left {
+    position: absolute;
+    left: 0.25em;
+    top: 0.25em;
+}
+
+body.javascript-on div.window-buttons div.window-buttons-right {
+    position: absolute;
+    right: 0.25em;
+    top: 0.25em;
+}
+
+body.javascript-on div.window-buttons div.window-buttons-left .button {
+    float: left;
+}
+
+body.javascript-on div.window-buttons div.window-buttons-right .button {
+    float: right;
+}
+
+/*  div.windowbuttonscount-left|right-x : 
+    x - number of buttons which are left or right in window title
+*/
+body.javascript-on div.windowbuttonscount-left-1 .title {
+    padding-left: 1.5em !important;
+}
+
+body.javascript-on  div.windowbuttonscount-left-1 div.window-buttons-left {
+    width: 1em !important;
+}
+
+body.javascript-on div.windowbuttonscount-left-2 .title {
+    padding-left: 2.5em !important;
+}
+
+body.javascript-on  div.windowbuttonscount-left-2 div.window-buttons-left {
+    width: 2em !important;
+}
+
+body.javascript-on div.windowbuttonscount-left-3 .title {
+    padding-left: 3.5em !important;
+}
+
+body.javascript-on  div.windowbuttonscount-left-3 div.window-buttons-left {
+    width: 3em !important;
+}
+
+body.javascript-on div.windowbuttonscount-right-1 .title {
+    padding-right: 1.5em !important;
+}
+
+body.javascript-on  div.windowbuttonscount-right-1 div.window-buttons-right {
+    width: 1em !important;
+}
+
+body.javascript-on div.windowbuttonscount-right-2 .title {
+    padding-right: 2.5em !important;
+}
+
+body.javascript-on  div.windowbuttonscount-right-2 div.window-buttons-right {
+    width: 2em !important;
+}
+
+body.javascript-on div.windowbuttonscount-right-3 .title {
+    padding-right: 3.5em !important;
+}
+
+body.javascript-on  div.windowbuttonscount-right-3 div.window-buttons-right {
+    width: 3em !important;
+}
+
+body.javascript-on div.window-buttons .button, div.contextmenu-enhanced .button {
+    font-size: 1em;
+    display: block;
+    position: static;
+    height: 0.9em;
+    width: 0.9em;
+    background-color: transparent;
+    border: solid 1px transparent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+body.javascript-on div.window-buttons .button-contextmenu {
+    background: url(./../img/ow/button-contextmenu.png) no-repeat center transparent;
+}
+
+body.javascript-on div.window-buttons .button-windowrestore {
+    background: url(./../img/ow/button-windowrestore.png) no-repeat center transparent;
+}
+
+body.javascript-on div.window-buttons .button-windowminimize {
+    background: url(./../img/ow/button-windowminimize.png) no-repeat center transparent;
+}
+
+body.javascript-on div.window-buttons .button-windowclose {
+    background: url(./../img/ow/button-windowclose.png) no-repeat center transparent;
+}
+
+body.javascript-on div.window-buttons .button:hover, div.contextmenu-enhanced .button:hover {
+    border-color: #fff;
+}
+
+/* -- 4.2. Context Enabled Elements ----------------------------------------- */
+
+.has-contextmenus-block a {
+    display: block;
+    position: relative;
+    /*border: solid 1px transparent;*/
+}
+
+.has-contextmenus-block a span.button {
+
+    line-height:1;
+    display: block;
+    position: absolute;
+    right: 5000em;
+    top: 0;
+    height: 100%;
+    width: 1.5em;
+    background: url(./../img/ow/icons/context.png) no-repeat center #666;
+    margin: 0;
+    padding: 0;
+    border-style: none;
+    /*border-left: solid 1px #999;*/
+    border-radius:0.25em;
+    -moz-border-radius:0.25em;
+    -webkit-border-radius:0.25em;
+    opacity:0.5;
+}
+
+.has-contextmenus-block a.Resource:hover,
+.has-contextmenus-block a.Resource:focus {
+    /*border-color: #999;*/
+    background-color:#EFF9FF;
+}
+
+.has-contextmenus-block a.Resource:hover span.button,
+.has-contextmenus-block a.Resource:focus span.button,
+.has-contextmenus-block a.Resource:active span.button {
+    right: 0;
+}
+
+.has-contextmenus-block span.button:hover
+{
+    opacity:1;
+}
+
+/* -- 4.2.1 Inline Context Menus ---------------------------------------------- */
+
+a.hasMenu {
+    position: relative;
+    /*white-space:nowrap;*/
+}
+
+a.hasMenu span.toggle {
+    line-height:1;
+    display: block;
+    position: absolute;
+    height: 0;
+    width: 0;
+    /* border: solid 1px #999; */
+    right: -0.625em;
+    top: 0;
+    /*background: url(./../images/icons/context.png) no-repeat center rgba(85, 85, 85, 0.5);*/
+    background: url(./../img/ow/icons/context.png) no-repeat center #999;
+    background-color:rgba(85, 85, 85, 0.5);
+    opacity:0.75;
+    border-radius:0.2em;
+    -moz-border-radius:0.2em;
+    -webkit-border-radius:0.2em;
+}
+
+a.hasMenu span.toggle:hover {
+    opacity:1;
+    background-color:#555;
+}
+
+a.hasMenu:hover span.toggle {
+    display: block;
+    height: 100%;
+    width: 1.25em;
+    min-height:16px; min-width:16px; /* as long as we cannot use svg */
+}
+

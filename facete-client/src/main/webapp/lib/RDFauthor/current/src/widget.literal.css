@@ -1,0 +1,15 @@
+.literal-value-short textarea {
+    height: 1.3em;
+    padding-top: 0.2em;
+    width: 50%;
+    resize: none;
+}
+
+.literal-value-medium textarea,
+.literal-value-large textarea {
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;         /* CSS3, Opera */
+    -moz-box-sizing: border-box;    /* Firefox */
+    -webkit-box-sizing: border-box; /* Safari, Chrome */
+}

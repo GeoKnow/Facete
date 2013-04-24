@@ -1,0 +1,471 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:update="http://ns.aksw.org/update/">
+<head>
+<title>OntoWiki — Properties of Socrates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="OntoWiki — Collaborative Knowledge Engineering" />
+<link about="" rel="update:defaultGraph" href="http://localhost/OntoWiki/phil/" />
+<link about="http://localhost/OntoWiki/phil/" rel="update:updateEndpoint" href="http://localhost/OntoWiki/update/" />
+<link about="http://localhost/OntoWiki/phil/" rel="update:queryEndpoint" href="http://localhost/OntoWiki/sparql/" />
+<link about="" rel="update:sourceGraph" href="http://localhost/OntoWiki/phil/" />
+<link about="http://localhost/OntoWiki/phil/" rel="update:updateEndpoint" href="http://localhost/OntoWiki/update/" />
+<link about="http://localhost/OntoWiki/phil/" rel="update:queryEndpoint" href="http://localhost/OntoWiki/sparql/" />
+<!-- jQuery -->
+<script type="text/javascript" src="../../libraries/jquery.js"></script>
+<script type="text/javascript" src="../../libraries/jquery-ui.js"></script>
+<link rel="stylesheet" href="../../libraries/jquery-ui.css" type="text/css" media="screen" />
+<script type="text/javascript">
+//<![CDATA[
+var urlBase = "http://localhost/";
+var themeUrlBase = "http://localhost/OntoWiki/extensions/themes/silverblue/";
+var _OWSESSION = "ONTOWIKIkdj249rz982";
+var widgetBase = "http://localhost/OntoWiki/libraries/RDFauthor/";
+var defaultGraph = "http://localhost/OntoWiki/phil/";
+var defaultResource = "http://localhost/OntoWiki/phil/Socrates";
+//]]>
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#rdfauthor-view')
+            .draggable({handle: 'h2', zIndex: 10000})
+            .resizable({
+                // alsoResize: '.subject-group', 
+                minWidth: jQuery('#rdfauthor-buttons').outerWidth(), 
+                minHeight: Math.min(jQuery('#rdfauthor-view').outerHeight(), 100), 
+                stop: function (event, ui) {
+                    var vChange   = ui.size.height - ui.originalSize.height;
+                    var height    = jQuery('#rdfauthor-view .rdfauthor-view-content')
+                                        .css('max-height')
+                                        .replace('px', '');
+                    var newHeight = Number(height) + vChange;
+                    jQuery('#rdfauthor-view .rdfauthor-view-content').css('max-height', newHeight + 'px');
+                }
+            });
+        
+        $('.subject-group-select').click(function() {
+            var subjectGroupID = $(this).attr('id').replace(/-select/, '');
+            $('.subject-group-selected').removeClass('subject-group-selected').addClass('subject-group');
+            $('.tabs li a').removeClass('selected');
+          
+            $(this).addClass('selected');//.removeAttr('title');
+            // $(this).attr('title', 'Show properties for ' + $(this).html());
+          
+            $('#' + subjectGroupID).removeClass('subject-group').addClass('subject-group-selected');
+        })
+    });
+</script>
+<script type="text/javascript">
+    // var rowPosition = $('#rdfauthor-predicate-row-0').position();
+    // var rowRight = rowPosition.left + $('#rdfauthor-predicate-row-0').width();
+
+    // $('#widget-override-125').css('top', (rowPosition.top + 2) + 'px');
+    // $('#widget-override-125').css('right', 5 + 'em');
+</script>
+<link rel="stylesheet" href="../../src/rdfauthor.css" type="text/css" media="screen" />
+</head>
+    
+<body class="javascript-off">
+    <div style="top: 24px; left: 323px; z-index: 1000;" id="rdfauthor-view" class="window ui-draggable ui-resizable">
+        <h2 class="title">Properties of Platon</h2>
+        <div class="tabs">
+            <ul>
+                <li><a class="subject-group-select selected" id="subject-group-select-0">Resource 1</a></li><li><a class="subject-group-select" id="subject-group-select-1">Resource 2</a></li>
+            </ul>
+        </div>
+        <div class="rdfauthor-view-content">
+        <div class="rdfauthor-subject-group" id="subject-group-0">
+            <div id="rdfauthor-predicate-row-0" class="rdfauthor-predicate-row" style="">
+                <fieldset>
+                    <legend>label</legend>
+                    <div id="widget-125" class="widget">
+                        <div class="container actions right">
+                            <a title="Remove widget and data." class="delete-button"></a>
+                            <a title="Add another widget of the same type." class="add-button"></a>
+                        </div>
+                        <div class="container actions right">
+                            <div class="widget-override" id="widget-override-125" style="display:block">
+                                <!--label for="widget-override-125"-->
+                                    <select name="widget-override-125" title="Override widget selection">
+                                    <option selected="selected">Literal</option>
+                                    <option><img src="file:///Users/norman/Projects/Web/ontowiki/libraries/RDFauthor/img/disclosure-indicator-horizontal.png"/>Resource</option>
+                                    <option>Date</option>
+                                    </select>
+                                <!--/label-->
+                            </div>
+                        </div>
+                        <div class="widget-container" style="width:75%">
+                            <div class="container literal-value" style="width:50%">
+                                <textarea id="literal-value-123" style="width:100%; height: 1.3em; padding-top: 0.2em; overflow-y: hidden;" cols="20" rows="1">Plato</textarea>
+                            </div>
+                        </div>
+                        <div class="container util">
+                            <a title="Toggle details disclosure" id="124" class="disclosure-button disclosure-button-horizontal open" name="124"></a>
+                        </div>
+                        <div style="display: none;" class="container literal-type util 124">
+                            <label><input type="radio" value="plain" checked="checked" name="literal-type-123" class="radio" />Plain</label> <label><input type="radio" value="typed" name="literal-type-123" class="radio" />Typed</label>
+                        </div>
+                        <div style="display: none;" class="container util 124">
+                            <div class="literal-lang">
+                                <label for="literal-lang-123">Language: <select name="literal-lang-123" id="literal-lang-123">
+                                    <option value="">
+                                        [none]
+                                    </option>
+                                    <option value="de">
+                                        de
+                                    </option>
+                                    <option selected="selected" value="en">
+                                        en
+                                    </option>
+                                    <option value="fr">
+                                        fr
+                                    </option>
+                                    <option value="nl">
+                                        nl
+                                    </option>
+                                    <option value="es">
+                                        es
+                                    </option>
+                                    <option value="it">
+                                        it
+                                    </option>
+                                    <option value="cn">
+                                        cn
+                                    </option>
+                                </select></label>
+                            </div>
+                            <div style="display: none;" class="literal-datatype">
+                                <label>Datatype: <select name="literal-datatype-123" id="literal-datatype-123">
+                                    <option value="http://www.w3.org/2001/XMLSchema#string">
+                                        xsd:string
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#boolean">
+                                        xsd:boolean
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#decimal">
+                                        xsd:decimal
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#integer">
+                                        xsd:integer
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#int">
+                                        xsd:int
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#float">
+                                        xsd:float
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#double">
+                                        xsd:double
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#duration">
+                                        xsd:duration
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#dateTime">
+                                        xsd:dateTime
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#date">
+                                        xsd:date
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#gMonthDay">
+                                        xsd:gMonthDay
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#anyURI">
+                                        xsd:anyURI
+                                    </option>
+                                    <option value="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">
+                                        rdf:XMLLiteral
+                                    </option>
+                                    <option value="http://ns.aksw.org/Test/mySuperInteger">
+                                        http://ns.aksw.org/Test/mySuperInteger
+                                    </option>
+                                </select></label>
+                            </div>
+                        </div>
+                        <hr style="border: medium none ; clear: both; height: 0pt;" />
+                    </div>
+                </fieldset>
+            </div>
+            <div id="rdfauthor-predicate-row-1" class="rdfauthor-predicate-row" style="">
+                <fieldset>
+                    <legend>dc:title</legend>
+                    <div id="widget-128" class="widget">
+                        <div class="container actions right">
+                            <a title="Remove widget and data." class="delete-button"></a><a title="Add another widget of the same type." class="add-button"></a>
+                        </div>
+                        <div class="widget-container" style="width:75%">
+                            <div class="container literal-value" style="width:50%">
+                                <textarea id="literal-value-126" style="width:100%; height: 1.3em; padding-top: 0.2em; overflow-y: hidden;" cols="20" rows="1">Platon</textarea>
+                            </div>
+                        </div>
+                        <div class="container actions right">
+                            <div class="widget-override" id="widget-override-125" style="display:block">
+                                <!--label for="widget-override-125"-->
+                                    <select name="widget-override-125" title="Override widget selection">
+                                    <option selected="selected">Literal</option>
+                                    <option>Resource</option>
+                                    <option>Date</option>
+                                    </select>
+                                <!--/label-->
+                            </div>
+                        </div>
+                        <div class="container util">
+                            <a title="Toggle details disclosure" id="127" class="disclosure-button disclosure-button-horizontal open" name="127"></a>
+                        </div>
+                        <div style="display: none;" class="container literal-type util 127">
+                            <label><input type="radio" value="plain" name="literal-type-126" class="radio" />Plain</label> <label><input type="radio" value="typed" checked="checked" name="literal-type-126" class="radio" />Typed</label>
+                        </div>
+                        <div style="display: none;" class="container util 127">
+                            <div style="display: none;" class="literal-lang">
+                                <label for="literal-lang-126">Language: <select name="literal-lang-126" id="literal-lang-126">
+                                    <option selected="selected" value="">
+                                        [none]
+                                    </option>
+                                    <option value="de">
+                                        de
+                                    </option>
+                                    <option value="en">
+                                        en
+                                    </option>
+                                    <option value="fr">
+                                        fr
+                                    </option>
+                                    <option value="nl">
+                                        nl
+                                    </option>
+                                    <option value="es">
+                                        es
+                                    </option>
+                                    <option value="it">
+                                        it
+                                    </option>
+                                    <option value="cn">
+                                        cn
+                                    </option>
+                                </select></label>
+                            </div>
+                            <div class="literal-datatype">
+                                <label>Datatype: <select name="literal-datatype-126" id="literal-datatype-126">
+                                    <option selected="selected" value="http://www.w3.org/2001/XMLSchema#string">
+                                        xsd:string
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#boolean">
+                                        xsd:boolean
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#decimal">
+                                        xsd:decimal
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#integer">
+                                        xsd:integer
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#int">
+                                        xsd:int
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#float">
+                                        xsd:float
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#double">
+                                        xsd:double
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#duration">
+                                        xsd:duration
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#dateTime">
+                                        xsd:dateTime
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#date">
+                                        xsd:date
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#gMonthDay">
+                                        xsd:gMonthDay
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#anyURI">
+                                        xsd:anyURI
+                                    </option>
+                                    <option value="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">
+                                        rdf:XMLLiteral
+                                    </option>
+                                    <option value="http://ns.aksw.org/Test/mySuperInteger">
+                                        http://ns.aksw.org/Test/mySuperInteger
+                                    </option>
+                                </select></label>
+                            </div>
+                        </div>
+                        <hr style="border: medium none ; clear: both; height: 0pt;" />
+                    </div>
+                </fieldset>
+            </div>
+        </div><!-- subject group 0 -->
+        
+        <div class="rtdfauthor-subject-group" id="subject-group-1">
+            <div id="rdfauthor-predicate-row-2" class="rdfauthor-predicate-row" style="">
+                <fieldset>
+                    <legend>was taught by</legend>
+                    <div id="widget-130" class="widget">
+                        <div class="container actions right">
+                            <a title="Remove widget and data." class="delete-button"></a><a title="Add another widget of the same type." class="add-button"></a>
+                        </div>
+                        <div class="container actions right">
+                            <div class="widget-override" id="widget-override-125" style="display:block">
+                                <!--label for="widget-override-125"-->
+                                    <select name="widget-override-125" title="Override widget selection">
+                                    <option>Literal</option>
+                                    <option selected="selected">Resource</option>
+                                    <option disabled="disabled">Date</option>
+                                    </select>
+                                <!--/label-->
+                            </div>
+                        </div>
+                        <div class="widget-container" style="width:75%">
+                            <div style="width: 100%;" class="container resource-value">
+                                <input type="text resource-edit-input" style="display: none;" value="http://localhost/OntoWiki/phil/Socrates" class="text resource-edit-input" id="resource-value-129" /><input type="text" style="width:100%" title="http://localhost/OntoWiki/phil/Socrates" value="http://localhost/OntoWiki/phil/Socrates" class="text ac_input" id="resource-name-129" autocomplete="off" />
+                            </div>
+                        </div>
+                        <hr style="border: medium none ; clear: both; height: 0pt;" />
+                    </div>
+                </fieldset>
+            </div>
+            <div id="rdfauthor-predicate-row-3" class="rdfauthor-predicate-row" style="">
+                <fieldset>
+                    <legend>depiction</legend>
+                    <div id="widget-132" class="widget">
+                        <div class="container actions right">
+                            <a title="Remove widget and data." class="delete-button"></a><a title="Add another widget of the same type." class="add-button"></a>
+                        </div>
+                        <div class="container actions right">
+                            <div class="widget-override" id="widget-override-125" style="display:block">
+                                <!--label for="widget-override-125"-->
+                                    <select name="widget-override-125" title="Override widget selection">
+                                    <option>Literal</option>
+                                    <option selected="selected">Resource</option>
+                                    <option>Date</option>
+                                    </select>
+                                <!--/label-->
+                            </div>
+                        </div>
+                        <div class="widget-container" style="width:75%">
+                            <div style="width: 100%;" class="container resource-value">
+                                <input type="text resource-edit-input" style="display: none;" value="http://upload.wikimedia.org/wikipedia/en/d/dc/Platon-2b.jpg" class="text resource-edit-input" id="resource-value-131" /><input type="text"  style="width:100%" title="http://upload.wikimedia.org/wikipedia/en/d/dc/Platon-2b.jpg" value="http://upload.wikimedia.org/wikipedia/en/d/dc/Platon-2b.jpg" class="text ac_input" id="resource-name-131" autocomplete="off" />
+                            </div>
+                        </div>
+                        <hr style="border: medium none ; clear: both; height: 0pt;" />
+                    </div>
+                </fieldset>
+            </div>
+            <div id="rdfauthor-predicate-row-4" class="rdfauthor-predicate-row" style="">
+                <fieldset>
+                    <legend>year of birth</legend>
+                    <div id="widget-135" class="widget">
+                        <div class="container actions right">
+                            <a title="Remove widget and data." class="delete-button"></a><a title="Add another widget of the same type." class="add-button"></a>
+                        </div>
+                        <div class="container actions right">
+                            <div class="widget-override" id="widget-override-125" style="display:block">
+                                <!--label for="widget-override-125"-->
+                                    <select name="widget-override-125" title="Override widget selection">
+                                        <option selected="selected">Literal</option>
+                                    <option>Resource</option>
+                                    <option>Date</option>
+                                    </select>
+                                <!--/label-->
+                            </div>
+                        </div>
+                        <div class="widget-container" style="width:75%">
+                            <div class="container literal-value" style="width:50%">
+                                <textarea id="literal-value-133" style="width:100%;height: 1.3em; padding-top: 0.2em; overflow-y: hidden;" cols="20" rows="1">-423</textarea>
+                            </div>
+                        </div>
+                        <div class="container util">
+                            <a title="Toggle details disclosure" id="134" class="disclosure-button disclosure-button-horizontal open" name="134"></a>
+                        </div>
+                        <div style="display: none;" class="container literal-type util 134">
+                            <label><input type="radio" value="plain" name="literal-type-133" class="radio" />Plain</label> <label><input type="radio" value="typed" checked="checked" name="literal-type-133" class="radio" />Typed</label>
+                        </div>
+                        <div style="display: none;" class="container util 134">
+                            <div style="display: none;" class="literal-lang">
+                                <label for="literal-lang-133">Language: <select name="literal-lang-133" id="literal-lang-133">
+                                    <option selected="selected" value="">
+                                        [none]
+                                    </option>
+                                    <option value="de">
+                                        de
+                                    </option>
+                                    <option value="en">
+                                        en
+                                    </option>
+                                    <option value="fr">
+                                        fr
+                                    </option>
+                                    <option value="nl">
+                                        nl
+                                    </option>
+                                    <option value="es">
+                                        es
+                                    </option>
+                                    <option value="it">
+                                        it
+                                    </option>
+                                    <option value="cn">
+                                        cn
+                                    </option>
+                                </select></label>
+                            </div>
+                            <div class="literal-datatype">
+                                <label>Datatype: <select name="literal-datatype-133" id="literal-datatype-133">
+                                    <option value="http://www.w3.org/2001/XMLSchema#string">
+                                        xsd:string
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#boolean">
+                                        xsd:boolean
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#decimal">
+                                        xsd:decimal
+                                    </option>
+                                    <option selected="selected" value="http://www.w3.org/2001/XMLSchema#integer">
+                                        xsd:integer
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#int">
+                                        xsd:int
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#float">
+                                        xsd:float
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#double">
+                                        xsd:double
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#duration">
+                                        xsd:duration
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#dateTime">
+                                        xsd:dateTime
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#date">
+                                        xsd:date
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#gMonthDay">
+                                        xsd:gMonthDay
+                                    </option>
+                                    <option value="http://www.w3.org/2001/XMLSchema#anyURI">
+                                        xsd:anyURI
+                                    </option>
+                                    <option value="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">
+                                        rdf:XMLLiteral
+                                    </option>
+                                    <option value="http://ns.aksw.org/Test/mySuperInteger">
+                                        http://ns.aksw.org/Test/mySuperInteger
+                                    </option>
+                                </select></label>
+                            </div>
+                        </div>
+                        <hr style="border: medium none ; clear: both; height: 0pt;" />
+                    </div>
+                </fieldset>
+            </div>
+        </div><!-- subject group 1 -->
+        </div>
+        <div id="rdfauthor-buttons">
+            <button class="rdfauthor-button-roperty" type="button">Add Property</button> <button class="rdfauthor-button-cancel" type="button">Cancel</button> <button class="rdfauthor-button-save" type="button">Save Changes</button>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+</body>
+</html>

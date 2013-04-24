@@ -1,0 +1,21 @@
+Source: libjs-rdfauthor
+Section: web
+Priority: extra
+Maintainer: Clemens Hoffmann <cannelony@googlemail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.2
+Homepage: https://github.com/AKSW/RDFauthor/
+Vcs-Git: git://github.com/AKSW/RDFauthor.git
+Vcs-Browser: https://github.com/AKSW/RDFauthor
+
+Package: libjs-rdfauthor
+Architecture: all
+Depends: ${misc:Depends}
+Description: RDFauthor is a javascript library used to create formular widgets out of RDFa-enhanced webpages
+ RDFauthor is based on extracting RDF triples from RDFa annotations and transforming the
+ RDFa-annotated HTML view into an editable form by using a set of
+ authoring widgets. As a result, every RDFa-annotated web page can
+ be made easily writeable, even if information originates from diﬀerent sources.
+ .
+ RDFauthor is part of the LOD2 Technology Stack.
+

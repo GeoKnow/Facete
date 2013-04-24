@@ -57,7 +57,7 @@ ul .facet {
 }
 
 .region{
-	background: #1c3048 url("../../resources/images/header-bg.jpg") no-repeat right;
+	background: #1c3048 url("../resources/images/header-bg.jpg") no-repeat right;
 	width:100%;
 	height:40px;
 }

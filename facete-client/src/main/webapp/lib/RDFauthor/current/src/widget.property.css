@@ -1,0 +1,85 @@
+#propertypicker {
+  display: none;
+  z-index: 10000;
+  overflow: auto;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding-left: 0px !important;
+  padding-top: 0px !important;
+  margin-left: 0px !important;
+  margin-top: 0px !important;
+  margin-bottom: 10px !important;
+  height: 450px !important;
+  width: 477px !important;
+  /* shadow */
+  -moz-box-shadow: 0.2em 0.5em 2.5em #000;
+  -webkit-box-shadow: 0.2em 0.5em 2.5em #000;
+
+}
+
+#propertypicker .title {
+  cursor: move;
+}
+
+#propertypicker h1 {
+  font-size: 100%;
+}
+
+#propertypicker ul li {
+  padding-left: 5px;
+}
+
+div.modal-wrapper-propertyselector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+/*    background-color: transparent;*/
+  background-color: rgba(255, 255, 255, 0.75);
+    /* background-color: rgba(0, 0, 0, 0.2); */
+  z-index: 1100;
+}
+
+#spinner-propertyselector {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -27px;
+  margin-left: -27px;
+  width: 54px;
+  height: 54px;
+  display: inline-block;
+}
+
+#spinner-propertyselector div {
+  width: 12%;
+  height: 26%;
+  background: #000;
+  position: absolute;
+  left: 44.5%;
+  top: 37%;
+  opacity: 0;
+  -webkit-animation: fade 1s linear infinite;
+  -webkit-border-radius: 50px;
+  -webkit-box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+
+#spinner-propertyselector div.bar1 {-webkit-transform:rotate(0deg) translate(0, -142%); -webkit-animation-delay: 0s;}
+#spinner-propertyselector div.bar2 {-webkit-transform:rotate(30deg) translate(0, -142%); -webkit-animation-delay: -0.9167s;}
+#spinner-propertyselector div.bar3 {-webkit-transform:rotate(60deg) translate(0, -142%); -webkit-animation-delay: -0.833s;}
+#spinner-propertyselector div.bar4 {-webkit-transform:rotate(90deg) translate(0, -142%); -webkit-animation-delay: -0.75s;}
+#spinner-propertyselector div.bar5 {-webkit-transform:rotate(120deg) translate(0, -142%); -webkit-animation-delay: -0.667s;}
+#spinner-propertyselector div.bar6 {-webkit-transform:rotate(150deg) translate(0, -142%); -webkit-animation-delay: -0.5833s;}
+#spinner-propertyselector div.bar7 {-webkit-transform:rotate(180deg) translate(0, -142%); -webkit-animation-delay: -0.5s;}
+#spinner-propertyselector div.bar8 {-webkit-transform:rotate(210deg) translate(0, -142%); -webkit-animation-delay: -0.41667s;}
+#spinner-propertyselector div.bar9 {-webkit-transform:rotate(240deg) translate(0, -142%); -webkit-animation-delay: -0.333s;}
+#spinner-propertyselector div.bar10 {-webkit-transform:rotate(270deg) translate(0, -142%); -webkit-animation-delay: -0.25s;}
+#spinner-propertyselector div.bar11 {-webkit-transform:rotate(300deg) translate(0, -142%); -webkit-animation-delay: -0.1667s;}
+#spinner-propertyselector div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -webkit-animation-delay: -0.0833s;}
+
+@-webkit-keyframes fade {
+  from {opacity: 1;}
+  to {opacity: 0.25;}
+}

@@ -189,6 +189,37 @@
 			equals: function(that) {
 				var result = _.isEqual(this, that);
 				return result;
+			},
+			
+			/**
+			 * Warning: If fnNodeMap does not return a copy, the node will not be copied.
+			 * In general, Node should be considered immutable!
+			 * 
+			 * @param fnNodeMap
+			 * @returns
+			 */
+			copySubstitute: function(fnNodeMap) {
+				var sub = fnNodeMap(this);		 
+				var result = (sub == undefined || sub == null) ? this : sub;
+				return result;
+			},
+			
+			toString: function() {
+				switch(this.type) {
+				case -1: return "?" + this.value;
+				case 0: return "_:" + this.value;
+				case 1: return "<" + this.value + ">";
+				case 2: return "\"" + this.value + "\"" + (this.language ? "@" + this.language : "");
+				case 3: return "\"" + this.value + "\"" + (this.datatype ? "^^<" + this.datatype + ">" : "");
+				}
+			},
+			
+			isVar: function() {
+				return this.type === -1;
+			},
+			
+			isUri: function() {
+				return this.type === ns.Node.Type.Uri;
 			}
 	};
 	
@@ -284,37 +315,6 @@
 		//alert(dt);		
 	};
 	
-	/**
-	 * Warning: If fnNodeMap does not return a copy, the node will not be copied.
-	 * In general, Node should be considered immutable!
-	 * 
-	 * @param fnNodeMap
-	 * @returns
-	 */
-	ns.Node.prototype.copySubstitute = function(fnNodeMap) {
-		var sub = fnNodeMap(this);		 
-		var result = (sub == undefined || sub == null) ? this : sub;
-		return result;
-	};
-	
-	ns.Node.prototype.toString = function() {
-		switch(this.type) {
-		case -1: return "?" + this.value;
-		case 0: return "_:" + this.value;
-		case 1: return "<" + this.value + ">";
-		case 2: return "\"" + this.value + "\"" + (this.language ? "@" + this.language : "");
-		case 3: return "\"" + this.value + "\"" + (this.datatype ? "^^<" + this.datatype + ">" : "");
-		}
-	};
-	
-	
-	ns.Node.prototype.isVar = function() {
-		return this.type === -1;
-	};
-	
-	ns.Node.prototype.isUri = function() {
-		return this.type === ns.Node.Type.Uri;
-	};
 	
 	ns.Triple = function(s, p, o) {
 		this.s = s;

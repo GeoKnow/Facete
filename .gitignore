@@ -34,4 +34,5 @@ facete-client/lib/jQuery-ajaxTransport-XDomainRequest
 facete-client/lib/twitter-bootstrap
 facete-client/lib/underscore.string
 
+facete-config.js
 

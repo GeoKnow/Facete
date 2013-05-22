@@ -33,17 +33,21 @@ Check out the repository, and follow these steps
     make deploy-sparql-proxy
 
     # Make the client known to your webserver, e.g:
-    # NOTE Ajust the following line as needed
-    ln -s &lt;project-root&gt;/facete-client /var/www/facete
+    # NOTE Adjust the following line as needed
+    ln -s <project-root>/facete-client/src/main/webapp /var/www/facete
 
 Although the client is functional without any configuration (you can e.g. set which SPARQL endpoint to explore in the user interface), you most likely want to adjust some default values:
 
-    cd &lt;project-root&gt;/facete-client
-    cp config.js.dist config.js
+    cd <project-root>/facete-client/src/main/webapp
+    cp facete-config.js.dist facete-config.js
 
-Now adjust the settings in `config.js` as needed according to the comments in that file.
+Now adjust the settings in `facete-config.js` as needed according to the comments in that file.
 
-    For example: TODO Explain how to set the default SPARQL endpoint to http://fp7-pp.publicdata.eu/sparql in src/main/webapp/js/main-facets.js
+
+    config.sparqlServiceIri = "http://localhost:8810/sparql";
+    config.sparqlDefaultGraphIris = ['http://fp7-pp.publicdata.eu/'];
+    config.sparqlProxyServiceIri = "lib/SparqlProxyPHP/current/sparql-proxy.php";
+
 
 ### facete-server
 TO BE DONE

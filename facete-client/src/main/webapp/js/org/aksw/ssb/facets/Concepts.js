@@ -50,7 +50,22 @@
 			
 			toString: function() {
 				return "" + this.element + "; " +  this.variable;
-			}
+			},
+			
+			/**
+			 * Remove unnecessary triple patterns from the element:
+			 * Example:
+			 * ?s ?p ?o
+			 * ?s a :Person
+			 *  
+			 *  We can remove ?s ?p ?o, as it does not constraint the concepts extension.
+			 */
+			getOptimizedElement: function() {
+
+				/* */
+				
+				
+			},
 	});
 
 	

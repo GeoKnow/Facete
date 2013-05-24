@@ -20,10 +20,21 @@
 	 * sparqlProxyParamName:  The query string parameter name to be used
 	 *                        in proxy requests
 	 */
-	config.sparqlServiceUri = "http://localhost:8810/sparql";	
-	config.sparqlProxyServiceUri = "lib/SparqlProxyPHP/current/sparql-proxy.php";
+	config.sparqlServiceIri = "http://localhost:8810/sparql";	
+	config.sparqlDefaultGraphIris = ['http://localhost/hotels'];
+
+	
+	config.sparqlProxyServiceIri = "lib/SparqlProxyPHP/current/sparql-proxy.php";
 	config.sparqlProxyParamName = "service-uri";	
 
+	config.preferredLanguages = ['de', 'en', ''];
+	
+	/*
+	 * IGNORE EVERYTHING BELOW FOR NOW 
+	 * ITS FROM THE PRIOR VERSION OF SEMMAP AND HAS NOT YET BEEN INTEGRATED
+	 */
+	
+	
 	/*
 	 * Quad Tree Configuration
 	 * 

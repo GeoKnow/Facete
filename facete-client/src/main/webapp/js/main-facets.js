@@ -41,6 +41,9 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 	var utils = Namespace("org.aksw.ssb.utils");
 	var widgets = Namespace("org.aksw.ssb.widgets");
 
+	var configNs = Namespace("org.aksw.ssb.config");
+
+	
 	var ns = facets;
 
 
@@ -298,20 +301,24 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		});
 		
 		
+		
+		var config = configNs;
+		
 		/*
 		 * This model should hold all information required to instanciate the browsing
 		 * component
 		 */
 		var ConfigModel = Backbone.Model.extend({
 			defaults: {
-				sparqlServiceIri: "http://localhost:8810/sparql",
+				sparqlServiceIri: config.sparqlServiceIri,
+				//sparqlServiceIri: 'http://localhost:5522/sparql-analytics/api/sparql',
 				//defaultGraphIris: ['http://fp7-pp.publicdata.eu/'],
-                                defaultGraphIris: ['http://localhost/hotels'],
+                defaultGraphIris: config.sparqlDefaultGraphIris,
 				facetProviders: [],
 				concept: concept,
 				rootFacetNode: facets.FacetNode.createRoot(concept.getVariable().getValue()),
 				constraintCollection: new facets.ConstraintCollection2(),
-				preferredLanguages: ['de', 'en', ''],
+				preferredLanguages: config.preferredLanguages,
 				
 				collectionColumns: new facets.CollectionColumns(),
 				
@@ -499,7 +506,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		 * Initialize the result table list
 		 * 
 		 */
-		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator);
+		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
 		dataTabelModel = createQueryBrowser(sparqlService, labelFetcher);
 		
 		var tableModel = dataTabelModel.browseConfig.config.tableModel;
@@ -942,7 +949,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 				var varName = concept.getVariable().value;
 				var query = queryUtils.createQuerySelect(concept, {distinct: true});
 				
-				console.log("GEO QUERY" + query);
+				// TODO If the path is empty, we need to inject the triple pattern (conceptVar ?p ?o)
+				console.log("GEO QUERY" + query, concept);
 				
 				var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
 	

@@ -17,7 +17,7 @@ facete-client/lib/Font-Awesome/current
 
 config.js
 *.tar.gz
-
+*.swp
 
 facete-client/debian/semmap
 facete-client/debian/semmap.debhelper.log
@@ -33,4 +33,6 @@ facete-client/lib/agility
 facete-client/lib/jQuery-ajaxTransport-XDomainRequest
 facete-client/lib/twitter-bootstrap
 facete-client/lib/underscore.string
+
+facete-config.js
 

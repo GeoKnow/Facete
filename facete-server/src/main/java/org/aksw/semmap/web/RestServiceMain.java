@@ -5,9 +5,9 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler.Context;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,12 +75,12 @@ public class RestServiceMain {
 		sh.setInitParameter("com.sun.jersey.config.property.packages",
 				"org.aksw.semmap.web");
 
-		Server server = new Server(port);
-		Context context = new Context(server, "/", Context.SESSIONS);
-		context.addServlet(sh, "/*");
-		
-
-		server.start();
+//		Server server = new Server(port);
+//		Context context = new Context(server, "/", Context.SESSIONS);
+//		context.addServlet(sh, "/*");
+//		
+//
+//		server.start();
 	}
 
 }

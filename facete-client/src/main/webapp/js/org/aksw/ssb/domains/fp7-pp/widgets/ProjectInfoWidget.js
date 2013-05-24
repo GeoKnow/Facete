@@ -80,7 +80,7 @@
 	this.TableView2 = Backbone.View.extend({
 		tagName: 'table',
 		attributes: {
-			class: 'table table-condensed table-bordered'
+			'class': 'table table-condensed table-bordered'
 		},
 		initialize: function() {
 			_.bindAll(this);

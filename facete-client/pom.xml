@@ -12,15 +12,15 @@
 	<artifactId>facete-client</artifactId>
 	<name>Facete Slice 'n' Dice - Client</name>
 	<!-- <packaging>js</packaging> -->
-	<description>A JavaScript application for facetted browsing of RDF data.</description>
-
+	<description>A JavaScript application for faceted browsing of RDF data.</description>
+	<packaging>war</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<build>
-		<finalName>semmap</finalName>
+		<finalName>facete</finalName>
 		<plugins>
 			<plugin>
 				<groupId>com.samaxes.maven</groupId>
@@ -52,7 +52,7 @@
 								<param>style-ec.css</param>
 								<param>style.css</param>
 							</cssSourceFiles>
-							<cssFinalFile>semmap.css</cssFinalFile>
+							<cssFinalFile>facete.css</cssFinalFile>
 
 							<jsSourceFiles>
 								<!-- <param>lib/namespacedotjs/a28da387ce/Namespace.js</param> -->
@@ -172,7 +172,7 @@
 								<param>org/aksw/ssb/facets/mvc/plugins/table-plugin.js</param>
 								
 							</jsSourceFiles>
-							<jsFinalFile>semmap.js</jsFinalFile>
+							<jsFinalFile>facete.js</jsFinalFile>
 
 						</configuration>
 						<goals>

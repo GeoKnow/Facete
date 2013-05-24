@@ -19,19 +19,16 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.aksw.commons.sparql.api.cache.core.QueryExecutionFactoryCacheEx;
-import org.aksw.commons.sparql.api.cache.extra.CacheCoreEx;
-import org.aksw.commons.sparql.api.cache.extra.CacheCoreH2;
-import org.aksw.commons.sparql.api.cache.extra.CacheEx;
-import org.aksw.commons.sparql.api.cache.extra.CacheExImpl;
-import org.aksw.commons.sparql.api.core.QueryExecutionFactory;
-import org.aksw.commons.sparql.api.core.QueryExecutionStreaming;
-import org.aksw.commons.sparql.api.http.QueryExecutionFactoryHttp;
-import org.aksw.commons.sparql.api.pagination.core.QueryExecutionFactoryPaginated;
-import org.openjena.atlas.lib.Sink;
-import org.openjena.riot.out.SinkTripleOutput;
-
-import au.com.bytecode.opencsv.CSVWriter;
+import org.aksw.jena_sparql_api.cache.core.QueryExecutionFactoryCacheEx;
+import org.aksw.jena_sparql_api.cache.extra.CacheCoreEx;
+import org.aksw.jena_sparql_api.cache.extra.CacheCoreH2;
+import org.aksw.jena_sparql_api.cache.extra.CacheEx;
+import org.aksw.jena_sparql_api.cache.extra.CacheExImpl;
+import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
+import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
+import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
+import org.apache.jena.atlas.lib.Sink;
+import org.apache.jena.riot.out.SinkTripleOutput;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -269,7 +266,7 @@ public class RestService {
 
 		Query query = QueryFactory.create(queryString);
 		
-		final QueryExecutionStreaming qe = qef.createQueryExecution(query);
+		final QueryExecution qe = qef.createQueryExecution(query);
 		
 		
 		return new StreamingOutput() {

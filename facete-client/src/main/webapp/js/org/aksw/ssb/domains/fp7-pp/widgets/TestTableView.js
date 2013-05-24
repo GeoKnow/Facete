@@ -23,7 +23,7 @@
 		attributes: {
 			type: 'text',
 			placeholder: 'Filter',
-			class: 'input-medium search-query'
+			'class': 'input-medium search-query'
 		},
 		events: {
 		    "change":  "contentChanged"

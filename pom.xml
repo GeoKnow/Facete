@@ -37,14 +37,13 @@
 	<properties>
 
 		<!-- Dependency Versions -->
-		<jena-sparql-api.version>0.6.0-SNAPSHOT</jena-sparql-api.version>
+		<jena-sparql-api.version>2.10.0-2</jena-sparql-api.version>
 		
  		<jetty.version>9.0.0.v20130308</jetty.version>
 		<jetty-plugin.version>8.1.10.v20130312</jetty-plugin.version>
 		<maven-war-plugin.version>2.3</maven-war-plugin.version>
 <!-- 		<org.mortbay.jetty.version>7.0.0.pre5</org.mortbay.jetty.version> -->
 		<spring.version>3.1.2.RELEASE</spring.version>
-		<aksw.commons.version>0.5-SNAPSHOT</aksw.commons.version>
 <!-- 		<atmosphere.version>1.0.12</atmosphere.version> -->
 		<atmosphere-jquery.version>1.0.9</atmosphere-jquery.version>
 
@@ -80,20 +79,12 @@
 
 
 	<dependencyManagement>
-		<dependencies>
-		
-			<!-- Self dependencies -->
+		<dependencies>		
 			<dependency>
-				<groupId>org.aksw.sparql-analytics</groupId>
-				<artifactId>sparql-analytics-core</artifactId>
+				<groupId>org.aksw.facete</groupId>
+				<artifactId>facete-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.aksw.sparql-analytics</groupId>
-				<artifactId>sparql-analytics-server</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-		
 
 			<!-- Jena SPARQL API -->		
 			<dependency>
@@ -223,6 +214,11 @@
 				<scope>compile</scope>
 			</dependency>
 			
+			<dependency>
+				<groupId>net.sf.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>2.3</version>
+			</dependency>
 
 
 <!-- Not sure if we need this for getting Jena to work -->
@@ -266,58 +262,6 @@
 				<version>4.11</version>
 				<scope>test</scope>
 			</dependency>
-
-			<!-- Spring Framwork -->
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.springframework</groupId> -->
-<!-- 				<artifactId>spring-core</artifactId> -->
-<!-- 				<version>${spring.version}</version> -->
-<!-- 			</dependency> -->
-
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.springframework</groupId> -->
-<!-- 				<artifactId>spring-context</artifactId> -->
-<!-- 				<version>${spring.version}</version> -->
-<!-- 			</dependency> -->
-
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.springframework</groupId> -->
-<!-- 				<artifactId>spring-web</artifactId> -->
-<!-- 				<version>${spring.version}</version> -->
-<!-- 			</dependency> -->
-
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.springframework</groupId> -->
-<!-- 				<artifactId>spring-beans</artifactId> -->
-<!-- 				<version>${spring.version}</version> -->
-<!-- 			</dependency> -->
-			
-
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.atmosphere</groupId> -->
-<!-- 				<artifactId>nettosphere</artifactId> -->
-<!-- 				<version>${nettosphere.version}</version> -->
-<!-- 				<scope>test</scope> -->
-<!-- 				<exclusions> -->
-<!-- 					<exclusion> -->
-<!-- 						<groupId>ch.qos.logback</groupId> -->
-<!-- 						<artifactId>logback-core</artifactId> -->
-<!-- 					</exclusion> -->
-<!-- 					<exclusion> -->
-<!-- 						<groupId>ch.qos.logback</groupId> -->
-<!-- 						<artifactId>logback-classic</artifactId> -->
-<!-- 					</exclusion> -->
-<!-- 				</exclusions> -->
-<!-- 			</dependency> -->
-		
-			<!-- AHC -->
-<!-- 			<dependency> -->
-<!-- 				<groupId>com.ning</groupId> -->
-<!-- 				<artifactId>async-http-client</artifactId> -->
-<!-- 				<version>${ahc.version}</version> -->
-<!-- 				<scope>test</scope> -->
-<!-- 			</dependency> -->
-
 
 		</dependencies>
 	</dependencyManagement>

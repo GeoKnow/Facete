@@ -52,6 +52,31 @@
 				return "" + this.element + "; " +  this.variable;
 			},
 			
+			// Whether this concept is isomorph to (?s ?p ?o, ?s)
+			isSubjectConcept: function() {
+				var result = false;
+				
+				var v = this.variable;
+				var e = this.element;
+				
+				if(e instanceof sparql.ElementTriplesBlock) {
+					var ts = e.triples;
+					
+					if(ts.length === 1) {
+						var t = ts[0];
+						
+						var s = t.getSubject();
+						var p = t.getProperty();
+						var o = t.getObject();
+						
+						result = v.equals(s) && p.isVar() && o.isVar();
+					}
+				}
+
+				
+				return result;
+			},
+			
 			/**
 			 * Remove unnecessary triple patterns from the element:
 			 * Example:
@@ -62,7 +87,7 @@
 			 */
 			getOptimizedElement: function() {
 
-				/* */
+				/* This would become a rather complex function, the method isSubjectConcept is sufficient for our use case */
 				
 				
 			},

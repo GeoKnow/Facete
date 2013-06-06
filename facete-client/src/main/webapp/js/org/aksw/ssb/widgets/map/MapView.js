@@ -61,6 +61,24 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 	    },
 	    
 	    
+	    zoomToFit: function() {
+	    	var map = this.getMap();
+	    	
+	    	var layer = this.legacyWidget.getFeatureLayer();
+	    	var dataExtent = layer.getDataExtent();
+	    	
+	    	var targetZoom = Math.max(0, map.getZoomForExtent(dataExtent) - 1);
+	    	
+	    	console.log("dataExtent, targetZoom: ", dataExtent, targetZoom);
+	    	
+	    	//console.log("Zoom method: ", map);
+	    	
+	    	map.zoomTo();
+	    	map.panTo(dataExtent.getCenterLonLat());
+	    	//map.zoomToMaxExtent(dataExtent, false);
+	    	//map.zoomToExtent(dataExtent, true);
+	    },
+	    
 	    updateView: function(model) {
 	    	var self = this;
 	    	

@@ -244,11 +244,30 @@
 			
 			// The generic query
 			var tmpConcept = facetFacadeNode.createConcept();
-			var tmpElement = new sparql.ElementGroup([this.baseConcept.getElement(), tmpConcept.getElement()]);
 			
-			var concept = new facets.ConceptInt(tmpElement, tmpConcept.getVariable());
+			// Check if the concept of the facetFacadeNode is empty
+			var tmpElement = tmpConcept.getElement();
+			var isEmptyTmpElement = tmpElement instanceof sparql.ElementGroup && tmpElement.elements.length === 0;
 			
-			console.log("GenericConcept: " + concept);
+			var baseConcept = this.baseConcept;
+			var baseElement = baseConcept.getElement();
+			
+			var e;
+			if(!isEmptyTmpElement) {
+				
+				if(baseConcept.isSubjectConcept()) {
+					e = tmpElement;
+				} else {
+					e = new sparql.ElementGroup([baseElement, tmpElement]);
+				}
+			} else {
+				e = baseElement;
+			}
+			
+			
+			var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
+			
+			console.log("GenericConcept: " + concept, concept.isSubjectConcept());
 
 
 			var children = model.get("children");

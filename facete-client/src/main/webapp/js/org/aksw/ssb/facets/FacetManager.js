@@ -103,7 +103,7 @@
 	
 	ns.VarNode.prototype = {
 			isRoot: function() {
-				var result = this.parent === null;
+				var result = this.parent ? false : true;
 				return result;
 			},
 
@@ -211,7 +211,7 @@
 
 	ns.ElementDesc.prototype = {
 			createConcept: function() {
-				var result = new facets.concept(this.element, this.facetVar);
+				var result = new facets.ConceptInt(this.element, this.facetVar);
 				return result;
 			},
 			
@@ -470,6 +470,8 @@
 		},
 		
 		createElement: function(facetNode, excludePath) {
+			console.log("Should not be invoked");
+			
 			var elements = this.createElements(facetNode, excludePath);
 			var result;
 			if(elements.length === 1) {
@@ -563,6 +565,8 @@
 
 			//console.log("pathToExprs", pathToExprs);
 
+			console.log("[ConstraintManager::createElements]", elements);
+			
 			return elements;
 		},
 		
@@ -630,7 +634,7 @@
 		},
 			
 		isRoot: function() {
-			var result = this.parent === null;
+			var result = this.parent ? false : true;
 			return result;
 		},
 		
@@ -699,9 +703,14 @@
 				
 		
 		getElements: function() {
+			var result = [];
+			
 			var triples = this.getTriples();
-			var element = new sparql.ElementTriplesBlock(triples);
-			var result = [element];
+			if(triples.length > 0) {
+				var element = new sparql.ElementTriplesBlock(triples);
+				result.push(element);				
+			}
+			
 			
 			return result;
 		},
@@ -1114,15 +1123,16 @@
 				
 				// Create the constraint elements
 				var elements = this.constraintManager.createElements(rootNode, excludePath);
+				//console.log("___Constraint Elements:", elements);
 				
 				// Create the element for this path (if not exists)
 				var pathElements = this.facetNode.getElements();
+				//console.log("___Path Elements:", elements);
 				
 				elements.push.apply(elements, pathElements);
 				
 				var result = sparql.ElementUtils.flatten(elements);
-				//console.log("Constraint and Path Elements:" + elements);
-				//console.log("Flattened: " + result);
+				console.log("Flattened: ", result);
 				
 				// Remove duplicates
 				

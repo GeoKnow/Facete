@@ -62,14 +62,15 @@ $.widget("custom.ssbMap2", {
 	    		//numZoomLevels: 19,
 	    		units: 'm',
 
-	    		//maxExtent: [-18924313.432222, -15538711.094146, 18924313.432222, 15538711.094146],
-	    	    //restrictedExtent: [-13358338.893333, -9608371.5085962, 13358338.893333, 9608371.5085962],
-	    		//scales: [50000000, 30000000, 10000000, 5000000],
-	    		//resolutions: [1.40625,0.703125,0.3515625,0.17578125,0.087890625,0.0439453125],
+//	    		maxExtent: [-18924313.432222, -15538711.094146, 18924313.432222, 15538711.094146],
+//	    	    restrictedExtent: [-13358338.893333, -9608371.5085962, 13358338.893333, 9608371.5085962],
+//	    		scales: [50000000, 30000000, 10000000, 5000000],
+//	    		resolutions: [1.40625,0.703125,0.3515625,0.17578125,0.087890625,0.0439453125],
 //	            minScale: 50000000,
 //	            maxResolution: "auto",
 //	            maxScale: 10000000,
 //	            minResolution: "auto",
+
 	        	controls: [
 	    					new OpenLayers.Control.Navigation(),
 //	    					new OpenLayers.Control.LayerSwitcher(),
@@ -401,6 +402,11 @@ $.widget("custom.ssbMap2", {
 		//this._doBind();
 	},
 
+	getFeatureLayer: function() {
+		return this.featureLayer;
+	},
+
+	
 	/**
 	 * Calls .redraw() on all layers.
 	 * 

@@ -120,13 +120,13 @@
 					var model = this.model;
 					var children = model.get("children");
 
-					this.collectionColumns = parentOptions.collectionColumns;
+					/////this.collectionColumns = parentOptions.collectionColumns;
 					
 					this.subFacetWidget = new widgets.ViewFacetTree({
 						collection: children,
 						//modelFacetUpdater: this.modelFacetUpdater,
-						fnUpdateFacets: this.fnUpdateFacets,
-						collectionColumns: this.collectionColumns
+						fnUpdateFacets: this.fnUpdateFacets
+						/////collectionColumns: this.collectionColumns
 					});
 					
 					
@@ -284,6 +284,10 @@
 							;
 					}
 					
+					if(!facetCount && facetCount !== 0) {
+						facetCount = '';
+					}
+					
 					html += '<span class="facetCount">' + facetCount + '</span>';
 
 					
@@ -353,6 +357,29 @@
 					return this.$el.find(this.collapseAreaSelector);
 				},
 				
+				updateFacets: function() {
+					var model = this.model;
+
+					var simulateLoad = false;// true;
+					if(simulateLoad) {
+						model.set({isLoading: true});
+						var scheduler = new Scheduler(5000, true);
+						
+						var self = this;
+						scheduler.schedule(function() {
+							//console.log("bar");
+							//self.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+							var promise = self.fnUpdateFacets(model);
+							// Trigger a postRender event
+							self.trigger('facetUpdate', promise);
+						});
+					} else {							
+						//this.modelFacetUpdater.updateFacets(model, facetFacadeNode);
+						var promise = this.fnUpdateFacets(model);
+						this.trigger('facetUpdate', promise);							
+					}					
+				},
+				
 				events : {
 					'click .expandable' : function(ev) {
 						
@@ -376,24 +403,7 @@
 								'isExpanded' : true,
 							});
 
-							var simulateLoad = false;// true;
-							if(simulateLoad) {
-								model.set({isLoading: true});
-								var scheduler = new Scheduler(5000, true);
-								
-								var self = this;
-								scheduler.schedule(function() {
-									//console.log("bar");
-									//self.modelFacetUpdater.updateFacets(model, facetFacadeNode);
-									var promise = self.fnUpdateFacets(model);
-									// Trigger a postRender event
-									self.trigger('facetUpdate', promise);
-								});
-							} else {							
-								//this.modelFacetUpdater.updateFacets(model, facetFacadeNode);
-								var promise = this.fnUpdateFacets(model);
-								this.trigger('facetUpdate', promise);							
-							}
+							this.updateFacets();
 /*							
 							promise.done(function() {
 								console.log("DONE LOADING");
@@ -467,6 +477,12 @@
 					
 					var text = this.model.get("facetUri");
 
+					//console.log('Got facetUri:', text);
+					
+					if(!text) {
+						text = 'http://ns.aksw.org/facete/builtin/root';
+					}
+					
 					
 					var html
 						= '<div class="inline">'

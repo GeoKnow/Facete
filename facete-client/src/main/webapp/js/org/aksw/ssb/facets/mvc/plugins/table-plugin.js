@@ -188,9 +188,10 @@
 					}
 				}),
 				events: {
-					'click': function() {
+					'click': function(ev) {						
 						//collectionColumns.addPath(path);
 						self.enable(viewItem);
+						ev.preventDefault();
 					}
 				}
 			});
@@ -211,9 +212,10 @@
 						'true': { style: 'display: inline'}
 					},
 					events: {
-						'click': function() {
+						'click': function(ev) {
 							//collectionColumns.removePath(path);
 							self.disable(viewItem);
+							ev.preventDefault();
 						}
 					}
 				})

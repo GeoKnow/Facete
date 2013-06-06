@@ -242,16 +242,11 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 	ns.facetTest = function(options) {
 		
     	var v = sparql.Node.v("s");
-		var element = new sparql.ElementString(
-				"?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
+		//var element = new sparql.ElementString("?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
 		
-		element = new sparql.ElementString("?s ?p ?o", [v]);
-		var concept = new facets.ConceptInt(element, v);
-
-		
-
-		
-		
+		//element = new sparql.ElementString("?s ?p ?o", [v]);
+		//var concept = new facets.ConceptInt(element, v);
+		var concept = queryUtils.createSubjectConcept(v);		
 		
 		var ModelConfigSparqlService = Backbone.Model.extend({
 			defaults: {
@@ -396,6 +391,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			}
 		});
 
+		// Link the facetValuesConfigModel to the configModel on a specific set of properties.
 		Backbone.linkModels(configModel, facetValuesConfigModel, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
 
 		//console.log("Linked model: ", facetValuesConfigModel.attributes);
@@ -560,13 +556,16 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
 			
+			console.log("Updating facetNode ", facetNode)
+			
+			
 			var promise = modelFacetUpdater.updateFacets(model, facetFacadeNode);
 			return promise;
 		};
 
     	
 
-    	var rootFacetCollection = new ns.CollectionFacetNode({
+    	var superRootFacetCollection = new ns.CollectionFacetNode({
     		fnUpdateFacets: fnUpdateFacets
     	});
     	
@@ -574,10 +573,14 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     	
     	var superFacetModel = new facets.ModelFacetNode({
 			facetNode: facets.FacetNode.createRoot(rootFacetNode.getVariable().getValue()),
-			children: rootFacetCollection,
+			children: superRootFacetCollection,
 			isExpanded: true
 		});
-    	superFacetModel.get('children').add(rootFacetModel);
+    	
+    	
+    	//superFacetModel.get('children').add(rootFacetModel);
+    	superRootFacetCollection.add(rootFacetModel);
+    	
     	
     	//fnUpdateFacets(metaFacetModel);
 
@@ -612,14 +615,14 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		 */		
 		var facetWidget = new widgets.ViewFacetTree({
 			el : $("#facets"),
-			collection: rootFacetCollection,
+			collection: superRootFacetCollection,
 			// options: {
 			// TODO Add indirection: don't point to a modelFacetUpdate directly, but introduce a function that returns one
 			//modelFacetUpdater: modelFacetUpdater,
-			fnUpdateFacets: fnUpdateFacets,
+			fnUpdateFacets: fnUpdateFacets
 			
 			// TODO Indirection plus this should be part of a separate controller
-			collectionColumns: collectionColumns
+			//collectionColumns: collectionColumns
 			// }
 		});
 		
@@ -639,7 +642,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 		
 		
-    	
+
+		// TODO This is hacky: The status of whether a facet update is running should be part of the model and not the view!
 		var self = this;
 		facetWidget.on('facetUpdate', function(promise) {
 			promise.done(function() {
@@ -649,12 +653,16 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		});
 		
 		
-    	rootFacetCollection.add(rootFacetModel);
-    	
-    	
+    	superRootFacetCollection.add(rootFacetModel);
     	
     	
     	fnUpdateFacets(rootFacetModel);
+
+    	
+    	// TODO These two lines are a necassary hack because of above hack
+		var i18n = configModel.get('i18n');
+		i18n.update(facetWidget.$el);
+
     	
 		var result = {
 			facetWidget: facetWidget
@@ -906,6 +914,12 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			alert("Clicked " + id + " with data " + JSON.stringify(json));
 		});
 		
+		// Update the map view if the data changes in the model
+		mapModel.on('change:uris change:rdfGraph', function() {
+			mapView.zoomToFit();
+		});
+
+		
 		mapView.render();
 		
 		
@@ -1003,6 +1017,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		constraintCollection.on('add remove reset', updateMap);
 		mapCollection.on('add remove reset', updateMap);
 
+		
 
 		/* Does not work; Open Layers needs a non-zero size area to init
 		var $mapEl = mapView.render().$el;

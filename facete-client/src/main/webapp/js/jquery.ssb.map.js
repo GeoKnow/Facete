@@ -401,6 +401,10 @@ $.widget("ui.ssb_map", {
 		this._doBind();
 	},
 
+	getFeatureLayer: function() {
+		return this.featureLayer;
+	},
+	
 	/**
 	 * Calls .redraw() on all layers.
 	 * 

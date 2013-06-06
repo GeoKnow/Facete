@@ -113,17 +113,14 @@
 		return result;
 	};
 	
-	/**
-	 * Creates a {?s ?p ?o} concept.
-	 * The subject must be specified. 
-	 * 
-	 */
-	function createDriverFallback(subjectVar) {
-
+	
+	
+	ns.createSubjectConcept = function(subjectVar) {
+		
 		//var s = sparql.Node.v("s");
 		var s = subjectVar;
-		var p = sparql.Node.v("p");
-		var o = sparql.Node.v("o");
+		var p = sparql.Node.v("_p_");
+		var o = sparql.Node.v("_o_");
 		
 		var conceptElement = new sparql.ElementTriplesBlock([new sparql.Triple(s, p, o)]);
 
@@ -132,6 +129,17 @@
 		result = new facets.ConceptInt(conceptElement, s);
 
 		return result;
+	};
+
+	
+	/**
+	 * Creates a {?s ?p ?o} concept.
+	 * The subject must be specified. 
+	 * 
+	 */
+	// @Deprecated
+	function createDriverFallback(subjectVar) {
+		return ns.createSubjectConcept(subjectVar);
 	};
 
 	
@@ -555,8 +563,11 @@
 	ns.createElementFacetCount = function(concept, isInverse, facetVar, valueVar, sampleSize) {
 		var result = new sparql.ElementGroup();
 		
-		var de = concept.getElement();
-		result.elements.push(de);
+		// If the concept is isomorph to (?s ?p ?o , ?s), skip it because we are going to add the same triple
+		if(!concept.isSubjectConcept()) {
+			var de = concept.getElement();
+			result.elements.push(de);
+		}
 		
 		var s = concept.getVariable();
 		var p = facetVar;

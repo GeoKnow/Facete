@@ -14,7 +14,7 @@ Current features:
 Limitations:
 * At the moment facete always queries for the exact facet / facet value counts. Therefore, Facete may not work with low selective facet selections on large datasets.
 
-![Screenshot](https://raw.github.com/AKSW/Facete/devel/images/2013-04-21-Facete-Screenshot.png)
+![Screenshot](https://raw.github.com/GeoKnow/Facete/devel/images/2013-04-21-Facete-Screenshot.png)
 
 
 ## Architecture

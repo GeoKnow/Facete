@@ -110,13 +110,13 @@
 		
 			<div class="span5">
                 <div id="instances"></div>
-                <a id="exportCsv" href="#">Export CSV</a>
-                <a id="exportRdf" href="#">Export RDF</a>
+                <a style="display:none" id="exportCsv" href="#">Export CSV</a>
+                <a style="display:none" id="exportRdf" href="#">Export RDF</a>
 			</div>
 
 			<div id="mapContainer" class="span4">
 				<div id="map" style="height: 500px;"></div>
-				<a id="centerMapOnPosition" href="#" style="position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
+				<a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
 			</div>
  
 			

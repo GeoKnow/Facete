@@ -265,6 +265,36 @@
 			return result;
 		},
 		
+		setEqualsConstraint: function(path, node, isEnabled) {
+			var modelData = {
+					constraint: {
+						type : "equals",
+						path : path,
+						node : node
+					}
+			};
+				
+			console.log("Setting constraint: ", modelData);
+
+			var priorModel = this.findModelEquals(path, node);
+			
+			if(isEnabled && !priorModel) {
+				this.add(modelData);
+			}
+			else if(!isEnabled && priorModel) {
+				this.remove(priorModel);
+			}
+		},
+		
+		toggleEqualsConstraint: function(path, node) {
+			
+			var priorModel = this.findModelEquals(path, node);
+
+			var isEnabled = priorModel ? false : true;
+
+			this.setEqualsConstraint(path, node, isEnabled);
+		},
+
 		/**
 		 * Tests whether an equals constraint exists
 		 * 

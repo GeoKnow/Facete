@@ -42,8 +42,12 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 				self.trigger("mapevent", event, {"map": self.map});
 			});
 			
-			$(this.el).on("ssb_mapmarkerclick", function(ev, data) {
-				self.trigger("markerclick", ev, data);
+			$(this.el).on("ssbmap2featureselect", function(ev, data) {
+				self.trigger("featureSelect", ev, data);
+			});
+
+			$(this.el).on("ssbmap2featureunselect", function(ev, data) {
+				self.trigger("featureUnselect", ev, data);
 			});
 			    
 	      return this;
@@ -60,6 +64,10 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 	    	return this.legacyWidget.map;
 	    },
 	    
+	    
+	    getLegacyWidget: function() {
+	    	return this.legacyWidget;
+	    },
 	    
 	    zoomToFit: function() {
 	    	var map = this.getMap();

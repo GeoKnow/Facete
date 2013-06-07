@@ -281,6 +281,13 @@ $.widget("custom.ssbMap2", {
 		
 		this.selectFeatureController = new OpenLayers.Control.SelectFeature([this.boxLayer, this.featureLayer], {
 
+			onUnselect: function(feature) {
+				var data = feature.data;
+				
+				var event = null;
+				self._trigger("featureUnselect", event, data);
+			},
+			
 			onSelect: function(feature) {
 								
 				var vector = feature; // Note: We assume a vector feature - might have to check in the future				
@@ -289,7 +296,7 @@ $.widget("custom.ssbMap2", {
 				// FIXME Find a better way to get the click coordinates; but it might not exists yet, see http://trac.osgeo.org/openlayers/ticket/2089
 				var xy = this.handlers.feature.evt.xy;
 				
-				console.log("[Select Feature] Got Geometry: ", geometry);
+				//console.log("[Select Feature] Got Geometry: ", geometry);
 
 				// TODO Something seems to go wrong here after RDFauthor hides itself
 				if(geometry instanceof OpenLayers.Geometry.Point) {
@@ -300,7 +307,7 @@ $.widget("custom.ssbMap2", {
 						var data = feature.data;
 					
 						var event = null;
-						self._trigger("markerclick", event, data);
+						self._trigger("featureSelect", event, data);
 						
 					
 				} else if(geometry instanceof OpenLayers.Geometry.Polygon) {

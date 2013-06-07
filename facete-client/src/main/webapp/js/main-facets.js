@@ -903,16 +903,25 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		});
 
 		mapView.on("mapevent", function() {
-			console.log("mapevent");
+			//console.log("mapevent");
 		});
 		
-		mapView.on("markerclick", function(ev, data) {
-			//console.log("click", ev, data);
-			var id = data.id;
-			var json = data.json;
+		
+		
+		/*
+		var onChangeFeatureSelection = function(features) {
 			
-			alert("Clicked " + id + " with data " + JSON.stringify(json));
-		});
+			var update
+			for(var i = 0; i < features.length; ++i) {
+				
+				var feature = features[i];
+				
+				
+			}
+			
+		}
+		*/
+		
 		
 		// Update the map view if the data changes in the model
 		mapModel.on('change:uris change:rdfGraph', function() {
@@ -923,7 +932,61 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		mapView.render();
 		
 		
+
+		/*
+		var featureLayer = mapView.getLegacyWidget().getFeatureLayer();
 		
+		featureLayer.events.on({
+            'featureselected': function(feature) {
+                console.log("featureselected:", this.selectedFeatures);
+            },
+            'featureunselected': function(feature) {
+            	console.log("featureunselected:", this.selectedFeatures);
+            }
+        });
+        */
+
+		mapView.on("featureSelect", function(ev, data) {
+			//console.log("click", ev, data);			
+			var id = data.id;
+			var json = data.json;
+			
+			//console.log("Select " + id + " with data " + JSON.stringify(json));
+			//console.log("Select " + id);
+
+			var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
+			var node = sparql.Node.uri(id);
+			
+			constraintCollection.setEqualsConstraint(geoPath, node, true);			
+		});
+
+		
+		mapView.on("featureUnselect", function(ev, data) {
+			var id = data.id;
+			var json = data.json;
+			
+			var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
+			var node = sparql.Node.uri(id);
+			
+			console.log("Unselect " + id);
+
+			// Add a short delay for the case that another node was selected
+			// immediately after unselecting this one -
+			// This way the unselect will happen after the new selection and thus
+			// resulting for unsatisfiable constraints - which is better than
+			// having no constraints at all for the blink of an eye, because
+			// each change in state triggers the data fetching workflow
+
+			// TODO Maybe there is a better solution to this? When a new feature is clicked, the old one first becomes de-selected
+			// Upon deselection, however, we may already initiate a workflow for updating the facets
+			setTimeout(function() {
+				constraintCollection.setEqualsConstraint(geoPath, node, false);				
+			}, 20);
+
+			//			alert("Unselect " + id + " with data " + JSON.stringify(json));
+			
+		});
+
 		
 
 		
@@ -993,6 +1056,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 									'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}],
 									//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
 							};
+							
+							rdfGraph[uri]['http://ha.ck/geoPath'] = [{value: geoPath}];
 						});
 	
 						return rdfGraph;

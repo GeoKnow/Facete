@@ -683,22 +683,15 @@
 					return;
 				}
 				//var nodeValue = sparql.NodeValue.makeNode(node);
-				
-				var modelData = {
-					constraint: {
-						type : "equals",
-						path : path,
-						node : node
-					}
-				};
-				
-				console.log("Setting constraint: ", modelData);
-				
+								
 				//var id = JSON.stringify(modelData.constraint);
 				//modelData.id = id;
 
 				var constraintCollection = this.constraintCollection;
 
+				constraintCollection.toggleEqualsConstraint(path, node);
+				
+				/*****
 				var priorModel = constraintCollection.findModelEquals(path, node);
 				if(priorModel) {
 					constraintCollection.remove(priorModel);
@@ -706,6 +699,7 @@
 				} else {
 					constraintCollection.add(modelData);
 				}
+				*/
 				
 				
 				//console.log("Added a constraint", constraintCollection);

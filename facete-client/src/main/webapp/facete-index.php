@@ -63,6 +63,8 @@
         <script type="text/javascript" src="lib/RDFauthor/current/libraries/jquery.rdfquery.rdfa-1.0.js"></script>
         <!-- <script type="text/javascript" src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script> -->
 
+		<script type="text/javascript" src="lib/doT/current/doT.js"></script>
+
         <script type="text/javascript" src="lib/select2/3.3.2/select2.js"></script>
 
 

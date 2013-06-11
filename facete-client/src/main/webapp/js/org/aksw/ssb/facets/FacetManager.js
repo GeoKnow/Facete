@@ -1013,7 +1013,7 @@
 	 */
 	ns.SimpleFacetFacade = function(constraintManager, facetNode) {
 		this.constraintManager = constraintManager;
-		this.facetNode = facetNode;
+		this.facetNode = checkNotNull(facetNode);
 	};
 
 	ns.SimpleFacetFacade.prototype = {

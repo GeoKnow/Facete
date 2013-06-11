@@ -84,6 +84,35 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 
         var $elDefaultGraphSelector = $('#default-graph-selector');
 
+        
+        
+        $elDefaultGraphSelector.select2({
+        	tags: [],
+        	initSelection: function(element, callback) {
+        		var data = [];
+        		$(element.val().split(",")).each(function () {
+        			data.push({id: this, text: this});
+        		});
+        		console.log('dg data', data);
+        		callback(data);
+        	}
+        });
+        		
+//	        initSelection : function (element, callback) {
+//	            var data = [];
+//	            
+//	            var ids = element.val().split(" "); // Whitespaces must not occur in URIs, that's why its our separator
+//	            for(var i = 0; i < ids.length; ++i) {
+//	            	var id = ids[i];
+//	            	data.push({id: id, text: id});
+//	            }
+//	
+//	            console.log("Init data: ", data);
+//	            callback(data);
+//	        },
+        
+
+        
         var defaultGraphCollection = new Backbone.Collection();
 
 		
@@ -108,7 +137,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 
 		defaultGraphCollection.on('add remove reset', function() {
 			var tags = this.toJSON();
-			console.log("tags: ", tags);
+			//console.log("tags: ", tags);
             $elDefaultGraphSelector.select2({tags: tags});
 		});
 		
@@ -124,7 +153,56 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			}
 			
 			//defaultGraphCollection.reset(data);
-			configModel.set({defaultGraphIris: defaultGraphIris});
+			configModel.set({sparqlDefaultGraphIris: defaultGraphIris});
+		});
+		
+		
+		// Update the config status summary on change
+		configModel.on('change', function() {
+			var sparqlServiceIri = this.get('sparqlServiceIri');
+			var defaultGraphIris = this.get('sparqlDefaultGraphIris');
+			
+			
+			var data = {
+					sparqlServiceIri: sparqlServiceIri,
+					defaultGraphIris: defaultGraphIris
+			};
+						
+			var templateStr = 'Showing data from service <span style="color:gold">{{!it.sparqlServiceIri}}</span>{{?it.defaultGraphIris.length != 0}} with selected datasets <span style="color:gold">{{=it.defaultGraphIris.join("</span>, <span style=\\\"color:gold\\\">")}}</span>{{?}}';
+			
+			var templateFn = doT.template(templateStr);
+			var str = templateFn(data);
+						
+			var $el = $('#config-summary');
+			$el.html(str);
+		});
+		
+
+		
+		/*
+		 * Update the dataset selection
+		 */
+		configModel.on('change', function() {
+			{
+				var sparqlServiceIri = this.get('sparqlServiceIri');
+				var $elSelector = $("#sparql-service-selector");
+				
+				var data = [{id: sparqlServiceIri, text: sparqlServiceIri}];
+				//console.log("Setting data:", data);
+				//$elSelector.select2('data', data);				
+				$elSelector.select2('val', sparqlServiceIri);
+			}
+			
+			{
+				var defaultGraphIris = this.get('sparqlDefaultGraphIris');
+				var $elSelector = $elDefaultGraphSelector;//$('#default-graph-selector');
+				
+				//var tmp = defaultGraphIris.join(' ');
+				$elSelector.select2('val', defaultGraphIris);
+			}
+
+			
+			
 		});
 		
 		
@@ -167,6 +245,14 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
         var $elSparqlServiceSelector = $("#sparql-service-selector");
         $elSparqlServiceSelector.select2({
 	        minimumInputLength: 1,
+
+	        initSelection: function(element, callback) {
+	        	var id = element.val();
+	        	var data = {id: id, text: id};
+	        	
+	        	callback(data);
+	        },
+	        
 	        query: function (query) {
 	        	var term = query.term;
 	        
@@ -306,9 +392,11 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var ConfigModel = Backbone.Model.extend({
 			defaults: {
 				sparqlServiceIri: config.sparqlServiceIri,
+				sparqlDefaultGraphIris: config.sparqlDefaultGraphIris,
+				//sparqlServiceIri: null,
 				//sparqlServiceIri: 'http://localhost:5522/sparql-analytics/api/sparql',
 				//defaultGraphIris: ['http://fp7-pp.publicdata.eu/'],
-                defaultGraphIris: config.sparqlDefaultGraphIris,
+                //defaultGraphIris: null,
 				facetProviders: [],
 				concept: concept,
 				rootFacetNode: facets.FacetNode.createRoot(concept.getVariable().getValue()),
@@ -334,6 +422,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 		var configModel = new ConfigModel();
 
+		
+		
     	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 		var geoPath = facets.Path.fromString(geoPathStr);
 
@@ -341,6 +431,15 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		// Initialize the user interface
 		// TODO Move to a different place
 		ns.initUi(configModel);
+		
+
+		/*
+		configModel.set({
+			sparqlServiceIri: config.sparqlServiceIri,
+			defaultGraphIris: config.sparqlDefaultGraphIris
+		});
+		*/
+
 		
 		
 		ns.initServices(configModel);
@@ -424,7 +523,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			
 			var sparqlService = new backend.SparqlServiceHttp(
 					attrs.sparqlServiceIri,
-					attrs.defaultGraphIris,
+					attrs.sparqlDefaultGraphIris,
 					"lib/SparqlProxyPHP/current/sparql-proxy.php",
 					"service-uri");
 			
@@ -743,14 +842,14 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		configModel.on('change', function() {
 			var model = this;
 			fnUpdateFacetValues.call({
-				facetNode: model.get('facetNode'),
+				facetNode: model.get('rootFacetNode'),
 				constraintCollection: configModel.get('constraintCollection')
 			});			
 		});
 		
 		constraintCollection.on('change', function() {
 			fnUpdateFacetValues.call({
-				facetNode: configModel.get('facetNode'),
+				facetNode: configModel.get('rootFacetNode'),
 				constraintCollection: configModel.get('constraintCollection')
 			});
 		});

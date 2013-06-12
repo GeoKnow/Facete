@@ -1,6 +1,6 @@
 
 
-		function createQueryBrowser(sparqlService, labelFetcher) {
+		function createQueryBrowser() {
 			var uriUtils = Namespace("org.aksw.ssb.utils.uris");
 	
 			/*
@@ -16,11 +16,14 @@
 			*/
 	    
 	    
-	    	var models = createSparqlExplorer(sparqlService, labelFetcher);
-	    	//console.log("Models: ", models);
+	    	var widget = createSparqlExplorer();
+	    	var models = widget.models;
+	    	//console.log("XModels: ", models);
 
-	    	var tableModel = models.browseConfig.config.tableModel;
+	    	var tableModel = models.tableModel;
 
+	    	models.model = new Backbone.Model();
+	    	
 
 			models.model.on("change:selected", function() {
 			    var val = this.get("selected");
@@ -73,17 +76,23 @@
 			
 			
 
-			return models;			
+			return widget;			
 
 	    	//var createSparqlExplorer = function(sparqlService, queryFactory, containerEl, labelFetcher);
 	    };
 
-			var createView = function(container, models, tableViewFactory) {
+			var createView = function(container, widget, tableViewFactory) {
 
-				var browseConfig = models.browseConfig;
-		    	var tableModel = browseConfig.config.tableModel;
+//				var browseConfig = models.browseConfig;
+//		    	var tableModel = browseConfig.config.tableModel;
 
+				//console.log("Widget", widget);
+				
+				var models = widget.models;
+				var tableModel = models.tableModel;
 
+				
+				
 
 	    	var MyItemView = ItemViewTd.extend({
 				events: {
@@ -159,7 +168,7 @@
 							attr : name,
 							binding : {
 								label : function(model) {
-									// console.log("Model: ", model);
+									//console.log("Column Model: ", model);
 									var result = getLabel(model, name);
 									if (!result) {
 										var item = model.get(name);
@@ -297,8 +306,8 @@
 			var tableView;
 			
 			var options = {
-					collection: browseConfig.collection,
-					model:tableModel
+					collection: models.resultSet, //browseConfig.collection,
+					model: tableModel
 					//options: { attributes: { style: "margin: 0px;" } }
 			};
 			
@@ -342,7 +351,7 @@
 
 			
 				//header.append($('<span>Filter:</span>'));
-				header.append($().ssb.searchBox(browseConfig.searchModel).render().el);
+				header.append($().ssb.searchBox(models.searchModel).render().el);
 				header.append('<br />');
 				
 				
@@ -355,6 +364,6 @@
 				var footer = $('<div />'); //style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />'); 
 				container.append(footer);
 				
-				footer.append($().ssb.paginator({model: browseConfig.config.paginatorModel}).render().el);
+				footer.append($().ssb.paginator({model: models.paginatorModel}).render().el);
 
 			};

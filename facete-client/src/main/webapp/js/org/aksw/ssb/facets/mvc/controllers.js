@@ -231,6 +231,7 @@
 				console.log("FacetNode not set. Should not happen");
 				return;
 			}
+			//console.log('FacetValueEnricher', model);
 			
 			var path = facetNode.getPath();
 			var varName = facetNode.getVariable().value; //Name();

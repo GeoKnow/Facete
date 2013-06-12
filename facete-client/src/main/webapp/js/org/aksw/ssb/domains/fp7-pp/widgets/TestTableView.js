@@ -85,7 +85,7 @@
 		var tableConfig = createExecutorConcept(sparqlService, concept);
 		*/
 		
-		var tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
+		/////var tableConfig = createExecutorQueryFactory (sparqlService, queryFactory);
 		var browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
 		
 		//console.log("browseConfig is ", browseConfig);
@@ -322,9 +322,16 @@
 	
 	var queryUtils = Namespace("org.aksw.ssb.facets.QueryUtils");
 	
-	var createSparqlExplorer = function(sparqlService, labelFetcher) {
-		var queryFactory = new facets.QueryFactoryQuery(null);
-		this.tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
+	var createSparqlExplorer = function(tableConfig) {
+		
+		
+		return createSparqlSearch(tableConfig);
+		
+		//createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
+		
+		/*
+	/////var queryFactory = new facets.QueryFactoryQuery(null);
+		/////this.tableConfig = createExecutorQueryFactory(sparqlService, queryFactory);
 		this.browseConfig = createSparqlSearch(tableConfig, {limit: 10}, labelFetcher);
 						
 		var result = {
@@ -333,6 +340,7 @@
 		};
 		
 		return result;
+		*/
 	};
 	
 	/*

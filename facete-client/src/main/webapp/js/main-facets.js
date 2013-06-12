@@ -4,13 +4,25 @@
  * TODO Move this to backboneUtils.
  * 
  */
-Backbone.linkModels = function(sourceModel, targetModel, properties) {
+Backbone.linkModels = function(sourceModel, targetModel, fireNow, properties) {
 	
-	// Link the live of the target model to that of the source model
+	// Link the life of the target model to that of the source model
 	sourceModel.on('remove', function() {
 		targetModel.destroy();
 	});
+
 	
+	if(fireNow) {
+		var data = {};
+		for(var i = 0; i < properties.length; ++i) {
+			var property = properties[i];
+
+			var val = sourceModel.get(property);
+			data[property] = val;
+		}
+		targetModel.set(data);
+	}
+
 	
 	var fnCopy = function(property) {
 		var val = this.get(property);
@@ -24,14 +36,29 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 	for(var i = 0; i < properties.length; ++i) {
 		var property = properties[i];
 	
-		fnCopy.call(sourceModel, property);
-		
-		sourceModel.on('change:' + property, function() {
-			fnCopy.call(this, property);
-		});
-	}
+		//fnCopy.call(sourceModel, property);
+		(function(property) {
+			sourceModel.on('change:' + property, function() {
+				fnCopy.call(this, property);
+			})
+		})(property);
+	}	
 };
-	
+
+
+
+
+/*
+var SparqlBrowseModel = Backbone.Model.extend({
+	defaults: {
+		sparqlServiceIri: config.sparqlServiceIri,
+		sparqlDefaultGraphIris: config.sparqlDefaultGraphIris,
+		
+	}
+});
+*/
+
+
 (function() {
 
 	var backend = Namespace("org.aksw.ssb.backend");
@@ -45,6 +72,24 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 
 	
 	var ns = facets;
+
+	
+	
+	var attachLabelFetcher = function(tableModel) {
+
+		tableModel.on('change:sparqlService change:preferredLanguages', function() {
+
+			var sparqlService = tableModel.get('sparqlService');
+			var preferredLanguages = tableModel.get('preferredLanguages');
+			
+			var labelFetcher = new utils.LabelFetcher(sparqlService, preferredLanguages);
+			var postProcessFn = backboneUtils.createDefaultPostProcessor(labelFetcher);
+			
+			this.set({postProcessFn: postProcessFn});
+			
+			//console.log('Set post process', this);
+		});
+	};
 
 
 	
@@ -93,7 +138,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
         		$(element.val().split(",")).each(function () {
         			data.push({id: this, text: this});
         		});
-        		console.log('dg data', data);
+        		//console.log('dg data', data);
         		callback(data);
         	}
         });
@@ -154,6 +199,8 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 			
 			//defaultGraphCollection.reset(data);
 			configModel.set({sparqlDefaultGraphIris: defaultGraphIris});
+			
+			//console.log('config model', configModel, defaultGraphIris);
 		});
 		
 		
@@ -168,7 +215,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 					defaultGraphIris: defaultGraphIris
 			};
 						
-			var templateStr = 'Showing data from service <span style="color:gold">{{!it.sparqlServiceIri}}</span>{{?it.defaultGraphIris.length != 0}} with selected datasets <span style="color:gold">{{=it.defaultGraphIris.join("</span>, <span style=\\\"color:gold\\\">")}}</span>{{?}}';
+			var templateStr = 'Showing data from service <span style="color:gold">{{!it.sparqlServiceIri}}</span>{{?it.defaultGraphIris.length!=0}} with selected dataset{{?it.defaultGraphIris.length>1}}s{{?}} <span style="color:gold">{{=it.defaultGraphIris.join("</span>, <span style=\\\"color:gold\\\">")}}</span>{{?}}';
 			
 			var templateFn = doT.template(templateStr);
 			var str = templateFn(data);
@@ -182,7 +229,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		/*
 		 * Update the dataset selection
 		 */
-		configModel.on('change', function() {
+		configModel.on('change:sparqlServiceIri change:sparqlDefaultGraphIris', function() {
 			{
 				var sparqlServiceIri = this.get('sparqlServiceIri');
 				var $elSelector = $("#sparql-service-selector");
@@ -413,7 +460,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 				 */
 				sparqlService: null,
 				labelFetcher: null,
-				facetUpdater: null,
+				modelFacetUpdater: null,
 				i18n: null
 			}
 		});
@@ -422,6 +469,12 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 		var configModel = new ConfigModel();
 
+		configModel.on('change:concept', function() {
+			var concept = this.get('concept');			
+			var rootFacetNode = facets.FacetNode.createRoot(concept.getVariable().getValue());
+			
+			this.set({rootFacetNode: rootFacetNode});
+		});
 		
 		
     	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
@@ -445,7 +498,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		ns.initServices(configModel);
 
 		// Init model by triggering a change event
-		configModel.trigger('change');		
+		configModel.trigger('change:sparqlServiceIri');		
 
 		
 		var facetTree = ns.createFacetTreeView(configModel);
@@ -487,11 +540,12 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var facetValuesConfigModel = new ModelConfigFacetValues({
 			defaults: {
 				tableModel: null,
+				facetNode: null
 			}
 		});
 
 		// Link the facetValuesConfigModel to the configModel on a specific set of properties.
-		Backbone.linkModels(configModel, facetValuesConfigModel, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
+		Backbone.linkModels(configModel, facetValuesConfigModel, true, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
 
 		//console.log("Linked model: ", facetValuesConfigModel.attributes);
 		var facetValues = ns.createFacetValuesView(facetValuesConfigModel);
@@ -519,7 +573,9 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		var resetServices = function() {
 			var attrs = this.attributes;
 			
-			//console.log("Resetting services - attributes are: ", attrs);
+			
+			
+			//console.log("Resetting services - attributes are: ", JSON.stringify(attrs.sparqlDefaultGraphIris));
 			
 			var sparqlService = new backend.SparqlServiceHttp(
 					attrs.sparqlServiceIri,
@@ -528,20 +584,24 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 					"service-uri");
 			
 			var labelFetcher = new utils.LabelFetcher(sparqlService, attrs.preferredLanguages);
+
+			var facetProviders =
+				[
+				 	new facets.FacetProviderSimple(sparqlService, false)
+				 	//new facets.FacetProviderSimple(sparqlService, true)
+				];
+
 			
 			this.set({
 				sparqlService: sparqlService,
 				labelFetcher: labelFetcher,
-				modelFacetUpdater: new facets.ModelFacetUpdater(attrs.facetProviders, attrs.concept, attrs.constraintCollection, attrs.sparqlService),
-				facetProviders: [
-				    new facets.FacetProviderSimple(sparqlService, false)
-			        //new facets.FacetProviderSimple(sparqlService, true)
-			    ],
+				modelFacetUpdater: new facets.ModelFacetUpdater(facetProviders, attrs.concept, attrs.constraintCollection, sparqlService),
+				facetProviders: facetProviders,
 			    i18n: new utils.SpanI18n(labelFetcher)
 			});
 		};
 		
-		configModel.on('change', resetServices);
+		configModel.on('change:sparqlServiceIri change:sparqlDefaultGraphIris change:preferredLanguages', resetServices);
 
     };
 
@@ -602,9 +662,47 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		 * 
 		 */
 		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
-		dataTabelModel = createQueryBrowser(sparqlService, labelFetcher);
+		var widget = createQueryBrowser();
 		
-		var tableModel = dataTabelModel.browseConfig.config.tableModel;
+		
+		/*
+		var resultCollection = new Backbone.Collection();
+		
+		var syncer = new backboneUtils.SyncerRdfCollection(
+				resultCollection
+			//,backboneUtils.createDefaultPostProcessor(labelFetcher);
+		);
+		*/
+
+		
+		
+		
+		//console.log('dataTableModel', widget);
+    	//console.log("Dammit", widget);
+
+		var tableModel = widget.models.tableModel;
+
+
+		attachLabelFetcher(tableModel);
+		Backbone.linkModels(configModel, tableModel, true, ['sparqlService', 'preferredLanguages']);
+		
+		
+//		configModel.on('change:sparqlService', function() {
+//			console.log('BAM thats a BAM');
+//		});
+//
+//		tableModel.on('change:sparqlService', function() {
+//			console.log('BAM thats another BAM');
+//		});
+		
+		/*
+		console.log('Table model before link', tableModel);
+		eueue
+		*/
+
+		//console.log('Table Model after link', tableModel);
+		
+		
 		tableModel.set({
 			queryFactory : queryFactory
 		});
@@ -613,7 +711,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		container.children().remove();
 
 		
-		createView(container, dataTabelModel);
+		createView(container, widget);
 	
 		//console.log("INIT VIEWS", models);
 	
@@ -648,20 +746,41 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     	 * 
     	 * @returns A promise that becomes resolved once updating the facets completes. 
     	 */
-		var fnUpdateFacets = function(model) {
+		var fnUpdateFacetsCore = function(model) {
+			//console.log('Updating facet tree with config model ', configModel);
+			
 			var facetNode = model.get('facetNode');
 			var modelFacetUpdater = configModel.get('modelFacetUpdater');
 			
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
 			
-			console.log("Updating facetNode ", facetNode)
+			//console.log("Updating facetNode ", facetNode)
 			
 			
 			var promise = modelFacetUpdater.updateFacets(model, facetFacadeNode);
 			return promise;
 		};
 
+		
+		var renderModel = new Backbone.Model({
+			renderCount: 0
+		});
+		
+		var fnUpdateFacets = function(model) {
+			var promise = fnUpdateFacetsCore(model);
+						
+			
+			var result = promise.pipe(function() {
+				var renderCount = renderModel.get('renderCount');
+				var val = renderCount + 1;
+				
+				//console.log('[DEBUG] Increasing render count to ' + val);
+				renderModel.set({renderCount: val});
+			});
+			
+			return result;
+		};
     	
 
     	var superRootFacetCollection = new ns.CollectionFacetNode({
@@ -687,7 +806,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     	
     	//console.log("TEST", modelFacetUpdater);
     	
-		console.log("FacetFacadeNode: ", rootFacetNode);
+		//console.log("FacetFacadeNode: ", rootFacetNode);
 		var rootFacetModel = new facets.ModelFacetNode({
 			facetNode: rootFacetNode
 		});
@@ -743,19 +862,31 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 
 		// TODO This is hacky: The status of whether a facet update is running should be part of the model and not the view!
+		/*
 		var self = this;
 		facetWidget.on('facetUpdate', function(promise) {
+			console.log("[DEBUG] Waiting for completion of facet loading task...");
 			promise.done(function() {
+				console.log("[DEBUG] Data loading task completed, updating labels of URIs in DOM");
 				var i18n = configModel.get('i18n');
 				i18n.update(facetWidget.$el);
 			});
+		});
+		*/
+		
+		renderModel.on('change:renderCount', function() {
+			console.log("[DEBUG] Data loading task completed, updating labels of URIs in DOM");
+			var i18n = configModel.get('i18n');
+			i18n.update(facetWidget.$el);
 		});
 		
 		
     	superRootFacetCollection.add(rootFacetModel);
     	
-    	
-    	fnUpdateFacets(rootFacetModel);
+
+    	configModel.on('change:sparqlService', function() {
+    		fnUpdateFacets(rootFacetModel);
+    	});
 
     	
     	// TODO These two lines are a necassary hack because of above hack
@@ -772,7 +903,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 
     
     
-    ns.createFacetValuesView = function(configModel) {
+    ns.createFacetValuesView = function(configModel /* This is NOT the app config model */) {
     	
     	var sparqlService = configModel.get('sparqlService');
     	var labelFetcher = configModel.get('labelFetcher');
@@ -787,28 +918,50 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     	
 		// TODO service must be configurable
 
-		var models = createQueryBrowser(sparqlService, labelFetcher);
+		var widget = createQueryBrowser();//sparqlService, labelFetcher);
 
+		
+		var models = widget.models;
+		var tableModel = models.tableModel;
+		
+		
+
+		
     	// We need to replace the model for the query result set
 		// with our own version that gets special handling because
 		// we need to set the 'checked' state for selected facets 
-		var sourceCollection = models.browseConfig.collection;
+		var sourceCollection = models.resultSet;//models.browseConfig.collection;
+		
+		
 		var targetCollection = new Backbone.Collection();
-		models.browseConfig.collection = targetCollection;
+		//models.browseConfig.collection = targetCollection;
+		models.resultSet = targetCollection;
+
+		attachLabelFetcher(tableModel);
+		Backbone.linkModels(configModel, tableModel, true, ['sparqlService', 'preferredLanguages']);
 
 		
 		var controllerFacetValueEnricher = new facets.ControllerFacetValueEnricher(constraintCollection, targetCollection);
 
 		// FIXME Some configuration - should be done elsewhere
-		models.browseConfig.config.paginatorModel.set('maxSlotCount', 5);
-		var tableModel = models.browseConfig.config.tableModel;
+		models.paginatorModel.set('maxSlotCount', 5);
 
 		
 		
 		var fnUpdateFacetValues = function() {
+
+			
+			
+			//console.log('fnUpdateFacetValues', this);
+			
 			var facetNode = this.facetNode;
 			var constraintCollection = this.constraintCollection;
 						
+			
+			if(!facetNode) {
+				console.log('[WARN] FacetNode not set');
+				return;
+			}
 			
 			// TODO Make a 1-line helper for these three lines
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
@@ -842,14 +995,14 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		configModel.on('change', function() {
 			var model = this;
 			fnUpdateFacetValues.call({
-				facetNode: model.get('rootFacetNode'),
+				facetNode: model.get('facetNode'),
 				constraintCollection: configModel.get('constraintCollection')
 			});			
 		});
 		
 		constraintCollection.on('change', function() {
 			fnUpdateFacetValues.call({
-				facetNode: configModel.get('rootFacetNode'),
+				facetNode: configModel.get('facetNode'),
 				constraintCollection: configModel.get('constraintCollection')
 			});
 		});
@@ -879,7 +1032,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		container.children().remove();
 
 		
-		var facetValuesWidget = createView(container, models, function(options) {
+		var facetValuesWidget = createView(container, widget, function(options) {
 
 			var result = new widgets.TableView2({
 				collection : options.collection,
@@ -972,7 +1125,7 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 
 	
 		var facetValueModel = ns.createFacetValuesModel();
-		var foobarTableModel = facetValueModel.browseConfig.config.tableModel;
+		var foobarTableModel = facetValueModel.tableModel;
 
 		
 
@@ -981,12 +1134,12 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
     
     ns.createMapView = function(configModel) {		
 		
-    	
+    	/*
     	var mapCollection = configModel.get('mapCollection');    	
     	var sparqlService = configModel.get('sparqlService');
 		var constraintCollection = configModel.get('constraintCollection');
 		var rootFacetNode = configModel.get('rootFacetNode');
-    	
+    	 */    	
     	
 //		TODO Do we want a marker model? I guess eventually yes.		
 //		var MarkerModel = Backbone.Model.extend({
@@ -1089,15 +1242,13 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 		
 
 		
-		var sparqlServicePaginated = new backend.SparqlServicePaginator(sparqlService, 1000);
-		var queryCacheFactory = new utils.QueryCacheFactory(sparqlServicePaginated);
-		var geomPointFetcher = new utils.GeomPointFetcher(queryCacheFactory);
-
 		
 		// Whenever the facet selection changes (or the concept) update the map.
 		
 		
-		
+		var constraintCollection = configModel.get('constraintCollection');
+    	var mapCollection = configModel.get('mapCollection');    	
+
 				
  		
 		var updateMap = function() {		
@@ -1106,6 +1257,13 @@ Backbone.linkModels = function(sourceModel, targetModel, properties) {
 				//return;
 			}
 			
+	    	var sparqlService = configModel.get('sparqlService');
+			var rootFacetNode = configModel.get('rootFacetNode');
+
+			var sparqlServicePaginated = new backend.SparqlServicePaginator(sparqlService, 1000);
+			var queryCacheFactory = new utils.QueryCacheFactory(sparqlServicePaginated);
+			var geomPointFetcher = new utils.GeomPointFetcher(queryCacheFactory);
+	
 			
 			mapCollection.each(function(model) {
 				var geoPath = model.get('path');

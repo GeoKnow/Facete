@@ -402,6 +402,7 @@
 				
 		var fn = function(plainJsonRs) {
 			
+			//console.log("plainJsonRs", plainJsonRs);
 			
 			//var before = JSON.stringify(plainJsonRs);
 			
@@ -425,7 +426,7 @@
 			var task = labelFetcher.fetch(uris);
 	
 			
-			task.then(function(labelInfo) {
+			task.done(function(labelInfo) {
 			
 				var transformed = uriUtils.transformJsonRs(jsonRs, function(node) {
 						
@@ -522,8 +523,12 @@
 			getCollection: function() {
 				return this.collection;
 			},
+			
+			setPostProcessFn: function(postProcessFn) {
+				this.fnPostProcess = postProcessFn;
+			},
 	
-			sync: function(jsonRs) {
+			sync: function(jsonRs, offset) {
 				//console.log("Sync [Start] ", this.id, "with " + JSON.stringify(jsonRs));
 				
 				var result = $.Deferred();
@@ -532,19 +537,19 @@
 				var tmp = this.taskCounter;
 				
 				
+				var self = this;
 				if(this.fnPostProcess) {
 					var postProcessTask = this.fnPostProcess(jsonRs);
 	
 					
 					//console.log("Post processor for ", this.id, " is ", this.fnPostProcess.id);
 					
-					var self = this;
-					postProcessTask.then(function(procJsonRs) {
+					postProcessTask.done(function(procJsonRs) {
 						//console.log("Sync [PostProcess] ", self.id, JSON.stringify(procJsonRs));
 						
 						if(self.taskCounter != tmp) {
 							result.fail();
-							console.log("Fail");
+							console.log("Action was superseded by another update - Fail");
 							return;
 						}
 						
@@ -553,20 +558,25 @@
 						result.fail();
 					});
 				} else {
-					result.resolve(jsonRs);
+					result.resolve(jsonRs, offset);
 				}
 
 				
-				result.then(function(resultJsonRs) {
+				var last = result.pipe(function(resultJsonRs) {
 					self.processResult(resultJsonRs);
 				});
 				
-				return result.promise();
+				return last; //result.promise();
 			},
 			
 			
-			processResult: function(jsonRs) {
-				var offset = jsonRs.offset ? jsonRs.offset : 0;
+			processResult: function(jsonRs, offset) {
+
+				//var offset = jsonRs.offset ? jsonRs.offset : 0;
+				if(!offset) {
+					offset = 0;
+				}
+				
 				var bindings = jsonRs.results.bindings; //data;
 				
 				var newModels = [];
@@ -579,6 +589,7 @@
 	
 					newModels.push(binding);
 				}
+
 	
 				//console.log("New models", JSON.stringify(newModels));
 				//console.log("Sync [Reset] ", this.id, " with " + JSON.stringify(jsonRs));

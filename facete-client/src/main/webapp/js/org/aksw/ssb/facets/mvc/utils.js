@@ -37,7 +37,7 @@
 			var query = queryUtils.createQueryFacetCount(concept, facetVar,
 					countVar, this.isInverse, sampleSize);
 
-			console.log("Fetching facets with query: " + query);
+			console.log("[DEBUG] Fetching facets with query: " + query);
 			
 			var uris = [];
 			if(steps && steps.length > 0) {
@@ -70,16 +70,17 @@
 
 					var filter = new sparql.ElementFilter([expr]);
 
-					console.log("Filter: ", filter);
+					//console.log("Filter: ", filter);
 					query.elements.push(filter);
 				}
 			}
 			
+			/*
 			console.log("Steps: ", steps);
 			console.log("IsInverse: ", this.isInverse);
 			console.log("Uris: ", uris);
 			console.log("FacetProviderQuery: " + query);
-			
+			*/
 			
 			var myDataTemplate = function(binding) {
 
@@ -156,7 +157,8 @@
 			// If the node is not expanded, we omit it
 			var isExpanded = model.get("isExpanded");
 			if (!isExpanded) {
-				return;
+				var result = $.Deferred();
+				return result.resolve();
 			}
 
 			
@@ -172,9 +174,7 @@
 			
 			// On the other hand, we can do a single query to capture all non-constrained paths
 			var constrainedSteps = facetFacadeNode.getConstrainedSteps();
-			console.log("Constrained steps: " + JSON.stringify(constrainedSteps));
-
-			var promises = [];
+			//console.log("Constrained steps: " + JSON.stringify(constrainedSteps));
 
 			var fnLoop = function(sparqlService, conceptItem) {
 
@@ -234,7 +234,7 @@
 			
 			
 			//var individualPromise
-			
+			var promises = [];			
 			for(var i = 0; i < conceptItems.length; ++i) {
 				var conceptItem = conceptItems[i];				
 				var promise = fnLoop(this.sparqlService, conceptItem);
@@ -267,7 +267,7 @@
 			
 			var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
 			
-			console.log("GenericConcept: " + concept, concept.isSubjectConcept());
+			//console.log("GenericConcept: " + concept, concept.isSubjectConcept());
 
 
 			var children = model.get("children");
@@ -286,7 +286,12 @@
 
 				var promise = tmp.pipe(function(items) {
 
-					var mapped = _.map(items, function(item) {
+
+					var mapped = [];
+					for(var i = 0; i < items.length; ++i) {
+						var item = items[i];
+
+						//var mapped = _.map(items, function(item) {
 
 						var facetUri = item.facetUri;
 						var isInverse = item.isInverse;
@@ -309,10 +314,12 @@
 						item.facetNode = subFacadeNode.getFacetNode();
 						item.step = step;
 
+						mapped.push(item);
+					}
 						//console.log("Mapped model:", item);
 
-						return item;
-					});
+						//return item;
+					//});
 
 					return mapped;
 				});
@@ -326,18 +333,25 @@
 
 			promises.push.apply(promises, tmpPromises);
 
-			console.log("Number of promises loading " + promises.length, promises);
+			console.log("[DEBUG] Number of promises loading " + promises.length, promises);
 			
 			var finalPromise = $.when.apply(null, promises);
 			
-			finalPromise.done(function() {
+			finalPromise.then(function() {
 				model.set({
 					isLoading : false
 				});
 			});
 
-			finalPromise.done(function() {
-				console.log("Arguments: ", arguments);
+			
+				
+			var reallyFinalPromise = $.Deferred();
+				
+			finalPromise.pipe(function() {
+				
+				
+				
+				//console.log("Arguments: ", arguments);
 				var items = [];
 				for(var i = 0; i < arguments.length; ++i) {
 					var args = arguments[i];
@@ -380,9 +394,19 @@
 					}
 				}
 
+				var subPromises = [];
 				children.each(function(child) {
 					var facetFacadeNode = child.get('facetFacadeNode');
-					self.updateFacets(child, facetFacadeNode);
+					var subPromise = self.updateFacets(child, facetFacadeNode);
+					subPromises.push(subPromise);
+				});
+				
+				var task = $.when.apply(null, subPromises);
+				
+				task.done(function() {
+					reallyFinalPromise.resolve();					
+				}).fail(function() {
+					reallyFinalPromise.fail();
 				});
 				
 				/*
@@ -404,9 +428,17 @@
 				
 			});
 			
+//			var reallyFinalPromise = $.when.apply(null, xxx);
+
 			//syncer.sync(promises);
-			
-			return finalPromise;
+
+			/*
+			console.log("[DEBUG] Facet update procedure complete");
+			reallyFinalPromise.then(function() {
+				console.log("[DEBUG] Final promise resolved");
+			});
+			*/
+			return reallyFinalPromise;
 		}
 
 	};

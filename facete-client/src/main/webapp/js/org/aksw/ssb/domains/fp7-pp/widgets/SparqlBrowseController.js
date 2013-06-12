@@ -53,6 +53,10 @@
 
 	var TableModel = Backbone.Model.extend({
 		defaults: {
+			//sparqlServiceIri: null,
+			//sparqlDefaultGraphIris: [],
+			sparqlService: null,
+			
 			queryFactory: null,
 			offset: 0,
 			limit: 10,
@@ -84,14 +88,14 @@
 	var SparqlBrowseController = function(options) {
 
 		this.tableModel = checkNotNull(options.tableModel);
-		
 		this.paginatorModel = checkNotNull(options.paginatorModel);
 		
+		//this.sparqlService = checkNotNull(options.sparqlService);
 		
 		// This is not a model but a "query configurator".
 		// It is assumed it is somehow linked to the executor.
-		this.tableConfig = checkNotNull(options.tableConfig);
-		this.tableExecutor = checkNotNull(options.tableExecutor);
+		//this.tableConfig = checkNotNull(options.tableConfig);
+		//this.tableExecutor = checkNotNull(options.tableExecutor);
 
 		//this.sparqlCollection = checkNotNull(options.sparqlCollection);
 		this.syncer = checkNotNull(options.syncer);
@@ -116,9 +120,9 @@
 			});
 			*/
 			
-			this.tableModel.on("change", function() {
+			this.tableModel.on('change', function() {
 				
-				console.log("Table model changed");
+				//console.log("Table model changed");
 				
 				self.syncState();
 
@@ -126,10 +130,12 @@
 				
 				//console.log("Diff", diff);
 				
+				// Page count must be recomputed if any of the following attributes change
 				for(var att in diff) {
 					switch(att) {
 					case 'elements':
 					case 'queryFactory':
+					case 'sparqlService':
 					 	self.refreshPageCount();
 					 	break;
 					}
@@ -142,6 +148,10 @@
 				//self.
 				//self.paginatorModel.set({currentPage: page});
 			});
+
+//			this.tableModel.on('change:sparqlService', function() {
+//				self.refreshPageCount();
+//			});
 			
 			this.paginatorModel.on("change:pageRequest", function() {
 				
@@ -168,8 +178,15 @@
 
 			var self = this;
 
+			if(!this.tableExecutor) {
+				self.paginatorModel.set({pageCount: 1});
+				return;
+			};
+			
 			var task = this.tableExecutor.fetchResultSetSize();
-			var result = task.done(function(info) {
+			
+			
+			var result = task.pipe(function(info) {
 				var limit = self.tableModel.get("limit");
 				
 				var itemCount = info.count;			
@@ -182,6 +199,8 @@
 				
 				self.paginatorModel.set({pageCount: pageCount});
 			});
+			
+			return result;
 		},
 		
 		changePage: function() {
@@ -211,26 +230,55 @@
 			var limit = this.tableModel.get("limit");
 			var elements = this.tableModel.get("elements");
 			var queryFactory = this.tableModel.get("queryFactory");
+			var sparqlService = this.tableModel.get("sparqlService");
+			
+			this.tableConfig = new facets.TableModelQueryFactory();
 			
 			this.tableConfig.setLimit(limit);
 			this.tableConfig.setOffset(offset);
 			this.tableConfig.setElements(elements);
 			this.tableConfig.setQueryFactory(queryFactory);
+			
+			
+			//console.log("Status of the tableConfig", this.tableConfig, sparqlService);
+			
+			//var queryFactory = new facets.QueryFactoryQuery(query);
+			
+			this.tableExecutor = null;
+			
+			if(queryFactory && sparqlService) {
+				this.tableExecutor = new facets.ExecutorQueryFactory(sparqlService, this.tableConfig);
+				
+				//var query = "" + this.tableConfig.createQuery();
+				//console.log("Query: " + query);
+			}
+			
+			if(!this.tableExecutor) {
+				console.log('[WARN] No sparql executor set');
+			}
+//			else {
+//				console.log('[WARN] SPARQL Executor:', this.tableExecutor);
+//			}
+			
 		},
 		
 		syncData: function() {
 			var self = this;
 
+			var offset = this.tableModel.get("offset");
+			if(!this.tableExecutor) {
+				self.syncer.sync({results: {bindings: []}}, offset);
+				
+				return;
+			}
+			
+
 			var task = this.tableExecutor.fetchResultSet();
 
-			var offset = this.tableModel.get("offset");
 			
-			task.then(function(jsonRs) {
-				jsonRs.offset = offset;
-				
-				console.log("Syncing", jsonRs);
-				self.syncer.sync(jsonRs);
-				
+			task.done(function(jsonRs) {				
+				//console.log("Syncing", jsonRs);
+				self.syncer.sync(jsonRs, offset);				
 			});
 		}
 	};
@@ -242,19 +290,22 @@
 		//return new sparql.E_Like(exprVar, pattern);
 	};
 
-	var setSearch = function(searchText, config) {
-		setSearch2(searchText, config.tableConfig, config.tableModel);
+	var setSearch = function(searchText, tableModel) {
+		//setSearch2(searchText, config.tableConfig, config.tableModel);
+		setSearch2(searchText, tableModel);
 	};
 
 	
 	
-	var setSearch2 = function(searchText, tableConfig, tableModel) {
+	var setSearch2 = function(searchText, tableModel) { //tableConfig, tableModel) {
 		/*
 		var diff = this.changedAttributes();
 		var searchText = diff.text;
 		*/			
 		//console.log("Search text: ", this);
 
+		var queryFactory = tableModel.get('queryFactory');
+		var query = queryFactory.createQuery();
 		
 		
 		if(searchText.length == 0) {
@@ -266,7 +317,7 @@
 		}
 		
 		// TODO: Somehow notify the tableModel...
-		var query = tableConfig.createQuery();
+		//var query = tableConfig.createQuery();
 	
 		if(!query) {
 			return;
@@ -349,19 +400,27 @@
 	
 
 	/**
-	 * tableConfig { config { limit, offset, queryFactory }, executor { }
+	 * tableConfig { config { limit, offset, queryFactory, sparqlService }, executor { }
 	 */
-	var createSparqlPagination = function(tableConfig, tableModelAttrs, labelFetcher) {
+	var createSparqlPagination = function(tableConfig) {
 		
-		var collection = new Backbone.Collection();
+		// This is the result set
+		var resultSet = new Backbone.Collection();
 		
 		var syncer = new backboneUtils.SyncerRdfCollection(
-			collection,
-			backboneUtils.createDefaultPostProcessor(labelFetcher)
+				resultSet,
+				(function(jsonRs) {
+					// Without having a post processor set, we omit any results
+					console.log("[WARN] Post processor not set - Discarding data.");
+					var deferred = $.Deferred();
+					deferred.resolve({results: {bindings: []}});
+					return deferred.promise();
+				})
+			//,backboneUtils.createDefaultPostProcessor(labelFetcher);
 		);
 
 
-		var tmpAttrs = _.extend({queryFactory: tableConfig.config.queryFactory});
+		//var tmpAttrs = _.extend({queryFactory: tableConfig.config.queryFactory});
 
 		//console.log("tmpAttrs", tmpAttrs);
 
@@ -370,50 +429,87 @@
 			options = {};
 		}*/
 		
-		var tableModel = new TableModel(tmpAttrs);
+		var tableModel = new TableModel();
+
 		var paginatorModel = new widgets.PaginatorModel({
 			maxSlotCount: 9
 		});
 		
 		
+		
+//		tableModel.on('change:sparqlService', function() {
+//			var sparqlService = this.get('sparqlService');
+//			
+//			var labelFetcher = labelFetcherFactoryFn(sparqlService);
+//		
+//			var postProcessor = backboneUtils.createDefaultPostProcessor(labelFetcher);
+//
+//			syncer.setPostProcessor(postProcessor);
+//			//this.set({labelFetche})
+//		});
+		
+		//tableModel.set(tmpAttrs);
 
 		var browseConfig = {
 			tableModel: tableModel,
-			
 			paginatorModel: paginatorModel,
-			tableConfig: tableConfig.config,
-			tableExecutor: tableConfig.executor, // NOTE: The tableExecutor uses the tableModel internally, but by this the SparqlBrowseController does not have to be aware of the query generation and execution.
-			syncer: syncer
+			//collection: collection
+			syncer: syncer // The syncer takes care of syncing the query result with the resultCollection
+			//tableConfig: tableConfig.config,
+			//tableExecutor: tableConfig.executor, // NOTE: The tableExecutor uses the tableModel internally, but by this the SparqlBrowseController does not have to be aware of the query generation and execution.
 		};
 		
+
 		var controller = new SparqlBrowseController(browseConfig);
 
+		
+		tableModel.on('change:postProcessFn', function() {
+			var postProcessFn = this.get('postProcessFn'); 
+			
+			syncer.setPostProcessFn(postProcessFn);
+			
+			//console.log('Syncing after setting postProcess to ', postProcessFn);
+			//controller.sync();
+			//syncer.sync();
+		});
+
+		
 		controller.activate();
 
 		var result = {
-				collection: collection,
-				config: browseConfig,
-				controller: controller				
+				models: {
+					resultSet: resultSet,
+					tableModel: tableModel,
+					paginatorModel: paginatorModel
+				},				
+				controllers: {
+					browseController: controller
+				}
+				//config: browseConfig,
+				//controller: controller				
 		};
+		
 		
 		return result;
 	};
 	
 	
-	var createSparqlSearch = function(tableConfig, tableModelAttrs, labelFetcher) {
-		var result = createSparqlPagination(tableConfig, tableModelAttrs, labelFetcher);
+	var createSparqlSearch = function(tableConfig) {
+		var result = createSparqlPagination(tableConfig);
+
+		var models = result.models;
 
 		var searchModel = new Backbone.Model();
+		result.models.searchModel = searchModel;
 
 
 		searchModel.on('change:text', function() {
 			var searchText = "" + this.get('text');
 			
-			setSearch(searchText, result.config);
+			setSearch(searchText, models.tableModel); //result.config);
 		});
 
 		
-		result.searchModel = searchModel;
 		
 		return result;
 	};

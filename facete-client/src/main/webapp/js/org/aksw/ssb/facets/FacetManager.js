@@ -565,7 +565,7 @@
 
 			//console.log("pathToExprs", pathToExprs);
 
-			console.log("[ConstraintManager::createElements]", elements);
+			//console.log("[ConstraintManager::createElements]", elements);
 			
 			return elements;
 		},
@@ -1132,7 +1132,7 @@
 				elements.push.apply(elements, pathElements);
 				
 				var result = sparql.ElementUtils.flatten(elements);
-				console.log("Flattened: ", result);
+				//console.log("Flattened: ", result);
 				
 				// Remove duplicates
 				

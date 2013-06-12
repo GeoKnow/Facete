@@ -295,6 +295,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 	        initSelection: function(element, callback) {
 	        	var id = element.val();
+	        	//console.log('[DEBUG] SPARQL service id: ' + id);
 	        	var data = {id: id, text: id};
 	        	
 	        	callback(data);
@@ -338,7 +339,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	    });
         
         $elSparqlServiceSelector.on('change', function(ev) {
-        	var sparqlServiceIri = ev.val;
+        	//var sparqlServiceIri = ev.val;
+        	//var sparqlServiceIri = $elSparqlServiceSelector.val();
+        	var sparqlServiceIri = $elSparqlServiceSelector.select2('data').text;
+
+        	console.log('[DEBUG] Selection: ' + sparqlServiceIri, ev);
         	configModel.set({sparqlServiceIri: sparqlServiceIri});
         });
 

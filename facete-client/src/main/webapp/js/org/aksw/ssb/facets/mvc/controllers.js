@@ -334,7 +334,7 @@
 			//console.log("QueryFACTORY IS", qfProjection);
 			
 			this.modelQueryFactory.set({
-				queryFactory: qfProjection,
+				queryFactory: qfProjection
 			});
 		}
 	};

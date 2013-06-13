@@ -156,7 +156,7 @@
 					//this.unrender();
 					this.$el.empty();
 					this.render();
-				},
+				}
 			});
 
 

@@ -96,7 +96,7 @@
 					type : "property",
 					facetUri : binding.facetName.value,
 					facetCount : binding.facetCount.value,
-					isInverse : self.isInverse,
+					isInverse : self.isInverse
 				// concept: null
 				};
 

@@ -400,7 +400,7 @@
 							//var facetFacadeNode = model.get("facetFacadeNode");
 
 							model.set({
-								'isExpanded' : true,
+								'isExpanded' : true
 							});
 
 							this.updateFacets();
@@ -453,7 +453,7 @@
 
 						this.getHoverArea().hide();
 						//this.$el.find("> div > div.hoverOptions").hide();
-					},
+					}
 					
 					
 					/*
@@ -471,8 +471,8 @@
 						//this.getParent().trigger("pivot", this);
 					},
 					*/
-
 				},
+
 				render : function() {
 					
 					var text = this.model.get("facetUri");

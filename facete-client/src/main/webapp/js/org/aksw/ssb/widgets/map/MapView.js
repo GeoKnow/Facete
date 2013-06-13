@@ -139,7 +139,7 @@ var widgets = Namespace("org.aksw.ssb.widgets");
 	    			self.legacyWidget.addItem(uri, lonlat, attributes, true);
 	    		}
 	    	}
-	    },
+	    }
 	});
 	
 })(widgets);

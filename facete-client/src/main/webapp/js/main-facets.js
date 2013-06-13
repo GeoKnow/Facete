@@ -396,7 +396,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				 * Services based on above properties
 				 */
 				sparqlService: null,
-				labelFetcher: null,
+				labelFetcher: null
 			}
 		});
 
@@ -1085,7 +1085,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		var result = {
 				facetValuesWidget: facetValuesWidget,
-				tableModel: tableModel,
+				tableModel: tableModel
 		};
 
 		return result;
@@ -1315,7 +1315,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 						_.each(uriToPoint, function(point, uri) {
 							rdfGraph[uri] = {
 									'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.x}],
-									'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}],
+									'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}]
 									//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
 							};
 							

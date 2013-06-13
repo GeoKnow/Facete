@@ -90,7 +90,7 @@
 				/* This would become a rather complex function, the method isSubjectConcept is sufficient for our use case */
 				
 				
-			},
+			}
 	});
 
 	

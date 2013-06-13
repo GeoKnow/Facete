@@ -56,7 +56,7 @@ var ns = Namespace("org.aksw.ssb.widgets");
 		render: function() {
 			this.$el.html(this.template(this.model.attributes));
 			return this;
-		},
+		}
 	});
 	
 	ns.SearchNominatim = function(baseUrl, baseParams) {

@@ -417,7 +417,7 @@
 		/**
 		 * Rdf data about these resources in Talis Json format
 		 */
-		json: {},		
+		json: {}
 	});
 
 })();

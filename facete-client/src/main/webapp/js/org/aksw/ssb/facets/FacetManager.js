@@ -181,7 +181,7 @@
 				}
 				
 				return child;
-			},
+			}
 	};
 	
 	
@@ -568,7 +568,7 @@
 			//console.log("[ConstraintManager::createElements]", elements);
 			
 			return elements;
-		},
+		}
 		
 	};
 	
@@ -949,7 +949,7 @@
 
 			
 			//return result;
-		},
+		}
 	};
 	
 	

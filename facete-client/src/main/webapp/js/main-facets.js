@@ -550,7 +550,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		});
 
 		// Link the facetValuesConfigModel to the configModel on a specific set of properties.
-		Backbone.linkModels(configModel, facetValuesConfigModel, true, ['sparqlService', 'labelFetcher', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
+		Backbone.linkModels(configModel, facetValuesConfigModel, true, ['sparqlService', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
 
 		//console.log("Linked model: ", facetValuesConfigModel.attributes);
 		var facetValues = ns.createFacetValuesView(facetValuesConfigModel);
@@ -894,9 +894,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	});
 
     	
-    	// TODO These two lines are a necassary hack because of above hack
-		var i18n = configModel.get('i18n');
-		i18n.update(facetWidget.$el);
+    	// TODO Thiso line is necassary hack because of above hack
+    	renderModel.trigger('change:renderCount');
+		//var i18n = configModel.get('i18n');
+		//i18n.update(facetWidget.$el);
 
     	
 		var result = {
@@ -910,8 +911,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     
     ns.createFacetValuesView = function(configModel /* This is NOT the app config model */) {
     	
-    	var sparqlService = configModel.get('sparqlService');
-    	var labelFetcher = configModel.get('labelFetcher');
+    	//var sparqlService = configModel.get('sparqlService');
+    	//var labelFetcher = configModel.get('labelFetcher');
     	var concept = configModel.get('concept');
     	var constraintCollection = configModel.get('constraintCollection');
     	
@@ -1062,7 +1063,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 						c2 = $('<span data-uri="' + node.value + '" />');
 						//foobarI18N.update(c2);
 						//this.trigger("test");
-						i18n.update(c2);
+						//i18n.update(c2);
 
 					} else {
 						c2 = $('<span>' + node.value + '</span>');
@@ -1076,9 +1077,17 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				}
 			});
 			
+			
+			result.on('renderDone', function() {
+				i18n = configModel.get('i18n');
+				i18n.update(this.$el);				
+			});
+			
+			/*
 			result.on('test', function() {
 				alert("yay");
 			});
+			*/
 			
 			return result;
 		});

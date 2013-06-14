@@ -89,7 +89,9 @@
 	    	this.collection.bind('reset', this.reset, this);
 		},
 		render: function() {
-			this.collection.map(this.renderRow);
+			this.collection.each(this.renderRow);
+			
+			this.trigger('renderDone', this);
 			
 			return this;
 		},

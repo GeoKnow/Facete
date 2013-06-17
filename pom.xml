@@ -37,24 +37,26 @@
 	<properties>
 
 		<!-- Dependency Versions -->
-		<jena-sparql-api.version>2.10.0-2</jena-sparql-api.version>
-		
- 		<jetty.version>9.0.0.v20130308</jetty.version>
+		<jena-sparql-api.version>2.10.0-4</jena-sparql-api.version>
+		<aksw-commons.version>0.7.1</aksw-commons.version>
+
+
+		<jetty.version>9.0.0.v20130308</jetty.version>
 		<jetty-plugin.version>8.1.10.v20130312</jetty-plugin.version>
 		<maven-war-plugin.version>2.3</maven-war-plugin.version>
-<!-- 		<org.mortbay.jetty.version>7.0.0.pre5</org.mortbay.jetty.version> -->
+		<!-- <org.mortbay.jetty.version>7.0.0.pre5</org.mortbay.jetty.version> -->
 		<spring.version>3.1.2.RELEASE</spring.version>
-<!-- 		<atmosphere.version>1.0.12</atmosphere.version> -->
+		<!-- <atmosphere.version>1.0.12</atmosphere.version> -->
 		<atmosphere-jquery.version>1.0.9</atmosphere-jquery.version>
 
 		<!-- DON'T TOUCH THESE VERSIONS OR KITTENS WILL DIE -->
-<!-- 		<jersey.version>1.8</jersey.version> -->
+		<!-- <jersey.version>1.8</jersey.version> -->
 		<jersey-spring.version>1.12</jersey-spring.version>
 		<jersey-json.version>1.12</jersey-json.version>
-<!-- 		<jersey-json.version>1.17.1</jersey-json.version> -->
-	    	<javaee-api.version>6.0</javaee-api.version>
+		<!-- <jersey-json.version>1.17.1</jersey-json.version> -->
+		<javaee-api.version>6.0</javaee-api.version>
 
-		<joda-time.version>2.2</joda-time.version>			
+		<joda-time.version>2.2</joda-time.version>
 
 
 		<slf4j.version>1.6.0</slf4j.version>
@@ -71,7 +73,7 @@
 	</properties>
 
 	<scm>
-<!-- 		<connection>scm:git:git@github.com:AKSW/Sparqlify.git</connection> -->
+		<!-- <connection>scm:git:git@github.com:AKSW/Sparqlify.git</connection> -->
 		<!-- developerConnection></developerConnection -->
 		<!-- url>https://my-project.googlecode.com/svn</url -->
 		<tag>HEAD</tag>
@@ -79,14 +81,15 @@
 
 
 	<dependencyManagement>
-		<dependencies>		
+		<dependencies>
 			<dependency>
 				<groupId>org.aksw.facete</groupId>
 				<artifactId>facete-client</artifactId>
 				<version>${project.version}</version>
+				<type>war</type>
 			</dependency>
 
-			<!-- Jena SPARQL API -->		
+			<!-- Jena SPARQL API -->
 			<dependency>
 				<groupId>org.aksw.jena-sparql-api</groupId>
 				<artifactId>jena-sparql-api-core</artifactId>
@@ -113,14 +116,14 @@
 				<artifactId>jersey-spring</artifactId>
 				<version>${jersey-spring.version}</version>
 			</dependency>
-	        <dependency>
-	            <groupId>javax</groupId>
-	            <artifactId>javaee-api</artifactId>
-	            <version>${javaee-api.version}</version>
-	            <scope>provided</scope>
-	        </dependency>
+			<dependency>
+				<groupId>javax</groupId>
+				<artifactId>javaee-api</artifactId>
+				<version>${javaee-api.version}</version>
+				<scope>provided</scope>
+			</dependency>
 
-			
+
 
 			<!-- Logging -->
 			<dependency>
@@ -154,22 +157,22 @@
 
 
 
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.aksw.sparqlify</groupId> -->
-<!-- 				<artifactId>sparqlify-core</artifactId> -->
-<!-- 				<version>0.2-SNAPSHOT</version> -->
-<!-- 			</dependency> -->
+			<!-- <dependency> -->
+			<!-- <groupId>org.aksw.sparqlify</groupId> -->
+			<!-- <artifactId>sparqlify-core</artifactId> -->
+			<!-- <version>0.2-SNAPSHOT</version> -->
+			<!-- </dependency> -->
 
 
 			<!-- AKSW Commons -->
 			<dependency>
 				<groupId>org.aksw.commons</groupId>
 				<artifactId>util</artifactId>
-				<version>${aksw.commons.version}</version>
+				<version>${aksw-commons.version}</version>
 				<scope>compile</scope>
 			</dependency>
 
-			
+
 			<!-- Database Connectivity -->
 			<dependency>
 				<groupId>postgresql</groupId>
@@ -178,23 +181,23 @@
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
-<!-- 			<dependency> -->
-<!-- 				<groupId>org.postgis</groupId> -->
-<!-- 				<artifactId>postgis-jdbc</artifactId> -->
-<!-- 				<version>1.3.3</version> -->
-<!-- 				<type>jar</type> -->
-<!-- 				<scope>compile</scope> -->
-<!-- 			</dependency> -->
-			
-			
+			<!-- <dependency> -->
+			<!-- <groupId>org.postgis</groupId> -->
+			<!-- <artifactId>postgis-jdbc</artifactId> -->
+			<!-- <version>1.3.3</version> -->
+			<!-- <type>jar</type> -->
+			<!-- <scope>compile</scope> -->
+			<!-- </dependency> -->
+
+
 			<!-- JDBC Connection Pooling -->
 			<dependency>
 				<groupId>com.jolbox</groupId>
 				<artifactId>bonecp</artifactId>
 				<version>0.7.1.RELEASE</version>
 			</dependency>
-			
-			
+
+
 			<!-- Used for SQL-Escapting (StringEscapeUtils) -->
 			<dependency>
 				<groupId>commons-lang</groupId>
@@ -213,7 +216,7 @@
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>net.sf.opencsv</groupId>
 				<artifactId>opencsv</artifactId>
@@ -221,14 +224,14 @@
 			</dependency>
 
 
-<!-- Not sure if we need this for getting Jena to work -->
-<!-- 			<dependency> -->
-<!-- 				<groupId>xerces</groupId> -->
-<!-- 				<artifactId>xercesImpl</artifactId> -->
-<!-- 				<version>2.10.0</version> -->
-<!-- 				<scope>runtime</scope> -->
-<!-- 			</dependency> -->
-	
+			<!-- Not sure if we need this for getting Jena to work -->
+			<!-- <dependency> -->
+			<!-- <groupId>xerces</groupId> -->
+			<!-- <artifactId>xercesImpl</artifactId> -->
+			<!-- <version>2.10.0</version> -->
+			<!-- <scope>runtime</scope> -->
+			<!-- </dependency> -->
+
 
 			<!-- Collection Libraries -->
 			<dependency>
@@ -261,6 +264,12 @@
 				<artifactId>junit</artifactId>
 				<version>4.11</version>
 				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.tuckey</groupId>
+				<artifactId>urlrewritefilter</artifactId>
+				<version>4.0.3</version>
 			</dependency>
 
 		</dependencies>
@@ -299,16 +308,16 @@
 
 
 			<!--Maven Compiler Plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-compiler-plugin</artifactId> -->
+			<!-- <version>3.0</version> -->
+			<!-- <configuration> -->
+			<!-- <source>${maven.compiler.source}</source> -->
+			<!-- <target>${maven.compiler.target}</target> -->
+			<!-- <encoding>${project.build.sourceEncoding}</encoding> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
 
 
 			<plugin>
@@ -362,11 +371,11 @@
 				</configuration>
 			</plugin>
 
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 				<artifactId>maven-war-plugin</artifactId> -->
-<!-- 				<version>${maven-war-plugin.version}</version> -->
-<!-- 			</plugin> -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-war-plugin</artifactId> -->
+			<!-- <version>${maven-war-plugin.version}</version> -->
+			<!-- </plugin> -->
 
 			<plugin>
 				<groupId>org.jboss.tattletale</groupId>
@@ -395,13 +404,13 @@
 						it won't be analyzed -->
 					<excludes>
 						<exclude>commons-beanutils-</exclude>
-						
+
 						<!-- TODO These conflicts should be resolved -->
 						<exclude>stax-api-</exclude>
 						<exclude>xml-apis-</exclude>
-						
+
 						<exclude>commons-logging-</exclude>
-						 
+
 					</excludes>
 				</configuration>
 			</plugin>

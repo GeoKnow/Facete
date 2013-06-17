@@ -1,0 +1,140 @@
+/*
+ * Bootstrap overrides for SemMap
+ */
+ 
+.pagination {
+	margin: 5px;
+	height: 17px;
+}
+
+.pagination a {
+	padding: 0 7px;
+	line-height: 17px;
+}
+
+.table-striped tbody tr:nth-child(odd) td,
+.table-striped tbody tr:nth-child(odd) th {
+  background-color: #f0f0ff;
+}
+
+
+/*
+ * Custom classes for SemMap
+ */
+
+ul .facet {
+	list-style: none;
+	list-style-type:none;
+}
+
+
+
+
+/*
+ * Overrides of the ec css
+ */
+ 
+.container {
+	width: 100% !important;
+}
+
+.header {
+	width: 100% !important;
+	height: 88px !important;
+}
+
+.header .span12 {
+	height: 88px !important;
+}
+
+.header .logo {
+	padding: 1em 1em 1em 3em;
+}
+
+.top-breadcrumbs {
+	height: 20px;
+	padding-bottom: 0;
+}
+
+.region{
+	background: #1c3048 url("../images/header-bg.jpg") no-repeat right;
+	width:100%;
+	height:40px;
+}
+
+#header-menu ul li.leaf {
+	background: none;
+}
+
+/*
+ * Fixes, workarounds and hacks
+ */
+ 
+ /* Fix for http://stackoverflow.com/questions/11266297/openlayers-openstreetmap-background-is-vertically-striped-and-squished */
+img {
+	max-width: none !important;
+}
+/* Fix for strange background on font-awesome icons --- http://stackoverflow.com/questions/11452356/duplicated-icon-issue-with-twitter-bootstrap-and-font-awesome */
+/* Fix for wrong vertical align */
+[class^="icon-"], [class*=" icon-"]{
+  background: none;
+  vertical-align: baseline;
+}
+
+
+
+/**
+ * Utility
+ */
+/* http://stackoverflow.com/questions/224602/how-do-you-make-div-elements-display-inline */
+div.inline {
+	float:left;
+}
+
+.clearBoth {
+	clear:both;
+}
+
+.facete-icon {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+/*
+* Left column facets styling
+*/
+.left-column {
+	background-color: #eee;
+	height: 100%;
+}
+
+#facets {
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+#facetValues {
+	padding-top: 5px;
+}
+
+#facetValues input {
+	width: 80%;
+}
+
+#facetValues table {
+	margin-top: 5px;
+	width: 80%;
+}
+
+#facetValues table td {
+	min-width: 15px;
+	word-wrap: break-word;
+	vertical-align: middle;
+}
+
+#facetValues table td span {
+	width:90%;
+	overflow:auto;
+	/*width: 100%;*/
+}

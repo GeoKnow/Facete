@@ -1,1 +1,1 @@
-facete-index.php
+resources/facete-index.php

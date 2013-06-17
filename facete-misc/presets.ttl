@@ -1,0 +1,45 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+@prefix o: <http://ns.aksw.org/preset/ontology/> .
+@prefix r: <http://ns.aksw.org/preset/resource/> .
+
+
+r:preset1
+	a o:Preset ;
+	rdfs:label "Default preset" ;
+	rdfs:comment "Show the amount of money distributed to project partners" ;
+	o:service <http://fp7-pp.publicdata.eu/sparql> ;
+	o:defaultGraph <http://fp7-pp.publicdata.eu/> ;
+	o:data
+"""
+{
+	columnCollection: [
+		{ pathStr: 'http://foobar' }
+	],
+	mapConfs: [
+		{ pathStr: 'http://foo.bar' }
+	]
+}
+"""
+	.
+
+# Service descriptions
+
+r:service1
+	o:access <http://fp7-pp.publicdata.eu/sparql> ;
+	rdfs:label "FP7-ICT project partners" ;
+	rdfs:comment "A SPARQL endpoint hosting data about Framework Programme 7 (FP7) Information and Communications (ICT) research projects" ;
+	o:maintainer <http://aksw.org/ClausStadler>
+	.
+
+r:service1-graph1
+	o:service r:service1 ;
+	rdfs:label "FP7-ICT Project Partners" ;
+	o:graph <http://fp7-pp.publicdata.eu/sparql>
+	.
+
+

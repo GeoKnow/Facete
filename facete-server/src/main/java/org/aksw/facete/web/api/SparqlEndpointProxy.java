@@ -27,8 +27,7 @@ public class SparqlEndpointProxy extends SparqlEndpointBase {
 
 	public SparqlEndpointProxy(@Context ServletContext context) {
 
-		this.defaultServiceUri = (String) context
-				.getAttribute("defaultServiceUri");
+		this.defaultServiceUri = (String)context.getAttribute("defaultServiceUri");
 
 		Boolean tmp = (Boolean) context.getAttribute("allowOverrideServiceUri");
 		this.allowOverrideServiceUri = tmp == null ? true : tmp;
@@ -46,8 +45,7 @@ public class SparqlEndpointProxy extends SparqlEndpointBase {
 
 		System.out.println("Got a SPARQL request");
 		
-		Multimap<String, String> qs = UriUtils.parseQueryString(req
-				.getQueryString());
+		Multimap<String, String> qs = UriUtils.parseQueryString(req.getQueryString());
 
 		Collection<String> serviceUris = qs.get("service-uri");
 		String serviceUri;
@@ -64,12 +62,14 @@ public class SparqlEndpointProxy extends SparqlEndpointBase {
 			}
 		}
 
+		Collection<String> defaultGraphUris = qs.get("default-graph-uri");
+		
 		if (serviceUri == null) {
 			throw new RuntimeException(
 					"No SPARQL service URI sent with the request and no default one is configured");
 		}
 
-		QueryExecutionFactory qef = new QueryExecutionFactoryHttp(serviceUri);
+		QueryExecutionFactory qef = new QueryExecutionFactoryHttp(serviceUri, defaultGraphUris);
 		QueryExecution result = qef.createQueryExecution(query);
 
 		return result;

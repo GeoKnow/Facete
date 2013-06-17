@@ -2,6 +2,7 @@ package org.aksw.facete.web.controller;
 
 import javax.annotation.Resource;
 
+import org.aksw.facete.web.utils.FaceteThemeConfig;
 import org.aksw.facete.web.utils.MinifyHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -43,22 +44,28 @@ class PomHelper {
 @Controller
 public class FaceteIndexController {
 
-	@Resource(name="facete-html-includes")
-	private MinifyHelper htmlIncludes;
+//	@Resource(name="facete-html-includes")
+//	private MinifyHelper htmlIncludes;
 	
-	@Resource(name="facete.theme")
+	@Resource(name="facete.themeConfig")
+	FaceteThemeConfig themeConfig;
 	
 	//@RequestMapping(method = RequestMethod.GET)
 	@RequestMapping(value = "/welcome.do", method = RequestMethod.GET)
 	public String showIndexPage(ModelMap model) {
 		
+		MinifyHelper htmlIncludes = themeConfig.getMinifyHelper();
+		
 		String cssIncludes = htmlIncludes.createCssIncludeStr();
 		String jsIncludes = htmlIncludes.createJsIncludeStr();
 		
-		model.addAttribute("title", "test");
+		String title = themeConfig.getTheme().getTitle();
+		String headerStr = themeConfig.getHeaderStr();
+		
+		model.addAttribute("title", title);
 		model.addAttribute("cssIncludes", cssIncludes);
 		model.addAttribute("jsIncludes", jsIncludes);
-		model.addAttribute("headerHtml", "");
+		model.addAttribute("headerHtml", headerStr);
 		
 		return "facete-index";
 	}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+	<xs:element name="cssSourceDir" type="xs:string" />
+	<xs:element name="cssTargetDir" type="xs:string" />
+	<xs:element name="cssFinalFile" type="xs:string" />
+
+	<xs:element name="jsSourceDir" type="xs:string" />
+	<xs:element name="jsTargetDir" type="xs:string" />
+	<xs:element name="jsFinalFile" type="xs:string" />
+	
+	<xs:element name="param" type="xs:string" />
+	
+	<xs:element name="cssSourceFiles">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="param" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="jsSourceFiles">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="param" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="configuration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="cssSourceDir" maxOccurs="1" />
+				<xs:element ref="cssTargetDir" maxOccurs="1" />
+				<xs:element ref="cssSourceFiles" maxOccurs="1" />
+				<xs:element ref="cssFinalFile" maxOccurs="1" />
+
+				<xs:element ref="jsSourceDir" maxOccurs="1" />
+				<xs:element ref="jsTargetDir" maxOccurs="1" />
+				<xs:element ref="jsSourceFiles" maxOccurs="1" />
+				<xs:element ref="jsFinalFile" maxOccurs="1" />				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

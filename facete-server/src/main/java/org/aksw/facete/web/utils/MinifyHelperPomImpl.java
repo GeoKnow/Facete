@@ -2,7 +2,6 @@ package org.aksw.facete.web.utils;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -94,18 +93,27 @@ public class MinifyHelperPomImpl
 		Node node = evalToNode(configPath, doc);
 		//System.out.println(XmlUtils.toString(node));
 		
-		Configuration result = unmarshal(node);
+		Configuration result = unmarshal(node, Configuration.class);
 		
 		return result;
 	}
 	
-	public static Configuration unmarshal(Node node) throws JAXBException {
-		JAXBContext context = JAXBContext.newInstance(Configuration.class.getPackage().getName());
+	public static <T> T unmarshal(Node node, Class<T> clazz) throws JAXBException {
+		JAXBContext context = JAXBContext.newInstance(clazz.getPackage().getName());
 
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-		Configuration result = (Configuration) unmarshaller.unmarshal(node); //file);
+		@SuppressWarnings("unchecked")
+		T result = (T) unmarshaller.unmarshal(node); //file);
 		return result;
 	}
+
+	public static <T> T unmarshal(InputStream in, Class<T> clazz) throws Exception {
+		Document doc = XmlUtils.loadFromStream(in);
+		T result = unmarshal(doc, clazz);
+		return result;
+	}
+	
+	
 	
 	public static MinifyHelperPomImpl create(InputStream in, boolean isDebugEnabled) throws Exception {
 		Document doc = XmlUtils.loadFromStream(in);

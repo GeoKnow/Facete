@@ -14,19 +14,31 @@
 	<description>Server component of Facete</description>
 	<packaging>war</packaging>
 
+	<profiles>
+		<profile>
+			<id>tomcat-localhost</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<tomcat-server>localhost</tomcat-server>
+				<tomcat-url>http://localhost:8080/manager/text</tomcat-url>
+			</properties>
+		</profile>
+	</profiles>
 
 	<build>
 		<!-- finalName>facete-server</finalName -->
 
 		<plugins>
-<!-- 			<plugin> -->
-<!-- 				<artifactId>maven-compiler-plugin</artifactId> -->
-<!-- 				<version>2.3.2</version> -->
-<!-- 				<configuration> -->
-<!-- 					<source>1.6</source> -->
-<!-- 					<target>1.6</target> -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
+			<!-- <plugin> -->
+			<!-- <artifactId>maven-compiler-plugin</artifactId> -->
+			<!-- <version>2.3.2</version> -->
+			<!-- <configuration> -->
+			<!-- <source>1.6</source> -->
+			<!-- <target>1.6</target> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
 
 			<plugin>
 				<!-- Any eclipse problem with the plugin should disappear with m2e 1.1 -->
@@ -60,6 +72,17 @@
 			<!-- <plugin> <groupId>org.codehaus.cargo</groupId> <artifactId>cargo-maven2-plugin</artifactId> 
 				<extensions>true</extensions> <configuration> <descriptor>src/assemble/merge.xml</descriptor> 
 				</configuration> </plugin> -->
+
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<server>${tomcat-server}</server>
+					<url>${tomcat-url}</url>
+				</configuration>
+			</plugin>
+
 
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>

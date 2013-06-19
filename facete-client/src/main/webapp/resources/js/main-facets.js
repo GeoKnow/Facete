@@ -1,4 +1,10 @@
-	
+
+/* Disable console for browsers without console object, such as IE7 */
+if(!window.console) {
+	window.console = {
+			log: function() { }
+	}
+}
 
 /**
  * TODO Move this to backboneUtils.

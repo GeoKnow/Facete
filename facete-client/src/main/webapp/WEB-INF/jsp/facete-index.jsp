@@ -9,12 +9,22 @@
         
 
         <link rel="stylesheet" href="resources/lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" />
+		<!--[if lt IE 8]>
+		<link rel="stylesheet" type="text/css" href="resources/lib/Font-Awesome/current/css/font-awesome-ie7.css" />
+		<![endif]-->
 		${cssIncludes}
-        <link rel="stylesheet" type="text/css" href="resources/lib/select2/3.3.2/select2.css"></script>
+        <link rel="stylesheet" type="text/css" href="resources/lib/select2/3.3.2/select2.css" />
         <link rel="stylesheet" type="text/css" href="resources/lib/jquery-ui/1.10.2/themes/base/jquery-ui.css" />    
+
+
 
         <!-- <script type="text/javascript" src="js/prototypes.js"></script> -->
 
+		<!--[if lt IE 9]>
+		<script type="text/javascript" src="resources/lib/html5shiv/67bff28/dist/html5shiv.js"></script>
+		<![endif]-->
+
+        <script type="text/javascript" src="resources/lib/JSON-js/json2.js"></script>
         <script type="text/javascript" src="resources/lib/namespacedotjs/a28da387ce/Namespace.js"></script>
         <script type="text/javascript" src="resources/lib/jquery/1.9.1/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="resources/lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>

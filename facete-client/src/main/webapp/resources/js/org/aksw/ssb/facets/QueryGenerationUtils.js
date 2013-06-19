@@ -594,7 +594,7 @@
 		var valueVar = sparql.Node.v("__o");
 		var element = ns.createElementFacetCount(concept, isInverse, facetVar, valueVar, sampleSize);
 		
-		var result = ns.createQueryCountDistinct(element, sampleSize, valueVar, countFacetVar, [facetVar]);
+		var result = ns.createQueryCount(element, sampleSize, valueVar, countFacetVar, [facetVar], true);
 
 		return result;
 	};
@@ -910,7 +910,7 @@
 	 * If one of the groupVars equals the variable, it is omitted
 	 * 
 	 */
-	ns.createQueryCount = function(element, limit, variable, outputVar, groupVars, options) {
+	ns.createQueryCountOldNotSureWhyIDidThisSubQueryThing = function(element, limit, variable, outputVar, groupVars, options) {
 		
 		
 		var subQuery = new sparql.Query();
@@ -966,8 +966,11 @@
 	 * Creates a query with Count(Distinct ?variable)) As outputVar for an element.
 	 * 
 	 */
-	ns.createQueryCountDistinct = function(element, limit, variable, outputVar, groupVars, options) {
+	ns.createQueryCount = function(element, limit, variable, outputVar, groupVars, useDistinct, options) {
 
+		
+		var exprVar = variable ? new sparql.ExprVar(variable) : null;
+		
 		var result = new sparql.Query();
 		if(limit) {
 			var subQuery = new sparql.Query();
@@ -993,17 +996,18 @@
 		if(groupVars) {
 			for(var i = 0; i < groupVars.length; ++i) {
 				var groupVar = groupVars[i];				
-				if(groupVar.value !== variable.value) {
+				//if(groupVar.value !== variable.value) {
 					result.projectVars.add(groupVar);
 					result.groupBy.push(new sparql.ExprVar(groupVar));
-				}
+				//}
 			}
 		}
 		
-		result.projectVars.add(outputVar, new sparql.E_Count(new sparql.ExprVar(variable), true));
+		result.projectVars.add(outputVar, new sparql.E_Count(exprVar, useDistinct));
 		ns.applyQueryOptions(result, options);
 		
-		
+//debugger;
+		console.log("Created count query:" + result + " for element " + element);
 		return result;
 	};
 

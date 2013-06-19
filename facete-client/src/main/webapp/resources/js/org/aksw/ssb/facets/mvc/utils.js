@@ -187,7 +187,7 @@
 				var outputVar = sparql.Node.v("__c");
 				var limit = null;
 
-				var query = queryUtils.createQueryCountDistinct(element, null, variable, outputVar, null, null);
+				var query = queryUtils.createQueryCount(element, null, variable, outputVar, null, true, null);
 				console.log("Fetching facets with ", query);
 				var queryExecution = queryUtils.fetchInt(sparqlService, query, outputVar);
 

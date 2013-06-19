@@ -1043,21 +1043,36 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				return;
 			}
 			
+			// TODO The root node should come from the facetNode!!!
 			// TODO Make a 1-line helper for these three lines
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
 			var concept = facetFacadeNode.createConcept();
 			
 			//console.log("FacetValue concept: ", concept);
+			//var rootFacetNode = facetNode.getRootNode();
+			var rootFacetVar = rootFacetNode.getVariable();
+			//console.log('rootFacetNode', rootFacetNode);
 			
-			var queryGenerator = new facets.QueryGenerator(concept);
+			var conceptVar = concept.getVariable();			
+			var countVar = sparql.Node.v("c");
+			var conceptElement = concept.getElement();
+			
+			var query = queryUtils.createQueryCount(conceptElement, null, rootFacetVar, countVar, [ conceptVar ], true);
+
+			
+			//var queryGenerator = new facets.QueryGenerator(concept);
+			
+			
+			/*
 			var queryFactory = new facets.QueryFactoryQueryGenerator(
 					queryGenerator, {
 						distinct : true
 					}
-			);
+			);*/
 			
-			//console.log("FacetValue Query Factory: ", queryFactory);
+			//console.log("FacetValue Query Factory: " + query);
+			var queryFactory = new facets.QueryFactoryQuery(query);
 
 			controllerFacetValueEnricher.setFacetNode(facetNode);
 
@@ -1118,6 +1133,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				collection : options.collection,
 				rowItemRenderer: function(model) {
 					
+					//console.log("Row item", model);
 					
 					var c1 = new widgets.ViewItemCheckConstraint({
 						model: model,
@@ -1143,9 +1159,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
 						c2 = $('<span>' + node.value + '</span>');
 					}
 					
+					var count = model.get('count');
+					c3 = $('<span>' + count + '</span>');
 					
-					
-					var result = [c1.render().$el, c2];
+					var result = [c1.render().$el, c2, c3];
 					
 					return result;
 				}

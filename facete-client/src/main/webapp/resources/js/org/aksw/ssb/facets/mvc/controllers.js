@@ -243,6 +243,10 @@
 			var isChecked = this.constraintCollection.existsEquals(path, node);
 			
 			
+			var countStr = model.get('c').node.value;
+			//console.log("CountStr", countStr, model);
+			var count = parseInt(countStr);
+			
 //			console.log("[cc] cc", this.constraintCollection);
 //			console.log("[cc] path --- node", path, node);
 //			console.log("[cc] isChecked: ", isChecked);
@@ -261,7 +265,9 @@
 					type: 'equals',
 					path: path,
 					node: node
-				}
+				},
+				
+				count: count 
 			};
 			
 			//console.log("Processed: " + JSON.stringify(result));

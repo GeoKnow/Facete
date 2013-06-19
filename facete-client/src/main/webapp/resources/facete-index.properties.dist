@@ -1,5 +1,5 @@
 facete.debug=true
-facete.themePath=facete-themes/odp2
+facete.themePath=facete-themes/facete-classic
 
 facete.templateFile=facete-index.jsp
 

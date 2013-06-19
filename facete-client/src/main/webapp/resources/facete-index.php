@@ -14,16 +14,17 @@
     $activeThemePath = $basePath . $ini["facete.themePath"];
 	$templateFile = "WEB-INF/jsp/" . $ini["facete.templateFile"];
 
+	/*
     $themeIni = parse_properties_file("$activeThemePath/theme.properties");
     $title = $themeIni["title"];
     $faceteVersion = $themeIni["version"];
-
-
-    /*
-    $configXml = simplexml_load_file("$activeThemePath/server-config.xml");
-    $title = (string)$configXml->title;
-    $faceteVersion = $configXml->version;
     */
+
+
+    $themeXml = simplexml_load_file("$activeThemePath/theme.xml");
+    $title = (string)$themeXml->title;
+    $faceteVersion = $themeXml->version;
+
     if(!$faceteVersion) {
         $faceteVersion = "(not set)";
     }

@@ -28,6 +28,21 @@ ul .facet {
 }
 
 
+/*
+ * Hack for the facete-classic header - we need to do some refactoring to support better themeing
+ */
+#header-title {
+	display: block;
+    left: 240px;
+    top: 10px;
+	width: 400px;
+	height: 100px;
+    font-size: 28px;
+    line-height: 1.2;
+    position: absolute;
+    text-transform: uppercase;
+}
+
 
 
 /*

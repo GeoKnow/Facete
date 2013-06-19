@@ -174,7 +174,7 @@
 			
 			// On the other hand, we can do a single query to capture all non-constrained paths
 			var constrainedSteps = facetFacadeNode.getConstrainedSteps();
-			//console.log("Constrained steps: " + JSON.stringify(constrainedSteps));
+			console.log("[DEBUG] Constrained steps: " + JSON.stringify(constrainedSteps));
 
 			var fnLoop = function(sparqlService, conceptItem) {
 
@@ -243,7 +243,8 @@
 			
 			
 			// The generic query
-			var tmpConcept = facetFacadeNode.createConcept();
+			var tmpConcept = facetFacadeNode.createConcept(true);
+			//console.log("[TRACE] Concept for facet node is: " + tmpConcept.getElement());
 			
 			// Check if the concept of the facetFacadeNode is empty
 			var tmpElement = tmpConcept.getElement();

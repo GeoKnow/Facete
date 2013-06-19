@@ -1117,9 +1117,9 @@
 			 * 
 			 * Also, the element can be extended with further elements
 			 */
-			createElements: function() {
+			createElements: function(includeSelfConstraints) {
 				var rootNode = this.facetNode.getRootNode();
-				var excludePath = this.facetNode.getPath();
+				var excludePath = includeSelfConstraints ? null : this.facetNode.getPath();
 				
 				// Create the constraint elements
 				var elements = this.constraintManager.createElements(rootNode, excludePath);
@@ -1140,8 +1140,16 @@
 			},
 			
 			
-			createConcept: function() {
-				var elements = this.createElements();
+			/**
+			 * Creates the corresponding concept for the given node.
+			 * 
+			 * @param includeSelfConstraints Whether the created concept should
+			 *         include constraints that affect the variable
+			 *         corresponding to this node 
+			 * 
+			 */
+			createConcept: function(includeSelfConstraints) {
+				var elements = this.createElements(includeSelfConstraints);
 				var element = new sparql.ElementGroup(elements);
 				var v = this.getVariable();
 				

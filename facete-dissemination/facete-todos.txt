@@ -18,7 +18,7 @@ Urgent:
 High:
 - Support configuration of presets (so that users can pick from pre-configured settings - and we can preconfigure for the portal)
 - Fix an issue resulting in duplicate results also also has negative performance impact [DONE]
-- Fix an issue with incorrectly shown sub facets shown when a parent facet is constrained
+- Fix an issue with incorrectly shown sub facets shown when a parent facet is constrained [DONE]
 - Fix an issue with only one out of multiple facet linked to the map being shown
 - Make a click on a map marker constrain the table to values for this location [DONE]
 - Fix a bug seemingly related to a race condition when selecting markers on the map [NEW]

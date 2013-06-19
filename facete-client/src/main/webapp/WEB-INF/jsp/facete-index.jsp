@@ -44,7 +44,7 @@
 
 		<script type="text/javascript" src="resources/lib/doT/current/doT.js"></script>
 
-        <script type="text/javascript" src="resources/lib/select2/3.3.2/select2.js"></script>
+        <script type="text/javascript" src="resources/lib/select2/3.4.0/select2.js"></script>
 
 
 

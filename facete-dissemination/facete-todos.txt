@@ -1,6 +1,19 @@
-Urgent
+Unclassified:
+- Improve table colors
+	Note: This is just about adding the twitter bootstrap 'striped' class to the table.
+- Implement the "Portlet-Theme" from the LOD2 Widget Choreography
+	Note: This would give us much more flexibility in arranging the user interface components, such as hiding the table view and showing bookmarked facets instead.
+
+Urgent:
 - Finalize how to do the initial configuration (currently its all in src/main/webapp/js/main-facets.js) [DONE]
 - Make the SPARQL endpoint / default graph selector actually work. [DONE]
+- Make table headings show the facet name
+- improve the widget for value selection of facets
+	Note: This is about showing the facet value widget directly below the selected facet rather than at the bottom of the facet tree. However, positioning might be quite tricky.
+- Creation and integration of static pages: FAQ, HowToUse, Further Information (Contact / Project Page / Maintainer)
+	Note: The HowToUse will be based on Karel's guide.
+- Show note on empty tables/lists
+
 
 High:
 - Support configuration of presets (so that users can pick from pre-configured settings - and we can preconfigure for the portal)

@@ -1,0 +1,38 @@
+Urgent
+- Finalize how to do the initial configuration (currently its all in src/main/webapp/js/main-facets.js) [DONE]
+- Make the SPARQL endpoint / default graph selector actually work. [DONE]
+
+High:
+- Support configuration of presets (so that users can pick from pre-configured settings - and we can preconfigure for the portal)
+- Fix an issue resulting in duplicate results also also has negative performance impact [DONE]
+- Fix an issue with incorrectly shown sub facets shown when a parent facet is constrained
+- Fix an issue with only one out of multiple facet linked to the map being shown
+- Make a click on a map marker constrain the table to values for this location [DONE]
+- Fix a bug seemingly related to a race condition when selecting markers on the map [NEW]
+- Fix a bug with facets' checkboxes not being shown selected when selecting markers on the map [NEW]
+	- This is due to an object not being normalized and thus failing an equals comparision.
+- Show how many resources could NOT be shown on the map
+- Add support for allowing users to load preconfigured views [NEW]
+
+Medium:
+- Finalize the integration of the facete-server module [DONE]
+- Add support for setting the colors of the map markers
+- Make the table support copying (e.g. for copying into excel)
+- Make the facet values appear below the corresponding facet - rather than at the bottom of the tree
+- Enable sorting facet values by their checked state
+- Add export/import functionality for the state of the application
+  - Enable importing the state from URL query string arguments
+
+Low:
+- Add support for choosing the number of items to be shown in the tables
+- Add summary text for how many items there are in the table
+- Show the facet value counts
+- Indicate which facets actually carry geo-spatial information
+- Enable rearranging table columns
+- Support more complex color assignments (e.g. courts having sent documents to
+
+Future:
+- Support aggregates (SUM, COUNT, etc)
+- Support grouping facet values into arbitrary hierarchies
+- ... more stuff ...
+

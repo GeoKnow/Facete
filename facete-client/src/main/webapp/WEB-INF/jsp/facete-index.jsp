@@ -26,7 +26,7 @@
 
         <script type="text/javascript" src="resources/lib/JSON-js/json2.js"></script>
         <script type="text/javascript" src="resources/lib/namespacedotjs/a28da387ce/Namespace.js"></script>
-        <script type="text/javascript" src="resources/lib/jquery/1.9.1/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="resources/lib/jquery/1.10.1/jquery-1.10.1.js"></script>
         <script type="text/javascript" src="resources/lib/jQuery-ajaxTransport-XDomainRequest/current/jQuery.XDomainRequest.js"></script>
         <script type="text/javascript" src="resources/lib/jquery-ui/1.10.2/ui/jquery-ui.js"></script>
         <script type="text/javascript" src="resources/lib/underscore/1.4.4/underscore.js"></script>

@@ -8,7 +8,7 @@
         <title>${title}</title>
         
 
-        <link rel="stylesheet" href="resources/lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="resources/lib/twitter-bootstrap/2.3.2/css/bootstrap.min.css" />
 		<!--[if lt IE 8]>
 		<link rel="stylesheet" type="text/css" href="resources/lib/Font-Awesome/current/css/font-awesome-ie7.css" />
 		<![endif]-->
@@ -32,7 +32,7 @@
         <script type="text/javascript" src="resources/lib/underscore/1.4.4/underscore.js"></script>
         <script type="text/javascript" src="resources/lib/underscore.string/current/dist/underscore.string.min.js"></script>
         <script type="text/javascript" src="resources/lib/backbone/1.0.0/backbone.js"></script>
-        <script type="text/javascript" src="resources/lib/twitter-bootstrap/2.0.3/js/bootstrap.js"></script>
+        <script type="text/javascript" src="resources/lib/twitter-bootstrap/2.3.2/js/bootstrap.js"></script>
         <script type="text/javascript" src="resources/lib/agility/current/agility.js" charset="utf-8"></script>
         <script type="text/javascript" src="resources/lib/CryptoJS/3.0.2/components/core-min.js"></script>
         <script type="text/javascript" src="resources/lib/CryptoJS/3.0.2/components/enc-utf16-min.js"></script>
@@ -58,51 +58,163 @@
 
 	<script type="text/javascript">
 
+		$(document).ready(function() {
+			
+			//return;
+			var layoutUtils = Namespace('org.aksw.utils.layout');
+			console.log('Using layoutUtils', layoutUtils);
+			
+			$('.portlet-header').disableSelection();
+			
+			$('.portlet')
+				.addClass('ui-widget') //ui-corner-all ui-widget-content
+				.find('.portlet-header')
+				//.addClass('ui-widget-header ui-corner-all')
+				.addClass('navbar portlet-navbar') // navbar-fixed-top
+				.wrapInner('<div class="navbar-inner" style="min-height:20px; height:20px;"><a href="#" class="brand" style="font-size:14px; padding-top: 0px; padding-bottom: 0px;"></a></div>')
+				//.prepend('<span class="ui-icon ui-icon-minusthick"></span>')
+				.end()
+				.find('.portlet-content');
+			
+			//$('.portlet-header').children();
+			
+		    $('.portlet').resizable({
+		        //handles: {'s': 'ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se'},
+		        handles: 's',
+		        //grid: [25, 25],
+		    	//alsoResize: $(this).find('.portlet-content'),
+		    	resize: function(event, ui) {
+		    		//$(ui.element).find()
+		    		
+		    		var $elContent = $(this).find('.portlet-content');
+		    		
+		    		var height = layoutUtils.getDefaultAutoHeight($elContent, false);
+		    		$elContent.css('height', (height - 5) + 'px');
+		    	}
+		    	/*
+		    	stop: function(ev, ui) {
+		    		//$(ui.element).removeClass('width');
+		    	}*/
+		    });
+
+		    //.draggable({
+//		        grid: [25, 25]
+//		    }).);
+
+			
+			$('.portlet-header .ui-icon').click(function() {
+				$(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
+				$(this).parents('.portlet:first').toggleClass('portlet-minimized');
+			});
+
+			$('.portlet-group').sortable({
+				connectWith: 'portlet-group',
+				handle: '.portlet-header'
+				/*
+				update: function(event, ui) {
+		            var orders = new Array();
+		            $('.portlet-group .portlet').each(function(i) {
+		                var order = $(this).index();                
+		                var id = $(this).attr('data-post-id');
+		                orders.push(order);
+		            });
+		            console.log(orders);
+		        }
+				*/
+			});
+
+			
+			$('.portlet-content').autoHeight();
+
+			//$('.portlet-container').disableSelection();
+		});
+	
+	
+	
 		var facets = Namespace("org.aksw.ssb.facets");
 
 		$(document).ready(facets.facetTest);
 		
+		
+		
+		
 	</script>
 </head>
 <body>
-	<div class="container">
+	<div class="container" style="min-height:100%;">
+<!-- 		<div class="row-fluid"> -->
 		<!-- <?php include($headerFile); ?> -->
-		${headerHtml}
+		${headerHtml} 
 
-		<div id="div-settings" class="row-fluid" style="display: none">
-			<form>
-				<label><input type="radio" name="group1" checked="checked"/>Global</label>
-				<div class="service-config"></div>
-				<div class="inline">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 300px;"></div>
-    			<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 600px;"></div>
-				<br class="clearBoth" />
-				<hr />
-				<label><input type="radio" name="group1" />Level of Detail</label>
-				<div class="lod-slider inline" style="width: 300px;"></div>
-				<div class="lod-service-condfig"></div>
-				<br class="clearBoth" />
-			</form>
-		</div>
-
-		<div class="row-fluid">
-			<div class="span3 left-column">
-				<ul id="facets" style="list-style: none; list-style-type:none;"></ul>
-                <div id="facetValues" style="min-height: 300px"></div>
+			<div id="div-settings" class="row-fluid" style="display: none">
+				<form>
+<!-- 					<label><input type="radio" name="group1" checked="checked"/>Global</label> -->
+					<div class="service-config"></div>
+					<div class="inline">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 300px;"></div>
+	    			<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 600px;"></div>
+					<br class="clearBoth" />
+					<hr />
+<!-- 					<label><input type="radio" name="group1" />Level of Detail</label> -->
+<!-- 					<div class="lod-slider inline" style="width: 300px;"></div> -->
+<!-- 					<div class="lod-service-condfig"></div> -->
+<!-- 					<br class="clearBoth" /> -->
+				</form>
 			</div>
+<!-- 		</div> -->
 		
-			<div class="span5">
-                <div id="instances"></div>
-                <a style="display:none" id="exportCsv" href="#">Export CSV</a>
-                <a style="display:none" id="exportRdf" href="#">Export RDF</a>
+<!-- 		<br class="clearBoth" style="width:0px; height: 0px;" /> -->
+		<div class="clearfix" />				
+		<div class="row-fluid">
+		
+			<div class="span3 fullcol portlet-group ui-sortable" style="background-color:#E9EFF3;">
+		
+<!-- 				<div class="portlet-group ui-sortable">  row-fluid -->
+					<div class="portlet">
+						<div class="portlet-header">Facets</div>
+						<div class="portlet-content" style="overflow: auto;"> <!-- min-height: 300px;  -->
+<!-- 							<div style="overflow:auto;">				 -->
+								<ul id="facets" style="list-style: none; list-style-type:none;"></ul>
+<!-- 							</div> -->
+						</div>
+					</div>
+	
+					<div class="portlet">
+						<div class="portlet-header">Facet Values</div>				
+		                <div id="facetValues" class="portlet-content"></div>
+					</div>
+<!-- 				</div> -->
+
+			</div>
+			
+			<div class="span9" style="margin-left: 5px; margin-top: 3px;">
+				<div class="row-fluid portlet-group ui-sortable">
+			
+					<div class="portlet span6">
+						<div class="portlet-header">Table View</div>
+		                	<div id="instances" class="portlet-content"></div>
+<!-- 						<div class="portlet-content" style="overflow: auto;")> -->
+<!-- 		                	<div id="instances"></div> -->
+<!-- 						</div> -->
+		                
+		<!--                 <a style="display:none" id="exportCsv" href="#">Export CSV</a> -->
+		<!--                 <a style="display:none" id="exportRdf" href="#">Export RDF</a> -->
+					</div>
+		
+					<div class="portlet span5">
+						<div class="portlet-header">Map</div>
+						<div id="mapContainer" class="portlet-content">
+							<div id="map" style="height: 300px;"></div>
+							<a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
+						</div>
+					</div>			
+				</div>
+				
+		<!-- 		<div class="portlet-group ui-sortable row-fluid"> -->
+
 			</div>
 
-			<div id="mapContainer" class="span4">
-				<div id="map" style="height: 500px;"></div>
-				<a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
-			</div>
- 
-			
-		</div>
+ 		</div>
+		
     </div>
 </body>
 </html>

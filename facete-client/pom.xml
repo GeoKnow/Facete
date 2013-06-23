@@ -51,6 +51,7 @@
 								<param>../lib/Font-Awesome/current/css/font-awesome.css</param>
 								<param>style-ec.css</param>
 								<param>style.css</param>
+								<param>portlet-style.css</param>
 							</cssSourceFiles>
 							<cssFinalFile>facete.css</cssFinalFile>
 
@@ -140,20 +141,20 @@
 								<param>org/aksw/ssb/backend/QuadTreeCache.js</param>
 								<param>org/aksw/ssb/utils/QueryCache.js</param>
 								<param>org/aksw/ssb/utils/Abbreviator.js</param>
-								<param>org/aksw/ssb/plugins/RDFauthor.js</param>
+<!-- 								<param>org/aksw/ssb/plugins/RDFauthor.js</param> -->
 								<!-- <param>org/aksw/ssb/experiments/FacetNavigator.js</param> -->
 
 
 								<param>org/aksw/ssb/app/QueryGeneratorGeo.js</param>
-								<param>org/aksw/ssb/app/controllers/AppController.js</param>
-								<param>org/aksw/ssb/app/controllers/ResourceDetailsController.js</param>
+<!-- 								<param>org/aksw/ssb/app/controllers/AppController.js</param> -->
+<!-- 								<param>org/aksw/ssb/app/controllers/ResourceDetailsController.js</param> -->
 
 								<!-- Layouting for this (p)HTML file -->
 								<!-- <param>org/aksw/ssb/app/Layout.js</param> -->
 
 
 								<!-- OpenDataPortal specify layouting (header bar translations) -->
-								<param>org/aksw/ssb/app/Layout-Odp.js</param>
+<!-- 								<param>org/aksw/ssb/app/Layout-Odp.js</param> -->
 
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/ProjectInfoWidget.js</param>
 								<param>org/aksw/ssb/domains/fp7-pp/widgets/SparqlBrowseController.js</param>

@@ -73,6 +73,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
 	var utils = Namespace("org.aksw.ssb.utils");
 	var widgets = Namespace("org.aksw.ssb.widgets");
+	var widgetNs = widgets;
 
 	var configNs = Namespace("org.aksw.ssb.config");
 
@@ -736,7 +737,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		 * 
 		 */
 		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
-		var widget = createQueryBrowser();
+		var widget = widgetNs.createQueryBrowser();
 		
 		
 		/*
@@ -756,6 +757,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		var tableModel = widget.models.tableModel;
 
+		widget.models.paginatorModel.set('maxSlotCount', 11);
+
+		
 
 		attachLabelFetcher(tableModel);
 		Backbone.linkModels(configModel, tableModel, true, ['sparqlService', 'preferredLanguages']);
@@ -785,7 +789,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		container.children().remove();
 
 		
-		createView(container, widget);
+		widgetNs.createView(container, widget);
 	
 		//console.log("INIT VIEWS", models);
 	
@@ -998,7 +1002,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	
 		// TODO service must be configurable
 
-		var widget = createQueryBrowser();//sparqlService, labelFetcher);
+		var widget = widgetNs.createQueryBrowser();//sparqlService, labelFetcher);
 
 		
 		var models = widget.models;
@@ -1024,7 +1028,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var controllerFacetValueEnricher = new facets.ControllerFacetValueEnricher(constraintCollection, targetCollection);
 
 		// FIXME Some configuration - should be done elsewhere
-		models.paginatorModel.set('maxSlotCount', 5);
+		models.paginatorModel.set('maxSlotCount', 11);
 
 		
 		
@@ -1127,7 +1131,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		container.children().remove();
 
 		
-		var facetValuesWidget = createView(container, widget, function(options) {
+		var facetValuesWidget = widgetNs.createView(container, widget, function(options) {
 
 			var result = new widgets.TableView2({
 				collection : options.collection,

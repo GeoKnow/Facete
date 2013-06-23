@@ -1,0 +1,17 @@
+<div id="header-menu">  
+  <div class="region-header-menu">
+    <div id="block-menu-menu-service-menu" class="block block-menu">
+      <div class="content">
+        <ul class="menu">
+          <li class="first leaf"><a href="http://ec.europa.eu/geninfo/legal_notices_en.htm" title="">Legal notice</a></li>
+          <li class="leaf"><a href="/open-data/contact" title="">Contact</a></li>
+          <li class="last leaf"><a href="http://ec.europa.eu/geninfo/query/search_en.html" title="">Search</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="logo">
+<!--  <a id="logo" rel="Home" title="Home" href="/open-data/"><img alt="Home" src="<?php echo $this->themeUrlBase ?>/images/logo_en.gif"></a> -->
+</div>
+

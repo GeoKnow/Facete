@@ -6,8 +6,8 @@
  * E.g. if only a sibling is resized, the 
  */
 (function($) {
-	var ns = Namespace("org.aksw.utils.layout");
-
+	var ns = Namespace('org.aksw.utils.layout');
+	
 	/**
 	 * Returns the actual height of an element; considering margins of child elements 
 	 * 
@@ -42,7 +42,6 @@
 	};
 	
 	
-	var ns = {};
 	
 	ns.innerHeight = function(element) {
 		return element.innerHeight(); 
@@ -103,6 +102,11 @@
 	};
 
 
+	ns.getDefaultAutoHeight = function(element, doLogging) {
+		var height = ns.calcDim(element, ns.innerHeight, ns.outerHeight, doLogging);
+
+		return height;
+	};
 	
 	/**
 	 * Resizes an element to take the remaining space by substracting the height from all children from that of the parent.
@@ -200,4 +204,7 @@
 		
 		element.css("height", elementHeight + "px");
 	};*/
+	
+	//console.log('Loading layoutUtils', ns);
+
 })(jQuery);

@@ -1,7 +1,10 @@
+(function() {
 
-
-		function createQueryBrowser() {
-			var uriUtils = Namespace("org.aksw.ssb.utils.uris");
+		var ns = Namespace("org.aksw.ssb.widgets");
+		var uriUtils = Namespace("org.aksw.ssb.utils.uris");
+		
+	
+		ns.createQueryBrowser = function() {
 	
 			/*
 	    	config.sparqlServiceUri = "http://fts.publicdata.eu/sparql";
@@ -81,7 +84,7 @@
 	    	//var createSparqlExplorer = function(sparqlService, queryFactory, containerEl, labelFetcher);
 	    };
 
-			var createView = function(container, widget, tableViewFactory) {
+		ns.createView = function(container, widget, tableViewFactory) {
 
 //				var browseConfig = models.browseConfig;
 //		    	var tableModel = browseConfig.config.tableModel;
@@ -199,7 +202,7 @@
 				tagName: 'table',
 				attributes: {
 					//'class': 'table table-bordered table-striped table-condensed',
-					'class': 'table table-bordered table-hover',
+					'class': 'table table-bordered table-hover table-striped',
 					'style': 'margin: 0px'
 				},
 
@@ -367,3 +370,6 @@
 				footer.append($().ssb.paginator({model: models.paginatorModel}).render().el);
 
 			};
+
+			
+})();

@@ -341,8 +341,11 @@
 	 * order to increase reusability
 	 */
 	ns.ViewPaginator = Backbone.View.extend({
-	    tagName: 'ul',
-	    className: 'pagination pagination-centered',
+// Old bootrap
+//	    tagName: 'ul',
+//	    className: 'pagination pagination-centered',
+	    tagName: 'div',
+	    className: 'pagination pagination-mini',
 	    //attributes: {style: 'float: left'},
 	    events: {
 	    },    
@@ -373,7 +376,11 @@
 	    },
 	    render: function() {
 
-	    	$(this.el).children().remove();
+	    	$el = this.$el;
+	    	$el.children().remove();
+	    	
+	    	$ul = $('<ul />');
+	    	$el.append($ul);
 	    	
 	    	var renderer = new ns.PaginatorItemRenderer();
 	    	var slotSpecs = ns.createSlotSpecs(this.model.attributes);
@@ -383,7 +390,8 @@
 	    		
 	    		var slot = renderer.create(slotSpec, this);
 	    		
-	    		$(this.el).append(slot);
+	    		//$(this.el).append(slot);
+	    		$ul.append(slot);
 	    	}
 	    	
 	    	

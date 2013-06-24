@@ -27,6 +27,10 @@ html, body {
     z-index: -5;  
 }
 
+/* .toggle-minimized  */
+a {
+	color: #6677EE;
+}
 
 .facete-table-header {
 	margin-bottom: 5px;
@@ -55,12 +59,12 @@ html, body {
 }
 
 .facet-tree li {
-	line-height: 10px;
+	line-height: 15px;
 }
 
 
 .facet-tree ul {
-	margin-left: 10px;
+	margin-left: 15px;
 	margin-bottom: 0px;
 }
 

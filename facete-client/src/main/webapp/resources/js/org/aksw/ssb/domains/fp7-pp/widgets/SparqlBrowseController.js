@@ -141,6 +141,10 @@
 					case 'sparqlService':
 					 	self.refreshPageCount();
 					 	break;
+					case 'limit':
+					case 'itemCount':
+						self.updatePageCount();
+						break;
 					}
 				}
 				
@@ -174,6 +178,24 @@
 				
 				//self.paginatorModel.set({currentPage: page});
 			});
+			
+			
+		},
+		
+		updatePageCount: function() {
+			var tableModel = this.tableModel;
+			
+			var limit = tableModel.get('limit');
+			var itemCount = tableModel.get('itemCount');	
+
+			//console.log("Item count: " + itemCount);
+			
+			var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
+			if(itemCount === 0) {
+				pageCount = 1;
+			}
+			
+			this.paginatorModel.set({pageCount: pageCount});			
 		},
 		
 		refreshPageCount: function() {
@@ -189,18 +211,25 @@
 			var task = this.tableExecutor.fetchResultSetSize();
 			
 			
-			var result = task.pipe(function(info) {
-				var limit = self.tableModel.get("limit");
+			var result = task.pipe(function(info) {				
+				var itemCount = info.count;
+				self.tableModel.set({itemCount: itemCount});
 				
-				var itemCount = info.count;			
-				//console.log("Item count: " + itemCount);
-				
-				var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
-				if(itemCount === 0) {
-					pageCount = 1;
-				}
-				
-				self.paginatorModel.set({pageCount: pageCount});
+		
+//				var limit = self.tableModel.get("limit");
+//				
+//				var itemCount = info.count;			
+//				
+//				self.tableModel.set({itemCount: itemCount});
+//
+//				//console.log("Item count: " + itemCount);
+//				
+//				var pageCount = limit ? Math.ceil(itemCount / limit) : 1;
+//				if(itemCount === 0) {
+//					pageCount = 1;
+//				}
+//				
+//				self.paginatorModel.set({pageCount: pageCount});
 			});
 			
 			return result;

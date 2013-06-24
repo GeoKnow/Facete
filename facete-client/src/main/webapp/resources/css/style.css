@@ -1,6 +1,74 @@
+
+html, body {
+	height: 100%;
+}
+
+.fill {
+/* 	margin-bottom: -9999px; */
+/* 	padding-bottom: 9999px; */
+/* 	border: 3px; */
+/* 	border-color: #E9EFF3; */
+/* 	border-style: dashed; */
+	position: relative;
+	min-height: 100%;
+}
+
+.filler::after {
+    background-color: inherit;
+    bottom: 0;
+    content: "";
+    left: 0;
+    position: absolute;
+
+	/* Note: This overlaps with the config area. The hacky solution
+    is to use another background for the config area with a higher z-index */
+    top: 140px;
+    width: inherit;
+    z-index: -5;  
+}
+
+
+.facete-table-header {
+	margin-bottom: 5px;
+}
+
+.facete-table-footer {
+	
+}
+
+.portlet input.search-query {
+    border-radius: 4px 4px 4px 4px;
+}
+.portlet .pagination {
+	margin: 5px 0px;
+}
+
+.facete-table-limit {
+	position: absolute;
+	right: 0px;
+	width: 70px;
+	height: 30px;
+}
+
+.portlet ul {
+	margin-left: 0px;
+}
+
+.facet-tree li {
+	line-height: 10px;
+}
+
+
+.facet-tree ul {
+	margin-left: 10px;
+	margin-bottom: 0px;
+}
+
+
 /*
  * Bootstrap overrides for SemMap
  */
+
 
 
 .table-bordered {
@@ -20,7 +88,7 @@
 
 
 .pagination {
-	margin: 5px;
+/* 	margin: 5px; */
 	height: 17px;
 }
 
@@ -95,14 +163,6 @@ input[type='checkbox'] {
 	width: 100% !important;
 	min-height: 100% !important;
 	overflow: hidden;
-}
-
-.fullcol {
-	margin-bottom: -9999px;
-	padding-bottom: 9999px;
-	border: 3px;
-	border-color: #E9EFF3;
-	border-style: dashed;
 }
 
 

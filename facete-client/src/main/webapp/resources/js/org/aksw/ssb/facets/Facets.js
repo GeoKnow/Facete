@@ -465,6 +465,20 @@
 			return result;
 		},
 	
+		getLastStep: function() {
+			var steps = this.steps;
+			var n = steps.length;
+			
+			var result;
+			if(n === 0) {
+				result = null;
+			} else {
+				result = steps[n - 1];
+			}
+			
+			return result;
+		},
+		
 		getSteps: function() {
 			return this.steps;
 		},

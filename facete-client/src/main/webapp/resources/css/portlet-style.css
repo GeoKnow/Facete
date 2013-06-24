@@ -42,6 +42,9 @@
 .row-fluid [class*="span"]:first-child .portlet{
     margin-left: 5px;
 }
+.row-fluid [class*="span"] .portlet {
+    margin-left: 5px;
+}
 
 .portlet {
 	margin: 5px;
@@ -54,11 +57,6 @@
   
 	-moz-border-radius: 4px;
 	border-radius: 4px;
-}
-
-.portlet ul {
-	margin-left: 0px;
-	margin-bottom: 0px;
 }
 
 .portlet-minimized {
@@ -78,17 +76,15 @@
 .portlet-content {
     color: #696969;
     font-size: 11px;
+    overflow: auto;
 /*     margin: 10px; */
 /*   padding: 0.4em; */
 }
 
-.portlet li {
-	line-height: 10px;
-}
 
-.portlet ul {
-	margin-left: 10px;
-}
+/* .portlet ul { */
+/* 	margin-left: 10px; */
+/* } */
 
 .portlet .table th, .portlet .table td {
 	line-height: 12px;

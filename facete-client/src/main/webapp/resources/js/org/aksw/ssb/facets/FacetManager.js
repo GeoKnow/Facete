@@ -181,6 +181,30 @@
 				}
 				
 				return child;
+			},
+			
+			/*
+			 * Recursively scans the tree, returning the first node
+			 * whose varName matches. Null if none found.
+			 * 
+			 * TODO: Somehow cache the variable -> node mapping 
+			 */
+			findNodeByVarName: function(varName) {
+				if(this.variableName === varName) {
+					return this;
+				}
+				
+				var children = _.values(this.idToChild);
+				for(var i = 0; i < children.length; ++i) {
+					var child = children[i];
+
+					var tmp = child.findNodeByVarName(varName);
+					if(tmp) {
+						return tmp;
+					}
+				}
+				
+				return null;
 			}
 	};
 	

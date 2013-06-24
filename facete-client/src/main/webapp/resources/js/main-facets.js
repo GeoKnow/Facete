@@ -756,9 +756,50 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	//console.log("Dammit", widget);
 
 		var tableModel = widget.models.tableModel;
+		tableModel.get('headerMap').add({id: 's', label: 'Resource'});
 
+		//tableModel.set({limit: 50});
+		//console.log("Fuuuuuu", tableModel);
+		
+		/*
+		 * Update table headings
+		 */
+		collectionColumns.on('add remove reset', function() {
+
+	    	var rootFacetNode = configModel.get('rootFacetNode');
+
+	    	var headerMap = tableModel.get('headerMap');
+	    	
+	    	headerMap.reset();
+	    	headerMap.add({id: 's', label: 'Resource'});
+	    	
+			
+			collectionColumns.each(function(model) {
+				var path = model.get('path');
+				
+				var lastStep = path.getLastStep();
+				
+				if(!lastStep) { //path.getLength() === 0) {
+					return;
+				} 
+				
+				var facetNode = rootFacetNode.forPath(path);
+				
+				var v = facetNode.getVariable();
+				
+				var id = v.value;
+				var label = lastStep.propertyName;
+				headerMap.add({id: id, label: label});
+				//headerMap.add({id: id, label: '<span data-uri="' + label + '" />'});
+				
+				
+				
+				//var rootVarNode = rootFacetNode.getVarNode();
+				//rootVarNode.findNodeByVarName()
+			});
+		});
+		
 		widget.models.paginatorModel.set('maxSlotCount', 11);
-
 		
 
 		attachLabelFetcher(tableModel);
@@ -1134,6 +1175,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var facetValuesWidget = widgetNs.createView(container, widget, function(options) {
 
 			var result = new widgets.TableView2({
+				attributes: { 'class': 'table table-bordered table-striped table-condensed', style: 'margin: 0px' },
 				collection : options.collection,
 				rowItemRenderer: function(model) {
 					

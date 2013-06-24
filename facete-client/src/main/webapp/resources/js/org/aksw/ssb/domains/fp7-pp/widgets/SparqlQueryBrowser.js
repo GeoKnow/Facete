@@ -257,6 +257,8 @@
 			    	    return;
 			    	}
 			    	
+			    	var model = this.model;
+			    	
 			    	var vars = query.projectVars.vars;
 			    	//console.log("Vars: ", vars);
 			    	var columns = [];
@@ -264,17 +266,32 @@
 			    	for(var i = 0; i < vars.length; ++i) {
 			    	    var v = vars[i];
 			    	    
-			    	    
+			    	    var varName = v.value;
+			    	    			    	    
 			    	    //console.log("Creating column with " + v.value);
-			    	    columns.push(createColumn(v.value));
+			    	    columns.push(createColumn(varName));
 			    	}
 			    	
 			    	var tr = $('<tr />');
+			    	
+			    	var headerMap = model.get('headerMap');
+
 			    	
 			    	for(var i = 0; i < columns.length; ++i) {
 			    		var col = columns[i];
 			    		
 			    		var label = col.name;
+			    		
+			    		
+			    	    var mapped = headerMap.get(label);
+			    	    if(mapped) {
+			    	    	var tmp = mapped.get('label');
+			    	    	if(tmp) {
+			    	    		label = tmp;
+			    	    	}
+			    	    }
+
+			    		
 			    		
 			    		var th = $('<th>' + label + '</th>'); 
 			    		
@@ -346,7 +363,7 @@
 				});
 
 				//var header = $('<div style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
-				var header = $('<div />');//' style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
+				var header = $('<div class="facete-table-header" />');//' style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
 				container.append(header);
 				
 				var titleView = new TitleView({model: models.model});
@@ -355,7 +372,25 @@
 			
 				//header.append($('<span>Filter:</span>'));
 				header.append($().ssb.searchBox(models.searchModel).render().el);
+				
+				
+				
+				// Items per page (ipp) switcher
+				var $elIpp = $('<select class="facete-table-limit"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="75">75</option><option value="100">100</option></select>');
+				header.append($elIpp);
+				
+				
+				
+				$elIpp.on('change', function() {
+					var val = $(this).val();
+					//console.log('Fuuuuu', this);
+					var itemsPerPage = parseInt(val);
+					tableModel.set('limit', itemsPerPage);
+					//this.val();
+				});
+				
 				header.append('<br />');
+				
 				
 				
 				var body = $('<div />');
@@ -364,7 +399,7 @@
 												
 				
 				//var footer = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');
-				var footer = $('<div />'); //style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />'); 
+				var footer = $('<div class="facete-table-footer" />'); //style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />'); 
 				container.append(footer);
 				
 				footer.append($().ssb.paginator({model: models.paginatorModel}).render().el);

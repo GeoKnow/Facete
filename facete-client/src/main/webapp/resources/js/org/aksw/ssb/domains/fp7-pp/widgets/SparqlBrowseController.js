@@ -60,7 +60,10 @@
 			queryFactory: null,
 			offset: 0,
 			limit: 10,
-			elements: [] // Additional elements to be appended to the query
+			
+			headerMap: new Backbone.Collection(), // Maps var names of the query to data items 
+			
+			elements: [] // Additional elements to be appended to the query // TODO Should be map, so we can reference additions by id
 			
 			//searchText: "",
 			//currentPage: 1,

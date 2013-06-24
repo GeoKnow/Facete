@@ -60,9 +60,7 @@
 
 		$(document).ready(function() {
 			
-			//return;
 			var layoutUtils = Namespace('org.aksw.utils.layout');
-			console.log('Using layoutUtils', layoutUtils);
 			
 			$('.portlet-header').disableSelection();
 			
@@ -71,7 +69,19 @@
 				.find('.portlet-header')
 				//.addClass('ui-widget-header ui-corner-all')
 				.addClass('navbar portlet-navbar') // navbar-fixed-top
-				.wrapInner('<div class="navbar-inner" style="min-height:20px; height:20px;"><a href="#" class="brand" style="font-size:14px; padding-top: 0px; padding-bottom: 0px;"></a></div>')
+				.wrapInner(function() {
+					//console.log('this', this);
+					var str
+						= '<div class="navbar-inner" style="min-height:20px; height:20px; position:relative;">'
+						+ '<a href="#" class="brand" style="font-size:14px; padding-top: 0px; padding-bottom: 0px;" />'
+						+ '<a href="#" class="toggle-minimized" style="position: absolute; top: 4px; right: 10px;">'
+						+ '<i class="icon-minus-sign" />'
+						+ '</a>'
+						//+ this.nodeValue.text()
+						+ '</div>';
+					
+					return str;
+				})
 				//.prepend('<span class="ui-icon ui-icon-minusthick"></span>')
 				.end()
 				.find('.portlet-content');
@@ -102,13 +112,16 @@
 //		    }).);
 
 			
-			$('.portlet-header .ui-icon').click(function() {
-				$(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
+			$('.toggle-minimized').click(function(ev) {
+				ev.preventDefault();
+				
+				$elI = $(this).find('i:first');
+				$elI.toggleClass('icon-minus-sign').toggleClass('icon-plus-sign');
 				$(this).parents('.portlet:first').toggleClass('portlet-minimized');
 			});
 
 			$('.portlet-group').sortable({
-				connectWith: 'portlet-group',
+				//connectWith: 'portlet-group',
 				handle: '.portlet-header'
 				/*
 				update: function(event, ui) {
@@ -124,7 +137,7 @@
 			});
 
 			
-			$('.portlet-content').autoHeight();
+			//$('.portlet-content').autoHeight();
 
 			//$('.portlet-container').disableSelection();
 		});
@@ -141,7 +154,7 @@
 	</script>
 </head>
 <body>
-	<div class="container" style="min-height:100%;">
+	<div class="container fill">
 <!-- 		<div class="row-fluid"> -->
 		<!-- <?php include($headerFile); ?> -->
 		${headerHtml} 
@@ -163,17 +176,17 @@
 <!-- 		</div> -->
 		
 <!-- 		<br class="clearBoth" style="width:0px; height: 0px;" /> -->
-		<div class="clearfix" />				
-		<div class="row-fluid">
+		<div class="clearfix"></div>				
+		<div class="row-fluid" style="overflow: visible;">
 		
-			<div class="span3 fullcol portlet-group ui-sortable" style="background-color:#E9EFF3;">
+			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;">
 		
 <!-- 				<div class="portlet-group ui-sortable">  row-fluid -->
 					<div class="portlet">
 						<div class="portlet-header">Facets</div>
-						<div class="portlet-content" style="overflow: auto;"> <!-- min-height: 300px;  -->
+						<div class="portlet-content"> <!-- min-height: 300px;  -->
 <!-- 							<div style="overflow:auto;">				 -->
-								<ul id="facets" style="list-style: none; list-style-type:none;"></ul>
+								<ul id="facets" class="facet-tree" style="list-style: none; list-style-type:none;"></ul>
 <!-- 							</div> -->
 						</div>
 					</div>
@@ -184,12 +197,17 @@
 					</div>
 <!-- 				</div> -->
 
+					<div class="portlet">
+						<div class="portlet-header">Filters</div>				
+		                <div id="constraints" class="portlet-content"></div>
+					</div>
+
 			</div>
 			
 			<div class="span9" style="margin-left: 5px; margin-top: 3px;">
 				<div class="row-fluid portlet-group ui-sortable">
 			
-					<div class="portlet span6">
+					<div class="portlet span7">
 						<div class="portlet-header">Table View</div>
 		                	<div id="instances" class="portlet-content"></div>
 <!-- 						<div class="portlet-content" style="overflow: auto;")> -->
@@ -207,6 +225,13 @@
 							<a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
 						</div>
 					</div>			
+
+
+					<div class="portlet span7">
+						<div class="portlet-header">Resource View</div>
+		                	<div id="resourceView" class="portlet-content"></div>
+					</div>
+
 				</div>
 				
 		<!-- 		<div class="portlet-group ui-sortable row-fluid"> -->

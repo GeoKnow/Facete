@@ -622,6 +622,7 @@
 	});
 
 	
+
 	ns.ViewItemCheck = Backbone.View.extend({
 		subView : null,
 

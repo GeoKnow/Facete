@@ -6,6 +6,8 @@ if(!window.console) {
 	}
 }
 
+
+
 /**
  * TODO Move this to backboneUtils.
  * 
@@ -77,6 +79,74 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 	var configNs = Namespace("org.aksw.ssb.config");
 
+
+	
+	widgets.ViewItemConstraintBase = Backbone.View.extend({
+		tagName: 'li',
+		attributes: { style: 'background-color: #F0F0FF; margin: 5px 0px;'},
+			
+		initialize : function() {
+			_.bindAll(this); //, 'render', 'unrender', 'remove', 'setCheckState'); // every
+	    	this.model.on('remove', this.unrender);
+	    	
+		},		
+
+		render : function() {
+			var model = this.model;
+			
+			var constraint = model.get('constraint');
+			
+			// TODO Check constraint type - right now we assume equals
+			var str = "" + constraint.path + " is " + constraint.node;
+
+			var $elA = $('<a href="#" />');
+			$elA.text(str);
+			//this.$el.text(str);
+			this.$el.append($elA);
+			/*
+			if(subView) {
+				var subViewEl = subView.render().$el;
+				this.$el.append(subViewEl);
+			}
+			*/
+			
+
+			//this.$el.append(inputEl);
+
+			return this;
+		},
+
+		unrender : function() {
+			this.$el.remove();
+		}
+	});
+	
+	widgets.ViewItemConstraint = widgets.ViewItemConstraintBase.extend({
+		events: {
+			click: function(ev) {
+				ev.preventDefault();
+				this.model.destroy();
+			}
+		}
+	})
+	
+	
+	widgets.constraintItemRenderer = new widgets.RendererItemView({}, null,
+			widgets.ViewItemConstraint, {
+				label : "simpleLabel"
+			});
+
+	widgets.ViewConstraints = widgets.ListView.extend({
+		attributes: {
+			//'class': 'facet'
+		},
+		itemRenderer : widgets.constraintItemRenderer
+	});
+
+	
+	
+	
+	
 	
 	var ns = facets;
 
@@ -579,6 +649,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var facetTree = ns.createFacetTreeView(configModel);
 		
 		var facetWidget = facetTree.facetWidget;
+		
+		
+		
+		ns.createConstraintView(configModel);
+		
 		/*
 		facetWidget.on('itemAdded', function(ev) {
 			console.log("[FacetTree] Item Added: ", ev);
@@ -637,6 +712,22 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 	};
 
+	
+	ns.createConstraintView = function(configModel) {
+		var constraintCollection = configModel.get('constraintCollection');
+		
+		console.log('ConstraintCollection', constraintCollection);
+		
+		var view = new widgets.ViewConstraints({
+//			el: $el,
+			collection: constraintCollection
+		});
+		
+		var $elContainer = $('#constraints');
+		var rendered = view.render().el
+		$elContainer.append(rendered);
+		
+	};
     
     ns.initServices = function(configModel) {
     

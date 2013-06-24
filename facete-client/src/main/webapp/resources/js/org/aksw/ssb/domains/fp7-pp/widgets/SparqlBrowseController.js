@@ -357,7 +357,25 @@
 		
 		
 		var projectVars = query.getProjectVars();
-		var vars = projectVars.getVarList();
+		var varToExpr = projectVars.getExprMap();
+		var tmpVars = projectVars.getVarList();
+		
+		// TODO Search should also be possible on variables that are mapped to expressions (i.e. sub querys are necessary)
+		// For now: only retain variables that are NOT mapped to an expression
+		var vars = [];
+		for(var i = 0; i < tmpVars.length; ++i) {
+			var v = tmpVars[i];
+			
+			var expr = varToExpr[v.value];
+			if(expr) {
+				continue;
+			}
+			
+			vars.push(v);
+		}
+		
+		
+		console.log('projectVars are:', projectVars);
 		
 		//console.log(vars);
 

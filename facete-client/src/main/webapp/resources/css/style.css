@@ -3,6 +3,8 @@ html, body {
 	height: 100%;
 }
 
+/* This is the CSS for the side bar */
+
 .fill {
 /* 	margin-bottom: -9999px; */
 /* 	padding-bottom: 9999px; */
@@ -26,6 +28,22 @@ html, body {
     width: inherit;
     z-index: -5;  
 }
+
+div.framed {
+	border-width: 1px;
+	border-color: gray;
+	border-style: dotted;
+}
+
+select.btn {
+    width: auto;
+}
+
+select.btn-mini {
+    height: auto;
+    line-height: 14px;
+}
+
 
 /* .toggle-minimized  */
 a {

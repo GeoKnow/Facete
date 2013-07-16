@@ -31,6 +31,9 @@ Check out the repository, and follow these steps
 
     git checkout devel
 
+    # Create local copies of any .dist file in the repo, and adjust the content appropriately
+    # (This has to be done manually right now, read section below)
+
     # Make the client known to your webserver, e.g:
     # NOTE Adjust the following line as needed
     ln -s <project-root>/facete-client/src/main/webapp /var/www/facete
@@ -44,8 +47,9 @@ You also need to have PHP and curl for PHP installed:
 
 Although the client is functional without any configuration (you can e.g. set which SPARQL endpoint to explore in the user interface - NOTE: this is currently bugged!), you most likely want to adjust some default values:
 
-    cd <project-root>/facete-client/src/main/webapp
+    cd <project-root>/facete-client/src/main/webapp/resources
     cp facete-config.js.dist facete-config.js
+    cp facete-index.properties.dist facete-index.properties
 
 Now adjust the settings in `facete-config.js` as needed according to the comments in that file, for example:
 

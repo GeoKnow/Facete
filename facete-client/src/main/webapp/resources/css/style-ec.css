@@ -221,7 +221,19 @@ ul.menu li {
 	height: 88px;
 }
 
+.header .logo-big {
+	padding: 0px 0 0 0px;
+	max-width: 500px;
+	width: 80%;
+	height: 88px;
+}
+
 .header .logo img{
+	margin-top:-4px;
+	width: 100%;
+}
+
+.header .logo-big img{
 	margin-top:-4px;
 	width: 100%;
 }
@@ -273,7 +285,8 @@ ul.menu li {
 
 #header-menu{
 	float: right;
-	padding:0 10px 4px 400px;
+	padding:0 10px 4px 50%;
+	/* 400px; */
 	position: relative;
     background: url("../images/ec/languagebar.png") no-repeat scroll right top #FFFFFF;
 }

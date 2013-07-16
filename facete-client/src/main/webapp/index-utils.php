@@ -113,7 +113,7 @@ function parse_properties_file($fileName) {
 function parse_properties($txtProperties) {
  $result = array();
 
- $lines = split("\n", $txtProperties);
+ $lines = explode("\n", $txtProperties);
  $key = "";
 
  $isWaitingOtherLine = false;

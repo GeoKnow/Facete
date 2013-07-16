@@ -216,12 +216,14 @@ ul.menu li {
 
 .header .logo{
 	padding: 0px 0 0 0px;
-	width: 660px;
+	max-width: 183px;
+	width: 30%;
 	height: 88px;
 }
 
 .header .logo img{
 	margin-top:-4px;
+	width: 100%;
 }
 
 #header-title{

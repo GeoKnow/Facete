@@ -60,7 +60,7 @@
 		
 				var result = promise.pipe(function(value) {
 					
-					return {count: value, isCutOff: (value >= sampleLimit) };
+					return {count: value, more: (value >= sampleLimit) };
 				});
 				
 				return result;

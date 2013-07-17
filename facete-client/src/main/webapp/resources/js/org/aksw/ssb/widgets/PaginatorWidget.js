@@ -199,21 +199,24 @@
 				page: page
 			});
 		}
+
 		
+		if(spec.hasMorePages) {
+			pageSlots.push({
+				//label: "Load more...",
+				//isEnabled: true,
+				isEnabled: false,
+				label: "(further pages omitted)",
+				page: -2
+			});
+		}
+
 
 		if(spec.next) {
 			pageSlots.push({
 				label: ">",
 				isEnabled: currentPage < spec.pageCount,
 				page: currentPage + 1
-			});
-		}
-
-		if(spec.hasMorePages) {
-			pageSlots.push({
-				label: "Load more...",
-				isEnabled: true,
-				page: -2
 			});
 		}
 		

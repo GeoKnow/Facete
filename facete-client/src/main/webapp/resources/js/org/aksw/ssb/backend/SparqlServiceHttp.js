@@ -88,7 +88,7 @@
 		return this.defaultGraphUris;
 	};
 	
-	ns.SparqlServiceHttp.prototype.executeAny = function(query) {
+	ns.SparqlServiceHttp.prototype.executeAny = function(query, ajaxOptions) {
 		
 		//console.log("Preparing SPARQL query: " + query);
 		
@@ -111,38 +111,38 @@
 			console.error("Empty queryString - should not happen");
 		}
 
-		var options = {};
+		var httpOptions = {};
 		var serviceUri = this.serviceUri;
 		
 		if(this.proxyServiceUri) {
-			options[this.proxyParamName] = serviceUri;
+			httpOptions[this.proxyParamName] = serviceUri;
 			serviceUri = this.proxyServiceUri;
 		}
 		
 		
-		var result = ns.executeQuery(serviceUri, this.defaultGraphUris, queryString, options);
+		var result = ns.executeQuery(serviceUri, this.defaultGraphUris, queryString, httpOptions, ajaxOptions);
 			
 		return result;
 	};
 	
 	
 	
-	ns.SparqlServiceHttp.prototype.executeSelect = function(query) {
-		return this.executeAny(query);
+	ns.SparqlServiceHttp.prototype.executeSelect = function(query, ajaxOptions) {
+		return this.executeAny(query, ajaxOptions);
 	};
 	
-	ns.SparqlServiceHttp.prototype.executeAsk = function(query) {
-		return this.executeAny(query);
+	ns.SparqlServiceHttp.prototype.executeAsk = function(query, ajaxOptions) {
+		return this.executeAny(query, ajaxOptions);
 	};
 	
 	// TODO What to return: RdfJson vs RdfQuery
-	ns.SparqlServiceHttp.prototype.executeConstruct = function(query) {
-		return this.executeAny(query);
+	ns.SparqlServiceHttp.prototype.executeConstruct = function(query, ajaxOptions) {
+		return this.executeAny(query, ajaxOptions);
 	};
 	
 	
-	ns.SparqlServiceHttp.prototype.executeDescribe = function(query) {
-		return this.executeAny(query);
+	ns.SparqlServiceHttp.prototype.executeDescribe = function(query, ajaxOptions) {
+		return this.executeAny(query, ajaxOptions);
 	};
 
 	
@@ -180,7 +180,7 @@
 	 * @param callback
 	 * @param format
 	 */
-	ns.executeQuery = function(baseURL, defaultGraphUris, query, options) {
+	ns.executeQuery = function(baseURL, defaultGraphUris, query, options, ajaxOptions) {
 		if(!options) {
 			options = {};
 		}
@@ -218,11 +218,18 @@
 		var url = baseURL + "?" + querypart;
 		//alert("url: " + url);
 		
-		//return $.post(baseURL, querypart);
-		var result = $.ajax({
+
+		var ajaxObj = {
 			url: url,
 			dataType: 'json'
-		});
+		};
+
+		if(ajaxOptions) {
+			_.extend(ajaxObj, ajaxOptions);
+		}
+		
+		//return $.post(baseURL, querypart);
+		var result = $.ajax(ajaxObj);
 			
 		return result;
 	};

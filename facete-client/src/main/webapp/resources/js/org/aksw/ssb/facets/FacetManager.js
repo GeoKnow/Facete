@@ -667,10 +667,15 @@
 			return this.varNode.getVariableName();
 		},*/
 		
-		getVariable: function() {
+		getVar: function() {
 			var varName = this.varNode.getVariableName();
 			var result = sparql.Node.v(varName);
-			return result;
+			return result;			
+		},
+		
+		getVariable: function() {
+			console.log('[WARN] Deprecated. Use getVar() instead.')
+			return this.getVar();
 		},
 		
 		getStep: function() {

@@ -61,6 +61,9 @@
 			offset: 0,
 			limit: 10,
 			
+			partitionLimit: null,
+			partitionOffset: null,
+			
 			headerMap: new Backbone.Collection(), // Maps var names of the query to data items 
 			
 			elements: [] // Additional elements to be appended to the query // TODO Should be map, so we can reference additions by id
@@ -139,12 +142,21 @@
 					case 'elements':
 					case 'queryFactory':
 					case 'sparqlService':
+					case 'partitionLimit':
+					case 'partitionOffset':
 					 	self.refreshPageCount();
 					 	break;
+
 					case 'limit':
 					case 'itemCount':
+					case 'hasMoreItems':
 						self.updatePageCount();
 						break;
+						
+					case 'partitionLimit':
+					case 'partitionOffset':
+					 	self.refreshPageCount();
+					 	break;
 					}
 				}
 				
@@ -187,6 +199,7 @@
 			
 			var limit = tableModel.get('limit');
 			var itemCount = tableModel.get('itemCount');	
+			var hasMoreItems = tableModel.get('hasMoreItems');
 
 			//console.log("Item count: " + itemCount);
 			
@@ -195,9 +208,16 @@
 				pageCount = 1;
 			}
 			
-			this.paginatorModel.set({pageCount: pageCount});			
+			this.paginatorModel.set({
+				pageCount: pageCount,
+				hasMorePages: hasMoreItems
+			});			
 		},
-		
+
+		/**
+		 * Tries to count all pages. If it fails, attempts to count the
+		 * pages within the current partition
+		 */
 		refreshPageCount: function() {
 			//console.log("Refreshing page count");
 
@@ -207,13 +227,56 @@
 				self.paginatorModel.set({pageCount: 1});
 				return;
 			};
+
+			var result = $.Deferred();
+
 			
-			var task = this.tableExecutor.fetchResultSetSize();
+			var successAction = function(info) {				
+				self.tableModel.set({
+					itemCount: info.count,
+					hasMoreItems: info.more
+				});
+				
+				result.resolve();
+			};
+				
+			
+			// Experiment with timeouts:
+			// If the count does not return within 'timeout' seconds, we try to count again
+			// with a certain threshold
+			var sampleSize = 10000;
+			var timeout = 3000;
 			
 			
-			var result = task.pipe(function(info) {				
-				var itemCount = info.count;
-				self.tableModel.set({itemCount: itemCount});
+			var task = this.tableExecutor.fetchResultSetSize(null, null, { timeout: timeout });
+			
+			
+			task.fail(function() {
+				
+				console.log("[WARN] Timeout encountered when retrieving page count - retrying with sample strategy");
+				
+				var sampleTask = self.tableExecutor.fetchResultSetSize(
+					sampleSize,
+					null,
+					{ timeout: timeout }
+				); 
+
+				sampleTask.pipe(successAction);
+				
+				sampleTask.fail(function() {
+					console.log("[ERROR] Timout encountered during fallback sampling strategy - returning only 1 page")
+					
+					result.resolve({
+						itemCount: 1,
+						hasMoreItems: true
+					});
+					
+				})
+				
+			});
+			
+			
+			task.pipe(successAction);
 				
 		
 //				var limit = self.tableModel.get("limit");
@@ -230,7 +293,7 @@
 //				}
 //				
 //				self.paginatorModel.set({pageCount: pageCount});
-			});
+
 			
 			return result;
 		},
@@ -264,12 +327,17 @@
 			var queryFactory = this.tableModel.get("queryFactory");
 			var sparqlService = this.tableModel.get("sparqlService");
 			
+			var partitionLimit = this.tableModel.get("partitionLimit");
+			var partitionOffset = this.tableModel.get("partitionOffset");
+			
 			this.tableConfig = new facets.TableModelQueryFactory();
 			
 			this.tableConfig.setLimit(limit);
 			this.tableConfig.setOffset(offset);
 			this.tableConfig.setElements(elements);
 			this.tableConfig.setQueryFactory(queryFactory);
+			this.tableConfig.setPartitionLimit(partitionLimit);
+			this.tableConfig.setPartitionOffset(partitionOffset);
 			
 			
 			//console.log("Status of the tableConfig", this.tableConfig, sparqlService);

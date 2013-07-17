@@ -984,7 +984,15 @@
 					//subQuery.groupBy.push(groupVar);
 				}
 			}
-			subQuery.projectVars.add(variable);
+			
+			if(variable) {
+				subQuery.projectVars.add(variable);
+			}
+			
+			if(subQuery.projectVars.vars.length === 0) {
+		    	subQuery.isResultStar = true;
+			}
+			
 			subQuery.limit = limit;
 			
 			result.elements.push(new sparql.ElementSubQuery(subQuery));			

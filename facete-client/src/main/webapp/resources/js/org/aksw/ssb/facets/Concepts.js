@@ -36,6 +36,25 @@
 		this.variable = variable;
 	};
 	
+	
+	/**
+	 * Array version constructor
+	 * 
+	 */
+	ns.ConceptInt.createFromElements = function(elements, variable) {
+		var element;
+		if(elements.length == 1) {
+			element = elements[0];
+		} else {
+			element = new sparql.ElementGroup(elements);
+		}
+		
+		var result = new ns.ConceptInt(element, variable);
+		
+		return result;
+	};
+
+	
 	ns.ConceptInt.prototype = new ns.Concept();
 	_.extend(ns.ConceptInt.prototype, {
 			constructor: ns.ConceptInt,
@@ -44,8 +63,30 @@
 				return this.element;
 			},
 			
+			/**
+			 * Convenience method to get the elements as an array.
+			 * Resolves sparql.ElementGroup
+			 * 
+			 */
+			getElements: function() {
+				var result;
+				
+				if(this.element instanceof sparql.ElementGroup) {
+					result = this.element.elements;
+				} else {
+					result = [ this.element ];
+				}
+				
+				return result;
+			},
+	
+			getVar: function() {
+				return this.variable;				
+			},
+			
 			getVariable: function() {
-				return this.variable;
+				console.log('[Warn] Deprecated. Use .getVar() instead');
+				return this.getVar();
 			},
 			
 			toString: function() {

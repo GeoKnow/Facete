@@ -3,6 +3,34 @@ Unclassified:
 	Note: This is just about adding the twitter bootstrap 'striped' class to the table.
 - Implement the "Portlet-Theme" from the LOD2 Widget Choreography
 	Note: This would give us much more flexibility in arranging the user interface components, such as hiding the table view and showing bookmarked facets instead.
+- Show the number of items that could not be displayed on the map
+
+
+- Probably use "Items" instead of "Individuals"
+- Welcome page
+  - Three column layout, label them as (1) (2) (3) (left to right workflow)
+  - (1) Select individuals, (2) Select filters, (2) Table of selected individuals, (3) Selected indviduals on the map, Selected indidivuals below- Big overall box -> Big button "Explore a dataset" -> Click gives the actual application
+  - 1 Page, not too fancy - set the mind for the user (Make it close to what it is - but mainly for feedback - having it is important, as it tackles "I don't understand it)
+- How to organize functionality to feel more
+  - Replace "root" with "Individuals" ->
+- Inteface of the tree selection is hard to deal with:
+  - Erogonics of the icons are really small -> Settings: Font size drop down
+  - Separate functionality: Creation of the table with the items of interest from placing them on the map
+  - The globe symbol would be best replaced with a new widget: "Place your selected items of the map using the coordinates of these".
+  - (Limits to the components -> We probably would need to add some "Search for more, search longer" button)
+    - Best efforts to find something that could be used. In the worst case show a hint"
+- Click e.g. the globe twice, or in the geo-widget: Add a button to filter by map. Special filter: Select all items that have lat/long.
+  - Ping the dataset whether there is geo-data, if not, we could hide the map, and have a popup message saying that the map was disabled because there was nothing to show.
+- For incompleteness: Split of a comlex path into individual steps, and debug like this.
+  - With order by functionality we would sort the table by which items are null, e.g. not interlinked.
+- Colors really would be cool :)
+  - 1 deliverable in the short term -> fixes: design, ie7 crash, larger dataset, individual detail pages
+
+Note:
+- Karel already created a mockup of the welcome page. After 15th: Clarify updated functionality of the widgets.
+- PING and SPATIAL WIDGET are most important elements, but also ORDERING OF THE TABLE.
+- Meeting with PO this friday (5th July).
+
 
 Urgent:
 - Finalize how to do the initial configuration (currently its all in src/main/webapp/js/main-facets.js) [DONE]
@@ -39,7 +67,8 @@ Medium:
 Low:
 - Add support for choosing the number of items to be shown in the tables
 - Add summary text for how many items there are in the table
-- Show the facet value counts
+- Show the facet value counts [DONE]
+- Show number of items in the table
 - Indicate which facets actually carry geo-spatial information
 - Enable rearranging table columns
 - Support more complex color assignments (e.g. courts having sent documents to

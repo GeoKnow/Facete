@@ -11,6 +11,38 @@
 	var facets = Namespace("org.aksw.ssb.facets");
 	var ns = facets;
 
+	
+	ns.createCombinedConcept = function(baseConcept, tmpConcept) {
+		//console.log("[TRACE] Concept for facet node is: " + tmpConcept.getElement());
+		
+		// TODO The variables of baseConcept and tmpConcept must match!!!
+		// Right now we just assume that.
+		
+		
+		// Check if the concept of the facetFacadeNode is empty
+		var tmpElement = tmpConcept.getElement();
+		var isEmptyTmpElement = tmpElement instanceof sparql.ElementGroup && tmpElement.elements.length === 0;
+		
+		var baseElement = baseConcept.getElement();
+		
+		var e;
+		if(!isEmptyTmpElement) {
+			
+			if(baseConcept.isSubjectConcept()) {
+				e = tmpElement;
+			} else {
+				e = new sparql.ElementGroup([baseElement, tmpElement]);
+			}
+		} else {
+			e = baseElement;
+		}
+		
+		
+		var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
+
+		return concept;
+	};
+	
 
 	/**
 	 * A facet provider for ingoing/outgoing properties
@@ -23,16 +55,12 @@
 
 	ns.FacetProviderSimple.prototype = {
 			
-		/**
-		 * @param mode false for exclusion, true for inclusion
-		 * 
-		 */
-		fetchFacets : function(concept, mode, steps) { // Maybe URIs should be steps?
+		createQuery: function(concept, mode, steps, facetVar, countVar) { // TODO add partition options
 			var self = this;
 
 			var sampleSize = null; // 50000;
-			var facetVar = sparql.Node.v("__p");
-			var countVar = sparql.Node.v("__c");
+			//var facetVar = sparql.Node.v("__p");
+			//var countVar = sparql.Node.v("__c");
 			
 			var query = queryUtils.createQueryFacetCount(concept, facetVar,
 					countVar, this.isInverse, sampleSize);
@@ -75,6 +103,21 @@
 				}
 			}
 			
+			return query;
+		},
+			
+		/**
+		 * @param mode false for exclusion, true for inclusion of steps
+		 * 
+		 * TODO Add support for a partition (in the simplest case limit and offset)
+		 */
+		fetchFacets: function(concept, mode, steps) {
+			var facetVar = sparql.Node.v("__p");
+			var countVar = sparql.Node.v("__c");
+			
+			var query = this.createQuery(concept, mode, steps, facetVar, countVar);
+			
+			var self = this;
 			/*
 			console.log("Steps: ", steps);
 			console.log("IsInverse: ", this.isInverse);
@@ -125,6 +168,10 @@
 
 			var promise = dataProvider.fetchData();
 
+			
+			// TODO: If the query takes too long, switch to partitioned mode...
+			
+			
 			// dataProviderTmp.fetchData().done(function(x) {
 			// console.log("YEAH", JSON.stringify(x)); });
 			// promise.done(function(x) { console.log("YEAH",
@@ -151,6 +198,11 @@
 	};
 
 	ns.ModelFacetUpdater.prototype = {
+			
+		/**
+		 * Some Notes on partitioning:
+		 * - TODO Somehow cache the relation between filter configuration and fetch strategy
+		 */
 		updateFacets : function(model, facetFacadeNode) {
 			var self = this;
 
@@ -161,12 +213,7 @@
 				return result.resolve();
 			}
 
-			
-			// The concepts for which to fetch facets
-			// We have a list of concepts because we need to deal with constraints configurations
-			// For these concepts we can just 
-			var conceptItems = [];
-			
+						
 
 			// Figure out which facet steps have constraints:
 			// For each of them we have to fetch the counts individually by excluding
@@ -176,97 +223,28 @@
 			var constrainedSteps = facetFacadeNode.getConstrainedSteps();
 			console.log("[DEBUG] Constrained steps: " + JSON.stringify(constrainedSteps));
 
-			var fnLoop = function(sparqlService, conceptItem) {
-
-				var facetUri = conceptItem.property;
-				var concept = conceptItem.concept;
-				
-				var element = concept.getElement();
-				var variable = concept.getVariable();
-				
-				var outputVar = sparql.Node.v("__c");
-				var limit = null;
-
-				var query = queryUtils.createQueryCount(element, null, variable, outputVar, null, true, null);
-				console.log("Fetching facets with ", query);
-				var queryExecution = queryUtils.fetchInt(sparqlService, query, outputVar);
-
-				
-				var promise = queryExecution.pipe(function(facetCount) {
-					conceptItem.facetCount = facetCount;
-					//item.facetFacadeNode = subNode;
-					//item.step = step;
-
-					console.log("ConceptItem: ", conceptItem);
-					
-					// We need to return arrays for result 
-					var result = [conceptItem];
-					return result;
-				});
-
-				return promise;
-			};
-			
-			for(var i = 0; i < constrainedSteps.length; ++i) {
-				var step = constrainedSteps[i];				
-				
-				var propertyName = step.propertyName;
-
-				var targetNode = facetFacadeNode.forStep(step);
-				var targetConcept = targetNode.createConcept();
-				//var subNode = facetFacadeNode.forProperty(stepfacetUri.value, step.isInverse);
-
-				var prefix = self.isInverse ? "<" : "";
-
-				var item = {
-					id: "simple_" + prefix + propertyName,
-					type: 'property',
-					property: propertyName,
-					isInverse: step.isInverse,
-					concept: targetConcept,
-					step: step,
-					facetFacadeNode: targetNode
-				};		
-				
-				conceptItems.push(item);
-			}
-			
-			
-			
-			//var individualPromise
+			var conceptItems = this.createConceptItems(facetFacadeNode, constrainedSteps);
+						
+			/*
+			 * For each obtained concept, fetch the facets and facet counts  
+			 */
 			var promises = [];			
 			for(var i = 0; i < conceptItems.length; ++i) {
-				var conceptItem = conceptItems[i];				
-				var promise = fnLoop(this.sparqlService, conceptItem);
+				var conceptItem = conceptItems[i];
+				console.log("Fetching data for concept item: ", conceptItem);
+				var promise = this.fnFetchSubFacets(this.sparqlService, conceptItem);
 				promises.push(promise);
 			}
 			
 			
-			// The generic query
+			/*
+			 * Set up the query for fetching facets of all concepts that were NOT constrained
+			 */
 			var tmpConcept = facetFacadeNode.createConcept(true);
-			//console.log("[TRACE] Concept for facet node is: " + tmpConcept.getElement());
-			
-			// Check if the concept of the facetFacadeNode is empty
-			var tmpElement = tmpConcept.getElement();
-			var isEmptyTmpElement = tmpElement instanceof sparql.ElementGroup && tmpElement.elements.length === 0;
-			
 			var baseConcept = this.baseConcept;
-			var baseElement = baseConcept.getElement();
 			
-			var e;
-			if(!isEmptyTmpElement) {
-				
-				if(baseConcept.isSubjectConcept()) {
-					e = tmpElement;
-				} else {
-					e = new sparql.ElementGroup([baseElement, tmpElement]);
-				}
-			} else {
-				e = baseElement;
-			}
+			var concept = ns.createCombinedConcept(baseConcept, tmpConcept);
 			
-			
-			var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
 			
 			//console.log("GenericConcept: " + concept, concept.isSubjectConcept());
 
@@ -277,7 +255,7 @@
 			// Get the facets of the concept
 			var tmpPromises = _.map(this.facetProviders, function(facetProvider) {
 				// TODO: We do not want the facets of the concept,
-				// but of the concept + consteraints
+				// but of the concept + constraints
 				
 				// This means: We need to get all constraints at the current path -
 				// or more specifically: All steps.
@@ -440,8 +418,77 @@
 			});
 			*/
 			return reallyFinalPromise;
-		}
+		},
 
+
+		/**
+		 * This function loads the facets of a specific concept.
+		 */
+		fnFetchSubFacets: function(sparqlService, conceptItem) {
+	
+			var facetUri = conceptItem.property;
+			var concept = conceptItem.concept;
+			
+			var element = concept.getElement();
+			var variable = concept.getVariable();
+			
+			var outputVar = sparql.Node.v("__c");
+			var limit = null;
+	
+			var query = queryUtils.createQueryCount(element, null, variable, outputVar, null, true, null);
+			console.log("Fetching facets with ", query);
+			var queryExecution = queryUtils.fetchInt(sparqlService, query, outputVar);
+	
+			
+			var promise = queryExecution.pipe(function(facetCount) {
+				conceptItem.facetCount = facetCount;
+				//item.facetFacadeNode = subNode;
+				//item.step = step;
+	
+				console.log("ConceptItem: ", conceptItem);
+				
+				// We need to return arrays for result 
+				var result = [conceptItem];
+				return result;
+			});
+	
+			return promise;
+		},
+
+	
+		/**
+		 * Create the list of all facets that carry constraints and
+		 * for which we have to fetch their facets.
+		 */
+		createConceptItems: function(facetFacadeNode, constrainedSteps) {
+			var conceptItems = [];
+	
+			for(var i = 0; i < constrainedSteps.length; ++i) {
+				var step = constrainedSteps[i];				
+				
+				var propertyName = step.propertyName;
+	
+				var targetNode = facetFacadeNode.forStep(step);
+				var targetConcept = targetNode.createConcept();
+				//var subNode = facetFacadeNode.forProperty(stepfacetUri.value, step.isInverse);
+	
+				var prefix = self.isInverse ? "<" : "";
+	
+				var item = {
+					id: "simple_" + prefix + propertyName,
+					type: 'property',
+					property: propertyName,
+					isInverse: step.isInverse,
+					concept: targetConcept,
+					step: step,
+					facetFacadeNode: targetNode
+				};		
+				
+				conceptItems.push(item);
+			}
+			
+			return conceptItems;
+		}
 	};
 	
 })();

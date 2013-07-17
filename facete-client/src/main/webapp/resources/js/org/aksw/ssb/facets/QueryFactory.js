@@ -75,6 +75,12 @@ var ns = Namespace("org.aksw.ssb.facets");
 		this.limit = null;
 		this.offset = null;
 		
+		// TODO: A partition could also be specified by a filter element, so in the future we may have a partitionElement attribute as well.		
+		// Partition: The graph pattern of the underlying query will be wrapped in a sub query having
+		// these limit and offsets.
+		this.partitionOffset = null;
+		this.partitionLimit = null;
+		
 		// Additional elements to be injected into the query
 		this.elements = [];
 	};
@@ -91,10 +97,29 @@ var ns = Namespace("org.aksw.ssb.facets");
 		getLimit: function() {
 			return this.limit;
 		},
+		
 		setLimit: function(limit) {
 			this.limit = limit;
 		},
 	
+		getPartitionLimit: function() {
+			return this.partitionLimit;
+		},
+		
+		setPartitionLimit: function(partitionLimit) {
+			this.partitionLimit = partitionLimit;
+		},
+		
+		getPartitionOffset: function() {
+			return this.partitionOffset;
+		},
+		
+		setPartitionOffset: function(partitionOffset) {
+			this.partitionOffset = partitionOffset;
+		},
+		
+		
+		
 		setElements: function(elements) {
 			this.elements = elements;
 		},
@@ -122,6 +147,21 @@ var ns = Namespace("org.aksw.ssb.facets");
 			if(baseQuery == null) {
 				return null;
 			}
+			
+			if(this.partitionOffset || this.partitionLimit) {
+				var subQuery = new sparql.Query();
+				
+				// Copy all elements of the base query to the sub query
+				//baseQuery.elements.push.apply(baseQuery.elements, subQuery.elements);
+				subQuery.isResultStar = true;
+				subQuery.elements = baseQuery.elements;
+				subQuery.setOffset(this.partitionOffset);
+				subQuery.setLimit(this.partitionLimit);
+				
+				var elementSubQuery = new sparql.ElementSubQuery(subQuery);
+				baseQuery.elements = [ elementSubQuery ];
+			}
+			
 			
 			if(this.projection) {
 				baseQuery.setProjectVars(this.projection);
@@ -352,6 +392,79 @@ var ns = Namespace("org.aksw.ssb.facets");
 		}
 	};
 	
+
+	ns.DataProviderCompound = function() {
+		this.dataProviders = [];
+		this.dataProviderCaches = [];
+	};
+	
+
+	ns.DataProviderCompound.prototype = {
+			updateAll: function() {
+				var promises = [];
+				var n = this.dataProviders.length;
+				for(var i = 0; i < n; ++i) {
+					var dataProvider = this.dataProviders[i];
+					
+					var promise = dataProvider.fetchDataCount();
+					promises.push(promise);
+				}
+				
+			},
+			
+			/**
+			 * Returns the sum of all cached data sizes
+			 */
+			fetchDataCount: function() {
+				var n = this.dataProviderCaches.length;
+				var result = 0;
+				for(var i = 0; i < n; ++i) {
+					var cache = this.dataProviderCaches[i];
+					
+					var count = cache.size;
+					result += count;
+				}
+				
+				return result;
+			},
+			
+			/**
+			 * Returns a promise that fetches the appropriate data
+			 * 
+			 */
+			fetchData: function(limit, offset) {
+				// Find the appropriate dataProviders and corresponding sub-offset / sub-limits.
+				var n = this.dataProviderCaches.length;
+				
+				var currentOffset = 0;
+				for(var i = 0; i < n; ++i) {
+					
+					var cache = this.dataProviderCaches[i];
+					var count = cache.size;
+					
+					var nextOffset = currentOffset + count;
+					
+					if(nextOffset > offset) {
+						break;
+					}
+					
+					currentOffset = nextOffset;
+				}
+				
+				var startIndex = i;
+				
+				// fragment := {limit, offset}
+				var fragments = [];
+				for(var i = startIndex; ; ++i) {
+					
+				}
+				
+				
+				
+				
+			}
+	};
+	
 	
 	/**
 	 * Note: It is valid for queryFactory.createQuery() to return null (indicates empty table),
@@ -399,7 +512,7 @@ var ns = Namespace("org.aksw.ssb.facets");
 			return result;
 		},
 		
-		fetchResultSetSize: function(sampleLimit, options) {
+		fetchResultSetSize: function(sampleLimit, options, ajaxOptions) {
 			var countVar = sparql.Node.v("__c");
 			
 			var query = this.queryFactory.createQuery(); 
@@ -409,7 +522,7 @@ var ns = Namespace("org.aksw.ssb.facets");
 			if(!query) {
 				var result = $.Deferred();
 				
-				result.resolve({count: 0, isCutOff: false});
+				result.resolve({count: 0, more: false});
 				
 				return result.promise();
 			}
@@ -429,10 +542,10 @@ var ns = Namespace("org.aksw.ssb.facets");
 			
 			var countQuery = queryUtils.createQueryCount(element, sampleLimit, null, countVar);
 
-			var promise = queryUtils.fetchInt(this.sparqlService, countQuery, countVar);
+			var promise = queryUtils.fetchInt(this.sparqlService, countQuery, countVar, ajaxOptions);
 	
-			var result = promise.pipe(function(value) {				
-				return {count: value, isCutOff: (value >= sampleLimit) };
+			var result = promise.pipe(function(value) {			
+				return {count: value, more: (sampleLimit && value >= sampleLimit) };
 			});
 			
 			return result;
@@ -484,6 +597,178 @@ var ns = Namespace("org.aksw.ssb.facets");
 	};
 	
 	//ns.QueryFactory
+	
+	
+	
+	/**
+	 * A QueryFactoryGeo bundles a QueryFactory and a GeoConstraintFactory. 
+	 * 
+	 * @param queryGenerator
+	 * @param geoConstraintFactory
+	 * @param options geoSubQuery = {true/false}
+	 * @returns {ns.QueryGeneratorGeo}
+	 */
+	ns.GeoQueryFactory = function(queryFactory, geoVar, geoConstraintFactory, options) {
+		this.queryFactory = queryFactory;
+		this.geoVar = geoVar;
+		this.geoConstraintFactory = geoConstraintFactory;
+		this.options = options;
+	};
+	
+	ns.GeoQueryFactory.prototype = {
+			/**
+			 * Return the geo variable
+			 */
+			getGeoVar: function() {
+				return this.geoVar;
+			},
+			
+			/**
+			 * Return the underlying QueryFactory
+			 * 
+			 */
+			getQueryFactory: function() {
+				return this.queryFactory;
+			},
+			
+			getGeoConstraintFactory: function() {
+				return this.geoConstraintFactory();
+			},
+			
+			getOptions: function() {
+				return this.options;
+			},
+	
+			/**
+			 * Returns an element without constraints on the geoms.
+			 * Note that the geo-related triples will still be there by default.
+			 * 
+			 * FIXME: Should there be an option to disable that?
+			 * 
+			 * @param options
+			 */
+			forGlobal: function(options) {
+				
+				var result = this.queryFactory.createQuery();
+				
+				if(!result) {
+					return null;
+				}
+				var elements = result.elements;
+				
+				var geoElement = this._createGeoElement();
+				if(geoElement.triples.length > 0) {
+					elements.push(geoElement);
+				}
+								
+				return result;
+			},
+
+			forBounds: function(bounds, options) {
+				var filter = this._createGeoElementBounds(bounds);
+				var result = this._forFilter(filter);
+				return result;
+			},
+	
+			forGeoms: function(geomUriNodes, options) {
+				//var geomVar = this.geoConstraintFactory.geomVar;
+				var geomVar = this.getGeoBreadcrumb().getTargetVariable(); //sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+				
+				var geoElement = this._createGeoElement();
+				var filter = new sparql.ElementFilter([new sparql.E_In(geomVar, geomUriNodes)]);
+				
+				var element = new sparql.ElementGroup([geoElement, filter]);
+				
+				
+				var result = this._forFilter(element);
+				return result;		
+			},	
+	
+			/**
+			 * Common code for forBounds and forGeoms.
+			 */
+			_forFilter: function(filter, options) {
+				var inferredDriver = this.getInferredDriver();
+				
+				var tmpElement = new sparql.ElementGroup();
+				
+				if(inferredDriver && inferredDriver.element) {
+					tmpElement.elements.push(inferredDriver.element);
+				}
+				
+				tmpElement.elements.push(filter);
+						
+				var newElement;
+				if(options && options.geoSubQuery) {
+					var subQuery = new sparql.ElementSubQuery();
+					
+					//var geomVar = this.geoConstraintFactory.geomVar;
+					var geomVar = sparql.Node.v(this.geoConstraintFactory.breadcrumb.targetNode.variable);
+					
+					subQuery.projectVars.add(geomVar);
+					subQuery.elements.push(tmpElement);
+					
+					newElement = new sparql.ElementGroup();
+					newElement.elemements.push(subQuery);
+					
+					
+				} else {
+					newElement = tmpElement; 
+				}
+				
+				var resultDriver = null;
+				
+				//if(inferredDriver) {
+				resultDriver = new facets.ConceptInt(newElement, this.getVariable());// inferredDriver.getVariable());
+				//} 
+				
+				var result = new widgets.QueryGenerator(
+						resultDriver, 
+						this.getNavigationPath(),
+						this.getFocusPath(),
+						this.getConstraints(),
+						this.getPathManager()
+						);
+				
+				
+				
+				//this._appendConstraintElement(result.elements, options);
+		
+				return result;
+			},
+
+	
+			_createGeoElement: function() {
+				var result = new sparql.ElementTriplesBlock();
+				result.addTriples(this.geoConstraintFactory.getTriples(this.getPathManager()));
+				result.uniq();		
+				
+				return result;
+			},
+	
+			_createGeoElementBounds: function(bounds) {
+				var result = new sparql.ElementGroup();
+		
+				
+				// Add geo triples
+				//this._appendGeoElement(result.elements);
+				//result.elements.push(this._createGeoElement());
+				
+				
+				// Add the filter statement
+				var geoConstraint = this.geoConstraintFactory.create(bounds);
+				
+				var ce = geoConstraint.createConstraintElement(this.getPathManager());
+				
+				var element = new sparql.ElementTriplesBlock(ce.getTriples());		
+				var filter = new sparql.ElementFilter([ce.getExpr()]);
+				
+				result.elements.push(element);
+				result.elements.push(filter);
+		
+				return result;		
+			}
+	};
 	
 	
 })(ns);

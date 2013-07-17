@@ -754,7 +754,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			var facetProviders =
 				[
 				 	new facets.FacetProviderSimple(sparqlService, false)
-				 	//new facets.FacetProviderSimple(sparqlService, true)
+				 	,new facets.FacetProviderSimple(sparqlService, true)
 				];
 
 			
@@ -847,7 +847,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	//console.log("Dammit", widget);
 
 		var tableModel = widget.models.tableModel;
-		tableModel.get('headerMap').add({id: 's', label: 'Resource'});
+		tableModel.get('headerMap').add({id: 's', label: 'Item'});
 
 		//tableModel.set({limit: 50});
 		//console.log("Fuuuuuu", tableModel);
@@ -1396,9 +1396,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			model: mapModel
 		});
 
-		mapView.on("mapevent", function() {
-			//console.log("mapevent");
-		});
 		
 		
 		
@@ -1424,7 +1421,57 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		
 		mapView.render();
+
 		
+    	var dynamicMapModel = new widgetNs.DynamicMapModel();
+    	var dynamicMapController = new widgetNs.DynamicMapController(dynamicMapModel);
+
+    	
+    	dynamicMapModel.on('change:state', function(model) {
+    		//console.log('this model is', model);
+    		
+    		//var model = this;
+    		
+    		var state = model.get('state');
+    		
+    		var delta = state.delta;
+    		var newState = state.newState;
+    		
+    		var addedItems = delta.items.added;
+    		for(var i = 0; i < addedItems.length; ++i) {
+    			var item = addedItems[i];
+    			var geom = newState.geomToPoint[item];
+    			
+    			var lonlat = new OpenLayers.LonLat(geom.x, geom.y);
+    			
+    			var data = {
+    					id: item[i],
+    					geom: lonlat,
+    					label: ""
+    			};
+    			
+    			var mapItems = mapModel.get('items');
+    			mapItems.add(data);
+    		}
+    		
+    		
+    		console.log('BOOYA', state);
+    	});
+    	
+		mapView.on('mapevent', function() {
+			//console.log("mapevent");
+			var map = mapView.getMap();
+
+			var olBounds = map.getExtent().transform(map.projection, map.displayProjection);
+			
+	    	dynamicMapModel.set({
+	    		bounds: olBounds
+	    	});
+		});
+
+		mapView.trigger('mapevent');
+    	
+
 		
 
 		/*
@@ -1491,8 +1538,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var constraintCollection = configModel.get('constraintCollection');
     	var mapCollection = configModel.get('mapCollection');    	
 
-				
- 		
+
+    	
+    	
+    	
 		var updateMap = function() {		
 			if(true) {
 				// FIXME Fetching of markers disabled
@@ -1504,7 +1553,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			var sparqlServicePaginated = new backend.SparqlServicePaginator(sparqlService, 1000);
 			var queryCacheFactory = new utils.QueryCacheFactory(sparqlServicePaginated);
-			var geomPointFetcher = new utils.GeomPointFetcher(queryCacheFactory);
+			var geomPosFetcher = new utils.GeomPointFetcher(queryCacheFactory);
 	
 			
 			mapCollection.each(function(model) {
@@ -1521,59 +1570,96 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				var hack = rootFacetFacadeNode.forPath(geoPath);
 				hack.constraintManager = constraintManager; 
 				
-				var concept = hack.createConcept();
-				var varName = concept.getVariable().value;
-				var query = queryUtils.createQuerySelect(concept, {distinct: true});
+				var baseConcept = configModel.get('concept');				
+				var tmpConcept = hack.createConcept();
+
 				
-				// TODO If the path is empty, we need to inject the triple pattern (conceptVar ?p ?o)
-				console.log("GEO QUERY" + query, concept);
+				var concept = facets.createCombinedConcept(baseConcept, tmpConcept);
+
+				var pathConstraintFactory = new facets.PathConstraintWgs84.Factory.create(geoPath);
+				var geoConceptFactoryBase = new facets.GeoConceptFactory(rootFacetNode, pathConstraintFactory);
 				
-				var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
-	
-					//console.log("jsonRs", jsonRs);
+				
+				var geoConceptFactory = new facets.GeoConceptFactoryCombine(concept, geoConceptFactoryBase);
+				
+				// The concept does not have any geo constraints added yet
+				// Now mix in the constraints from the geoConstraintFactory
+				
+				//var map = mapView.getMap();
+ 
+				//var olBounds = map.getExtent().transform(map.projection, map.displayProjection);
+				
+
+				dynamicMapModel.set({
+					sparqlService: sparqlService,
+					geomPosFetcher: geomPosFetcher,
 					
-					var uris = _
-						.chain(jsonRs.results.bindings)
-						.filter(function(binding) {
-							return varName in binding && binding[varName] && binding[varName].type === 'uri';
-						})
-						.map(function(binding) {
-							//console.log("Binding: ", binding);
-							return sparql.Node.uri(binding[varName].value);
-						})
-						.value();
-					
-					//console.log("Related geomtery uris: ", uris.length, uris);
-					
-					var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
-	
-						var rdfGraph = {};
-						
-						_.each(uriToPoint, function(point, uri) {
-							rdfGraph[uri] = {
-									'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.x}],
-									'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}]
-									//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
-							};
-							
-							rdfGraph[uri]['http://ha.ck/geoPath'] = [{value: geoPath}];
-						});
-	
-						return rdfGraph;
-					});
-					
-					return promise;
+					concept: concept,
+					geoConceptFactory: geoConceptFactory
 				});
+
 				
-				promise.done(function(rdfGraph) {
-					
-					//console.log("RDF GRAPH:", rdfGraph);
-					
-					var uris = _.keys(rdfGraph);
-					
-					mapModel.set({uris: uris, json: rdfGraph});
-				});
 				
+				// FOOBAR
+				
+				
+				
+				
+				
+				
+				
+//				var varName = concept.getVariable().value;
+//				var query = queryUtils.createQuerySelect(concept, {distinct: true});
+//				
+//				// TODO If the path is empty, we need to inject the triple pattern (conceptVar ?p ?o)
+//				console.log("GEO QUERY" + query, concept);
+//				
+//				var promise = sparqlServicePaginated.executeSelect(query).pipe(function(jsonRs) {
+//	
+//					//console.log("jsonRs", jsonRs);
+//					
+//					var uris = _
+//						.chain(jsonRs.results.bindings)
+//						.filter(function(binding) {
+//							return varName in binding && binding[varName] && binding[varName].type === 'uri';
+//						})
+//						.map(function(binding) {
+//							//console.log("Binding: ", binding);
+//							return sparql.Node.uri(binding[varName].value);
+//						})
+//						.value();
+//					
+//					//console.log("Related geomtery uris: ", uris.length, uris);
+//					
+//					var promise = geomPointFetcher.fetch(uris).pipe(function(uriToPoint) {
+//	
+//						var rdfGraph = {};
+//						
+//						_.each(uriToPoint, function(point, uri) {
+//							rdfGraph[uri] = {
+//									'http://www.w3.org/2003/01/geo/wgs84_pos#long': [{value: point.x}],
+//									'http://www.w3.org/2003/01/geo/wgs84_pos#lat': [{value: point.y}]
+//									//'http://www.w3.org/2000/01/rdf-schema#label': ['value: unnamed']
+//							};
+//							
+//							rdfGraph[uri]['http://ha.ck/geoPath'] = [{value: geoPath}];
+//						});
+//	
+//						return rdfGraph;
+//					});
+//					
+//					return promise;
+//				});
+//				
+//				promise.done(function(rdfGraph) {
+//					
+//					//console.log("RDF GRAPH:", rdfGraph);
+//					
+//					var uris = _.keys(rdfGraph);
+//					
+//					mapModel.set({uris: uris, json: rdfGraph});
+//				});
+//				
 			});		
 			
 		};

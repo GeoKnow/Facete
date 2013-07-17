@@ -546,7 +546,7 @@
 		
 	// TODO Should there be only a breadcrumb to the resource that carries lat/long
 	// Or should there be two breadcrumbs to lat/long directly???
-	ns.PathConstraintWgs84 = function(pathX, pathY, bounds) {
+	ns.ConstraintWgs84 = function(pathX, pathY, bounds) {
 		this.pathX = pathX;
 		this.pathY = pathY;
 		this.bounds = bounds;
@@ -562,141 +562,89 @@
 	 * @param path
 	 * @returns {ns.ConstraintWgs84.Factory}
 	 */
-	ns.PathConstraintWgs84.Factory = function(path, pathX, pathY) {
-		this.path = path;
-		this.pathX = pathX;
-		this.pathY = pathY;
+	ns.ConstraintWgs84.Factory = function(path) {
+		this.path = path ? path : new facets.Path();
+		
+		this.pathX = path.copyAppendStep(new facets.Step(geo.lon.value)); //new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.long.value);
+		this.pathY = path.copyAppendStep(new facets.Step(geo.lat.value)); ///new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.lat.value);
+		
+		//this.breadcrumbY = breadcrumbY;
+	};	
+	
+	ns.ConstraintWgs84.Factory.prototype.getPath = function() {
+		return this.path;
 	};
 	
-	ns.PathConstraintWgs84.Factory.create = function(path) {
-		path = path ? path : new facets.Path();
-		
-		var pathX = path.copyAppendStep(new facets.Step(geo.lon.value)); //new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.long.value);
-		var pathY = path.copyAppendStep(new facets.Step(geo.lat.value)); ///new ns.Breadcrumb.fromString(breadcrumb.pathManager, breadcrumb.toString() + " " + geo.lat.value);
+	ns.ConstraintWgs84.Factory.prototype.create = function(bounds) {
+		return new ns.ConstraintWgs84(this.pathX, this.pathY, bounds);
+	};
+	
 
-		var result = new ns.PathConstraintWgs84.Factory(path, pathX, pathY);
+	ns.ConstraintWgs84.Factory.prototype.getTriples = function(pathManager) {
+		var breadcrumbX = new facets.Breadcrumb(pathManager, this.pathX); 
+		var breadcrumbY = new facets.Breadcrumb(pathManager, this.pathY);
+		
+		var triplesX = breadcrumbX.getTriples();		
+		var triplesY = breadcrumbY.getTriples();
+		
+		var result = sparql.mergeTriples(triplesX, triplesY);
+		
+		return result;		
+	};
+
+	
+	ns.ConstraintWgs84.prototype.createConstraintElementNewButNotUsedYet = function(breadcrumb) {
+		var path = breadcrumb.getPath();
+		
+		var pathX = path.copyAppendStep(new facets.Step(geo.lon.value));
+		var pathY = path.copyAppendStep(new facets.Step(geo.lat.value));
+
+		// Create breadcrumbs
+		var breadcrumbX = new facets.Breadcrumb(pathManager, pathX); 
+		var breadcrumbY = new facets.Breadcrumb(pathManager, pathY);
+
+		// Create the graph pattern
+		var triplesX = breadcrumbX.getTriples();		
+		var triplesY = breadcrumbY.getTriples();
+		
+		var triples = sparql.mergeTriples(triplesX, triplesY);
+		
+		//var element = new sparql.ElementTriplesBlock(triples);
+		
+		// Create the filter
+		var vX = breadcrumbX.getTargetVariable();
+		var vY = breadcrumbY.getTargetVariable();
+		
+		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
+
+		// Create the result
+		var result = new ns.ConstraintElement(triples, expr);
+
 		return result;
 	};
 	
-	ns.PathConstraintWgs84.Factory.prototype = {
-		getPath: function() {
-			return this.path;
-		},
-	
-		/**
-		 * Note: bounds may be null
-		 */
-		createConstraint: function(bounds) {
-			return new ns.PathConstraintWgs84(this.pathX, this.pathY, bounds);
-		}
-	
+	ns.ConstraintWgs84.prototype.createConstraintElement = function(pathManager) {
+		// Create breadcrumbs
+		var breadcrumbX = new facets.Breadcrumb(pathManager, this.pathX); 
+		var breadcrumbY = new facets.Breadcrumb(pathManager, this.pathY);
 
-//		getTriples: function(pathManager) {
-//			var breadcrumbX = new facets.Breadcrumb(pathManager, this.pathX); 
-//			var breadcrumbY = new facets.Breadcrumb(pathManager, this.pathY);
-//			
-//			var triplesX = breadcrumbX.getTriples();		
-//			var triplesY = breadcrumbY.getTriples();
-//			
-//			var result = sparql.mergeTriples(triplesX, triplesY);
-//			
-//			return result;		
-//		}
-	};
-
-	
-	ns.PathConstraintWgs84.prototype = {
-		createConstraintElementNewButNotUsedYet: function(breadcrumb) {
-			var path = breadcrumb.getPath();
-			
-			var pathX = path.copyAppendStep(new facets.Step(geo.lon.value));
-			var pathY = path.copyAppendStep(new facets.Step(geo.lat.value));
-	
-			// Create breadcrumbs
-			var breadcrumbX = new facets.Breadcrumb(pathManager, pathX); 
-			var breadcrumbY = new facets.Breadcrumb(pathManager, pathY);
-	
-			// Create the graph pattern
-			var triplesX = breadcrumbX.getTriples();		
-			var triplesY = breadcrumbY.getTriples();
-			
-			var triples = sparql.mergeTriples(triplesX, triplesY);
-			
-			//var element = new sparql.ElementTriplesBlock(triples);
-			
-			// Create the filter
-			var vX = breadcrumbX.getTargetVariable();
-			var vY = breadcrumbY.getTargetVariable();
-			
-			var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
-	
-			// Create the result
-			var result = new ns.ConstraintElement(triples, expr);
-	
-			return result;
-		},
-
-		getPath: function() {
-			return this.path;
-		},
+		// Create the graph pattern
+		var triplesX = breadcrumbX.getTriples();		
+		var triplesY = breadcrumbY.getTriples();
 		
-		createElements: function(facetNode) {
-			var result = [];
+		var triples = sparql.mergeTriples(triplesX, triplesY);
+		
+		//var element = new sparql.ElementTriplesBlock(triples);
+		
+		// Create the filter
+		var vX = breadcrumbX.getTargetVariable();
+		var vY = breadcrumbY.getTargetVariable();
+		
+		var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
 
-			// Create breadcrumbs
-			var facetNodeX = facetNode.forPath(this.pathX); 
-			var facetNodeY = facetNode.forPath(this.pathY);
-	
-			// Create the graph pattern
-			var triplesX = facetNodeX.getTriples();		
-			var triplesY = facetNodeY.getTriples();
-			
-			var triples = sparql.mergeTriples(triplesX, triplesY);
-
-			result.push(new sparql.ElementTriplesBlock(triples));
-			
-			if(!this.bounds) {
-				return result;
-			}
-			
-			//var element = new sparql.ElementTriplesBlock(triples);
-			
-			// Create the filter
-			var vX = facetNodeX.getVar();
-			var vY = facetNodeY.getVar();
-			
-			var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
-	
-			result.push(new sparql.ElementFilter([expr]));
-			
-			// Create the result
-			//var result = new ns.ConstraintElement(triples, expr);
-			return result;
-		}
-
-//		createConstraintElement: function(pathManager) {
-//			// Create breadcrumbs
-//			var breadcrumbX = new facets.Breadcrumb(pathManager, this.pathX); 
-//			var breadcrumbY = new facets.Breadcrumb(pathManager, this.pathY);
-//	
-//			// Create the graph pattern
-//			var triplesX = breadcrumbX.getTriples();		
-//			var triplesY = breadcrumbY.getTriples();
-//			
-//			var triples = sparql.mergeTriples(triplesX, triplesY);
-//			
-//			//var element = new sparql.ElementTriplesBlock(triples);
-//			
-//			// Create the filter
-//			var vX = breadcrumbX.getTargetVariable();
-//			var vY = breadcrumbY.getTargetVariable();
-//			
-//			var expr = ns.createWgsFilter(vX, vY, this.bounds, xsd.xdouble);
-//	
-//			// Create the result
-//			var result = new ns.ConstraintElement(triples, expr);
-//			return result;
-//		}
+		// Create the result
+		var result = new ns.ConstraintElement(triples, expr);
+		return result;
 	};
 	
 	/*
@@ -729,97 +677,6 @@
 	};
 	*/
 
-	
-//	ns.ElementFactoryConcept = function(concept) {
-//		this.concept = concept;
-//	}
-//	
-//	ns.ElementFactoryElements.prototype = {
-//		createElements: function() {
-//			return this.concept.getElements();
-//		}
-//	};
-//
-	
-	ns.GeoConceptFactoryCombine = function(featureConcept, geoConceptFactory) {
-		this.featureConcept = featureConcept;
-		this.geoConceptFactory = geoConceptFactory;
-	};
-
-	ns.GeoConceptFactoryCombine.prototype = {
-			getGeomVar: function() {
-				return this.geoConceptFactory.getVar();
-			},
-			
-			getFeatureVar: function() {
-				return this.featureConcept.getVar();
-			},
-			
-			getFeatureConcept: function() {
-				return this.featureConcept;
-			},
-			
-			getGeoConceptFactory: function() {
-				return this.geoConceptFactory;
-			},
-			
-			combineConcepts: function(geoConcept) {
-				var geoVar = geoConcept.getVar();
-				
-				var tmpConcept = facets.createCombinedConcept(this.featureConcept, geoConcept);
-				
-				var element = tmpConcept.getElement();
-				var result = new facets.ConceptInt(element, geoVar);
-								
-				return result;
-			},
-			
-			createConcept: function(bounds) {
-				var geoConcept = this.geoConceptFactory.createConcept(bounds);
-				
-				var result = this.combineConcepts(geoConcept);
-				
-				console.log('Create the combinedConcept with bounds: ', this.geoConceptFactory);
-				
-				return result;
-			}
-	};
-	
-	ns.GeoConceptFactory = function(facetNode, pathConstraintFactory) {
-		this.facetNode = facetNode;
-		this.pathConstraint = pathConstraintFactory;
-	};
-	
-	ns.GeoConceptFactory.prototype = {
-			createConstraint: function(bounds) {
-				var result = this.pathConstraint.createConstraint(bounds);
-				return result;
-			},
-			
-			createElements: function(bounds) {
-				var constraint = this.createConstraint(bounds);
-				var result = constraint.createElements(this.facetNode);
-				
-				return result;
-			},
-			
-			getVar: function() {
-				var node = this.facetNode.forPath(this.pathConstraint.getPath());
-				var result = node.getVar();
-
-				return result;
-			},
-			
-			createConcept: function(bounds) {
-				var v = this.getVar();
-				
-				var elements = this.createElements(bounds);
-				
-				var result = facets.ConceptInt.createFromElements(elements, v);
-				
-				return result;
-			}
-	};
 	
 	
 	/**

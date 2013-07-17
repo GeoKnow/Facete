@@ -271,6 +271,11 @@
 					} else {
 					}
 				},*/
+
+				onChangePartitionStatus: function() {
+					
+					
+				},
 				
 				onChangeFacetStats: function() {
 					var selectionCount = this.model.get('selectionCount');					
@@ -406,6 +411,28 @@
 				},
 				
 				events : {
+					'click .toggle-parent': function(ev) {
+						// TODO Consistently use some class for indicating toggles
+						var expectedTargetSet = this.$el.find(".partitionArea:first > > .toggle-parent:parent");
+						
+						var isTargetValid = expectedTargetSet.filter(function() { return this === ev.target; }).length != 0;
+						if (!isTargetValid) {
+							return;
+						}
+						ev.preventDefault();
+
+						
+						var $elTarget = $(ev.target);
+						var $elParent = $elTarget.parent();
+						var $elContainer = $elParent.parent();
+						
+						$elContainer.children().toggleClass('hide');
+						
+						//console.log("Ev", $(ev.target).parent());
+						//$elI = this.$el.find('i:first');
+
+					},
+					
 					'click .expandable' : function(ev) {
 						
 						// Workaround for backbone not supporting relative paths for event target selector
@@ -501,13 +528,20 @@
 				render : function() {
 					
 					var text = this.model.get("facetUri");
-
 					//console.log('Got facetUri:', text);
 					
 					if(!text) {
-						text = 'http://ns.aksw.org/facete/builtin/root';
+						text = 'http://ns.aksw.org/facete/builtin/Items';
 					}
 					
+					var isInverse = this.model.get("isInverse");					
+					var str;
+					if(isInverse) {
+						str = '    is <span data-uri="' + text + '"></span> of' ;
+					} else {
+						str = '    <span data-uri="' + text + '"></span>';
+					}
+
 					
 					var html
 						= '<div class="inline">'
@@ -516,7 +550,7 @@
 						+ '      <i class="icon-caret-right" />'
 						+ '    </a>'
 						+ '  <a class="activate" href="#">'
-						+ '    <span data-uri="' + text + '"></span>'
+						+ str
 						+ '  </a>'
 						/*
 						+ '<span class="selectionCount">' + selectionCountStr + '</span>'
@@ -532,10 +566,27 @@
 						+ '</div>'
 						+ '<div class="hoverOptions inline" style="display:none">'
 						+ '</div>'
-						+ '</div>'
+						+ '</div>'						
 						+ '<br class="clearBoth" />'
+
+						// The partition is only shown on expanded facets whose children could
+						// not be fetched in time
+						// TODO Factor out a "plugin" component
+						+ '<div class="partitionArea hide" style="margin-left: 20px">'
+						+ '    <div class="partitionCover">'
+						+ '<a href="#" class="btn btn-info btn-mini toggle-parent">Configure partitions...</a>'
+						+ '<a href="#"><i class="icon-question-sign" style="color:#0080FF; font-size: 150%;" /></a>'
+						+ '    </div>'
+						+ '    <div class="hide partitionConfig">'
+						+ 'Partition size: '
+						+ '        <select class="partitionSize btn btn-mini" />'
+						+ '        <div class="partitionPaginator" style="float:left;" />'
+//						+ '        <a href="#" class="toggle-parent">(hide)</a>'
+						+ '        <a href="#" class="btn btn-info btn-mini toggle-parent">(hide)</a>'
+						+ '    </div>'
+						+ '</div>'
 						;
-					
+
 					this.$el.html(html);
 
 					this.$elPermaDiv = this.$el.find("> div > div.permaOptions");

@@ -478,9 +478,9 @@
 	 * Fetches the first column of the first row of a result set and parses it as int.
 	 * 
 	 */
-	ns.fetchInt = function(sparqlService, query, variable) {
+	ns.fetchInt = function(sparqlService, query, variable, ajaxOptions) {
 		
-		var result = sparqlService.executeSelect(query).pipe(function(data) {
+		var result = sparqlService.executeSelect(query, ajaxOptions).pipe(function(data) {
 			var count = parseInt(data.results.bindings[0][variable.value].value);
 			
 			return count;

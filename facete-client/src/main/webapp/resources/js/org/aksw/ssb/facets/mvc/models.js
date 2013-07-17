@@ -5,12 +5,42 @@
 	var backboneUtils = Namespace("org.aksw.utils.backbone");
 	var xsd = Namespace("org.aksw.ssb.vocabs.xsd");
 	var labelUtils = Namespace("org.aksw.ssb.utils");
-	var widgets = Namespace("org.aksw.ssb.widgets");
 	 */
+
+	/*
+	 * On the relation of Sub facet state, child cache ...
+	 * 
+	 * The thing is, that there is a distinction between the
+	 * complete facet tree, the fragment of it fetched and stored in the models, and the
+	 * fragment being shown in the UI.  
+	 * 
+	 * For each facet node, whenever we expand an item, we need to save the state of it.
+	 * This should be the purpose of the child cache, and is thus local to the facet tree!
+	 * The children attribute carries the actual shown facets, which depend on the subFacetSpec 
+	 * 
+	 * 
+	 * 
+	 */
+	
+	
+	var widgetNs = Namespace("org.aksw.ssb.widgets");
+
 	
 	var facets = Namespace("org.aksw.ssb.facets");
 	var ns = facets;
 
+	
+	
+	ns.ModelSubFacetState = Backbone.Model.extend({
+		default: {
+			strategy: "exact", // How to compute the facets. Supported values: "exact", "partitioned"
+			
+			// Following attributes only apply to strategy partitioned
+			//tableModel: null //new widget.TabelModel()// Paginator on the partitions
+			
+		}
+	});
+	
 	ns.ModelFacetNode = Backbone.Model.extend({
 		defaults : {
 			//step: null, // The step leading to this node (null for root nodes)
@@ -18,10 +48,14 @@
 			// be seen as facet values)
 			// facetsQueryFactory: null, // Query factory for the facets (of the
 			// instances)
-			// constraints: [], // contraints applying to this node
+			// constraints: [], // constraints applying to this node
 			isExpanded : false, // when changing to true, the controller will
 								// start loading the children
 			isLoading : false,
+			
+			childState: null, //new ns.ModelSubFacetState();
+			childCache: null, // A mapping from id to child object which holds the state of ALL encountered children - i.e. even those not visible right now
+			children: null, // The currently visible children
 			
 			hasSubFacets : true, // null means: not checked yet
 			/*
@@ -39,6 +73,8 @@
 			this.set({
 				children : new ns.CollectionFacetNode()
 			});
+
+			this.childState = widgetNs.createQueryBrowser();//sparqlService, labelFetcher);
 		},
 		
 		forPath: function(path) {
@@ -408,18 +444,45 @@
 	
 
 	
+	ns.MapItemModel = Backbone.Model.extend({
+		defaults: {
+			isHidden: false, // Whether the item is hidden
+			coords: null,
+			label: null
+		}
+	});
+	
+	ns.MapItemCollection = Backbone.Collection.extend({
+		model: ns.MapItemModel
+	});
+	
+	ns.MapBoxModel = Backbone.Model.extend({
+		defaults: {
+			bounds: null,
+			// other attributes...
+		}
+	});
+	
+	ns.MapBoxCollection = Backbone.Collection.extend({
+		model: ns.MapBoxModel
+	});
 	
 	ns.MapModel = Backbone.Model.extend({
-		/**
-		 * The collection of resources that should be displayed. 
-		 */
-		uris: [],
-		//resources: new ResourceCollection(),
-		
-		/**
-		 * Rdf data about these resources in Talis Json format
-		 */
-		json: {}
+		defaults: {
+			/**
+			 * The collection of resources that should be displayed. 
+			 */
+			//uris: [],
+			//resources: new ResourceCollection(),
+			
+			/**
+			 * Rdf data about these resources in Talis Json format
+			 */
+			//json: {},
+			
+			items: new ns.MapItemCollection(),
+			boxes: new ns.MapBoxCollection()
+		}
 	});
 
 })();

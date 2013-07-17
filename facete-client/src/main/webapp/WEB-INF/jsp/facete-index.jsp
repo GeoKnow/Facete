@@ -226,11 +226,16 @@
 						</div>
 					</div>			
 
+					<div class="portlet span5">
+						<div class="portlet-header">Detail view</div>
+		                	<div id="detailView" class="portlet-content"></div>
+					</div>
 
 					<div class="portlet span7">
-						<div class="portlet-header">Resource View</div>
-		                	<div id="resourceView" class="portlet-content"></div>
+<!-- 						<div class="portlet-header">Resource View</div> -->
+<!-- 		                	<div id="resourceView" class="portlet-content"></div> -->
 					</div>
+
 
 				</div>
 				

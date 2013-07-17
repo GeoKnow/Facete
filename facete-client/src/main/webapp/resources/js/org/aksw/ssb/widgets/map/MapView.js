@@ -197,6 +197,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			var geoConceptFactory = model.get('geoConceptFactory');
 			var geomPosFetcher = model.get('geomPosFetcher');
 			
+			var globalItemData = model.get('globalItemData');
+			
 			var promise = this.fetchNodesGeo(sparqlService, geomPosFetcher, geoConceptFactory, bounds);
 			
 			
@@ -233,7 +235,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 				data = {
 						oldState: oldViewState,
 						newState: newViewState,
-						delta: delta
+						delta: delta,
+						globalItemData: globalItemData
 				};
 				
 				result.resolve(data);
@@ -251,7 +254,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 		 * This function bridges to the quad tree cache
 		 */
 		fetchNodesGeo: function(sparqlService, geomPosFetcher, geoConceptFactory, bounds) {
-	        var quadTreeConfig = {
+	        // TODO Make this configurable
+			var quadTreeConfig = {
                     maxTileItemCount: 50,
                     maxGlobalItemCount: 200
 	        };
@@ -653,11 +657,20 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			});
 			
 			$(this.el).on("ssbmap2featureselect", function(ev, data) {
-				self.trigger("featureSelect", ev, data);
+				var id = data.id;
+				var items = self.model.get('items');				
+				var model = items.get(id);
+				
+				
+				self.trigger("featureSelect", ev, model);
 			});
 
 			$(this.el).on("ssbmap2featureunselect", function(ev, data) {
-				self.trigger("featureUnselect", ev, data);
+				var id = data.id;
+				var items = self.model.get('items');				
+				var model = items.get(id);
+
+				self.trigger("featureUnselect", ev, model);
 			});
 			    
 	      return this;

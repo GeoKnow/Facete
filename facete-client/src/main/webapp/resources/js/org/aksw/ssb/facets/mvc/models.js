@@ -270,6 +270,17 @@
 	ns.ConstraintCollection2 = Backbone.Collection.extend({
 		model: ns.ModelConstraint,
 		
+		clone: function() {
+			var result = new ns.ConstraintCollection2();
+			
+			this.each(function(model) {
+				var data = model.attributes;
+				result.add(data);
+			});
+			
+			return result;
+		},
+		
 		/**
 		 * 
 		 * @param path

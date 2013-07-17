@@ -79,6 +79,19 @@
 		//this.extraArgs = extraArgs; 
 	};
 	
+	ns.SparqlServiceHttp.prototype = {
+		getDatasetId: function() {
+			var idState = {
+					serviceUri: this.serviceUri,
+					defaultGraphUris: this.defaultGraphUris
+			}
+			
+			var result = JSON.stringify(idState);
+			
+			return result;
+		}
+			
+	};
 	
 	ns.SparqlServiceHttp.prototype.setDefaultGraphs = function(uriStrs) {
 		this.defaultGraphUris = uriStrs ? uriStrs : [];

@@ -252,6 +252,10 @@
 			    
 			    renderHeader: function() {
 			        var queryFactory = this.model.get("queryFactory");
+			        if(!queryFactory) {
+			        	return;
+			        }
+			        
 			    	var query = queryFactory.createQuery();
 			    	if(!query) {
 			    	    return;

@@ -672,6 +672,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		ns.createDataTableView(configModel);
 
+		ns.createDetailView(configModel);
 		
 		ns.createMapView(configModel, geoPath);
 
@@ -771,21 +772,64 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     };
 
-    
     ns.createDataTableView = function(configModel) {
+    	
+    	var widget = ns.createDataTableModel(configModel);
+    	
+		var container = $('#instances');
+		container.children().remove();
+
+		
+		widgetNs.createView(container, widget);
+	
+		//console.log("INIT VIEWS", models);
+    };
+
+    
+    ns.createDetailView = function(configModel) {
+    	
+		var widget = widgetNs.createQueryBrowser();
+		
+		var tableModel = widget.models.tableModel;
+		//tableModel.get('headerMap').add({id: 's', label: 'Item'});
+
+    	
+    	
+    	/*
+    	var widget = ns.createDataTableModel(configModel);
+    	*/
+		
+		var container = $('#detailView');
+		container.children().remove();
+
+		
+		widgetNs.createView(container, widget);
+		
+		
+		configModel.on('change:detailViewQueryFactory', function(model) {
+			var queryFactory = model.get('detailViewQueryFactory');
+			
+			tableModel.set({queryFactory: queryFactory});
+		});
+		
+		return widget;
+    };
+
+
+    ns.createQueryFactoryConcept = function(concept) {
+
+		var queryGenerator = new facets.QueryGenerator(concept);
+		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
+
+		return queryFactory;
+    };
+    
+    
+    ns.createDataTableModel = function(configModel) {
 
     	var sparqlService = configModel.get('sparqlService');
     	var labelFetcher = configModel.get('labelFetcher');
 
-    	var concept = configModel.get('concept');
-    	var constraintCollection = configModel.get('constraintCollection');
-    	
-    	var rootFacetNode = configModel.get('rootFacetNode');
-    	
-    	var collectionColumns = configModel.get('collectionColumns');
-    	
-
-		var queryGenerator = new facets.QueryGenerator(concept);
 		/*
 		var queryFactoryConcept = new facets.QueryFactoryQueryGenerator(
 				queryGenerator);
@@ -795,6 +839,17 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var constraintManager = queryFactoryFacets.getConstraintManager();
 */
     	
+    	var concept = configModel.get('concept');
+    	var constraintCollection = configModel.get('constraintCollection');
+    	
+    	var rootFacetNode = configModel.get('rootFacetNode');
+    	
+    	var collectionColumns = configModel.get('collectionColumns');
+    	
+
+		//var queryGenerator = new facets.QueryGenerator(concept);
+		//var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
+    	var queryFactory = ns.createQueryFactoryConcept(concept);
     	
 		collectionColumns.addPath(facets.Path.fromString(""));
 
@@ -827,7 +882,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		 * Initialize the result table list
 		 * 
 		 */
-		var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
 		var widget = widgetNs.createQueryBrowser();
 		
 		
@@ -916,15 +970,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		tableModel.set({
 			queryFactory : queryFactory
 		});
-
-		var container = $('#instances');
-		container.children().remove();
-
-		
-		widgetNs.createView(container, widget);
-	
-		//console.log("INIT VIEWS", models);
-	
 		
 		// FIXME: This syncher updates the tableModel based on changes in the constraint collection
 		// However, we also need to update the list based on collectionColumns.
@@ -936,9 +981,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				tableModel
 		);
 
-		
-    };
 
+		return widget;
+    }
+    
+    
 
     ns.createFacetTreeView = function(configModel) {
 
@@ -1434,6 +1481,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		var state = model.get('state');
     		
+    		var globalItemData = model.get('globalItemData');
+    		
     		var delta = state.delta;
     		var newState = state.newState;
     		
@@ -1456,9 +1505,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			var lonlat = new OpenLayers.LonLat(geom.x, geom.y);
     			
     			var data = {
-    					id: item[i],
+    					id: item,
     					geom: lonlat,
-    					label: ""
+    					label: "",
+    					globalItemData: globalItemData
     			};
     			
     			mapItems.add(data);
@@ -1520,23 +1570,58 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		mapView.on("featureSelect", function(ev, data) {
 			//console.log("click", ev, data);			
 			var id = data.id;
-			var json = data.json;
+			
+			var globalItemData = data.get('globalItemData');
+			var geoPath = globalItemData.geoPath;
+			//var json = data.json;
+
+			
+			console.log("clicked feature: ", data);
 			
 			//console.log("Select " + id + " with data " + JSON.stringify(json));
 			//console.log("Select " + id);
 
-			var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
+			//var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
 			var node = sparql.Node.uri(id);
 			
-			constraintCollection.setEqualsConstraint(geoPath, node, true);			
+			//constraintCollection.setEqualsConstraint(geoPath, node, true);	
+						
+			
+	    	var sparqlService = configModel.get('sparqlService');
+	    	var labelFetcher = configModel.get('labelFetcher');
+
+	    	var concept = configModel.get('concept');
+	    	var constraintCollection = configModel.get('constraintCollection');
+	    	
+	    	var rootFacetNode = configModel.get('rootFacetNode');
+	    	
+	    	var collectionColumns = configModel.get('collectionColumns');
+		
+			var tmp = constraintCollection.clone();
+			tmp.setEqualsConstraint(geoPath, node, true);
+
+			
+			
+	    	var queryFactoryConcept = ns.createQueryFactoryConcept(concept);
+			
+			
+			var queryFactory = facets.createQueryFactoryFacete(queryFactoryConcept, rootFacetNode, constraintCollection, collectionColumns);
+			
+			configModel.set({detailViewQueryFactory: queryFactory});
+			//detailViewQueryFactory
+			// Set the model of the detail widget
+			
 		});
 
 		
 		mapView.on("featureUnselect", function(ev, data) {
 			var id = data.id;
-			var json = data.json;
+			var globalItemData = data.get('globalItemData');
+			var geoPath = globalItemData.geoPath;
+
+			//var json = data.json;
 			
-			var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
+			//var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
 			var node = sparql.Node.uri(id);
 			
 			console.log("Unselect " + id);
@@ -1625,7 +1710,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					geomPosFetcher: geomPosFetcher,
 					
 					concept: concept,
-					geoConceptFactory: geoConceptFactory
+					geoConceptFactory: geoConceptFactory,
+					globalItemData: {geoPath: geoPath}
 				});
 
 				

@@ -41,6 +41,12 @@
 		this.pageSize = pageSize ? pageSize : 0;
 	};
 	
+	ns.SparqlServicePaginator.prototype = {
+		getDatasetId: function() {
+			return this.backend.getDatasetId();
+		}	
+	};
+	
 	/*
 	ns.SparqlServicePaginator.prototype.executeConstructRec = function(paginator, prevResult, deferred) {
 		

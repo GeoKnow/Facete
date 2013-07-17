@@ -294,11 +294,27 @@
 
 	
 	
+	ns.createQueryFactoryFacete = function(subQueryFactory, facetNode, constraintCollection, collectionColumns) {
+		var constraintManager = constraintCollection.createConstraintManager(facetNode);
+		var qfFacets = new facets.QueryFactoryFacets(subQueryFactory, facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();
+		var qfProjection = new facets.TableModelQueryFactory(qfFacets);
+
+		
+		var projVars = collectionColumns.createProjection(facetNode);
+		var projEles = collectionColumns.createElements(facetNode);
+		qfProjection.setProjection(projVars);
+		var tmp = qfProjection.getElements();
+		tmp.push.apply(tmp, projEles);
+
+		return qfProjection;
+	};
+	
 	
 	// Whenever the constraint collection changes, the view might
 	// have to be updated.
 	ns.ControllerInstanceListSyncer = function(subQueryFactory, facetNode, constraintCollection, collectionColumns, modelQueryFactory) {
 		_.bindAll(this);
+		
 		
 		this.subQueryFactory = subQueryFactory;
 		this.facetNode = facetNode;
@@ -312,29 +328,27 @@
 	
 	ns.ControllerInstanceListSyncer.prototype = {
 		bind: function() {
-			this.constraintCollection.on('add', this.onAnyChange);
-			this.constraintCollection.on('remove', this.onAnyChange);
-			this.constraintCollection.on('reset', this.onAnyChange);
+			this.constraintCollection.on('add remove reset', this.onAnyChange);
+//			this.constraintCollection.on('remove', this.onAnyChange);
+//			this.constraintCollection.on('reset', this.onAnyChange);
 
-			this.collectionColumns.on('add', this.onAnyChange);
-			this.collectionColumns.on('remove', this.onAnyChange);
-			this.collectionColumns.on('reset', this.onAnyChange);
+			this.collectionColumns.on('add remove reset', this.onAnyChange);
+//			this.collectionColumns.on('remove', this.onAnyChange);
+//			this.collectionColumns.on('reset', this.onAnyChange);
+		},
+		
+		createQueryFactory: function() {
+			var result = ns.createQueryFactoryFacete(this.subQueryFactory, this.facetNode, this.constraintCollection, this.collectionColumns);
+			return result;
 		},
 		
 		onAnyChange: function() {
 		
+			qfProjection = this.createQueryFactory();
+			
+			
 			//console.log("ANY CHANGE");
 			
-			var constraintManager = this.constraintCollection.createConstraintManager(this.facetNode);
-			var qfFacets = new facets.QueryFactoryFacets(this.subQueryFactory, this.facetNode, constraintManager); //queryFactoryFacets.getConstraintManager();
-			var qfProjection = new facets.TableModelQueryFactory(qfFacets);
-
-			
-			var projVars = this.collectionColumns.createProjection(this.facetNode);
-			var projEles = this.collectionColumns.createElements(this.facetNode);
-			qfProjection.setProjection(projVars);
-			var tmp = qfProjection.getElements();
-			tmp.push.apply(tmp, projEles);
 
 			//console.log("Query IS", qfProjection.createQuery());
 			//console.log("QueryFACTORY IS", qfProjection);

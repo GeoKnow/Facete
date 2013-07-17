@@ -793,7 +793,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var tableModel = widget.models.tableModel;
 		//tableModel.get('headerMap').add({id: 's', label: 'Item'});
 
-    	
+		attachLabelFetcher(tableModel);
     	
     	/*
     	var widget = ns.createDataTableModel(configModel);
@@ -809,7 +809,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		configModel.on('change:detailViewQueryFactory', function(model) {
 			var queryFactory = model.get('detailViewQueryFactory');
 			
-			tableModel.set({queryFactory: queryFactory});
+			//console.log('Dammit QueryFactory:' + queryFactory.createQuery());
+			var sparqlService = model.get('sparqlService');
+			
+			tableModel.set({
+				sparqlService: sparqlService,
+				queryFactory: queryFactory
+			});
+			
+			console.log('Dammit table model', tableModel);
 		});
 		
 		return widget;
@@ -1605,7 +1613,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	    	var queryFactoryConcept = ns.createQueryFactoryConcept(concept);
 			
 			
-			var queryFactory = facets.createQueryFactoryFacete(queryFactoryConcept, rootFacetNode, constraintCollection, collectionColumns);
+			var queryFactory = facets.createQueryFactoryFacete(queryFactoryConcept, rootFacetNode, tmp, collectionColumns);
+			
+			//alert("Query is: " + queryFactory.createQuery());
 			
 			configModel.set({detailViewQueryFactory: queryFactory});
 			//detailViewQueryFactory

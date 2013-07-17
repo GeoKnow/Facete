@@ -228,8 +228,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 				var newViewState = new ns.ViewState(nodes, bounds);
 				self.model.set({viewState: newViewState});
 				
-				console.debug("Loaded " + nodes.length + " nodes");
-				console.debug("Nodes are:", nodes);
+				console.log("Loaded " + nodes.length + " nodes");
+				console.log("Nodes are:", nodes);
 				var delta = self.updateViews(oldViewState, newViewState);
 				
 				data = {

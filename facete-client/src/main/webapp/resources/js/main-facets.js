@@ -754,7 +754,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			var facetProviders =
 				[
 				 	new facets.FacetProviderSimple(sparqlService, false)
-				 	,new facets.FacetProviderSimple(sparqlService, true)
+//				 	,new facets.FacetProviderSimple(sparqlService, true)
 				];
 
 			
@@ -1068,11 +1068,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			collection: mapCollection
 		});
 		
-		var cherryPickCollection = new facets.CollectionColumns(); //configModel.get('mapCollection');
-		var cherryPickPlugin = new widgets.FacetTreeCherryPickPlugin({
-			facetWidget: facetWidget,
-			collection: cherryPickCollection
-		});
+//		var cherryPickCollection = new facets.CollectionColumns(); //configModel.get('mapCollection');
+//		var cherryPickPlugin = new widgets.FacetTreeCherryPickPlugin({
+//			facetWidget: facetWidget,
+//			collection: cherryPickCollection
+//		});
 		
 		
 
@@ -1428,7 +1428,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     	
     	dynamicMapModel.on('change:state', function(model) {
-    		//console.log('this model is', model);
+    		console.log('this model is', model);
     		
     		//var model = this;
     		
@@ -1436,6 +1436,17 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		var delta = state.delta;
     		var newState = state.newState;
+    		
+
+    		var mapItems = mapModel.get('items');
+    		var mapBoxes = mapModel.get('boxes');
+    		
+    		var removedItems = delta.items.removed;
+    		for(var i = 0; i < removedItems.length; ++i) {
+    			var item = removedItems[i];
+
+    			mapItems.remove(item);
+    		}
     		
     		var addedItems = delta.items.added;
     		for(var i = 0; i < addedItems.length; ++i) {
@@ -1450,9 +1461,28 @@ var SparqlBrowseModel = Backbone.Model.extend({
     					label: ""
     			};
     			
-    			var mapItems = mapModel.get('items');
     			mapItems.add(data);
     		}
+    		
+    		
+    		var addedBoxes = delta.boxes.added;
+			mapBoxes.add(addedBoxes);
+    		/*
+    		for(var i = 0; i < addedBoxes.length; ++i) {
+    			var box = addedBoxes[i];
+    			
+    		}*/
+    		
+    		
+    		var removedBoxes = delta.boxes.removed;
+    		mapBoxes.remove(removedBoxes);
+    		/*
+    		for(var i = 0; i < removedBoxes.length; ++i) {
+    			var boxId = removedBoxes[i];
+    			
+    			mapBoxes.remove
+    		}
+    		*/
     		
     		
     		console.log('BOOYA', state);

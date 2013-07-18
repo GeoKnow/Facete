@@ -140,36 +140,32 @@
 	    },
 	    
 	    removeModel: function(model) {
-	    	console.log("Remove model invoked - currently having " + this.viewModels.length + " models");
+	    	console.log("[DEBUG] Remove model invoked - currently having " + this.viewModels.length + " models");
 	    	// Remove any corresponding view
 	    	
 	    	// Consistency check: If a model without a corresponding view gets
 	    	// removed, something may went wrong
 	    	// TODO I hope this assumption holds: If a model gets destroyed, it is removed FIRST
-	    	var didRemove = false;
-	    	
 	    	
 	    	var self = this;
-	    	this.viewModels.each(function(viewModel) {
+	    	var viewModel = this.viewModels.find(function(viewModel) {
 	    		
-	    		if(viewModel.get('view').model === model) {
-	    			
-	    			self.trigger('itemRemoved', {
-	    				target: self,
-	    				viewModel: viewModel
-	    			});
-	    			
-	    			viewModel.destroy();
-	    			didRemove = true;
-	    			
-	    			console.log("TODO Use the iterator where we can abort early - didn't have internet to look the method up when I wrote this");
-	    			return;
-	    		}
+	    		var result = viewModel.get('view').model === model
+	    		return result;
 	    	});
-	    	
-	    	
-	    	if(!didRemove) {
-	    		console.log("[WARN] No corresponding view found for model: ", model);
+	    	    		
+    		if(viewModel) {
+    			
+    			self.trigger('itemRemoved', {
+    				target: self,
+    				viewModel: viewModel
+    			});
+    			
+    			viewModel.destroy();
+    			
+    		}
+    		else {
+	    		console.log("[ERROR] No corresponding view found for model: ", model);
 	    	}
 	    },
 	    

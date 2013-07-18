@@ -1543,7 +1543,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		*/
     		
     		
-    		console.log('BOOYA', state);
+    		//console.log('BOOYA', state);
     	});
     	
 		mapView.on('mapevent', function() {

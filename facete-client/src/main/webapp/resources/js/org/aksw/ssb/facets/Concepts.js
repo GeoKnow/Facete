@@ -85,7 +85,12 @@
 			},
 			
 			getVariable: function() {
-				console.log('[Warn] Deprecated. Use .getVar() instead');
+				
+				if(!this.warningShown) {				
+					console.log('[WARN] Deprecated. Use .getVar() instead');
+					this.warningShown = true;
+				}
+				
 				return this.getVar();
 			},
 			

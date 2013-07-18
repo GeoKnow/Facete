@@ -235,7 +235,7 @@
 			
 			var path = facetNode.getPath();
 			var varName = facetNode.getVariable().value; //Name();
-			console.log("VarName: ", varName, model);
+			//console.log("VarName: ", varName, model);
 			var facetVal = model.get(varName);
 			var node = facetVal.node;
 	

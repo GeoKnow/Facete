@@ -32,8 +32,8 @@
 	
 	
 	ns.ModelSubFacetState = Backbone.Model.extend({
-		default: {
-			strategy: "exact", // How to compute the facets. Supported values: "exact", "partitioned"
+		defaults: {
+			strategy: 'exact' // How to compute the facets. Supported values: "exact", "partitioned"
 			
 			// Following attributes only apply to strategy partitioned
 			//tableModel: null //new widget.TabelModel()// Paginator on the partitions
@@ -469,7 +469,7 @@
 	
 	ns.MapBoxModel = Backbone.Model.extend({
 		defaults: {
-			bounds: null,
+			bounds: null
 			// other attributes...
 		}
 	});

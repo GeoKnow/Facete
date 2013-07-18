@@ -582,7 +582,7 @@
 				var orExpr = sparql.orify(exprs);
 				var element = new sparql.ElementFilter([orExpr]);
 
-				console.log("andExprs" +  element);
+				//console.log("andExprs" +  element);
 
 				elements.push(element);
 			});
@@ -674,7 +674,11 @@
 		},
 		
 		getVariable: function() {
-			console.log('[WARN] Deprecated. Use getVar() instead.')
+			if(!this.warningShown) {				
+				console.log('[WARN] Deprecated. Use .getVar() instead');
+				this.warningShown = true;
+			}
+
 			return this.getVar();
 		},
 		

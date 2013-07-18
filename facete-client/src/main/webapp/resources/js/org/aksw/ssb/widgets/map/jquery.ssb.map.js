@@ -499,7 +499,9 @@ $.widget("custom.ssbMap2", {
 			//self.markerLayer.removeMarker(feature.marker);
 			this.featureLayer.removeFeatures([feature]);
 			delete this.nodeToFeature[id];
-		}					
+		} else {
+			console.log("[WARN] Id " + id + " requested for deletion, but not found in the " + _.keys(this.nodeToFeature).length + " available ones: ", this.nodeToFeature);
+		}			
 	},
 	
 	removeItems : function(ids) {

@@ -1483,7 +1483,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     	
     	dynamicMapModel.on('change:state', function(model) {
-    		console.log('this model is', model);
+    		//console.log('this model is', model);
     		
     		//var model = this;
     		
@@ -1494,17 +1494,20 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		var delta = state.delta;
     		var newState = state.newState;
     		
+    		console.log("Delta is: ", delta);
 
     		var mapItems = mapModel.get('items');
     		var mapBoxes = mapModel.get('boxes');
     		
     		var removedItems = delta.items.removed;
+
     		for(var i = 0; i < removedItems.length; ++i) {
     			var item = removedItems[i];
 
     			mapItems.remove(item);
     		}
-    		
+
+
     		var addedItems = delta.items.added;
     		for(var i = 0; i < addedItems.length; ++i) {
     			var item = addedItems[i];
@@ -1522,8 +1525,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			mapItems.add(data);
     		}
     		
+    		console.log("[DEBUG] Removed " + removedItems.length + " items, Added " + addedItems.length + ", " + newState.visibleGeoms.length + " visible");
+    		console.log("[DEBUG] Map items in collection " + mapItems.length);
     		
-    		var addedBoxes = delta.boxes.added;
+    		var addedBoxes = _.values(delta.boxes.added);
 			mapBoxes.add(addedBoxes);
     		/*
     		for(var i = 0; i < addedBoxes.length; ++i) {
@@ -1532,7 +1537,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		}*/
     		
     		
-    		var removedBoxes = delta.boxes.removed;
+    		var removedBoxes = _.keys(delta.boxes.removed);
+    		console.log('[DEBUG] Removed boxes', removedBoxes);
     		mapBoxes.remove(removedBoxes);
     		/*
     		for(var i = 0; i < removedBoxes.length; ++i) {
@@ -1625,6 +1631,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		
 		mapView.on("featureUnselect", function(ev, data) {
+			console.log('unselect data', data);
 			var id = data.id;
 			var globalItemData = data.get('globalItemData');
 			var geoPath = globalItemData.geoPath;

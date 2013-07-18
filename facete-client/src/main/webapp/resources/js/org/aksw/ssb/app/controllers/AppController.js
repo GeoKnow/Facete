@@ -1742,7 +1742,7 @@
 		// change  
 		// instances (only applicable for partially visible nodes)
 		
-		console.log("Updating views");
+		//console.log("Updating views");
 		
 		var oldVisibleGeoms = this.viewState.visibleGeoms;
 		

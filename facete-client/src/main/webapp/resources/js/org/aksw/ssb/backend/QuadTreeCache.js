@@ -39,7 +39,7 @@
 	
 			var result = queryUtils.createQueryCount(this.element, maxCount, this.geomVar, this.countVar);
 			
-			console.log("Query [GeomCount] " + result, result);
+			//console.log("Query [GeomCount] " + result, result);
 			
 			return result;
 		},

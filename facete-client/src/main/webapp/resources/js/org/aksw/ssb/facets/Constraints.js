@@ -779,7 +779,7 @@
 				
 				var result = this.combineConcepts(geoConcept);
 				
-				console.log('Create the combinedConcept with bounds: ', this.geoConceptFactory);
+				//console.log('Create the combinedConcept with bounds: ', this.geoConceptFactory);
 				
 				return result;
 			}

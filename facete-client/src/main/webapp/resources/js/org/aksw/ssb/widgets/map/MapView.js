@@ -11,6 +11,37 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 
 (function(ns) {
 
+	ns.createSubMap = function(obj, keys) {
+		var result = {};
+
+		for(var i = 0; i < keys.length; ++i) {
+			var key = keys[i];
+			var value = obj[key];
+			result[key] = value;
+		}
+
+		return result;
+	};
+	
+	ns.createMapDiff = function(a, b) {
+
+		var aIds = _.keys(a);
+		var bIds = _.keys(b);
+		
+		var addedIds = _.difference(aIds, bIds);
+		var removedIds = _.difference(bIds, aIds);
+
+		var added = ns.createSubMap(a, addedIds);
+		var removed = ns.createSubMap(b, removedIds);
+
+		var result = {
+				added: added,
+				removed: removed
+		};
+
+		return result;
+	};
+	
 	/**
 	 * Indexes geometries in the given datastore
 	 * 
@@ -114,10 +145,12 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	/**
 	 * TODO/Note This data should be (also) part of the model I suppose
 	 */
-	ns.ViewState = function(nodes, bounds, visibleGeoms) {
+	ns.ViewState = function(nodes, bounds, visibleGeoms, visibleBoxes) {
 		this.nodes = nodes;
 		this.bounds = bounds; //null; //new qt.Bounds(-9999, -9998, -9999, -9998);
 		this.visibleGeoms = visibleGeoms ? visibleGeoms : [];
+		
+		this.visibleBoxes = visibleBoxes ? visibleBoxes : {};
 	};
 
 	
@@ -150,7 +183,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 		bindAll: function() {
 			var model = this.model;
 			
-			model.on('change:sparqlService change:geoConceptFactory', this.refresh, this);
+			model.on('change:sparqlService change:geoConceptFactory change:bounds', this.refresh, this);
 		},
 		
 		refresh: function() {
@@ -179,9 +212,12 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			// The bounds of the model are open layers, but
 			// we need to convert them to quad-tree-bounds here
 			var olBounds = model.get('bounds');
+			var sparqlService = model.get('sparqlService');
+			var geoConceptFactory = model.get('geoConceptFactory');
+			var geomPosFetcher = model.get('geomPosFetcher');
 			
-			if(!olBounds) {
-				console.log('[WARN] Bounds not set');
+			if(!(olBounds && sparqlService && geoConceptFactory && geomPosFetcher)) {
+				console.log('[WARN] Prerequisites for the MapView not met.');
 				result.fail();
 				return result;
 			}
@@ -193,9 +229,6 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			//console.log("Refresh bounds", bounds);
 
 			
-			var sparqlService = model.get('sparqlService');
-			var geoConceptFactory = model.get('geoConceptFactory');
-			var geomPosFetcher = model.get('geomPosFetcher');
 			
 			var globalItemData = model.get('globalItemData');
 			
@@ -209,11 +242,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			}
 			
 			//console.log("Promise is: ", promise);
-			
-			var oldViewState = this.model.get('viewState');
-			if(!oldViewState) {
-				oldViewState = new ns.ViewState();
-			}
+						
 
 			// TODO We could use pipe here
 			promise.done(function(nodes) {
@@ -224,9 +253,14 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 					console.log("Skipping refresh because an update is in progress");
 					return;
 				}
+			
+				var oldViewState = self.model.get('viewState');
+				if(!oldViewState) {
+					oldViewState = new ns.ViewState();
+				}
+
 				
 				var newViewState = new ns.ViewState(nodes, bounds);
-				self.model.set({viewState: newViewState});
 				
 				console.log("Loaded " + nodes.length + " nodes");
 				console.log("Nodes are:", nodes);
@@ -239,6 +273,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 						globalItemData: globalItemData
 				};
 				
+				self.model.set({viewState: newViewState});
+
 				result.resolve(data);
 				
 			}).fail(function() {
@@ -265,10 +301,11 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			//alert("Bounds are: " + JSON.stringify(bounds));
 			
 			// TODO The geoConstraintFactory can create elements, but it does not create a concept yet
-			console.log("DEBUG Query hash (including facets): ", geoConceptFactory);
 			var geoConcept = geoConceptFactory.createConcept(null);
 			var hash = geoConcept.getElement().toString();
-			
+
+			console.log("[DEBUG] Query hash (including facets): " + hash);
+
 			
 			var cacheEntry = this.hashToCache[hash];
 			if(!cacheEntry) {
@@ -284,25 +321,11 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 		
 		
 		updateViews: function(oldViewState, viewState) {
-
-			console.log("old/new", oldViewState, viewState);
-			
-			// TODO Somehow make this work (by magic is would be fine)
-			// TODO Facet counts are updated as a reaction to fetching the new state
-			//this.updateFacetCounts(newState.bounds, newState.nodes);
-			
-			// node       1      2
-			// change  
-			// instances (only applicable for partially visible nodes)
-			
-			console.log("Updating views");
-			
-
-			
-			var oldVisibleGeoms = viewState.visibleGeoms;
 			
 			var nodes = viewState.nodes;
 			var bounds = viewState.bounds;
+
+			var oldVisibleGeoms = oldViewState.visibleGeoms;
 			
 			//this.viewState = newState;
 			
@@ -313,62 +336,6 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			viewState.visibleGeoms = visibleGeoms;
 			viewState.geomToPoint = globalGeomToPoint;
 			
-	/*
-			// Get all geometries from the databanks
-			for(var i = 0; i < nodes.length; ++i) {
-				var node = nodes[i];
-				var nodeBounds = node.getBounds();
-				
-				var databank = node.data.graph;
-				var geomToPoint = node.data.geomToPoint ? node.data.geomToPoint : ns.extractGeomsWgs84(databank);
-
-				
-				//console.debug("geomToPoint", geomToPoint);
-				//console.debug("Databank for node ", i, databank);
-				
-				// Attach the info to the node, so we reuse it the next time
-				node.data.geomToPoint = geomToPoint;
-				
-				_.extend(globalGeomToPoint, geomToPoint);
-				
-				var geoms = _.keys(geomToPoint);
-				
-				
-				// If the node is completely in the bounds, we can skip the boundary check
-				if(bounds.contains(nodeBounds)) {
-					
-					visibleGeoms.push.apply(visibleGeoms, geoms);
-					
-				} else if(bounds.isOverlap(nodeBounds)) {
-				
-					//for(var geom in geoms) {
-					for(var j = 0; j < geoms.length; ++j) {
-						var geom = geoms[j];
-						var point = geomToPoint[geom];
-						
-						//console.log("point is: ", geomToPoint);
-						
-						if(bounds.containsPoint(point)) {
-							visibleGeoms.push(geom);
-						}
-					}
-					
-				}
-			}
-	*/
-			
-			//console.debug("Number of visible geoms", visibleGeoms.length);
-
-			// Combine the datastores
-//			for(var i = 0; i < nodes.length; ++i) {
-//				var node = nodes[i];
-//				
-//				var databank = node.data.graph;
-//
-//				// TODO Rather adding the datastore directly
-//				// invoke a method that activates the node in the cache
-//				this.multiGraph.addDatabank(databank);
-//			}		
 
 			/*
 			 * Load:
@@ -417,49 +384,14 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			
 			var addedGeoms    = _.difference(visibleGeoms, oldVisibleGeoms);
 			var removedGeoms  = _.difference(oldVisibleGeoms, visibleGeoms);
-
+			
 			var addedBoxes = [];
 			var removedBoxes = [];
 
 			
-			/*
-			 * Updates of views below
-			 * 
-			 */
+			var visibleBoxes = {};
+			var oldVisibleBoxes = oldViewState.visibleBoxes; 
 
-			var useOldMethod = false;
-			if(useOldMethod) {
-
-				this.mapWidget.removeItems(removedGeoms);
-			/*
-			for(var i = 0; i < removedGeoms.length; ++i) {
-				//var geom = removedGeoms[i];
-				
-				
-			}*/
-					
-			
-				for(var i = 0; i < addedGeoms.length; ++i) {
-					var geom = addedGeoms[i];
-		
-					var point = globalGeomToPoint[geom];
-					var lonlat = new OpenLayers.LonLat(point.x, point.y);
-					
-					//console.debug("Adding map item", geom, point, lonlat);
-					this.mapWidget.addItem(geom, lonlat, true);
-				}
-			}
-
-			
-			//var boxIds = _.keys(this.mapWidget.idToBox);
-			// TODO Get all boxes here (this should most likely be part of the view state)
-			var boxIds = [];
-			for(var i = 0; i < boxIds.length; ++i) {
-				var boxId = boxIds[i];
-				//this.removeBox(boxId);
-				removedBoxes.push(boxId);
-			}
-			
 			
 			// If true, shows the box of each node
 			var alwaysShowBoxes = false;
@@ -475,10 +407,16 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 						bounds: node.getBounds()
 					};
 					
-					addedBoxes.push(box);
+					//addedBoxes.push(box);
+					visibleBoxes[box.id] = box;
 					//this.addBox(node.getBounds().toString(), toOpenLayersBounds(node.getBounds()));
 				}
 			}
+			
+			
+			viewState.visibleBoxes = visibleBoxes;
+
+			var boxDiff = ns.createMapDiff(visibleBoxes, oldVisibleBoxes);
 			
 			
 			//this.geomToId.clear();
@@ -536,15 +474,17 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			
 			var result = {
 					boxes: {
-						added: addedBoxes,
-						removed: removedBoxes
+						added: boxDiff.added,
+						removed: boxDiff.removed
 					},
 					items: {
 						added: addedGeoms,
 						removed: removedGeoms
 					}
 			};
-			
+
+			console.log("old/new", oldViewState, viewState);
+
 			return result;			
 		}
 
@@ -593,6 +533,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	    addItem: function(model) {
 	    	
 	    	// lets assume there are long and lot fields...
+	    	var id = model.id;
 	    	var geom = model.get('geom');
 	    	var lonlat = geom;
 //	    	var lon = geom.lon;
@@ -605,15 +546,15 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 //			var lonlat = new OpenLayers.LonLat(lon, lat);
 
 	    	
-			this.legacyWidget.addItem(geom, lonlat, model.attributes, true);
+			this.legacyWidget.addItem(id, geom, model.attributes, true);
 	    },
 
 	    removeItem: function(model) {
-			
 	    	var id = model.id;
 	    	
-	    	this.legacyWidget.removeItem(id);
+	    	//console.log("Remove item: ", id);
 	    	
+	    	this.legacyWidget.removeItem(id);	    	
 	    },
 	    
 	    
@@ -669,6 +610,11 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 				var id = data.id;
 				var items = self.model.get('items');				
 				var model = items.get(id);
+				
+				if(!model) {
+					console.log('[WARN] Event canceled: Got unselection event of feature, but no data associated with it.')
+					return;
+				}
 
 				self.trigger("featureUnselect", ev, model);
 			});
@@ -710,10 +656,6 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	    	//map.zoomToExtent(dataExtent, true);
 	    },
 	    
-	    updateBoxes: function(model) {
-	    	
-	    	
-	    },
 	    
 	    updateViewNotUsedAnymore: function(model) {
 	    	var self = this;
@@ -806,3 +748,89 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 //	return result;
 //	*/
 //},		
+
+
+/*
+// Get all geometries from the databanks
+for(var i = 0; i < nodes.length; ++i) {
+	var node = nodes[i];
+	var nodeBounds = node.getBounds();
+	
+	var databank = node.data.graph;
+	var geomToPoint = node.data.geomToPoint ? node.data.geomToPoint : ns.extractGeomsWgs84(databank);
+
+	
+	//console.debug("geomToPoint", geomToPoint);
+	//console.debug("Databank for node ", i, databank);
+	
+	// Attach the info to the node, so we reuse it the next time
+	node.data.geomToPoint = geomToPoint;
+	
+	_.extend(globalGeomToPoint, geomToPoint);
+	
+	var geoms = _.keys(geomToPoint);
+	
+	
+	// If the node is completely in the bounds, we can skip the boundary check
+	if(bounds.contains(nodeBounds)) {
+		
+		visibleGeoms.push.apply(visibleGeoms, geoms);
+		
+	} else if(bounds.isOverlap(nodeBounds)) {
+	
+		//for(var geom in geoms) {
+		for(var j = 0; j < geoms.length; ++j) {
+			var geom = geoms[j];
+			var point = geomToPoint[geom];
+			
+			//console.log("point is: ", geomToPoint);
+			
+			if(bounds.containsPoint(point)) {
+				visibleGeoms.push(geom);
+			}
+		}
+		
+	}
+}
+*/
+
+//console.debug("Number of visible geoms", visibleGeoms.length);
+
+// Combine the datastores
+//for(var i = 0; i < nodes.length; ++i) {
+//	var node = nodes[i];
+//	
+//	var databank = node.data.graph;
+//
+//	// TODO Rather adding the datastore directly
+//	// invoke a method that activates the node in the cache
+//	this.multiGraph.addDatabank(databank);
+//}		
+
+
+/*
+ * Updates of views below
+ * 
+ */
+//var useOldMethod = false;
+//if(useOldMethod) {
+//
+//	this.mapWidget.removeItems(removedGeoms);
+///*
+//for(var i = 0; i < removedGeoms.length; ++i) {
+//	//var geom = removedGeoms[i];
+//	
+//	
+//}*/
+//		
+//
+//	for(var i = 0; i < addedGeoms.length; ++i) {
+//		var geom = addedGeoms[i];
+//
+//		var point = globalGeomToPoint[geom];
+//		var lonlat = new OpenLayers.LonLat(point.x, point.y);
+//		
+//		//console.debug("Adding map item", geom, point, lonlat);
+//		this.mapWidget.addItem(geom, lonlat, true);
+//	}
+//}

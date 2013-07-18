@@ -1015,7 +1015,7 @@
 		ns.applyQueryOptions(result, options);
 		
 //debugger;
-		console.log("Created count query:" + result + " for element " + element);
+		//console.log("Created count query:" + result + " for element " + element);
 		return result;
 	};
 

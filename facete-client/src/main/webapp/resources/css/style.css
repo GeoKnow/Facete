@@ -176,6 +176,14 @@ ul .facet {
 	text-overflow: ellipsis;
 }
 
+
+/**
+ * Hack that Karel suggested - for fixing a layout problem where everything is in the wrong place
+ */
+body > .container > .row-fluid:last-child {
+    overflow: hidden !important;
+}
+
 /*
  * Make checkboxes smaller. This is not cross browser compatible,
  * but on browsers where this works we make better use of the space

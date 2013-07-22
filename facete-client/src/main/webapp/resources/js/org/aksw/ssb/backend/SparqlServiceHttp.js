@@ -80,7 +80,7 @@
 	};
 	
 	ns.SparqlServiceHttp.prototype = {
-		getDatasetId: function() {
+		getStateHash: function() {
 			var idState = {
 					serviceUri: this.serviceUri,
 					defaultGraphUris: this.defaultGraphUris

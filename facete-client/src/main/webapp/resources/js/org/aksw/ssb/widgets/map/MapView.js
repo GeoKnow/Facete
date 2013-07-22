@@ -292,8 +292,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 		fetchNodesGeo: function(sparqlService, geomPosFetcher, geoConceptFactory, bounds) {
 	        // TODO Make this configurable
 			var quadTreeConfig = {
-                    maxTileItemCount: 50,
-                    maxGlobalItemCount: 200
+                    maxTileItemCount: 150,
+                    maxGlobalItemCount: 750
 	        };
 
 			//var promise = fetchNodesGeo(queryGeneratorGeo, olBounds);
@@ -302,8 +302,13 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			
 			// TODO The geoConstraintFactory can create elements, but it does not create a concept yet
 			var geoConcept = geoConceptFactory.createConcept(null);
-			var hash = geoConcept.getElement().toString();
+			
+			var serviceHash = sparqlService.getStateHash();			
+			var conceptHash = geoConcept.getElement().toString();
 
+			
+			var hash = serviceHash + conceptHash; 
+			
 			console.log("[DEBUG] Query hash (including facets): " + hash);
 
 			

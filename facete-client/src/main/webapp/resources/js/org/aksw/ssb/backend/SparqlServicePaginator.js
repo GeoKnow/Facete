@@ -42,8 +42,8 @@
 	};
 	
 	ns.SparqlServicePaginator.prototype = {
-		getDatasetId: function() {
-			return this.backend.getDatasetId();
+		getStateHash: function() {
+			return this.backend.getStateHash();
 		}	
 	};
 	

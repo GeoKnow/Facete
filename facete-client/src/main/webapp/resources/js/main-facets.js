@@ -168,6 +168,40 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		});
 	};
 
+	
+	ns.getOrCreateCol = function(collection, id) {
+		var result = collection.get(id);
+
+		if(!result) {
+			var tmp = {id: id};
+			//result = collection.create({id: id});
+			collection.add(tmp);
+			
+			result = collection.get(id);
+		}
+		
+		return result;
+	};
+
+	/**
+	 * Returns the value of an attribute in the model,
+	 * invoking factoryFn for the values' creation as necessary
+	 * 
+	 * factory should not return null or undefined.
+	 */
+	ns.getOrCreate = function(model, attributeName, factoryFn) {
+		var result = model.get(attributeName);
+		if(result == null) {
+			result = factoryFn();
+			
+			var tmp = {};
+			tmp[attributeName] = result;
+			model.set(tmp);
+		}
+		
+		return result;
+	};
+
 
 	
     ns.nodesToAutocomplete = function(nodes) {
@@ -600,6 +634,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				// Map collection is the collection of paths added to the map
 				mapCollection: new facets.CollectionColumns(),
 		
+				// a collection that contains models for endpoint specific data
+				// NOTE sparqlService objects have a .getStateHash() method whose result is used as ID for models
+				// TODO How to use this cache properly: Should models be merged into this one or should objects be accessed via this collection?
+				sparqlServiceCaches: new Backbone.Collection(),
+				
+				
 				/*
 				 * Services based on above properties
 				 */
@@ -817,7 +857,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				queryFactory: queryFactory
 			});
 			
-			console.log('Dammit table model', tableModel);
+			//console.log('Dammit table model', tableModel);
 		});
 		
 		return widget;
@@ -924,7 +964,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	    	var headerMap = tableModel.get('headerMap');
 	    	
 	    	headerMap.reset();
-	    	headerMap.add({id: 's', label: 'Resource'});
+	    	headerMap.add({id: 's', label: 'Item'});
 	    	
 			
 			collectionColumns.each(function(model) {
@@ -1585,7 +1625,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			//console.log("click", ev, data);			
 			var id = data.id;
 			
-			var globalItemData = data.get('globalItemData');
+			var globalItemData = dynamicMapModel.get('globalItemData');
+			
+			//var globalItemData = data.get('globalItemData');
 			var geoPath = globalItemData.geoPath;
 			//var json = data.json;
 
@@ -1683,13 +1725,26 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	    	var sparqlService = configModel.get('sparqlService');
 			var rootFacetNode = configModel.get('rootFacetNode');
 
+			
+			var serviceCaches = configModel.get('sparqlServiceCaches');
+			var serviceHash = sparqlService.getStateHash();
+			
+			var serviceCache = ns.getOrCreateCol(serviceCaches, serviceHash); // serviceCaches.get(serviceHash);
+
+
 			var sparqlServicePaginated = new backend.SparqlServicePaginator(sparqlService, 1000);
 			var queryCacheFactory = new utils.QueryCacheFactory(sparqlServicePaginated);
-			var geomPosFetcher = new utils.GeomPointFetcher(queryCacheFactory);
-	
+
+			var geomPosFetcherFactoryFn = function() {
+				return new utils.GeomPointFetcher(queryCacheFactory);
+			};				
+
+			var geomPosFetcher = ns.getOrCreate(serviceCache, 'geomPosFetcher', geomPosFetcherFactoryFn);
+			
 			
 			mapCollection.each(function(model) {
 				var geoPath = model.get('path');
+				console.log('Model for the geoPath', geoPath, mapCollection);
 
 			
 				var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
@@ -1800,6 +1855,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		constraintCollection.on('add remove reset', updateMap);
 		mapCollection.on('add remove reset', updateMap);
 
+		configModel.on('change:sparqlService', updateMap);
 		
 
 		/* Does not work; Open Layers needs a non-zero size area to init

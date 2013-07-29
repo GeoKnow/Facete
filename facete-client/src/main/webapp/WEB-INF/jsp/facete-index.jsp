@@ -177,7 +177,7 @@
 		
 <!-- 		<br class="clearBoth" style="width:0px; height: 0px;" /> -->
 		<div class="clearfix"></div>				
-		<div class="row-fluid" style="overflow: visible;">
+		<div class="row-fluid" id="css-index-mainContainer" style="overflow: visible;">
 		
 			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;">
 		
@@ -205,37 +205,45 @@
 			</div>
 			
 			<div class="span9" style="margin-left: 5px; margin-top: 3px;">
-				<div class="row-fluid portlet-group ui-sortable">
-			
-					<div class="portlet span7">
-						<div class="portlet-header">Table View</div>
-		                	<div id="instances" class="portlet-content"></div>
-<!-- 						<div class="portlet-content" style="overflow: auto;")> -->
-<!-- 		                	<div id="instances"></div> -->
-<!-- 						</div> -->
-		                
-		<!--                 <a style="display:none" id="exportCsv" href="#">Export CSV</a> -->
-		<!--                 <a style="display:none" id="exportRdf" href="#">Export RDF</a> -->
-					</div>
-		
-					<div class="portlet span5">
-						<div class="portlet-header">Map</div>
-						<div id="mapContainer" class="portlet-content">
-							<div id="map" style="height: 300px;"></div>
-							<a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
-						</div>
-					</div>			
+				<div class="portlet-group ui-sortable">
+            
+                    <table id="css-index-mainTable">
+                        <tr>
+                            
+                            <!-- Left side (Table View) -->
+                            <td id="css-index-mainTable-leftSide">
+                                <div class="portlet">
+                                    <div class="portlet-header">Table View</div>
+                                        <div id="instances" class="portlet-content"></div>
+            <!-- 						<div class="portlet-content" style="overflow: auto;")> -->
+            <!-- 		                	<div id="instances"></div> -->
+            <!-- 						</div> -->
+                                    
+                    <!--                 <a style="display:none" id="exportCsv" href="#">Export CSV</a> -->
+                    <!--                 <a style="display:none" id="exportRdf" href="#">Export RDF</a> -->
+                                </div>
+                            </td>
+                            
+                            
+                            <!-- Right side (Map and Detail View) -->
+                            <td id="css-index-mainTable-rightSide">
+                                <div class="portlet">
+                                    <div class="portlet-header">Map</div>
+                                    <div id="mapContainer" class="portlet-content">
+                                        <div id="map" style="height: 300px;"></div>
+                                        <a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
+                                    </div>
+                                </div>			
 
-					<div class="portlet span5">
-						<div class="portlet-header">Detail view</div>
-		                	<div id="detailView" class="portlet-content"></div>
-					</div>
-
-					<div class="portlet span7">
-<!-- 						<div class="portlet-header">Resource View</div> -->
-<!-- 		                	<div id="resourceView" class="portlet-content"></div> -->
-					</div>
-
+                                <div class="portlet">
+                                    <div class="portlet-header">Detail view</div>
+                                        <div id="detailView" class="portlet-content"></div>
+                                </div>
+                            </td>
+                    
+                        </tr>
+                    
+                    </table>
 
 				</div>
 				

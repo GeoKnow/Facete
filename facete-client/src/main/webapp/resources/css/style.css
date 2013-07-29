@@ -324,3 +324,43 @@ div.inline {
 /* 	overflow:auto; */
 /* 	/*width: 100%;*/ */
 /* } */
+
+
+/**
+ * FACETE-INDEX.jsp > MAIN TABLE 
+ */
+#css-index-mainTable
+{
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    
+    padding: 0px;
+    
+    margin: 0px;
+}
+
+#css-index-mainTable-leftSide
+{
+    width: 60%;
+    min-width: 60%;
+    max-width: 60%;
+    
+    vertical-align: top;
+}
+
+#css-index-mainTable-rightSide
+{
+    width: 40%;
+    min-width: 40%;
+    max-width: 40%;
+    
+    vertical-align: top;
+}
+
+#mapContainer
+{
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}

@@ -1534,6 +1534,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
     
     ns.createMapView = function(configModel) {		
 		
+    	
+		
+		// Whenever the facet selection changes (or the concept) update the map.
+		
+		
+		var constraintCollection = configModel.get('constraintCollection');
+    	var mapCollection = configModel.get('mapCollection');    	
+
+    	
     	/*
     	var mapCollection = configModel.get('mapCollection');    	
     	var sparqlService = configModel.get('sparqlService');
@@ -1655,6 +1664,30 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		//console.log('BOOYA', state);
     	});
     	
+    	
+    	var updateMapHint = function() {
+    		var itemCount = mapModel.get('items').length;
+    		
+    		if(itemCount) {
+    			$('#detailViewState').html('Click a marker to view its details');
+    		} else {
+    			
+    			var isGeoPath = mapCollection.length != 0;
+    			
+    			if(isGeoPath) {
+    				$('#detailViewState').html('The selection is linked to the map, however for this link there are no spatial entities matching your filter criterias');
+    			} else {
+    				$('#detailViewState').html('No link to the map has been selected.');
+    			}
+    		}
+    		
+    	};
+    	
+    	dynamicMapModel.on('change:state', updateMapHint);
+    	
+    	updateMapHint();
+    	
+    	
 		mapView.on('mapevent', function() {
 			//console.log("mapevent");
 			var map = mapView.getMap();
@@ -1768,12 +1801,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 
 		
-		
-		// Whenever the facet selection changes (or the concept) update the map.
-		
-		
-		var constraintCollection = configModel.get('constraintCollection');
-    	var mapCollection = configModel.get('mapCollection');    	
 
 
     	

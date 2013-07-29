@@ -238,7 +238,8 @@
 
                                 <div class="portlet">
                                     <div class="portlet-header">Detail view</div>
-                                        <div id="detailView" class="portlet-content"></div>
+                                    <div id="detailViewState"></div>
+                                    <div id="detailView" class="portlet-content"></div>
                                 </div>
                             </td>
                     

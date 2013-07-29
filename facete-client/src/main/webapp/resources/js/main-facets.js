@@ -1143,7 +1143,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var superFacetModel = new facets.ModelFacetNode({
 			facetNode: facets.FacetNode.createRoot(rootFacetNode.getVariable().getValue()),
 			children: superRootFacetCollection,
-			isExpanded: true
+			isExpanded: false
 		});
     	
     	
@@ -1159,7 +1159,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	
 		//console.log("FacetFacadeNode: ", rootFacetNode);
 		var rootFacetModel = new facets.ModelFacetNode({
-			facetNode: rootFacetNode
+			facetNode: rootFacetNode,
 		});
 		
 		// Controller for syncing the number of selected facets in the facet tree
@@ -1236,10 +1236,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			i18n.update(facetWidget.$el);
 		});
 		
-		
+
+
     	superRootFacetCollection.add(rootFacetModel);
     	
 
+    	
     	configModel.on('change:sparqlService', function() {
     		fnUpdateFacets(rootFacetModel);
     	});
@@ -1250,6 +1252,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		//var i18n = configModel.get('i18n');
 		//i18n.update(facetWidget.$el);
 
+    	rootFacetModel.set({isExpanded: true});
+    	superFacetModel.set({isExpanded: true});
+
+    	configModel.trigger('change:sparqlService');
+    	
+    	
     	
 		var result = {
 			facetWidget: facetWidget

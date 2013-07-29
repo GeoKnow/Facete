@@ -130,13 +130,18 @@
 		</dependency>
 
 
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.aksw.jena-sparql-api</groupId> -->
+<!-- 			<artifactId>jena-sparql-api-core</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.aksw.jena-sparql-api</groupId> -->
+<!-- 			<artifactId>jena-sparql-api-server</artifactId> -->
+<!-- 		</dependency> -->
+
 		<dependency>
-			<groupId>org.aksw.jena-sparql-api</groupId>
-			<artifactId>jena-sparql-api-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.aksw.jena-sparql-api</groupId>
-			<artifactId>jena-sparql-api-server</artifactId>
+			<groupId>org.aksw.sparqlify</groupId>
+			<artifactId>sparqlify-core</artifactId>
 		</dependency>
 
 
@@ -156,10 +161,10 @@
 		<!-- </dependency> -->
 
 		<!-- Open CSV -->
-		<dependency>
-			<groupId>net.sf.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>net.sf.opencsv</groupId> -->
+<!-- 			<artifactId>opencsv</artifactId> -->
+<!-- 		</dependency> -->
 
 
 		<!-- Logging -->

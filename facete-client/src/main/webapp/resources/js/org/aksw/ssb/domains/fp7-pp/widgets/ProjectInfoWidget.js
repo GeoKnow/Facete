@@ -89,6 +89,12 @@
 	    	this.collection.bind('reset', this.reset, this);
 		},
 		render: function() {
+			var renderHeader = this.options.renderHeader; 
+			if(renderHeader) {
+				var header = renderHeader();
+				this.$el.append(header);
+			}
+			
 			this.collection.each(this.renderRow);
 			
 			this.trigger('renderDone', this);

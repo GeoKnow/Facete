@@ -751,6 +751,18 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			console.log("Select facet: ", facetNode);			
 		});
 		
+		
+        /**
+         * Small hack to avoid shrinking of table view
+         * TODO Try to get rid of it...
+         */
+        configModel.get('constraintCollection').on ("all", function() {
+            $("#css-index-mainTable").width (
+                $(window).width() // whole screen width
+                - 220             // minus width of left sidebar
+            );
+        });
+        
 	};
 
 	
@@ -831,7 +843,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var widget = widgetNs.createQueryBrowser();
 		
 		var tableModel = widget.models.tableModel;
-		//tableModel.get('headerMap').add({id: 's', label: 'Item'});
 
 		attachLabelFetcher(tableModel);
     	
@@ -1028,6 +1039,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				collectionColumns,
 				tableModel
 		);
+		console.log("Table model", widget);
 
 
 		return widget;
@@ -1258,6 +1270,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		models.paginatorModel.set('maxSlotCount', 11);
 
 		
+		tableModel.get('headerMap').add({id: 's', label: 'Item'});
+
 		
 		var fnUpdateFacetValues = function() {
 
@@ -1360,9 +1374,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		var facetValuesWidget = widgetNs.createView(container, widget, function(options) {
 
+			// TODO Add headings
 			var result = new widgets.TableView2({
 				attributes: { 'class': 'table table-bordered table-striped table-condensed', style: 'margin: 0px' },
 				collection : options.collection,
+				
+				renderHeader: function() {
+					return $('<tr><th>Facet value</th><th>Count</th><th>Restrict to value</th></tr>');
+				},
+				
 				rowItemRenderer: function(model) {
 					
 					//console.log("Row item", model);
@@ -1394,12 +1414,13 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					var count = model.get('count');
 					c3 = $('<span>' + count + '</span>');
 					
-					var result = [c1.render().$el, c2, c3];
+					var result = [c2, c3, c1.render().$el];
 					
 					return result;
 				}
 			});
 			
+
 			
 			result.on('renderDone', function() {
 				i18n = configModel.get('i18n');

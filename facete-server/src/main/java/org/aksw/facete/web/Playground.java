@@ -1,18 +1,10 @@
 package org.aksw.facete.web;
 
-import java.util.Arrays;
 import java.util.Properties;
 
-import org.aksw.commons.util.XmlUtils;
-import org.aksw.facete.domains.minify_maven_plugin.Configuration;
-import org.aksw.facete.web.utils.MinifyHelper;
-import org.aksw.facete.web.utils.MinifyHelperPomImpl;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.w3c.dom.Document;
-
-import com.hp.hpl.jena.sparql.util.StringUtils;
 
 
 

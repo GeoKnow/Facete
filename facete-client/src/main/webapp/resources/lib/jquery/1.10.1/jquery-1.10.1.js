@@ -4589,7 +4589,9 @@ if ( !getSetAttribute ) {
 				);
 			}
 
-			ret.value = value += "";
+			var tmp = value += "";
+			ret['value'] = tmp;
+			//ret.value = value += "";
 
 			// Break association with cloned elements by also using setAttribute (#9646)
 			return name === "value" || value === elem.getAttribute( name ) ?

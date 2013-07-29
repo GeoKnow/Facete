@@ -235,7 +235,7 @@
 		var result = new ns.Node();
 		
 		if(!talisJson || typeof(talisJson.type) === 'undefined') {
-			throw "Invalid node";
+			throw "Invalid node: " + JSON.stringify(talisJson);
 		}
 		
 		var type;

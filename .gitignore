@@ -25,6 +25,7 @@ facete-client/debian/semmap.postinst.debhelper
 facete-client/debian/semmap.prerm.debhelper
 facete-client/debian/semmap.substvars
 
+deptree.txt
 
 config.js.sparqlify
 

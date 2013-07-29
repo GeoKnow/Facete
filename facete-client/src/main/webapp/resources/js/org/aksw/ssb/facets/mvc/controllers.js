@@ -32,9 +32,9 @@
 	
 	ns.ControllerSelectionCountSync.prototype = {
 		bind: function() {			
-			this.constraintCollection.on('add', this.onAddConstraint);
-			this.constraintCollection.on('remove', this.onRemoveConstraint);
-			this.constraintCollection.on('reset', this.onResetConstraints);
+			this.constraintCollection.on('add', this.onAddConstraint, this);
+			this.constraintCollection.on('remove', this.onRemoveConstraint, this);
+			this.constraintCollection.on('reset', this.onResetConstraints, this);
 		},
 		
 		updateByPath: function(path) {
@@ -80,6 +80,15 @@
 		},
 		
 		onResetConstraints: function(collection) {
+
+			var self = this;
+			
+			collection.each(function(model) {
+				self.onRemoveConstraint(model);
+			});
+			
+			console.log("TODO Maybe we need to add new models here?");
+			
 			throw "Not implemented yet";
 		}
 	};
@@ -170,9 +179,9 @@
 	ns.ControllerFacetValueEnricher.prototype = {
 		
 		bind: function() {
-			this.constraintCollection.on('add', this.onAddConstraint);
-			this.constraintCollection.on('remove', this.onRemoveConstraint);
-			this.constraintCollection.on('reset', this.onReset);
+			this.constraintCollection.on('add', this.onAddConstraint, this);
+			this.constraintCollection.on('remove', this.onRemoveConstraint, this);
+			this.constraintCollection.on('reset', this.onReset, this);
 		},
 		
 		onAddConstraint: function(model) {
@@ -205,7 +214,16 @@
 			});
 		},
 		
-		onReset: function() {
+		onReset: function(collection) {
+			
+			var self = this;
+			
+			collection.each(function(model) {
+				self.onRemoveConstraint(model);
+			});
+			
+			console.log("TODO Maybe we need to add new models here?");
+
 			throw "Reset not supported yet";
 		},
 

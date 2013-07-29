@@ -756,12 +756,46 @@ var SparqlBrowseModel = Backbone.Model.extend({
          * Small hack to avoid shrinking of table view
          * TODO Try to get rid of it...
          */
-        configModel.get('constraintCollection').on ("all", function() {
+		var constraintCollection = configModel.get('constraintCollection'); 
+        constraintCollection.on("all", function() {
             $("#css-index-mainTable").width (
                 $(window).width() // whole screen width
                 - 220             // minus width of left sidebar
             );
         });
+        
+        
+        $('#facete-clear-filters').on('click', function() {
+        	var models = constraintCollection.toArray();
+        	
+        	//console.log('[DEBUG] Removing ids', models);
+        	
+        	constraintCollection.remove(models);
+        });
+        
+        
+        var updateBtnClearFilters = function() {
+        	var isEnabled = constraintCollection.length != 0;
+        	
+        	$el = $('#facete-clear-filters');
+        	
+        	if(isEnabled) {
+        		$el.removeAttr('disabled');
+        		$el.removeClass('btn-disabled');
+        	} else {
+        		$el.addClass('btn-disabled');
+        		$el.attr('disabled', 'disabled');
+        	}
+        };
+        
+        /*
+         * Update the clear filter button
+         */
+        constraintCollection.on('all', updateBtnClearFilters); 
+
+        updateBtnClearFilters();
+        //updateBtnClearFilters.call(constraintCollection);
+        
         
 	};
 

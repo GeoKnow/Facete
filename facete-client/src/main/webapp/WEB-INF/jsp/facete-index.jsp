@@ -199,6 +199,7 @@
 
 					<div class="portlet">
 						<div class="portlet-header">Filters</div>				
+		                <button id="facete-clear-filters" type="submit" class="btn btn-default">Clear filters</button>
 		                <div id="constraints" class="portlet-content"></div>
 					</div>
 

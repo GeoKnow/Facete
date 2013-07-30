@@ -21,7 +21,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<tomcat-server>localhost</tomcat-server>
+				<tomcat-server>tomcat-localhost</tomcat-server>
 				<tomcat-url>http://localhost:8080/manager/text</tomcat-url>
 			</properties>
 		</profile>

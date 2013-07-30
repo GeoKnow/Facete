@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
@@ -222,14 +223,14 @@ public class PathFindingApi {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String findPaths(String json) {
+	public String findPaths(@QueryParam("query") String json) {
 		Gson gson = new Gson();
 		PathDesc pathDesc = gson.fromJson(json, PathDesc.class);
 		
 		ConceptDesc sourceDesc = pathDesc.getSourceConcept();		
 		Concept sourceConcept = Concept.create(sourceDesc.getElementStr(), sourceDesc.getVarName());
 		
-		ConceptDesc targetDesc = pathDesc.getSourceConcept();		
+		ConceptDesc targetDesc = pathDesc.getTargetConcept();		
 		Concept targetConcept = Concept.create(targetDesc.getElementStr(), targetDesc.getVarName());
 		
 		ServiceDesc serviceDesc = pathDesc.getService();

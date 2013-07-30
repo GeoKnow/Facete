@@ -114,6 +114,10 @@
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
 			</exclusion>
+			<exclusion>
+				<groupId>org.activiti</groupId>
+				<artifactId>activiti-engine</artifactId>			
+			</exclusion>
 		</exclusions>
 	</dependency>
 

@@ -230,6 +230,11 @@
                             <td id="css-index-mainTable-rightSide">
                                 <div class="portlet">
                                     <div class="portlet-header">Map</div>
+                                    
+                                    <table style="width: 100%">
+                                    <tr><td style="width: 1px">Geo-Link:</td><td style="width:100%"><select id="geolink" style="width: 100%"></select></td></tr>
+                                    </table>
+                                    
                                     <div id="mapContainer" class="portlet-content">
                                         <div id="map" style="height: 300px;"></div>
                                         <a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>

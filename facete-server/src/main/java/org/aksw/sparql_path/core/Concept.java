@@ -2,18 +2,29 @@ package org.aksw.sparql_path.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.aksw.sparqlify.csv.TripleUtils;
+import org.aksw.sparqlify.core.algorithms.GeneratorBlacklist;
 
+import com.google.common.collect.Sets;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.sdb.core.Gensym;
+import com.hp.hpl.jena.sparql.algebra.Algebra;
+import com.hp.hpl.jena.sparql.algebra.Op;
+import com.hp.hpl.jena.sparql.algebra.OpAsQuery;
+import com.hp.hpl.jena.sparql.core.Substitute;
+import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
+import com.hp.hpl.jena.sparql.engine.binding.BindingHashMap;
 import com.hp.hpl.jena.sparql.lang.ParserSPARQL10;
-import com.hp.hpl.jena.sparql.lang.ParserSPARQL11;
 import com.hp.hpl.jena.sparql.syntax.Element;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
+import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
+import com.hp.hpl.jena.sparql.syntax.PatternVars;
 
 /**
  * A concept combines a SPARQL graph pattern (element) with a variable.
@@ -113,6 +124,66 @@ public class Concept {
 		return var;
 	}
 	
+	
+	/**
+	 * Create a new concept that has no variables with the given one in common
+	 * 
+	 * 
+	 * 
+	 * @param that
+	 * @return
+	 */
+	public Concept makeDistinctFrom(Concept that) {
+
+		Set<String> thisVarNames = new HashSet<String>(VarUtils.getVarNames(PatternVars.vars(this.getElement())));
+		Set<String> thatVarNames = new HashSet<String>(VarUtils.getVarNames(PatternVars.vars(that.getElement())));		
+		
+		Set<String> commonVarNames = Sets.intersection(thisVarNames, thatVarNames);
+		Set<String> combinedVarNames = Sets.union(thisVarNames, thatVarNames);
+		
+		GeneratorBlacklist generator = new GeneratorBlacklist(Gensym.create("v"), combinedVarNames);
+		
+		BindingHashMap binding = new BindingHashMap();
+		for(String varName : commonVarNames) {
+			Var oldVar = Var.alloc(varName);
+			Var newVar = Var.alloc(generator.next());
+			
+			binding.add(oldVar, newVar);
+		}
+
+		Op op = Algebra.compile(this.element);
+		Op substOp = Substitute.substitute(op, binding);
+		Query tmp = OpAsQuery.asQuery(substOp);
+
+		//Element newElement = tmp.getQueryPattern();
+		ElementGroup newElement = new ElementGroup();
+		newElement.addElement(tmp.getQueryPattern());
+		
+		/*
+		if(newElement instanceof ElementGroup) {
+			
+			
+			ElementPathBlock) {
+		}
+			List<TriplePath> triplePaths = ((ElementPathBlock)newElement).getPattern().getList();
+			
+			ElementTriplesBlock block = new ElementTriplesBlock();
+			for(TriplePath triplePath : triplePaths) {
+				block.addTriple(triplePath.asTriple());
+			}
+
+			newElement = block;
+			//newElement = new ElementTriplesBlock(pattern);
+		}
+		*/
+		
+		Var tmpVar = (Var)binding.get(this.var);
+
+		Var newVar = tmpVar != null ? tmpVar : this.var;
+		
+		Concept result = new Concept(newElement, newVar);
+		return result;
+	}
 	
 	public Query asQuery() {
 		Query result = new Query();

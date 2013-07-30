@@ -17,6 +17,7 @@ import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.utils.QuadUtils;
 import org.aksw.sparqlify.core.ReplaceConstants;
+import org.aksw.sparqlify.core.algorithms.GeneratorBlacklist;
 import org.aksw.sparqlify.util.SparqlifyUtils;
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -38,18 +38,27 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.sdb.core.Generator;
+import com.hp.hpl.jena.sdb.core.Gensym;
 import com.hp.hpl.jena.sparql.algebra.Algebra;
 import com.hp.hpl.jena.sparql.algebra.Op;
 import com.hp.hpl.jena.sparql.algebra.op.OpFilter;
 import com.hp.hpl.jena.sparql.algebra.op.OpProject;
 import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern;
+import com.hp.hpl.jena.sparql.core.BasicPattern;
 import com.hp.hpl.jena.sparql.core.Quad;
+import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.sparql.expr.E_Equals;
 import com.hp.hpl.jena.sparql.expr.ExprList;
+import com.hp.hpl.jena.sparql.expr.ExprVar;
 import com.hp.hpl.jena.sparql.syntax.Element;
+import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
+import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
+import com.hp.hpl.jena.sparql.syntax.PatternVars;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Map1;
 
@@ -89,6 +98,21 @@ class QueryExecutionUtils {
 		return result;
 	}
 }
+
+class PathCallbackList
+	implements PathCallback
+{
+	private List<Path> candidates = new ArrayList<Path>();
+	
+	@Override
+	public void handle(Path path) {
+		candidates.add(path);
+	}
+	
+	public List<Path> getCandidates() {
+		return candidates;
+	}
+};
 
 
 /**
@@ -185,6 +209,9 @@ class PathConstraint {
 		else if(element instanceof ElementGroup) {
 			collectQuads((ElementGroup)element, context, result);
 		}
+		else if(element instanceof ElementPathBlock) {
+			collectQuads((ElementPathBlock)element, context, result);
+		}
 		else {
 			logger.warn("Omitting unsupported element type: " + element.getClass() + " - " + element);
 		}
@@ -205,6 +232,22 @@ class PathConstraint {
 		}
 	}
 
+	public static void collectQuads(ElementPathBlock element, Context context, List<Quad> result) {
+		Node graphNode = context.getGraphNode();
+		
+		for(TriplePath triplePath : element.getPattern().getList()) {
+			Triple triple = triplePath.asTriple();
+			
+			if(triple == null) {
+				logger.warn("Omitted non-simple triple");
+			}
+			
+			Quad quad = new Quad(graphNode, triple);
+			result.add(quad);
+		}
+	}
+
+	
 	public static void getPathConstraints(OpProject op) {
 		
 	}
@@ -260,7 +303,7 @@ class PathConstraint {
 		return result;
 	}
 
-	public static void getPathConstraintsSimple(Concept concept) {
+	public static Concept getPathConstraintsSimple(Concept concept) {
 		Model model = ModelFactory.createDefaultModel();
 
 
@@ -275,18 +318,37 @@ class PathConstraint {
 		}
 		
 	
-		Node s = createVarUri(concept.getVar());
-		Resource start = model.asRDFNode(s).asResource();
+		//Node s = createVarUri(concept.getVar());
+		//Resource start = model.asRDFNode(s).asResource();
 		
 		Set<Triple> result = new HashSet<Triple>();
-		createQuery(model, start, VocabPath.start, result);
+		createQueryForward(model, concept.getVar(), VocabPath.start, result);
+		createQueryBackward(model, concept.getVar(), VocabPath.start, result);
 		
-		System.out.println(result);
+		BasicPattern bgp = BasicPattern.wrap(new ArrayList<Triple>(result));
+		ElementTriplesBlock triplesBlock = new ElementTriplesBlock(bgp); 
+		
+		Concept c = new Concept(triplesBlock, concept.getVar());
+		
+		
+		System.out.println("Path query is: " + c);
+		
+		return c;
 	}
 
 
-	public static void createQuery(Model model, Resource startR, Resource start, Set<Triple> result) {
-		Set<Statement> succs = model.listStatements(startR, null, (RDFNode)null).toSet();
+	public static void createQueryForward(Model model, Node node, Resource res, Set<Triple> result) {
+		Node n;
+		if(node.isVariable()) {
+			n = createVarUri((Var)node);
+		} else {
+			n = node;
+		}
+		
+		Resource r = model.asRDFNode(n).asResource();
+
+		
+		Set<Statement> succs = model.listStatements(r, null, (RDFNode)null).toSet();
 
 		
 		for(Statement stmt : succs) {
@@ -298,23 +360,33 @@ class PathConstraint {
 			Property p = stmt.getPredicate();
 			Resource o = oo.asResource();
 		
-			Triple t = new Triple(start.asNode(), VocabPath.connectsTo.asNode(), p.asNode());
+			Triple t = new Triple(node, VocabPath.connectsTo.asNode(), p.asNode());
 			if(!result.contains(t)) {			
 				result.add(t);
-				createQuery(model, o, p.asResource(), result);
+				createQueryForward(model, o.asNode(), p.asResource(), result);
 			}
 		}
+	}		
+	
+	public static void createQueryBackward(Model model, Node node, Resource res, Set<Triple> result) {
+		Node n;
+		if(node.isVariable()) {
+			n = createVarUri((Var)node);
+		} else {
+			n = node;
+		}
 		
-		
-		Set<Statement> preds = model.listStatements(null, null, startR).toSet();
+		Resource r = model.asRDFNode(n).asResource();
+
+		Set<Statement> preds = model.listStatements(null, null, r).toSet();
 		for(Statement stmt : preds) {
 			Resource s = stmt.getSubject();
 			Property p = stmt.getPredicate();
 		
-			Triple t = new Triple(p.asNode(), VocabPath.connectsTo.asNode(), start.asNode());
+			Triple t = new Triple(p.asNode(), VocabPath.connectsTo.asNode(), node);
 			if(!result.contains(t)) {
 				result.add(t);
-				createQuery(model, s, p.asResource(), result);
+				createQueryBackward(model, s.asNode(), p.asResource(), result);
 			}
 		}
 	}
@@ -327,19 +399,29 @@ public class Main {
 	
 	public static void main(String[] args) throws IOException, SQLException {
 		QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://localhost:8810/sparql", "http://fp7-pp.publicdata.eu/");
-		
-		String queryStr = "Select Distinct ?x ?y { ?a ?x ?b . ?b ?y ?c }";
-		QueryExecution qe = qef.createQueryExecution(queryStr);
-		ResultSet rs = qe.execSelect();
-		
+				
 
 		Concept sourceConcept = Concept.create("?s a <http://fp7-pp.publicdata.eu/ontology/Project>", "s");
 		System.out.println(sourceConcept);
 
-		Concept targetConcept = Concept.create("?s <http://www.w3.org/2003/01/geo/wgs84_pos#long> ?lon ; <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ?lat", "s");
-		System.out.println(targetConcept);
+		Concept tmpTargetConcept = Concept.create("?s <http://www.w3.org/2003/01/geo/wgs84_pos#long> ?lon ; <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ?lat", "s");
+	
+		findPaths(qef, sourceConcept, tmpTargetConcept);
+	}
+	
+	public static List<Path> findPaths(QueryExecutionFactory qef, Concept sourceConcept, Concept tmpTargetConcept)
+	{
+		String queryStr = "Select Distinct ?x ?y { ?a ?x ?b . ?b ?y ?c }";
+		QueryExecution qe = qef.createQueryExecution(queryStr);
+		ResultSet rs = qe.execSelect();
 
-		PathConstraint.getPathConstraints(targetConcept);
+		
+		Concept targetConcept = tmpTargetConcept.makeDistinctFrom(sourceConcept);
+		
+		System.out.println("Distinguished target concept: " + targetConcept);
+		
+
+		PathConstraint.getPathConstraintsSimple(targetConcept);
 		
 		//UndirectedGraph<String, EdgeTransition> transitionGraph = new SimpleGraph<String, EdgeTransition>(EdgeTransition.class);
 
@@ -395,27 +477,23 @@ public class Main {
 		// Select ?s { ?s connectsTo ?prop1 . ?prop1 connectsTo ?foo }
 		// In other words: we take the target concept, extract all quads
 		
-		String test = "Prefix o:<http://foo.bar/> Prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> Select ?s { ?s o:connectsTo geo:long ; o:connectsTo geo:lat }";
+		//String test = "Prefix o:<http://foo.bar/> Prefix geo:<http://www.w3.org/2003/01/geo/wgs84_pos#> Select ?s { ?s o:connectsTo geo:long ; o:connectsTo geo:lat }";
 
-		Query query = QueryFactory.create(test);
-		List<Node> candidates = QueryExecutionUtils.executeList(qefMeta, query);
-		System.out.println(candidates);
+		Concept targetCandidateConcept = PathConstraint.getPathConstraintsSimple(targetConcept);
+		Query targetCandidateQuery = targetCandidateConcept.asQuery();
+		
+		//Query query = QueryFactory.create(test);
+		List<Node> candidates = QueryExecutionUtils.executeList(qefMeta, targetCandidateQuery);
+		System.out.println("Candidates: " + candidates);
 
 		
 		// Now that we know the candidates, we can start with out breath first search
 		
-		DataSource ds = BreathFirstTask.createDb();
+		//DataSource ds = BreathFirstTask.createDb();
 		
 		
-		PathCallback callback = new PathCallback() {
+		PathCallbackList callback = new PathCallbackList();
 
-			@Override
-			public void handle(Path path) {
-				System.out.println("Got path" + path);
-			}
-			
-		};
-		
 		for(Node candidate : candidates) {
 			Resource dest = transitionModel.asRDFNode(candidate).asResource();
 			
@@ -423,65 +501,61 @@ public class Main {
 			
 			NeighborProvider<Resource> np = new NeighborProviderModel(transitionModel);
 
-			//BreathFirstTask.run(np, VocabPath.start, dest, new ArrayList<Step>(), callback);
+			BreathFirstTask.run(np, VocabPath.start, dest, new ArrayList<Step>(), callback);
+			//BreathFirstTask.runFoo(np, VocabPath.start, dest, new ArrayList<Step>(), new ArrayList<Step>(), callback);
 		}
+		
+		
+		List<Path> paths = callback.getCandidates();
+		
+		// Cross check whether the path actually connects the source and target concepts
+		Set<String> varNames = new HashSet<String>();
+		varNames.addAll(VarUtils.getVarNames(PatternVars.vars(sourceConcept.getElement())));
+		varNames.addAll(VarUtils.getVarNames(PatternVars.vars(targetConcept.getElement())));
+		
+		Generator generator = GeneratorBlacklist.create(Gensym.create("v"), varNames);
+		
+		List<Path> result = new ArrayList<Path>();
+		
+		for(Path path : paths) {
+			List<Element> pathElements = Path.pathToElements(path, sourceConcept.getVar(), targetConcept.getVar(), generator);
+			
+			List<Element> tmp = new ArrayList<Element>();
+			tmp.addAll(sourceConcept.getElements());
+			tmp.addAll(targetConcept.getElements());
+			tmp.addAll(pathElements);
+
+			if(pathElements.isEmpty()) {
+				if(!sourceConcept.getVar().equals(targetConcept.getVar())) {
+					tmp.add(new ElementFilter(new E_Equals(new ExprVar(sourceConcept.getVar()), new ExprVar(targetConcept.getVar()))));
+				}
+			}
+
+			ElementGroup group = new ElementGroup();
+			for(Element t : tmp) {
+				group.addElement(t);
+			}
+			
+			Query query = new Query();
+			query.setQueryAskType();
+			query.setQueryPattern(group);
+			
+			System.out.println(query);
+			
+			QueryExecution xqe = qef.createQueryExecution(query);
+			boolean isCandidate = xqe.execAsk();
+			System.out.println("Ask result: " + isCandidate);
+			
+			if(isCandidate) {
+				result.add(path);
+			}
+		}
+		
+		return result;
 	}
 	
 }
 
-
-class Step {
-	private String propertyName;
-	private boolean isInverse; // Follow property in inverse direction if true
-
-	public Step(String propertyName, boolean isInverse) {
-		this.propertyName = propertyName;
-		this.isInverse = isInverse;
-	}
-
-	public String getPropertyName() {
-		return propertyName;
-	}
-
-	public boolean isInverse() {
-		return isInverse;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (isInverse ? 1231 : 1237);
-		result = prime * result
-				+ ((propertyName == null) ? 0 : propertyName.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Step other = (Step) obj;
-		if (isInverse != other.isInverse)
-			return false;
-		if (propertyName == null) {
-			if (other.propertyName != null)
-				return false;
-		} else if (!propertyName.equals(other.propertyName))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Step [propertyName=" + propertyName + ", isInverse="
-				+ isInverse + "]";
-	}
-}
 
 class Map1StatementToSubject
 	implements Map1<Statement, Resource>
@@ -500,59 +574,6 @@ class Map1StatementToObject
 		return stmt.getObject().asResource();
 	}	
 }
-
-class Path {
-	private List<Step> steps;
-	
-	public Path() {
-		this(new ArrayList<Step>());
-	}
-	
-	public Path(List<Step> steps) {
-		this.steps = steps;
-	}
-
-	public List<Step> getSteps() {
-		return steps;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((steps == null) ? 0 : steps.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Path other = (Path) obj;
-		if (steps == null) {
-			if (other.steps != null)
-				return false;
-		} else if (!steps.equals(other.steps))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Path [steps=" + steps + "]";
-	}
-	
-}
-
-interface PathCallback {
-	void handle(Path path);
-}
-
-
 
 // TODO Don't like this right now: The iterator should return steps I guess....
 interface NeighborProvider<T> {
@@ -621,6 +642,7 @@ class BreathFirstTask {
 	{
 	}
 
+
 	public static ExtendedIterator<Resource> createForwardIterator(Model model, Resource start) {
 		// For the current resource, get all possible outgoing paths
 		ExtendedIterator<Statement> itTmp = model.listStatements(start, VocabPath.connectsTo, (RDFNode)null);
@@ -628,7 +650,8 @@ class BreathFirstTask {
 		
 		return result;
 	}
-	
+
+
 	public static ExtendedIterator<Resource> createBackwardIterator(Model model, Resource start) {
 		// For the current resource, get all possible outgoing paths
 		ExtendedIterator<Statement> itTmp = model.listStatements(null, VocabPath.connectsTo, start);
@@ -637,7 +660,39 @@ class BreathFirstTask {
 		return result;
 	}
 	
-	public static void run(NeighborProvider<Resource> np, Resource start, Resource dest, List<Step> startSteps, List<Step> destSteps, PathCallback callback) {
+	public static void run(NeighborProvider<Resource> np, Resource start, Resource dest, List<Step> steps, PathCallback callback) {
+		
+		if(start.equals(dest)) {
+			// emit empty path
+			callback.handle(new Path(steps));
+			return;
+		}
+
+		if(steps.size() > 10) {
+			return;
+		}
+
+		// Note: There is 2x2 possibilities per step:
+		// .) we move forward from the source / backward from the dest
+		// .) we move backward from the source / forward to the dest
+		
+		
+		// The decision on whether to start from the front or the back can depend on which node leads to
+		// fewer options
+		Set<Resource> succs = np.getSuccessors(start).toSet();
+		for(Resource succ : succs) {
+			List<Step> tmp = new ArrayList<Step>(steps);
+			
+			Step s = new Step(succ.getURI(), false);
+			tmp.add(s);
+			
+			run(np, succ, dest, tmp, callback);
+		}
+
+	}
+
+
+	public static void runFoo(NeighborProvider<Resource> np, Resource start, Resource dest, List<Step> startSteps, List<Step> destSteps, PathCallback callback) {
 		
 		List<Step> steps = null;
 		
@@ -662,6 +717,8 @@ class BreathFirstTask {
 
 		
 		if(preds.size() < succs.size()) {
+			
+			
 			
 		}
 		

@@ -60,6 +60,9 @@
 
 		$(document).ready(function() {
 			
+			$('#myModal').modal();
+			
+			
 			var layoutUtils = Namespace('org.aksw.utils.layout');
 			
 			$('.portlet-header').disableSelection();
@@ -74,8 +77,11 @@
 					var str
 						= '<div class="navbar-inner" style="min-height:20px; height:20px; position:relative;">'
 						+ '<a href="#" class="brand" style="font-size:14px; padding-top: 0px; padding-bottom: 0px;" />'
-						+ '<a href="#" class="toggle-minimized" style="position: absolute; top: 4px; right: 10px;">'
+						+ '<a href="#" class="toggle-minimized" style="position: absolute; top: 4px; right: 20px;">'
 						+ '<i class="icon-minus-sign" />'
+						+ '</a>'
+						+ '<a href="#" class="toggle-context-help" style="position: absolute; top: 4px; right: 5px;" data-title="Popover" data-content="Content" data-trigger="click" data-placement="bottom" rel="popover">'
+						+ '<i class="icon-info-sign" />'
 						+ '</a>'
 						//+ this.nodeValue.text()
 						+ '</div>';
@@ -136,6 +142,54 @@
 				*/
 			});
 
+			
+			// Source: http://stackoverflow.com/questions/11703093/how-to-dismiss-a-twitter-bootstrap-popover-by-clicking-outside
+			//var $poped = $('.toggle-context-help');
+//			$poped.popover();
+			
+// 			$poped.click(function() {
+// 				console.log('[TRACE] click event received');
+// 			});
+			
+			
+			// Trigger for the popover
+// 			$poped.each(function() {
+// 			    var $this = $(this);
+// 			    $this.on('hover',function() {
+// 			            var popover = $this.data('popover');
+// 			            var shown = popover && popover.tip().is(':visible');
+// 			            if(shown) return;        // Avoids flashing
+// 			            $this.popover('show');
+// 			    });
+// 			});
+
+			// Trigger for the hiding
+// 			 $('html').on('click.popover.data-api',function() {
+// 			    $poped.popover('hide');
+// 			});
+
+			
+			// http://stackoverflow.com/questions/17842121/hiding-bootstrap-popover-on-click-outside-popover
+			//var $popover = $('[data-toggle=popover]').popover();
+			
+			var popoverSelector = '[rel=popover]';
+			var $popover = $('[rel=popover]').popover();			
+
+			$(document).on("click", function (e) {
+                var $target = $(e.target);
+			    //var isPopover = $target.is(popoverSelector);
+			    var isPopover = $target.closest(popoverSelector).length > 0;
+			    var inPopover = $target.closest('.popover').length > 0;
+			    
+			    //console.log('state', isPopover, inPopover, $target);
+			    
+			    //hide only if clicked on button or inside popover
+			    if (!isPopover && !inPopover) {
+			    	$popover.popover('hide');
+			    }
+			});
+
+			
 			
 			//$('.portlet-content').autoHeight();
 
@@ -261,5 +315,30 @@
  		</div>
 		
     </div>
+    
+<!-- Modal -->
+  <div class="modal fade" style="left: 10%; width: 80%; margin: 0px" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Welcome to SemMap - A tool for exploring geographical datasets on the Web!</h4>
+        </div>
+        <div class="modal-body">
+          
+          
+          <img src="resources/images/facete-intro.png"></img>
+          
+          
+        </div>
+        <div class="modal-footer">
+        	<label style="display: inline"><input type="checkbox" /> Show this introduction on next visit</label>
+          <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
+<!--           <a href="#" class="btn btn-primary">Save changes</a> -->
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  
 </body>
 </html>

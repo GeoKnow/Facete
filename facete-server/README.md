@@ -1,3 +1,5 @@
+Example of the JSON object to be passed to the find finding rest service.
+
     {
         service: { 
             serviceIri: 'http://fp7-pp.publicdata.eu/sparql',

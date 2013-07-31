@@ -220,6 +220,58 @@ var SparqlBrowseModel = Backbone.Model.extend({
         return result;
     };
 
+    
+    ns.ConceptPathFinderApi = function(apiUrl, sparqlServiceIri, defaultGraphIris) {
+    	this.apiUrl = apiUrl;
+    	this.sparqlServiceIri = sparqlServiceIri;
+    	this.defaultGraphIris = defaultGraphIris;
+    };
+    
+    ns.ConceptPathFinderApi.prototype = {
+    		findPaths: function(sourceConcept, targetConcept) {
+    			
+    			var querySpec = {
+    					service: {
+    						serviceIri: this.sparqlServiceIri,
+    						defaultGraphIris: this.defaultGraphIris
+    					},
+    					sourceConcept: {
+    						elementStr: sourceConcept.getElement().toString(),
+    						varName: sourceConcept.getVar().value
+    					},
+    					targetConcept: {
+    						elementStr: targetConcept.getElement().toString(),
+    						varName: targetConcept.getVar().value
+    					}
+    			};
+    			
+    			var ajaxSpec = {
+    				url: this.apiUrl,
+    				dataType: 'json',
+    				data: {
+    					query: JSON.stringify(querySpec)
+    				}
+    			};
+
+    			console.log('[DEBUG] Path finding ajax spec', ajaxSpec);
+    			
+    			var result = $.ajax(ajaxSpec).pipe(function(pathStrs) {
+    				var result = [];
+    				
+    				for(var i = 0; i < pathStrs.length; ++i) {
+    					var pathStr = pathStrs[i];
+    					
+    					var path = facets.Path.fromString(pathStr);
+    					result.push(path);
+    				}
+    				
+    				return result;
+    			});
+    			
+    			return result;
+    		}
+    };
+    
 
 	/**
 	 * Initialize the user interface
@@ -638,7 +690,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				// NOTE sparqlService objects have a .getStateHash() method whose result is used as ID for models
 				// TODO How to use this cache properly: Should models be merged into this one or should objects be accessed via this collection?
 				sparqlServiceCaches: new Backbone.Collection(),
-				
+
+				conceptPathFinderApiUrl: config.conceptPathFinderApiUrl,
 				
 				/*
 				 * Services based on above properties
@@ -646,6 +699,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				sparqlService: null,
 				labelFetcher: null,
 				modelFacetUpdater: null,
+				conceptPathFinder: null,
 				i18n: null
 			}
 		});
@@ -845,12 +899,21 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				];
 
 			
+			var conceptPathFinderApiUrl = attrs.conceptPathFinderApiUrl;
+			
+			var conceptPathFinder = new ns.ConceptPathFinderApi(
+					conceptPathFinderApiUrl,
+					attrs.sparqlServiceIri,
+					attrs.sparqlDefaultGraphIris					
+			);
+			
 			this.set({
 				sparqlService: sparqlService,
 				labelFetcher: labelFetcher,
 				modelFacetUpdater: new facets.ModelFacetUpdater(facetProviders, attrs.concept, attrs.constraintCollection, sparqlService),
 				facetProviders: facetProviders,
-			    i18n: new utils.SpanI18n(labelFetcher)
+			    i18n: new utils.SpanI18n(labelFetcher),
+			    conceptPathFinder: conceptPathFinder
 			});
 		};
 		
@@ -1532,6 +1595,19 @@ var SparqlBrowseModel = Backbone.Model.extend({
     };
     
     
+    widgets.ViewSelect = Backbone.View.extend({
+    	initialize: function() {
+    		//this.
+    	},
+    	render: function() {
+    		
+    	},
+    	unrender: function() {
+    		
+    	}
+    });
+    
+    
     ns.createMapView = function(configModel) {		
 		
     	
@@ -1542,6 +1618,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var constraintCollection = configModel.get('constraintCollection');
     	var mapCollection = configModel.get('mapCollection');    	
 
+    	
+        	
+    	
     	
     	/*
     	var mapCollection = configModel.get('mapCollection');    	
@@ -1663,6 +1742,40 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		//console.log('BOOYA', state);
     	});
+    	
+
+    	/*
+    	var requireAttrs = function(model, attrs) {
+    		for(va)
+    	};
+    	*/
+    	
+    	/*
+    	 * Geo-Link detection
+    	 */
+    	dynamicMapModel.on('change', function() {
+    		var pathFinder = configModel.get('conceptPathFinder');
+
+    		var sourceConcept = this.get('concept');    		
+    		var geoConceptFactory = this.get('geoConceptFactory'); 
+
+    		if(!(pathFinder && sourceConcept && geoConceptFactory)) {
+    			console.log('[WARN] Prerequisites for path finding between concepts not met');
+    			return;
+    		}
+    		
+    		
+    		var targetConcept = geoConceptFactory.createConcept(null, null);
+    		
+    		var promise = pathFinder.findPaths(sourceConcept, targetConcept);
+    		
+    		promise.done(function(paths) {
+    			console.log("Got paths: " + paths);
+    		});
+    		
+    		//console.log("Path finder: ")
+    	});
+
     	
     	
     	var updateMapHint = function() {

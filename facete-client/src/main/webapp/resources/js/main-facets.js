@@ -723,7 +723,14 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 		var geoPath = facets.Path.fromString(geoPathStr);
 
+		
+		
+		/*
+		 * Geo PathFinding
+		 * 
+		 */
 		var geoPathCandidateCollection = configModel.get('geoPathCandidateCollection');
+		var mapCollection = configModel.get('mapCollection');
 		
 		var $elGeoLinkSelect = $('#geolink');
 		geoPathCandidateCollection.on('all', function() {
@@ -1306,7 +1313,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		});
 
 		
-		var mapCollection =  configModel.get('mapCollection');
+		var mapCollection = configModel.get('mapCollection');
 		var mapPlugin = new widgets.FacetTreeMapPlugin({
 			facetWidget: facetWidget,
 			collection: mapCollection
@@ -1647,6 +1654,37 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	}
     });
     
+
+
+    ns.createConcept = function(baseConcept, constraintCollection, rootFacetNode) {
+		var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
+
+		var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
+		//var hack = rootFacetFacadeNode.forPath(geoPath);
+		//hack.constraintManager = constraintManager; 
+						
+		var tmpConcept = rootFacetFacadeNode.createConcept();
+		var concept = facets.createCombinedConcept(baseConcept, tmpConcept);
+
+		return  concept;
+    };
+
+    /**
+     * TODO Hack. The geoConcept depends on the configuration i.e. the configModel
+     */
+    ns.createGeoConcept = function() {
+    	var path = new facets.Path();
+		var rootFacetNode = facets.FacetNode.createRoot("s");
+
+		var pathConstraintFactory = new facets.PathConstraintWgs84.Factory.create(path);
+		var geoConceptFactoryBase = new facets.GeoConceptFactory(rootFacetNode, pathConstraintFactory);		
+		
+		var result = geoConceptFactoryBase.createConcept(null, null);
+		
+		//var result = new facets.GeoConceptFactoryCombine(concept, geoConceptFactoryBase);
+		
+		return result;
+    };
     
     ns.createMapView = function(configModel) {		
 		
@@ -1804,20 +1842,28 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	/*
     	 * Geo-Link detection
     	 */
-    	dynamicMapModel.on('change', function() {
+    	var updateGeoPaths = function() {
     		var pathFinder = configModel.get('conceptPathFinder');
 
-    		var sourceConcept = this.get('concept');    		
-    		var geoConceptFactory = this.get('geoConceptFactoryBase'); 
-
-    		if(!(pathFinder && sourceConcept && geoConceptFactory)) {
+    		if(!(pathFinder)) { // && sourceConcept && geoConceptFactory)) {
     			console.log('[WARN] Prerequisites for path finding between concepts not met');
     			return;
     		}
+
+	    	var concept = configModel.get('concept');
+	    	var constraintCollection = configModel.get('constraintCollection');
+	    	
+	    	var rootFacetNode = configModel.get('rootFacetNode');
+
+    		var sourceConcept = ns.createConcept(concept, constraintCollection, rootFacetNode);
+    		var targetConcept = ns.createGeoConcept();
     		
+    		console.log("pathFinding sourceConcept: " + sourceConcept);
+    		console.log("pathFinding targetConcept: " + targetConcept);
     		
-    		var targetConcept = geoConceptFactory.createConcept(null, null);
-    		
+    		//var geoConceptFactory = this.get('geoConceptFactoryBase'); 
+
+
     		var promise = pathFinder.findPaths(sourceConcept, targetConcept);
     		
     		
@@ -1827,6 +1873,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			//console.log("The data I got for the paths is ", paths);
     			
     			var models = [];
+    			
+    			models.push({
+    				id: 'dummy',
+    				path: new facets.Path()
+    			});
+    			
     			for(var i = 0; i < paths.length; ++i) {
     				var path = paths[i];
     				
@@ -1883,8 +1935,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		});
     		
     		//console.log("Path finder: ")
-    	});
+    	};
 
+		constraintCollection.on('add remove reset', updateGeoPaths); 
+		updateGeoPaths();
     	
     	
     	var updateMapHint = function() {

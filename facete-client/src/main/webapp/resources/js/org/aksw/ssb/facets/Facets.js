@@ -450,6 +450,8 @@
 			}
 		});
 		
+		//console.log("Steps for pathStr " + pathStr + " is ", steps);
+		
 		var result = new ns.Path(steps);
 		
 		return result;
@@ -457,7 +459,8 @@
 	
 	ns.Path.prototype = {
 		toString: function() {
-			return this.steps.join(" ");		
+			var result = this.steps.join(" ");
+			return result;
 		},	
 	
 		concat: function(other) {

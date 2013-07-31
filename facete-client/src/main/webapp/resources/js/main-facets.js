@@ -261,6 +261,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     				for(var i = 0; i < pathStrs.length; ++i) {
     					var pathStr = pathStrs[i];
     					
+    					console.log("pathStr is", pathStr);
+    					
     					var path = facets.Path.fromString(pathStr);
     					result.push(path);
     				}
@@ -686,6 +688,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				// Map collection is the collection of paths added to the map
 				mapCollection: new facets.CollectionColumns(),
 		
+				geoPathCandidateCollection: new Backbone.Collection(), // TODO Create something more specific
+				
 				// a collection that contains models for endpoint specific data
 				// NOTE sparqlService objects have a .getStateHash() method whose result is used as ID for models
 				// TODO How to use this cache properly: Should models be merged into this one or should objects be accessed via this collection?
@@ -704,7 +708,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			}
 		});
 
-		
+
 		
 		var configModel = new ConfigModel();
 
@@ -719,6 +723,40 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 		var geoPath = facets.Path.fromString(geoPathStr);
 
+		var geoPathCandidateCollection = configModel.get('geoPathCandidateCollection');
+		
+		var $elGeoLinkSelect = $('#geolink');
+		geoPathCandidateCollection.on('all', function() {
+			
+			$elGeoLinkSelect.empty();
+			
+			this.each(function(model) {
+				var id = model.id;
+				var path = model.get('path');				
+				
+				var n = path.getSteps().length;
+				
+				$elGeoLinkSelect.append('<option value="' + id + '">' + n + ': ' + path + '</option>');	
+			});
+			
+		});
+
+		$elGeoLinkSelect.on('change', function() {
+			//var id = $elGeoLinkSelect.attr('value');
+			var id = $elGeoLinkSelect.val();
+			
+			//alert(id);
+			
+			var model = geoPathCandidateCollection.get(id);
+			var path = model.get('path');
+			
+			//alert(path);
+			// TODO Set selected state
+			//alert(val);
+			mapCollection.reset();
+			mapCollection.add(model.attributes);
+		});
+		
 		
 		// Initialize the user interface
 		// TODO Move to a different place
@@ -816,6 +854,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
                 $(window).width() // whole screen width
                 - 220             // minus width of left sidebar
             );
+
+            //$.trigger(window, '')
         });
         
         
@@ -1619,6 +1659,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var mapCollection = configModel.get('mapCollection');    	
 
     	
+    	
+    	var geoPathCandidateCollection = configModel.get('geoPathCandidateCollection');
         	
     	
     	
@@ -1643,6 +1685,13 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		});
 
 		
+		/*
+		 * TODO Hack for resizing the map...
+		 * TODO Get rid of this 
+		 */
+		constraintCollection.on('all', function() {
+			mapView.getMap().updateSize();
+		});
 		
 		
 		/*
@@ -1750,6 +1799,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	};
     	*/
     	
+    	
+    	
     	/*
     	 * Geo-Link detection
     	 */
@@ -1757,7 +1808,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		var pathFinder = configModel.get('conceptPathFinder');
 
     		var sourceConcept = this.get('concept');    		
-    		var geoConceptFactory = this.get('geoConceptFactory'); 
+    		var geoConceptFactory = this.get('geoConceptFactoryBase'); 
 
     		if(!(pathFinder && sourceConcept && geoConceptFactory)) {
     			console.log('[WARN] Prerequisites for path finding between concepts not met');
@@ -1769,8 +1820,66 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		var promise = pathFinder.findPaths(sourceConcept, targetConcept);
     		
+    		
+    		geoPathCandidateCollection.reset();
+    		
     		promise.done(function(paths) {
-    			console.log("Got paths: " + paths);
+    			//console.log("The data I got for the paths is ", paths);
+    			
+    			var models = [];
+    			for(var i = 0; i < paths.length; ++i) {
+    				var path = paths[i];
+    				
+    				var pathStr = '' + path;
+    				var id = pathStr !== '' ? pathStr : 'e';
+    				
+    				if(id === 'e') {
+    					console.log('Path is now ' + path, path);
+    				}
+    				
+    				var model = {
+    						id: id,
+    						path: path
+    						//value: path // TODO: Replace the URIs with labels!
+    				};
+    				
+    				//console.log("Path is " + path);
+    				models.push(model);
+    			}
+    			
+    			models.sort(function(ma, mb) {
+    				//console.log("MAMB", ma, mb);
+    				
+    				var a = ma.path; //ma.get('value');
+    				var b = mb.path; //mb.get('value');
+    				
+    				var m = a.getSteps().length;
+    				var n = b.getSteps().length;
+    				var result = m - n;
+    				
+    				if(result === 0) {
+    					var aStr = "" + a;
+    					var bStr = "" + b;
+    					
+    					result = aStr.localeCompare(bStr);
+    					
+    					/*
+    					if(aStr < bStr) {
+    						result = -1;
+    					}
+    					else if (bStr > aStr) {
+    						result = 1;
+    					}
+    					else {
+    						result = 0;
+    					}*/
+    				}
+    			
+    				return result;
+    			})
+    			
+    			geoPathCandidateCollection.add(models);
+    			//console.log("Got paths: " + paths);
     		});
     		
     		//console.log("Path finder: ")
@@ -1985,6 +2094,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					geomPosFetcher: geomPosFetcher,
 					
 					concept: concept,
+					geoConceptFactoryBase: geoConceptFactoryBase,
 					geoConceptFactory: geoConceptFactory,
 					globalItemData: {geoPath: geoPath}
 				});

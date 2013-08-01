@@ -20,14 +20,20 @@
 	 * sparqlProxyParamName:  The query string parameter name to be used
 	 *                        in proxy requests
 	 */
-	config.sparqlServiceIri = "http://localhost:8810/sparql";	
-	config.sparqlDefaultGraphIris = ['http://localhost/hotels'];
+	config.sparqlServiceIri = 'http://fp7-pp.publicdata.eu/sparql';	
+	config.sparqlDefaultGraphIris = ['http://fp7-pp.publicdata.eu/'];
 
-	
+
+    // First proxy Iri is for the PHP proxy, second for the Tomcat version	
 	config.sparqlProxyServiceIri = "resources/lib/SparqlProxyPHP/current/sparql-proxy.php";
+	config.sparqlProxyServiceIri = 'api/sparql-proxy';
+
 	config.sparqlProxyParamName = "service-uri";	
 
 	config.preferredLanguages = ['de', 'en', ''];
+
+	config.conceptPathFinderApiUrl = "api/path-finding";
+
 	
 	/*
 	 * IGNORE EVERYTHING BELOW FOR NOW 

@@ -374,7 +374,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Welcome to SemMap - A tool for exploring geographical datasets on the Web!</h4>
+          <h4 class="modal-title">Welcome to SemMap - A tool for exploring (geographical) Linked Data datasets on the Web.</h4>
         </div>
         <div class="modal-body">
           

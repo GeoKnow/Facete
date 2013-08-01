@@ -82,7 +82,7 @@
 			$introScreen.on('hidden.bs.modal', function () {
 				
 				var isSuppressed = !($introScreenCheckbox.is(':checked'));
-				console.log('[DEBUG] Store data updated to ', isSuppressed);
+				//console.log('[DEBUG] Store data updated to ', isSuppressed);
 
 				store.set(suppressIntroScreenKey, '' + isSuppressed);	
 
@@ -99,7 +99,7 @@
 			
 			store.get(suppressIntroScreenKey, function(ok, val) {
 				
-				console.log('[DEBUG] Store data: ', ok, val);
+				//console.log('[DEBUG] Store data: ', ok, val);
 				
 				var isVisible = (val != 'true');
 				$introScreenCheckbox.prop('checked', isVisible);

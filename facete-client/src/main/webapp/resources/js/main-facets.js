@@ -1293,7 +1293,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	
 		//console.log("FacetFacadeNode: ", rootFacetNode);
 		var rootFacetModel = new facets.ModelFacetNode({
-			facetNode: rootFacetNode,
+			facetNode: rootFacetNode
 		});
 		
 		// Controller for syncing the number of selected facets in the facet tree

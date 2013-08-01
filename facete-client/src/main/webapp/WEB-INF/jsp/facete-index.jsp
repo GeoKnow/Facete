@@ -43,9 +43,8 @@
         <!-- <script type="text/javascript" src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script> -->
 
 		<script type="text/javascript" src="resources/lib/doT/current/doT.js"></script>
-
         <script type="text/javascript" src="resources/lib/select2/3.4.0/select2.js"></script>
-
+        <script type="text/javascript" src="resources/lib/persist-js/0.1.0/persist.js"></script>
 
 
 	<!-- The actual spatial semantic browsing widgets -->
@@ -60,7 +59,56 @@
 
 		$(document).ready(function() {
 			
-			$('#myModal').modal();
+			var store = new Persist.Store('FaceteStore');
+			
+
+			
+			/*
+			 * Intro screen
+			 */
+			var suppressIntroScreenKey = 'suppressIntroScreen';
+
+			 
+			var $showIntroScreen = $('#show-intro-screen');
+			$showIntroScreen.click(function(ev) {
+				ev.preventDefault();
+				
+				$introScreen.modal();
+			});
+			 
+			var $introScreen = $('#myModal'); 			 
+			var $introScreenCheckbox = $('#introScreenCheckbox');
+			
+			$introScreen.on('hidden.bs.modal', function () {
+				
+				var isSuppressed = !($introScreenCheckbox.is(':checked'));
+				console.log('[DEBUG] Store data updated to ', isSuppressed);
+
+				store.set(suppressIntroScreenKey, '' + isSuppressed);	
+
+// 				if(isSuppressed) {
+// 					store.set(suppressIntroScreenKey, 'true');	
+// 				}
+// 				else {
+// 					store.remove(suppressIntroScreenKey);
+// 				}
+			});
+
+			
+			store.get(suppressIntroScreenKey, function(ok, val) {
+				
+				console.log('[DEBUG] Store data: ', ok, val);
+				
+				var isVisible = (val != 'true');
+				$introScreenCheckbox.prop('checked', isVisible);
+
+				if(isVisible) {
+					$introScreen.modal();
+				}
+			});
+
+			
+			
 			
 			
 			var layoutUtils = Namespace('org.aksw.utils.layout');
@@ -285,6 +333,8 @@
                                 <div class="portlet">
                                     <div class="portlet-header">Map</div>
                                     
+                                    <div id="mapNoticeArea"></div>
+                                    
                                     <table style="width: 100%">
                                     <tr><td style="width: 1px">Geo-Link:</td><td style="width:100%"><select id="geolink" style="width: 100%"></select></td></tr>
                                     </table>
@@ -332,7 +382,7 @@
           
         </div>
         <div class="modal-footer">
-        	<label style="display: inline"><input type="checkbox" /> Show this introduction on next visit</label>
+        	<label style="display: inline"><input id="introScreenCheckbox" type="checkbox" /> Show this introduction on next visit</label>
           <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
 <!--           <a href="#" class="btn btn-primary">Save changes</a> -->
         </div>

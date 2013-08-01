@@ -145,7 +145,7 @@
 	};
 	
 	ns.SparqlServiceHttp.prototype.executeAsk = function(query, ajaxOptions) {
-		return this.executeAny(query, ajaxOptions);
+		return this.executeAny(query, ajaxOptions).pipe(function(json) { return json['boolean']; });
 	};
 	
 	// TODO What to return: RdfJson vs RdfQuery

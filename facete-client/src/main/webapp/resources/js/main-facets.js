@@ -764,6 +764,30 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			mapCollection.add(model.attributes);
 		});
 		
+
+		
+		$mapNoticeArea = $('#mapNoticeArea');
+		configModel.on('change:sparqlService', function() {
+			var sparqlService = this.get('sparqlService');
+			
+			var geoConcept = ns.createGeoConcept();
+			var queryStr = 'Ask { ' + geoConcept.getElement() + ' }';
+		    //var queryFactory = ns.createQueryFactoryConcept(geoConcept);
+		    //var query = queryFactory.createQuery();
+
+		    var promise = sparqlService.executeAsk(queryStr);
+		    promise.done(function(data) {
+		    	
+		    	//alert('data' + JSON.stringify(data));
+		    	var content = '';
+		    	if(!data) {
+		    		content = 'This dataset does not contain geographic data';
+		    	}
+	    		$mapNoticeArea.html(content);
+		    });
+			
+		});
+
 		
 		// Initialize the user interface
 		// TODO Move to a different place

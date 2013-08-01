@@ -92,6 +92,8 @@
 // 				else {
 // 					store.remove(suppressIntroScreenKey);
 // 				}
+
+				$introScreen.css('display', 'none');
 			});
 
 			
@@ -367,7 +369,7 @@
     </div>
     
 <!-- Modal -->
-  <div class="modal fade" style="left: 10%; width: 80%; margin: 0px" id="myModal">
+  <div class="modal fade" style="display: none; left: 10%; width: 80%; margin: 0px" id="myModal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

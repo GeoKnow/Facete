@@ -54,9 +54,10 @@ Although the client is functional without any configuration (you can e.g. set wh
 Now adjust the settings in `facete-config.js` as needed according to the comments in that file, for example:
 
 
-    config.sparqlServiceIri = "http://localhost:8810/sparql";
+    config.sparqlServiceIri = 'http://fp7-pp.publicdata.eu/sparql';
     config.sparqlDefaultGraphIris = ['http://fp7-pp.publicdata.eu/'];
-    config.sparqlProxyServiceIri = "lib/SparqlProxyPHP/current/sparql-proxy.php";
+    config.sparqlProxyServiceIri = 'lib/SparqlProxyPHP/current/sparql-proxy.php'; // For PHP-based proxying
+    config.sparqlProxyServiceIri = 'api/sparql-proxy'; // For Java-based proxying (intended for inside the Tomcat container)
 
 
 ### facete-server
@@ -65,6 +66,8 @@ Currently some settings can be adjusted via the the index.php.
 
 
 ## Building a WAR for Facete
+IMPORTANT: Make sure to have `facete-config.js` and `facete-index.properties` configured appropriately, as these files will become part of the .war file.
+
 
     # Under <repository-root>
     mvn clean install
@@ -85,6 +88,8 @@ Currently some settings can be adjusted via the the index.php.
     # Under <repository-root>/facete-server
     mvn clean tomcat7:redeploy
 
+
+Facete should now run under `http://localhost:8080/facete-server/welcome.do`.
 
 
 ### Tomcat Quick Installation Guide (for Debian/Ubuntu)

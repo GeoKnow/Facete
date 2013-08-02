@@ -93,16 +93,16 @@ IMPORTANT: Make sure to have `facete-config.js` and `facete-index.properties` co
     mvn clean tomcat7:redeploy
 
 
-Facete should now run under `http://localhost:8080/facete-server/welcome.do`.
+Facete should now run under <http://localhost:8080/facete-server/welcome.do>.
 
 
 ### Tomcat Quick Installation Guide (for Debian/Ubuntu)
 The following steps will get you going with a working Tomcat. Use at your own risk.
 
 
-Install Tomcat
+Install Tomcat (and of course maven)
 
-    sudo apt-get install tomcat7 tomcat7-admin
+    sudo apt-get install tomcat7 tomcat7-admin maven
 
 Configure a tomcat user: 
 

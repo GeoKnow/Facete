@@ -59,6 +59,10 @@ Now adjust the settings in `facete-config.js` as needed according to the comment
     config.sparqlProxyServiceIri = 'lib/SparqlProxyPHP/current/sparql-proxy.php'; // For PHP-based proxying
     config.sparqlProxyServiceIri = 'api/sparql-proxy'; // For Java-based proxying (intended for inside the Tomcat container)
 
+Note to Tenforce: Activate the appropriate theme by adjusting `facete-index.properties`:
+
+    facete.themePath=facete-themes/odp3
+
 
 ### facete-server
 TO BE DONE

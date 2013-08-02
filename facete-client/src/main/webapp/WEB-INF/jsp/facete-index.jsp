@@ -127,9 +127,9 @@
 					var str
 						= '<div class="navbar-inner" style="min-height:20px; height:20px; position:relative;">'
 						+ '<a href="#" class="brand" style="font-size:14px; padding-top: 0px; padding-bottom: 0px;" />'
-						+ '<a href="#" class="toggle-minimized" style="position: absolute; top: 4px; right: 20px;">'
-						+ '<i class="icon-minus-sign" />'
-						+ '</a>'
+// 						+ '<a href="#" class="toggle-minimized" style="position: absolute; top: 4px; right: 20px;">'
+// 						+ '<i class="icon-minus-sign" />'
+// 						+ '</a>'
 						+ '<a href="#" class="toggle-context-help" style="position: absolute; top: 4px; right: 5px;" data-title="Popover" data-content="Content" data-trigger="click" data-placement="bottom" rel="popover">'
 						+ '<i class="icon-info-sign" />'
 						+ '</a>'
@@ -218,12 +218,54 @@
 // 			    $poped.popover('hide');
 // 			});
 
+			var popoverTexts = {
+				'facetView': 'This view shows the properties of all items matching your current filter selection. Click the down arrow to view the sub-properties. Click the name of aproperty to show its values. Click the right arrow icon that appears on hover to add the values of the porperty as a column to the table view.',
+				'facetValuesView': 'This view shows the values of any property previously selected in the facet view. Click the check box to filter the items accordingly.',
+				'filterView': 'This view shows a summary of the filters that are in place. Click a filter to remove it. Click "Clear all" to remove all filters.',
+				'tableView': 'This view shows the table in regard to properties that were attached to the table and set filters.',
+				'mapView': 'This view shows a map. If there is data to be displayed on the map, then appropriate selections will be available in the geo-link drop down.',
+				'detailView': 'If there are markers on the map, upon clicking one, details about it will be shown here.'
+			};
+			
 			
 			// http://stackoverflow.com/questions/17842121/hiding-bootstrap-popover-on-click-outside-popover
 			//var $popover = $('[data-toggle=popover]').popover();
 			
 			var popoverSelector = '[rel=popover]';
-			var $popover = $('[rel=popover]').popover();			
+			var $popover = $('[rel=popover]').popover({
+				html: true, 
+				title: function() {
+					var $this = $(this);
+					
+					var $parent = $this.closest('.portlet-header').find('.brand');
+					var result = 'Quick help for ' + $parent.html(); 
+					
+					return result;
+				},
+				content: function() {
+					var $this = $(this);
+					
+					var $parent = $this.closest('.portlet');
+					// TODO Catch the case if there is no portlet ... if(!)
+					
+					var classNames = $parent.attr('class').split(/\s+/);
+					
+					console.log('Class names: ', classNames);
+					
+					var result = "We are sorry, but there is no help text available :/";
+					for(var i = 0; i < classNames.length; ++i) {
+						var className = classNames[i];
+						
+						var text = popoverTexts[className];
+						if(text) {
+							result = text;
+							break;
+						}
+					}
+					
+					return result;
+				}
+			});			
 
 			$(document).on("click", function (e) {
                 var $target = $(e.target);
@@ -286,7 +328,7 @@
 			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;">
 		
 <!-- 				<div class="portlet-group ui-sortable">  row-fluid -->
-					<div class="portlet">
+					<div class="portlet facetView">
 						<div class="portlet-header">Facets</div>
 						<div class="portlet-content"> <!-- min-height: 300px;  -->
 <!-- 							<div style="overflow:auto;">				 -->
@@ -295,7 +337,7 @@
 						</div>
 					</div>
 	
-					<div class="portlet">
+					<div class="portlet facetValuesView">
 						<div class="portlet-header">Facet Values</div>				
 		                <div id="facetValues" class="portlet-content"></div>
 					</div>
@@ -317,7 +359,7 @@
                             
                             <!-- Left side (Table View) -->
                             <td id="css-index-mainTable-leftSide">
-                                <div class="portlet">
+                                <div class="portlet tableView">
                                     <div class="portlet-header">Table View</div>
                                         <div id="instances" class="portlet-content"></div>
             <!-- 						<div class="portlet-content" style="overflow: auto;")> -->
@@ -332,7 +374,7 @@
                             
                             <!-- Right side (Map and Detail View) -->
                             <td id="css-index-mainTable-rightSide">
-                                <div class="portlet">
+                                <div class="portlet mapView">
                                     <div class="portlet-header">Map</div>
                                     
                                     <div id="mapNoticeArea"></div>
@@ -347,7 +389,7 @@
                                     </div>
                                 </div>			
 
-                                <div class="portlet">
+                                <div class="portlet detailView">
                                     <div class="portlet-header">Detail view</div>
                                     <div id="detailViewState"></div>
                                     <div id="detailView" class="portlet-content"></div>

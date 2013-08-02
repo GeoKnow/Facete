@@ -64,6 +64,82 @@ TO BE DONE
 Currently some settings can be adjusted via the the index.php.
 
 
+## Building a WAR for Facete
+
+    # Under <repository-root>
+    mvn clean install
+
+    # Afterwards, run this:
+    cd facete-server
+    mvn clean war:war
+
+    # The result artifact is now under <module-root>/target/facete-server-<version>.war
+    targetFile=`ls -1 target | grep 'facete-server.*\.war'`
+
+    # Do something with the target file...
+
+
+    # Note: If you set up tomcat and maven according to the quick guide below,
+    # you can deploy to tomcat directly using
+
+    # Under <repository-root>/facete-server
+    mvn clean tomcat7:redeploy
+
+
+
+### Tomcat Quick Installation Guide (for Debian/Ubuntu)
+The following steps will get you going with a working Tomcat. Use at your own risk.
+
+
+Install Tomcat
+
+    sudo apt-get install tomcat7 tomcat7-admin
+
+Configure a tomcat user: 
+
+    /etc/tomcat7/tomcat-users.xml
+
+    <tomcat-users>
+        <!-- Add and adjust the following snipped to this section. -->
+
+        <role rolename="admin-gui"/>
+        <role rolename="admin-script"/>
+
+        <role rolename="manager-gui"/>
+        <role rolename="manager-script"/>
+
+        <user username="username" password="password" roles="manager-gui,manager-script,admin-gui,admin-script"/>
+
+
+    </tomcat-users>
+
+Configure Maven to know the password
+
+Edit 
+
+    ~/.m2/settings.xml
+
+Note: The file may not exist yet.
+
+    <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsichemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          http://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <servers>
+                    <server>
+                            <!-- Note: The id must match one of those declared in the pom.xml (tomcat-localhost is defined) -->
+                            <!-- I do not understand why maven does not allow to configure the server's URL here :s -->
+
+                            <id>tomcat-localhost</id>
+                            <!-- Note: username and password must match that of the tomcat user -->
+                            <username>username</username>
+                            <password>password</password>
+                    </server>
+            </servers>
+
+    </settings>
+
+
 
 ## Licence
 The source code of this repo is published under the [Apache License Version 2.0](LICENSE)

@@ -1338,10 +1338,14 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		
 		var mapCollection = configModel.get('mapCollection');
-		var mapPlugin = new widgets.FacetTreeMapPlugin({
-			facetWidget: facetWidget,
-			collection: mapCollection
-		});
+
+		var enableGlobePlugin = false;
+		if(enableGlobePlugin) {
+			var mapPlugin = new widgets.FacetTreeMapPlugin({
+				facetWidget: facetWidget,
+				collection: mapCollection
+			});
+		}
 		
 //		var cherryPickCollection = new facets.CollectionColumns(); //configModel.get('mapCollection');
 //		var cherryPickPlugin = new widgets.FacetTreeCherryPickPlugin({

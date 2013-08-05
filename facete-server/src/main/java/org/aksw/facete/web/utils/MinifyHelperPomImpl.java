@@ -52,7 +52,7 @@ public class MinifyHelperPomImpl
 	
 	// TODO Get this from the pom
 	//private String webappDir = "src/main/webapp";
-	private String webappDir = "resources";
+	private String webappDir = ""; //resources";
 	
 	public MinifyHelperPomImpl(Configuration config, boolean isDebugEnabled) {
 		this.config = config;
@@ -62,7 +62,8 @@ public class MinifyHelperPomImpl
 	public String createCssIncludeStr() {
 		List<String> paths = config.getCssSourceFiles().getParam();
 
-		String prefix = webappDir + "/" + config.getCssSourceDir() + "/";
+		//String prefix = webappDir + "/" + config.getCssSourceDir() + "/";
+		String prefix = webappDir + config.getCssSourceDir();
 
 		Iterable<String> fullPaths = Iterables.transform(paths, FunctionSurround.create(prefix, null));
 		
@@ -74,7 +75,8 @@ public class MinifyHelperPomImpl
 	public String createJsIncludeStr() {
 		List<String> paths = config.getJsSourceFiles().getParam();
 
-		String prefix = webappDir + "/" + config.getJsSourceDir() + "/";
+		//String prefix = webappDir + "/" + config.getJsSourceDir() + "/";
+		String prefix = webappDir + config.getJsSourceDir();
 
 		Iterable<String> fullPaths = Iterables.transform(paths, FunctionSurround.create(prefix, null));
 		

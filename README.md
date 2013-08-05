@@ -92,6 +92,8 @@ IMPORTANT: Make sure to have `facete-config.js` and `facete-index.properties` co
     # Under <repository-root>/facete-server
     mvn clean tomcat7:redeploy
 
+    # Note, that you can overwrite the tomcat-server-id and tomcat-deploy-url attributes:
+    mvn tomcat7:redeploy -Dtomcat-server-id=tomcat-demo -Dtomcat-deploy-url=http://demo.host.com:8080/manager/text
 
 Facete should now run under <http://localhost:8080/facete-server/welcome.do>.
 

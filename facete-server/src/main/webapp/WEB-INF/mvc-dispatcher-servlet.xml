@@ -13,6 +13,7 @@
 	<mvc:annotation-driven />
 	<mvc:resources mapping="/resources/**" location="/resources/" />
 
+
 	<bean id="viewResolver1"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 <!-- 		<property name="viewClass"><value>org.springframework.web.servlet.view.JstlView</value></property> -->
@@ -20,6 +21,7 @@
 		<property name="suffix"><value>.jsp</value></property>
 	</bean>
 
+<!-- 	<mvc:view-controller path="/" view-name="welcome.do"/> -->
 
 
 

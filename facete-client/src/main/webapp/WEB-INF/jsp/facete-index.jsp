@@ -13,7 +13,7 @@
 		<link rel="stylesheet" type="text/css" href="resources/lib/Font-Awesome/current/css/font-awesome-ie7.css" />
 		<![endif]-->
 		${cssIncludes}
-        <link rel="stylesheet" type="text/css" href="resources/lib/select2/3.3.2/select2.css" />
+        <link rel="stylesheet" type="text/css" href="resources/lib/select2/3.4.1/select2.css" />
         <link rel="stylesheet" type="text/css" href="resources/lib/jquery-ui/1.10.2/themes/base/jquery-ui.css" />    
 
 

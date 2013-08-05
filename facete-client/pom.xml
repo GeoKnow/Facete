@@ -33,14 +33,14 @@
 						<phase>process-resources</phase>
 
 						<configuration>
-							<jsSourceDir>js</jsSourceDir>
-							<cssSourceDir>css</cssSourceDir>
+							<jsSourceDir>resources/js/</jsSourceDir>
+							<cssSourceDir>resources/css/</cssSourceDir>
 
 							<!-- Note: The extra 'webapp' dir is simply there to put target and 
 								src on the same level of nesting, so that relative paths to resouces work 
 								either way -->
-							<jsTargetDir>webapp/js</jsTargetDir>
-							<cssTargetDir>webapp/css</cssTargetDir>
+							<jsTargetDir>webapp/resources/js/</jsTargetDir>
+							<cssTargetDir>webapp/resources/css/</cssTargetDir>
 
 							<cssSourceFiles>
 								<!-- <param>lib/twitter-bootstrap/2.0.3/css/bootstrap.min.css</param> -->

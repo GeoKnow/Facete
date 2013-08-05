@@ -13,6 +13,13 @@
 -->
 <urlrewrite>
 
+	<!-- TODO HACK, It feels like a hack having to rely on URL rewriting for -->
+	<!-- accomplishing a welcome page, but at least it works :/ -->
+	<rule>
+		<from>^/$</from>
+		<to>/welcome.do</to>
+	</rule>
+
 	<rule>
 		<from>^/resources/lib/SparqlProxyPHP/current/sparql-proxy.php</from>
 		<to>/api/sparql-proxy</to>	

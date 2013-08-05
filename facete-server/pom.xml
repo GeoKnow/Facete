@@ -14,18 +14,30 @@
 	<description>Server component of Facete</description>
 	<packaging>war</packaging>
 
-	<profiles>
-		<profile>
-			<id>tomcat-localhost</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<tomcat-server>tomcat-localhost</tomcat-server>
-				<tomcat-url>http://localhost:8080/manager/text</tomcat-url>
-			</properties>
-		</profile>
-	</profiles>
+	<properties>
+		<tomcat-server-id>tomcat-localhost</tomcat-server-id>
+		<tomcat-deploy-url>http://localhost:8080/manager/text</tomcat-deploy-url>
+	</properties>
+
+	<!-- <profiles> -->
+	<!-- <profile> -->
+	<!-- <id>tomcat7-localhost</id> -->
+	<!-- <activation> -->
+	<!-- <activeByDefault>true</activeByDefault> -->
+	<!-- </activation> -->
+	<!-- <properties> -->
+	<!-- <tomcat-server-id>tomcat-localhost</tomcat-server-id> -->
+	<!-- <tomcat-deploy-url>http://localhost:8080/manager/text</tomcat-deploy-url> -->
+	<!-- </properties> -->
+	<!-- </profile> -->
+	<!-- <profile> -->
+	<!-- <id>tomcat6-localhost</id> -->
+	<!-- <properties> -->
+	<!-- <tomcat-server-id>tomcat6-localhost</tomcat-server-id> -->
+	<!-- <tomcat-deploy-url>http://localhost:8080/manager</tomcat-deploy-url> -->
+	<!-- </properties> -->
+	<!-- </profile> -->
+	<!-- </profiles> -->
 
 	<build>
 		<!-- finalName>facete-server</finalName -->
@@ -78,8 +90,8 @@
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.1</version>
 				<configuration>
-					<server>${tomcat-server}</server>
-					<url>${tomcat-url}</url>
+					<server>${tomcat-server-id}</server>
+					<url>${tomcat-deploy-url}</url>
 				</configuration>
 			</plugin>
 
@@ -130,14 +142,14 @@
 		</dependency>
 
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.aksw.jena-sparql-api</groupId> -->
-<!-- 			<artifactId>jena-sparql-api-core</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.aksw.jena-sparql-api</groupId> -->
-<!-- 			<artifactId>jena-sparql-api-server</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
+		<!-- <artifactId>jena-sparql-api-core</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
+		<!-- <artifactId>jena-sparql-api-server</artifactId> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>org.aksw.sparqlify</groupId>
@@ -166,10 +178,10 @@
 		<!-- </dependency> -->
 
 		<!-- Open CSV -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>net.sf.opencsv</groupId> -->
-<!-- 			<artifactId>opencsv</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>net.sf.opencsv</groupId> -->
+		<!-- <artifactId>opencsv</artifactId> -->
+		<!-- </dependency> -->
 
 
 		<!-- Logging -->

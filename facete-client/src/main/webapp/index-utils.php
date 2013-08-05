@@ -23,7 +23,7 @@ function getStringFromXml($xml, $xpath) {
 function getWebappDir($pomXml) {
     //return "src/main/webapp";
     //return ".";
-    return "resources/";
+    return ""; //"resources/";
 }
 
 function getJsSourceDir($pomXml) {
@@ -45,7 +45,7 @@ function getJsSourceFiles() {
 
     $webappDir = getWebappDir($pomXml);
     $jsSourceDir = getJsSourceDir($pomXml);
-    $prefix = $webappDir . "/" . $jsSourceDir . "/";
+    $prefix = $webappDir . $jsSourceDir;
     $result = addPrefix($prefix, $fileNames);
 
     return $result;
@@ -59,7 +59,8 @@ function getCssSourceFiles() {
 
     $webappDir = getWebappDir($pomXml);
     $cssSourceDir = getCssSourceDir($pomXml);
-    $prefix = $webappDir . "/" . $cssSourceDir . "/";
+#    $prefix = $webappDir . "/" . $cssSourceDir . "/";
+    $prefix = $webappDir . $cssSourceDir;
     $result = addPrefix($prefix, $fileNames);
 
     return $result;

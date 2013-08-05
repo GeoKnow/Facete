@@ -367,21 +367,38 @@
 				});
 
 				//var header = $('<div style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
-				var header = $('<div class="facete-table-header" />');//' style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
+				
+				
+				//var header = $('<div class="facete-table-header" />');//' style="background-color:#F0F0F0; bottom: 0px; padding: 3px; margin: 0px;" />');
+				var header = $('<table class="facete-table-header" />');
 				container.append(header);
+
+				var $tr = $('<tr />');
+				header.append($tr);
+				
+				var $col1 = $('<td />');
+				var $col2 = $('<td style="width: 70px; text-align: right" />');
+				var $col3 = $('<td style="width: 1px; align: right" />');
+				
+				$tr.append($col1);
+				$tr.append($col2);
+				$tr.append($col3);
 				
 				var titleView = new TitleView({model: models.model});
-				header.append(titleView.render().el);
+				//header.append(titleView.render().el);
+				//col1.append(titleView.render().el)
 
 			
 				//header.append($('<span>Filter:</span>'));
-				header.append($().ssb.searchBox(models.searchModel).render().el);
+				$col1.append($().ssb.searchBox(models.searchModel).render().el);
 				
 				
-				
+
+				$col2.append('Max Rows:');
 				// Items per page (ipp) switcher
 				var $elIpp = $('<select class="facete-table-limit"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="75">75</option><option value="100">100</option></select>');
-				header.append($elIpp);
+				//header.append($elIpp);
+				$col3.append($elIpp);
 				
 				
 				

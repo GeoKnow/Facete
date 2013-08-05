@@ -15,7 +15,7 @@ html, body {
 	min-height: 100%;
 }
 
-.filler::after {
+.filler-left::after {
     background-color: inherit;
     bottom: 0;
     content: "";
@@ -27,6 +27,52 @@ html, body {
     top: 140px;
     width: inherit;
     z-index: -5;  
+}
+
+.filler-right::after {
+    background-color: inherit;
+    bottom: 0;
+    content: "";
+    right: 0;
+    position: absolute;
+
+	/* Note: This overlaps with the config area. The hacky solution
+    is to use another background for the config area with a higher z-index */
+    top: 140px;
+    width: inherit;
+    z-index: -5;  
+}
+
+
+.layout-table {
+	width: 100%;
+	min-height: 100%;
+	border:none;
+	border-collapse: collapse;
+}
+
+.layout-table > tbody > tr > td {
+	padding: 0px;
+	border-left: 5px solid #1c3048;
+	border-right: 5px solid #1c3048;
+	vertical-align: top;
+}
+
+/* .layout-table td:first-child { */
+/* 	border-left: none; */
+/* } */
+
+/* .layout-table td:last-child { */
+/* 	border-right: none; */
+/* } */
+
+.section-heading {
+	width: 100%;
+	background-color: #1c3048;
+	font-weight: bold;
+	font-size: large;
+	color: white;
+	padding-left: 5px;
 }
 
 div.framed {
@@ -101,6 +147,7 @@ a {
 }
 
 .facete-table-header {
+	width: 100%;
 	margin-bottom: 5px;
 }
 
@@ -115,11 +162,13 @@ a {
 	margin: 5px 0px;
 }
 
+
 .facete-table-limit {
-	position: absolute;
-	right: 0px;
+/* 	position: absolute; */
+/* 	right: 0px; */
 	width: 70px;
 	height: 30px;
+	margin: 0px;
 }
 
 .portlet ul {
@@ -379,16 +428,17 @@ div.inline {
 /**
  * FACETE-INDEX.jsp > MAIN TABLE 
  */
-#css-index-mainTable
-{
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
+/* #css-index-mainTable */
+/* { */
+/*     width: 100%; */
+/*     min-width: 100%; */
+/*     max-width: 100%; */
     
-    padding: 0px;
+/*     padding: 0px; */
     
-    margin: 0px;
-}
+/*     margin: 0px; */
+/* } */
+
 
 #css-index-mainTable-leftSide
 {

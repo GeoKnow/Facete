@@ -43,7 +43,7 @@
         <!-- <script type="text/javascript" src="lib/open-layers/2.10/extensions/OpenStreetMap/OpenStreetMap.js"></script> -->
 
 		<script type="text/javascript" src="resources/lib/doT/current/doT.js"></script>
-        <script type="text/javascript" src="resources/lib/select2/3.4.0/select2.js"></script>
+        <script type="text/javascript" src="resources/lib/select2/3.4.1/select2.js"></script>
         <script type="text/javascript" src="resources/lib/persist-js/0.1.0/persist.js"></script>
 
 
@@ -308,9 +308,10 @@
 			<div id="div-settings" class="row-fluid" style="display: none">
 				<form>
 <!-- 					<label><input type="radio" name="group1" checked="checked"/>Global</label> -->
-					<div class="service-config"></div>
-					<div class="inline">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 300px;"></div>
-	    			<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 600px;"></div>
+					<div class="service-config">
+						<div class="inline">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 300px;"></div>
+	    				<div class="inline">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 300px;"></div>
+	    			</div>
 					<br class="clearBoth" />
 					<hr />
 <!-- 					<label><input type="radio" name="group1" />Level of Detail</label> -->
@@ -323,9 +324,13 @@
 		
 <!-- 		<br class="clearBoth" style="width:0px; height: 0px;" /> -->
 		<div class="clearfix"></div>				
-		<div class="row-fluid" id="css-index-mainContainer" style="overflow: visible;">
+		<div class="row-fluid fill" id="css-index-mainContainer" style="overflow: visible;">
 		
-			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;">
+<!-- 			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;"> -->
+<table class="layout-table">
+<tr>
+<td style="border-left:none; width: 25%; max-width: 400px; background-color:#E9EFF3;">
+				<div class="section-heading">1. Selection</div>
 		
 <!-- 				<div class="portlet-group ui-sortable">  row-fluid -->
 					<div class="portlet facetView">
@@ -349,16 +354,21 @@
 		                <div id="constraints" class="portlet-content"></div>
 					</div>
 
-			</div>
-			
-			<div class="span9" style="margin-left: 5px; margin-top: 3px;">
-				<div class="portlet-group ui-sortable">
+<!-- 			</div> -->
+	
+</td>
+<td style="width: 35%;">		
+<!-- 			<div class="span4" style="margin-left: 5px; margin-top: 3px;"> -->
+
+<!-- 				<div class="portlet-group ui-sortable"> -->
             
-                    <table id="css-index-mainTable">
-                        <tr>
+<!--                     <table id="css-index-mainTable" style="width: 100%"> -->
+<!--                         <tr> -->
                             
-                            <!-- Left side (Table View) -->
-                            <td id="css-index-mainTable-leftSide">
+<!--                             Left side (Table View) -->
+<!--                             <td id="css-index-mainTable-leftSide" style="vertical-align: top"> -->
+                            	<div class="section-heading">2. Data</div>
+                            
                                 <div class="portlet tableView">
                                     <div class="portlet-header">Table View</div>
                                         <div id="instances" class="portlet-content"></div>
@@ -369,11 +379,20 @@
                     <!--                 <a style="display:none" id="exportCsv" href="#">Export CSV</a> -->
                     <!--                 <a style="display:none" id="exportRdf" href="#">Export RDF</a> -->
                                 </div>
-                            </td>
+<!--                             </td> -->
+<!-- </div> -->
+
+
+</td>
+<td style="border-right: none; background-color:#E9EFF3; width: 40%;">
+
+<!-- 			<div class="span5 filler-right" style="margin-left: 5px; margin-top: 3px; background-color:#E9EFF3;"> -->
                             
                             
                             <!-- Right side (Map and Detail View) -->
-                            <td id="css-index-mainTable-rightSide">
+<!--                             <td id="css-index-mainTable-rightSide" class="filler-right"> -->
+                            	<div class="section-heading">3. Geographical</div>
+                            
                                 <div class="portlet mapView">
                                     <div class="portlet-header">Map</div>
                                     
@@ -394,21 +413,23 @@
                                     <div id="detailViewState"></div>
                                     <div id="detailView" class="portlet-content"></div>
                                 </div>
-                            </td>
+<!--                             </td> -->
                     
-                        </tr>
+<!--                         </tr> -->
                     
-                    </table>
+<!--                     </table> -->
 
-				</div>
-				
+<!-- 				</div> -->
+<!-- 				</div> -->
 		<!-- 		<div class="portlet-group ui-sortable row-fluid"> -->
 
-			</div>
+<!-- 			</div> -->
+</td>
+</table>
 
- 		</div>
+<!--  		</div> -->
 		
-    </div>
+<!--     </div> -->
     
 <!-- Modal -->
   <div class="modal fade" style="display: none; left: 10%; width: 80%; margin: 0px" id="myModal">

@@ -386,7 +386,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			var str = templateFn(data);
 						
 			var $el = $('#config-summary');
-			$el.html(str);
+			// TODO Settings update disabled!!!
+			//$el.html(str);
 		});
 		
 
@@ -688,6 +689,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				// Map collection is the collection of paths added to the map
 				mapCollection: new facets.CollectionColumns(),
 		
+				isGeoPathAutoMode: true, 
 				geoPathCandidateCollection: new Backbone.Collection(), // TODO Create something more specific
 				
 				// a collection that contains models for endpoint specific data
@@ -737,31 +739,100 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			
 			$elGeoLinkSelect.empty();
 			
+			// If we are on auto mode, set the first shortest path.
+			// Otherwise, check the entries that are in the mapCollection
+			var isGeoPathAutoMode = configModel.get('isGeoPathAutoMode');
+			var mapCollection = configModel.get('mapCollection');
+						
+			
+			$elGeoLinkSelect.append('<option value="disabled">Disabled</option>');
+			
+			var autoPath = null;
+			if(this.length > 0) {
+				autoPath = this.first().get('path');
+			}
+			
+			var pathStr = '' + autoPath;
+			if(pathStr === '') {
+				pathStr = 'empty path'
+			}
+			
+			var autoPathStr = autoPath ? 'Auto (' + pathStr + ')' : '(no path found)';
+			
+			var selectedStr = autoPath ? ' selected' : '';
+			$elGeoLinkSelect.append('<option value="auto"' + selectedStr + '>' + autoPathStr + '</option>');
+			
+			
 			this.each(function(model) {
 				var id = model.id;
 				var path = model.get('path');				
 				
 				var n = path.getSteps().length;
+			
 				
-				$elGeoLinkSelect.append('<option value="' + id + '">' + n + ': ' + path + '</option>');	
+				var selectedStr = mapCollection.get(id) ? ' selected' : '';
+				
+				$elGeoLinkSelect.append('<option value="' + id + '"' + selectedStr + '>' + n + ': ' + path + '</option>');	
 			});
 			
+			
+			if(autoPath) {
+				mapCollection.reset();
+				mapCollection.add({
+					id: '' + autoPath,
+					path: autoPath
+				});
+			}
 		});
 
 		$elGeoLinkSelect.on('change', function() {
 			//var id = $elGeoLinkSelect.attr('value');
 			var id = $elGeoLinkSelect.val();
+
 			
+			var isGeoPathAutoMode = configModel.get('isGeoPathAutoMode');
+			var mapCollection = configModel.get('mapCollection');
+
 			//alert(id);
 			
-			var model = geoPathCandidateCollection.get(id);
-			var path = model.get('path');
+			
+			var path = null;
+			if(id === 'disabled') {
+				configModel.set({isGeoPathAutoMode: false});
+			}
+			else if(id === 'auto') {
+				configModel.set({isGeoPathAutoMode: true});
+				
+				var tmp = geoPathCandidateCollection.first();
+				if(tmp) {
+					path = tmp.get('path');
+				}
+			} else {
+				configModel.set({isGeoPathAutoMode: false});
+				
+				var model = geoPathCandidateCollection.get(id);
+				if(!model) {
+					console.log('[WARN] Model expected for id ' + id + ', but none found');
+					return;
+				} else {
+					path = model.get('path');
+				}
+			}
+			
+
+			mapCollection.reset();
+			if(path) {
+				var data = {
+						id: '' + path,
+						path: path
+				};
+				
+				mapCollection.add(data);				
+			}
 			
 			//alert(path);
 			// TODO Set selected state
 			//alert(val);
-			mapCollection.reset();
-			mapCollection.add(model.attributes);
 		});
 		
 
@@ -1902,10 +1973,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			
     			var models = [];
     			
-    			models.push({
-    				id: 'dummy',
-    				path: new facets.Path()
-    			});
+//    			models.push({
+//    				id: 'disabled',
+//    				path: null
+//    			});
+//    			
+//    			models.push({
+//    				id: 'auto'
+//    			});
+    			
     			
     			for(var i = 0; i < paths.length; ++i) {
     				var path = paths[i];

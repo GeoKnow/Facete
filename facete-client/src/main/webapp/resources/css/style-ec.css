@@ -216,27 +216,30 @@ ul.menu li {
 
 .header .logo{
 	padding: 0px 0 0 0px;
-	max-width: 183px;
-	width: 30%;
+	width: 660px;
+/* 	max-width: 183px; */ /* Undo changes from Tim ~ Claus */
+/* 	width: 30%; */
 	height: 88px;
 }
 
-.header .logo-big {
-	padding: 0px 0 0 0px;
-	max-width: 500px;
-	width: 80%;
-	height: 88px;
-}
+/* Undo changes from Tim ~ Claus */
+/* .header .logo-big { */
+/* 	padding: 0px 0 0 0px; */
+/* 	max-width: 500px; */
+/* 	width: 80%; */
+/* 	height: 88px; */
+/* } */
 
 .header .logo img{
 	margin-top:-4px;
-	width: 100%;
+/* 	width: 100%; */ /* Undo changes from Tim ~ Claus */
 }
 
-.header .logo-big img{
-	margin-top:-4px;
-	width: 100%;
-}
+/* Undo changes from Tim ~ Claus */
+/* .header .logo-big img{ */
+/* 	margin-top:-4px; */
+/* 	width: 100%; */
+/* } */
 
 #header-title{
 	/*position: absolute;*/
@@ -285,7 +288,8 @@ ul.menu li {
 
 #header-menu{
 	float: right;
-	padding:0 10px 4px 50%;
+	padding:0 10px 4px 400px;
+/* 	padding:0 10px 4px 50%; */ /* Undo changes from Tim ~ Claus */
 	/* 400px; */
 	position: relative;
     background: url("../images/ec/languagebar.png") no-repeat scroll right top #FFFFFF;
@@ -355,21 +359,22 @@ ul.menu li {
 	margin: 0;
 }
 
-.span8 {
-	width: 600px;
-}
+/* WTF... Who the heck overwrote the bootstrap classes... define your own... stupid hacks everywhere... */
+/* .span8 { */
+/* 	width: 600px; */
+/* } */
 
 
-.span6 {
-	width: 494px;
-	float:left;
-	margin-bottom:50px;
-}
+/* .span6 { */
+/* 	width: 494px; */
+/* 	float:left; */
+/* 	margin-bottom:50px; */
+/* } */
 
-.span4 {
-	width: 300px;
-	float: right;
-}
+/* .span4 { */
+/* 	width: 300px; */
+/* 	float: right; */
+/* } */
 
 .container .menu .menu {
 	margin: 0;

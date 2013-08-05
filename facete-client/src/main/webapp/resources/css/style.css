@@ -278,10 +278,12 @@ ul .facet {
 
 /**
  * Hack that Karel suggested - for fixing a layout problem where everything is in the wrong place
+ *
+ * Disabled. Causes the overflow hidden prevents e.g. some popovers from being shown ~ Claus 
  */
-body > .container > .row-fluid:last-child {
-    overflow: hidden !important;
-}
+/* body > .container > .row-fluid:last-child { */
+/*     overflow: hidden !important; */
+/* } */
 
 /*
  * Make checkboxes smaller. This is not cross browser compatible,

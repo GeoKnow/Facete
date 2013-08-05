@@ -250,7 +250,7 @@
 					
 					var classNames = $parent.attr('class').split(/\s+/);
 					
-					console.log('Class names: ', classNames);
+					//console.log('Class names: ', classNames);
 					
 					var result = "We are sorry, but there is no help text available :/";
 					for(var i = 0; i < classNames.length; ++i) {
@@ -265,7 +265,12 @@
 					
 					return result;
 				}
-			});			
+			});
+
+			$popover.on('click', function(ev) {
+				ev.preventDefault();
+				//return true;
+			});
 
 			$(document).on("click", function (e) {
                 var $target = $(e.target);
@@ -329,7 +334,7 @@
 <!-- 			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;"> -->
 <table class="layout-table">
 <tr>
-<td style="border-left:none; width: 25%; max-width: 400px; background-color:#E9EFF3;">
+<td style="border-left:none; width: 20%; background-color:#E9EFF3;">
 				<div class="section-heading">1. Selection</div>
 		
 <!-- 				<div class="portlet-group ui-sortable">  row-fluid -->
@@ -348,12 +353,14 @@
 					</div>
 <!-- 				</div> -->
 
-					<div class="portlet">
+					<div class="portlet filterView">
 						<div class="portlet-header">Filters</div>				
 		                <button id="facete-clear-filters" type="submit" class="btn btn-default">Clear filters</button>
 		                <div id="constraints" class="portlet-content"></div>
 					</div>
 
+					<!-- A dummy div to use more space, so that the popover of the last portlet is correctly shown -->
+					<div style="width: 100%; height: 150px"></div>
 <!-- 			</div> -->
 	
 </td>

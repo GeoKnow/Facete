@@ -15,8 +15,13 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<tomcat-server-id>tomcat-localhost</tomcat-server-id>
-		<tomcat-deploy-url>http://localhost:8080/manager/text</tomcat-deploy-url>
+		<tomcat.server-id>tomcat-localhost</tomcat.server-id>
+
+                <tomcat6.server-id>${tomcat.server-id}</tomcat6.server-id>
+		<tomcat6.deploy-url>http://localhost:8080/manager</tomcat6.deploy-url>
+
+                <tomcat7.server-id>${tomcat.server-id}</tomcat7.server-id>
+		<tomcat7.deploy-url>http://localhost:8080/manager/text</tomcat7.deploy-url>
 	</properties>
 
 	<!-- <profiles> -->
@@ -85,13 +90,24 @@
 				<extensions>true</extensions> <configuration> <descriptor>src/assemble/merge.xml</descriptor> 
 				</configuration> </plugin> -->
 
+                        <plugin>
+                                <groupId>org.apache.tomcat.maven</groupId>
+                                <artifactId>tomcat6-maven-plugin</artifactId>
+                                <version>2.1</version>
+                                <configuration>
+                                        <server>${tomcat6.server-id}</server>
+                                        <url>${tomcat6.deploy-url}</url>
+                                </configuration>
+                        </plugin>
+
+
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.1</version>
 				<configuration>
-					<server>${tomcat-server-id}</server>
-					<url>${tomcat-deploy-url}</url>
+					<server>${tomcat7.server-id}</server>
+					<url>${tomcat7.deploy-url}</url>
 				</configuration>
 			</plugin>
 

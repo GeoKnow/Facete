@@ -24,9 +24,10 @@
 	config.sparqlDefaultGraphIris = ['http://fp7-pp.publicdata.eu/'];
 
 
-    // First proxy Iri is for the PHP proxy, second for the Tomcat version	
+	// First proxy Iri is for the PHP proxy, second for the Tomcat version
+        // NOTE: Facete server now internally rewrites the sparql-php.php to the second one.
 	config.sparqlProxyServiceIri = "resources/lib/SparqlProxyPHP/current/sparql-proxy.php";
-	config.sparqlProxyServiceIri = 'api/sparql-proxy';
+	// config.sparqlProxyServiceIri = 'api/sparql-proxy';
 
 	config.sparqlProxyParamName = "service-uri";	
 

@@ -39,7 +39,7 @@ public class PathFindingApi {
 	public static CacheEx createCache() throws ClassNotFoundException, SQLException {
 
 		long timeToLive = 360l * 24l * 60l * 60l * 1000l; 
-        CacheCoreEx cacheBackend = CacheCoreH2.create("sparql", timeToLive, true);
+        CacheCoreEx cacheBackend = CacheCoreH2.create(true, "/tmp/facete-server/cache/sparql", "spar777ql", timeToLive, true);
         CacheEx cacheFrontend = new CacheExImpl(cacheBackend);
 
         return cacheFrontend;

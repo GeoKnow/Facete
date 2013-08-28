@@ -1004,9 +1004,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		
 		facetSelectionCollection.on('add remove reset', function() {
-			
-			
-			
+						
 			var collection = this;
 			
 			var facetNode = null;
@@ -1729,7 +1727,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var fnUpdateFacetValues = function() {
 
 			
-			
 			//console.log('fnUpdateFacetValues', this);
 			
 			var facetNode = this.facetNode;
@@ -1746,10 +1743,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					facingForward: true
 				});
 
+				tableModel.set({
+					queryFactory : null
+				});			
+
 				console.log('[WARN] FacetNode not set');
 				return;
 			}
-			
+
+
 			// TODO The root node should come from the facetNode!!!
 			// TODO Make a 1-line helper for these three lines
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
@@ -1783,6 +1785,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			controllerFacetValueEnricher.setFacetNode(facetNode);
 
+			
 			tableModel.set({
 				queryFactory : queryFactory
 			});			

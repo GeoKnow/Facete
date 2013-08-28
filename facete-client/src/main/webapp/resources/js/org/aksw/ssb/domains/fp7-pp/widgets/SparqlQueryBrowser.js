@@ -359,7 +359,7 @@
 					}),
 					
 					headRenderer: function(model) {
-						debugger;
+
 						var columnIds = model.get('columnIds');
 						var labelMap = model.get('labelMap');
 						

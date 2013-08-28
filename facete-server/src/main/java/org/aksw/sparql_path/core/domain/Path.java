@@ -1,8 +1,9 @@
-package org.aksw.sparql_path.core;
+package org.aksw.sparql_path.core.domain;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -10,6 +11,7 @@ import com.hp.hpl.jena.sdb.core.Generator;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.syntax.Element;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
+
 
 public class Path {
 	private List<Step> steps;

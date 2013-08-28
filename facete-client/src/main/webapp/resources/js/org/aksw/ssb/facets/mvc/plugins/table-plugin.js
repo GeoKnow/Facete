@@ -78,9 +78,11 @@
 			
 			//this.fnInstall = options.fnInstall;
 			
-			this.bind();			
+			this.bind();
+			
 			//this.rootNode = rootNode;
 		},
+		
 	
 		bind: function() {
 			////console.log("binding facet tree");
@@ -132,12 +134,61 @@
 			});
 		},
 		
-		install: function() {
+		install: function(viewItem) {
+			var options = this.options;
+
+			if(options) {
+				if(options.onInstall) {
+					options.onInstall.apply(this, arguments);
+				}
+			}			
+
 			//console.log("[Base Plugin] install");
-			////console.log("fuck", this);
 			//throw "This method should not be called";
+			
+			//this.onInstall(arguments);
 		}
 	});
+	
+	
+	
+	
+	ns.FacetTreeHighlightPlugin = ns.PluginFacetTree.extend({
+		
+		initialize: function() {
+			//console.log("[Toggle Plugin] initialize", this);
+			ns.PluginFacetTree.prototype.initialize.apply(this, arguments);
+			
+			var options = this.options;
+			if(!options.property) {
+				throw 'Property \'property\' must be set';
+			}
+			
+			this.property = options.property;
+		},
+
+		install: function(viewItem) {
+			ns.FacetTreeTogglePlugin.prototype.install.apply(this, arguments);
+			
+			var viewItemModel = viewItem.model;
+			var facetNode = viewItemModel.get('facetNode');
+			var path = facetNode.getPath();
+
+			var self = this;
+			var controllerModelSync = new ns.ControllerModelSync(
+					path,
+					viewItemModel,
+					this.property,
+					this.collection,
+					(function() {
+						return self.collection.containsPath(path);
+					})
+			);
+		}
+		
+	});
+	
+	
 	
 
 	ns.FacetTreeTogglePlugin = ns.PluginFacetTree.extend({
@@ -150,7 +201,6 @@
 		install: function(viewItem) {
 			//console.log("[Toggle Plugin] install");
 
-			ns.PluginFacetTree.prototype.install.apply(this, arguments);
 			
 			// The property whose state to toggle 
 			var property = this.property;
@@ -226,7 +276,20 @@
 
 			
 			var $elRemoveFromTable = viewItemDisable.render().$el;
-			$elPerma.append($elRemoveFromTable);			
+			$elPerma.append($elRemoveFromTable);
+			
+			
+			ns.PluginFacetTree.prototype.install.apply(this, arguments);
+
+			/*
+			var options = this.options;
+			
+			if(options) {
+				if(options.onInstall) {
+					options.onInstall.apply(this, arguments);
+				}
+			}
+			*/
 		}
 	});
 

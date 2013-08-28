@@ -1,4 +1,4 @@
-package org.aksw.sparql_path.core;
+package org.aksw.sparql_path.core.domain;
 
 public class Step {
 	private String propertyName;

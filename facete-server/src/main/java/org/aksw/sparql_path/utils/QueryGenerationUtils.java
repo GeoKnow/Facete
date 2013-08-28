@@ -1,9 +1,9 @@
-package org.aksw.sparql_path.core;
+package org.aksw.sparql_path.utils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.aksw.sparql_path.core.domain.Concept;
 import org.aksw.sparqlify.core.algorithms.GeneratorBlacklist;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -13,18 +13,6 @@ import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.syntax.Element;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.PatternVars;
-
-class VarUtils {
-	public static List<String> getVarNames(Collection<Var> vars) {
-		List<String> result = new ArrayList<String>();
-		
-		for(Var var : vars) {
-			result.add(var.getName());
-		}
-		
-		return result;
-	}
-}
 
 public class QueryGenerationUtils {
 	/**

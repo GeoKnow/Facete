@@ -140,7 +140,7 @@
                              var rendered = view.render();
                              td = rendered.el;
                          } else {
-                             td = $("<td />");
+                             td = $('<td />');
                          }
 
 						this.$el.append(td);                         
@@ -198,6 +198,7 @@
 			};
 			
 		
+			// TODO Replace with TableView2
 			var TableView = Backbone.View.extend({
 				tagName: 'table',
 				attributes: {
@@ -229,8 +230,8 @@
 					
 					var useThreePartTable = true;
 					if(useThreePartTable) {
-						this.thead = $("<thead />");
-						this.tbody = $("<tbody />");
+						this.thead = $('<thead />');
+						this.tbody = $('<tbody />');
 
 						this.$el.append(this.thead);
 						this.$el.append(this.tbody);
@@ -251,7 +252,7 @@
 			    },
 			    
 			    renderHeader: function() {
-			        var queryFactory = this.model.get("queryFactory");
+			        var queryFactory = this.model.get('queryFactory');
 			        if(!queryFactory) {
 			        	return;
 			        }
@@ -304,7 +305,6 @@
 
 			    	this.thead.append(tr);
 			    },
-			    
 			    addModel: function(model) {
 					var rowView = new RowView({
 						model: model,
@@ -323,24 +323,164 @@
 			    }
 			});
 
+
+			// Synchronize the SPARQL result set variables with the table headings model
+			var headCollection = new Backbone.Collection();
+			var headModel = new Backbone.Model({
+				id: 'head',
+				columnIds: [],
+				labelMap: {}
+			});
 			
+			headCollection.add(headModel);
+
+			
+			tableModel.on('change', function() {
+				var model = this;
+				var labelMap = model.get('labelMap');
+				
+				headModel.set({labelMap: labelMap});
+			});
 			
 			//var ViewTableClass = ViewTableCustom ? ViewTableCustom : TableView;
 
-			var tableView;
+			
+//			models.resultSet.on('add remove reset', function() {
+//				console.log('dammit', models.resultSet);
+//			});
+			
+			
+			var resultCollection = models.resultSet;
 			
 			var options = {
-					collection: models.resultSet, //browseConfig.collection,
-					model: tableModel
+					model: new widgets.TableModel2({
+						headCollection: headCollection,
+						bodyCollection: resultCollection
+					}),
+					
+					headRenderer: function(model) {
+						debugger;
+						var columnIds = model.get('columnIds');
+						var labelMap = model.get('labelMap');
+						
+						var result = [];
+						for(var i = 0; i < columnIds.length; ++i) {
+							var columnId = columnIds[i];
+							
+							var label = labelMap[columnId];
+							
+							if(!label && label !== 0) {
+								label = columnId;
+							}
+							
+							//result.push($('<th>' + label + '</th>'));
+							result.push($('<th>' + label + '</th>'));
+						}
+						
+						console.log('table heading', result, headCollection.length);
+						return result;
+						//return [$('<th>test</th>')];
+					},
+					
+					bodyRenderer: function(model) {
+						
+						var columnIds = headModel.get('columnIds');
+						//console.log('Invoked', columnIds, model);
+
+						var result = [];
+						for(var i = 0; i < columnIds.length; ++i) {
+							var columnId = columnIds[i];
+													
+							var item = model.get(columnId);
+
+							var text;
+							if(item) {
+								text = item.node.value;
+								
+								if(item.node.isUri()) {
+									text = '<span data-uri="' + text + '" />';
+								}
+							}
+							else {
+								text = '(null)';
+							}
+							
+							result.push($('<td>' + text + '</td>'));							
+						}
+						
+						return result;
+						
+						//console.log("Column Model: ", model);
+//						var result = getLabel(model, name);
+//						if (!result) {
+//							var item = model.get(name);
+//							if (item) {
+//								result = item.node.value;
+//							}
+//
+//							if (!result) {
+//								//console.log("Null column. Name, Model: ", name, JSON.stringify(model), model);
+//								
+//								//model.on('change', function() { alert("Model changed afterwards"); });
+//								
+//								result = "(null)";
+//							}
+//						}
+//						return result;
+					},
+					
+					//collection: models.resultSet, //browseConfig.collection,
+					//model: tableModel
+					
 					//options: { attributes: { style: "margin: 0px;" } }
 			};
 			
+			
+			var tableView;
 			if(tableViewFactory) {
 				tableView = tableViewFactory(options);
 			} else {
-				tableView = new TableView(options);				
+				tableView = new widgets.TableView2(options);				
 			}
 					
+			
+			
+			tableModel.on('change:queryFactory', function() {
+				var model = tableModel;
+				
+		        var queryFactory = model.get('queryFactory');
+		        if(!queryFactory) {
+		        	return;
+		        }
+		        
+		    	var query = queryFactory.createQuery();
+		    	if(!query) {
+		    	    return;
+		    	}
+		    			    	
+		    	var vars = query.projectVars.vars;
+		    	//console.log("Vars: ", vars);
+
+		    	var columnIds = [];
+		    	for(var i = 0; i < vars.length; ++i) {
+		    	    var v = vars[i];
+		    	    
+		    	    var varName = v.value;
+		    	    	
+		    	    columnIds.push(varName);
+		    	    //console.log("Creating column with " + v.value);
+		    	    //columns.push(createColumn(varName));
+		    	}
+
+		    	headModel.set({
+		    		columnIds: columnIds
+		    	});
+			});
+			
+			tableModel.trigger('change:queryFactory');
+			//tableModel.trigger('change:labelMap');
+			
+			
 				var el = tableView.render().el;
 		
 
@@ -404,7 +544,7 @@
 				
 				$elIpp.on('change', function() {
 					var val = $(this).val();
-					//console.log('Fuuuuu', this);
+
 					var itemsPerPage = parseInt(val);
 					tableModel.set('limit', itemsPerPage);
 					//this.val();
@@ -425,6 +565,8 @@
 				
 				footer.append($().ssb.paginator({model: models.paginatorModel}).render().el);
 
+				
+				return tableView;
 			};
 
 			

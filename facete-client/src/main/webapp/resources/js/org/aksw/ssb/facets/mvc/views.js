@@ -78,6 +78,17 @@
 	ns.ControllerModelSync.prototype = {
 		bind: function() {
 			this.stateCollection.on('add remove reset', this.updateModel);
+			
+			var property = this.targetProperty;
+			var self = this;
+			this.targetModel.on('change:' + property, function() {
+				var value = this.get(property);
+				if(value) {
+					self.stateCollection.addPath(self.path);
+				} else {
+					self.stateCollection.removePath(self.path);
+				}
+			});
 		},
 
 		updateModel: function() {
@@ -93,7 +104,111 @@
 	};
 	
 	
+	/**
+	 * 
+	 */
+	ns.TreeTable = Backbone.View.extend({
+		tagName: 'table',
+		attributes: {
+			'class': 'facet'
+		},
+		itemRenderer : widgets.facetItemRenderer
+	});
 	
+	
+	/**
+	 * - A TreeTableRow is backed by a model.
+	 * - One attribute of this model is the collection of children.
+	 * 
+	 * Each table row may have a set of child table rows.
+	 * 
+	 * 
+	 */
+	ns.TreeTableRow = Backbone.View.extend({
+		tagName : 'tr',
+		
+		initialize: function() {
+			var options = this.options;
+
+			var parent = options.parent;
+			var parentOptions = parent.options;
+			
+			var model = this.model;
+			
+			
+			// FIXME Make child attribute configurable
+			var children = model.get("children");
+			
+			
+			// If the child collection changes, add corresponding rows
+			var self = this;
+			
+			
+			children.on('add', function(model) {
+				var $tr = self.$el;
+				
+				
+				$child = renderChild(model);
+				
+				$tr.append($child);
+			});
+
+			
+			//var parentRow = this.options;
+			
+			//this.$el
+		},
+		
+		
+		expandChildren: function() {
+			// Source: http://stackoverflow.com/questions/5636375/how-to-create-a-collapsing-tree-table-in-html-css-js
+			//Gets all <tr>'s of greater depth below element in the table
+	        var findChildren = function (tr) {
+	            var depth = tr.data('depth');
+	            return tr.nextUntil($('tr').filter(function () {
+	                return $(this).data('depth') <= depth;
+	            }));
+	        };
+
+	        var el = $(this);
+	        var tr = el.closest('tr'); //Get <tr> parent of toggle button
+	        var children = findChildren(tr);
+
+	        //Remove already collapsed nodes from children so that we don't
+	        //make them visible. 
+	        //(Confused? Remove this code and close Item 2, close Item 1 
+	        //then open Item 1 again, then you will understand)
+	        var subnodes = children.filter('.expand');
+	        subnodes.each(function () {
+	            var subnode = $(this);
+	            var subnodeChildren = findChildren(subnode);
+	            children = children.not(subnodeChildren);
+	        });
+
+	        //Change icon and hide/show children
+	        if (tr.hasClass('collapse')) {
+	            tr.removeClass('collapse').addClass('expand');
+	            children.hide();
+	        } else {
+	            tr.removeClass('expand').addClass('collapse');
+	            children.show();
+	        }
+	        return children;
+		},
+		
+		render: function() {
+			var $el = this.$el;
+			
+			
+			return this;
+		},
+		
+		unrender: function() {
+			//this.subFacetWidget.unrender();
+			this.$el.remove();							
+		}
+
+	});
 	
 	
 
@@ -101,10 +216,29 @@
 				tagName : 'li',
 				
 				// Extension points: These selectors point to DOM elements which other plugins may use
-				permaAreaSelector: '> div > div.permaOptions',
-				hoverAreaSelector: '> div > div.hoverOptions',
+				permaAreaSelector: '> div > div > div.permaOptions',
+				hoverAreaSelector: '> div > div > div.hoverOptions',
 				collapseAreaSelector: 'not implemented yet',
 				
+				
+				getNestingLevel: function() {
+
+					//return this.subFacetWidget.options.nestingLevel;
+					
+					return this.options.parent.getNestingLevel(); //get('nestingLevel');
+					/*
+					var parent = this.options.parent;
+					
+					var result;
+					if(!parent) {
+						result = 0;
+					} else {
+						result = parent.getNestingLevel() + 1;
+					}
+					
+					return result;
+					*/ 
+				},
 				
 				// attributes: {style: 'float: left'},
 				initialize : function() {
@@ -122,13 +256,20 @@
 
 					/////this.collectionColumns = parentOptions.collectionColumns;
 					
+					
+					var parentNestingLevel = this.getNestingLevel();
+					
+					///console.log('parent level', parent.nestingLevel + 1, this);
+					
 					this.subFacetWidget = new widgets.ViewFacetTree({
 						collection: children,
 						//modelFacetUpdater: this.modelFacetUpdater,
-						fnUpdateFacets: this.fnUpdateFacets
+						fnUpdateFacets: this.fnUpdateFacets,
 						/////collectionColumns: this.collectionColumns
+						
+						nestingLevel: parentNestingLevel + 1
 					});
-					
+										
 					
 					var self = this;
 
@@ -145,10 +286,6 @@
 						p.trigger.apply(p, arguments);						
 					});
 					
-					// console.log("ModelFacetUpdater ",
-					// this.modelFacetUpdater);
-
-					// model.bind('change', this.render, this);
 					model.bind('remove', this.unrender, this);
 					model.on('change:selectionCount', this.onChangeFacetStats); //onChangeSelectionCount);
 					model.on('change:facetCount', this.onChangeFacetStats);
@@ -157,89 +294,9 @@
 					model.on('change:isLoading', this.updateIsLoading, this);
 
 					model.on('change:hasSubFacets', this.changeHasSubFacets, this);
-					
-					//model.on('change:isAddedToTable', this.onChangeIsAddedToTable);
-					// model.bind('change:isExpanded', function())
 
-					// var children = model.get("children");
 
 					var self = this;
-					
-
-
-
-//					var ViewItemAddToTable = ns.ViewItemLink.extend({
-//						/*
-//						initialize: function() {
-//							ns.ViewItemLink.prototype.initialize.apply(this);
-//							
-//							_.bindAll(this);
-//						},
-//						*/
-//						events: {
-//							'click': function() {
-//								self.collectionColumns.addPath(self.path);
-//								ev.preventDefault();
-//							}
-//						}
-//					});
-//					
-//					this.viewItemAddToTable = new ViewItemAddToTable({
-//						model: this.model,
-//						subView: new ns.ViewItemIcon({
-//							model: this.model,
-//							attributes: {
-//								'class': 'icon-circle-arrow-right'
-//							},
-//							fnState: function(model) {
-//								return '' + model.get('isAddedToTable');
-//							},
-//							stateToAttrs: {
-//								'false': { style: 'display: block'},
-//								'true': { style: 'display: none'}
-//							}
-//						})
-//					});
-//
-//					
-//					var ViewItemRemoveFromTable = ns.ViewItemLink.extend({
-//						events: {
-//							'click': function() {
-//								self.collectionColumns.removePath(self.path);
-//								ev.preventDefault();
-//							}
-//						}					
-//					});
-//
-//					this.viewItemRemoveFromTable = new ViewItemRemoveFromTable({
-//						model: this.model,
-//						subView: new ns.ViewItemIcon({
-//							model: this.model,
-//							attributes: {
-//								'class': 'icon-remove-circle'
-//							},
-//							fnState: function(model) {
-//								return '' + model.get('isAddedToTable');
-//							},
-//							stateToAttrs: {
-//								'false': { style: 'display: none'},
-//								'true': { style: 'display: block'}
-//							}
-//						})
-//					});
-//					
-//					
-//					/////var facetFacadeNode = model.get('facetFacadeNode');
-//					/////this.path = facetFacadeNode.getPath();
-//					var facetNode = model.get('facetNode');
-//					this.path = facetNode.getPath();
-//					
-//					// children.bind('add', this.add)
-//					var controllerColumnSync = new ns.ControllerColumnSync(
-//							this.path,
-//							this.model,
-//							this.collectionColumns
-//					);
 
 					
 					if (this.el) {
@@ -249,28 +306,6 @@
 					this.facetValuesView = null;
 				},
 
-				/*
-				onChangeIsAddedToTable: function() {
-					var isAddedToTable = this.model.get('isAddedToTable');
-					console.log("isAddedToTable", isAddedToTable);
-					
-					
-					var $elPermaDiv = this.$el.find("> div > div.permaOptions");
-					//console.log("PermaDiv", $elPermaDiv);
-					
-					if(isAddedToTable) {
-						var $elTmp = $('<span>X</span>');
-						$elPermaDiv.append($elTmp);
-						
-						var self = this;
-						$elTmp.click(function() {
-							self.collectionColumns.removePath(self.path);
-							$elPermaDiv.remove();
-						});
-						
-					} else {
-					}
-				},*/
 
 				onChangePartitionStatus: function() {
 					
@@ -506,23 +541,7 @@
 						this.getHoverArea().hide();
 						//this.$el.find("> div > div.hoverOptions").hide();
 					}
-					
-					
-					/*
-					'click .addToTable' : function(ev) {
-						ev.preventDefault();
-						//alert('addToTable');
-						var expectedTarget = this.$el.find("> div > div > a.addToTable")[0];
-						if (ev.currentTarget != expectedTarget) {
-							return;
-						}
-						
-						this.options.parent.trigger('addToTable', ev, this);//ev, this.model);
 
-						//this.trigger(''; this.model);
-						//this.getParent().trigger("pivot", this);
-					},
-					*/
 				},
 
 				render : function() {
@@ -543,29 +562,38 @@
 					}
 
 					
+					var nestingLevel = this.getNestingLevel();
+					//console.log('Got nesting level' + nestingLevel);
+					var paddingStr = 'padding-left: ' + nestingLevel * 15 + 'px';
+					
+					
 					var html
-						= '<div class="inline">'
-                        + '  <div class="inline">'
+						= '<div class="inline" style="width: 100%">'
+						+ '  <div class="inline" style="width: 50px;">'
+						+ '    <div class="inline" style="height:5px; width: 20px;">'
+						+ '    </div>'
+						+ '    <div class="permaOptions inline">'
+						+ '    </div>'
+						+ '    <div class="hoverOptions inline" style="display:none">'
+						+ '    </div>'
+						+ '  </div>'
+                        + '  <div class="inline" style="' + paddingStr + '">'
 						+ '    <a class="expandable" href="#">'
 						+ '      <i class="icon-caret-right" />'
 						+ '    </a>'
-						+ '  <a class="activate" href="#">'
+						+ '    <a class="activate" href="#">'
 						+ str
-						+ '  </a>'
+						+ '    </a>'
 						/*
 						+ '<span class="selectionCount">' + selectionCountStr + '</span>'
 						+ '<span class="valueSeparator">/</span>'
 						+ '<span class="facetCount">' + facetCountStr + '</span>'
 						+ ' '
 						*/
-						+ '</div>'
+						+ '  </div>'
 						+ ' '
-						+ '<div class="facetStats inline" style="margin-left: 5px">'
-						+ '</div>'
-						+ '<div class="permaOptions inline">'
-						+ '</div>'
-						+ '<div class="hoverOptions inline" style="display:none">'
-						+ '</div>'
+						+ '  <div class="facetStats inline" style="margin-left: 5px">'
+						+ '  </div>'
 						+ '</div>'						
 						+ '<br class="clearBoth" />'
 
@@ -589,9 +617,10 @@
 
 					this.$el.html(html);
 
-					this.$elPermaDiv = this.$el.find("> div > div.permaOptions");
-					this.$elHoverDiv = this.$el.find("> div > div.hoverOptions");
+					this.$elPermaDiv = this.$el.find(this.permaAreaSelector); //"> div > div > div.permaOptions");
+					this.$elHoverDiv = this.$el.find(this.hoverAreaSelector); //"> div > div > div.hoverOptions");
 
+					//console.log('permaDiv', this.$elPermaDiv);
 
 					
 					/*
@@ -602,38 +631,13 @@
 					var $elSubFacetWidget = this.subFacetWidget.render().$el;
 					this.$el.append($elSubFacetWidget);
 
+					
+					$elSubFacetWidget.css({
+						'margin-left': '0px',
+						'padding-left': '0px'
+						//'padding-left': '' + nestingLevel * 15 + 'px'
+					});
 
-					
-//					var $elRemoveFromTable = this.viewItemRemoveFromTable.render().$el;
-//					this.$elPermaDiv.append($elRemoveFromTable);
-//					
-//					var self = this;
-//					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
-//					$elRemoveFromTable.click(function(ev) {
-//						self.collectionColumns.removePath(self.path);
-//						ev.preventDefault();
-//					});
-//					//$elRemoveFromTable.delegateEvents();
-					
-					
-					
-//					var $elAddToTable = this.viewItemAddToTable.render().$el;
-//					this.$elHoverDiv.append($elAddToTable);
-//
-//					// TODO Hack - actually the click handler should be part of the view, but it won't work for some reason
-//					$elAddToTable.click(function(ev) {
-//						self.collectionColumns.addPath(self.path);
-//						ev.preventDefault();
-//					});
-//
-					
-					// TODO: This is not the best place to do the update,
-					// as it fires one query per element
-					//foobarI18N.update(this.$el);
-					
-					
-
-					//this.onChangeIsAddedToTable();
 					
 					this.onChangeFacetStats();
 					
@@ -669,7 +673,16 @@
 		attributes: {
 			'class': 'facet'
 		},
-		itemRenderer : widgets.facetItemRenderer
+		itemRenderer : widgets.facetItemRenderer,
+		//nestingLevel: 0
+		getNestingLevel: function() {
+			var options = this.options;
+			var nestingLevel = options.nestingLevel;
+			
+			var result = nestingLevel ? nestingLevel : 0;
+
+			return result;
+		}
 	});
 
 	

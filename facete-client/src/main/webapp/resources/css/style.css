@@ -372,7 +372,8 @@ div#config-summary {
  */
 /* http://stackoverflow.com/questions/224602/how-do-you-make-div-elements-display-inline */
 div.inline {
-	float:left;
+	float: left;
+	display: inline-block;
 }
 
 .clearBoth {

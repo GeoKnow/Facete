@@ -605,6 +605,62 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     };
 
+
+    ns.stringifyCyclic = function(obj) {
+    	var seen = [];
+    	var result = JSON.stringify(obj, function(key, val) {
+ 		   if (typeof val == "object") {
+ 		        if (seen.indexOf(val) >= 0)
+ 		            return
+ 		        seen.push(val)
+ 		    }
+ 		    return val;}
+    	);
+    	
+    	return result;
+    };
+    
+    ns.exportState = function(configModel) {
+    	var state = ns.stringifyCyclic(configModel);
+    	
+    	
+    	var exporter = {
+    		'sparqlServiceIri': 'default',
+    		'sparqlDefaultGraphIris': 'default',
+    		
+    		'concept': 'default',
+    		
+    			
+    	};
+    	
+    	//alert(state);
+    	
+    	
+    	// sparqlServiceIri
+    	// sparqlDefaultGraphIris
+    	//
+    	// concept
+    	// constraintCollection
+    	//
+    	// collectionColumns
+    	// mapCollection
+
+    	
+    	// We also need:
+    	// - Selected markers
+    	// - Main view page
+    	// - Selected facet
+    	// - facet value page
+    	// - Map center + zoom
+    	// - facet tree expansion -> implies a "can-be-deleted" attribute
+    	// - 
+    	
+    	
+    	console.log(configModel.attributes);
+    };
+    
+    
+    
     
 	ns.facetTest = function(options) {
 		
@@ -685,6 +741,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				preferredLanguages: config.preferredLanguages,
 				
 				collectionColumns: new facets.CollectionColumns(),
+				facetSelectionCollection: new facets.CollectionColumns(),
 				
 				// Map collection is the collection of paths added to the map
 				mapCollection: new facets.CollectionColumns(),
@@ -888,6 +945,13 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		ns.createConstraintView(configModel);
 		
+		
+		
+		$('#createPermaLink').on('click', function() {
+			ns.exportState(configModel);
+		});
+		
+		
 		/*
 		facetWidget.on('itemAdded', function(ev) {
 			console.log("[FacetTree] Item Added: ", ev);
@@ -935,6 +999,39 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		//console.log("Linked model: ", facetValuesConfigModel.attributes);
 		var facetValues = ns.createFacetValuesView(facetValuesConfigModel);
 		
+		
+		var facetSelectionCollection = configModel.get('facetSelectionCollection');
+
+		
+		facetSelectionCollection.on('add remove reset', function() {
+			
+			
+			
+			var collection = this;
+			
+			var facetNode = null;
+			
+			if(this.length === 1) {
+				var model = collection.first();
+
+				var path = model.get('path');
+				
+				
+				var rootFacetNode = configModel.get('rootFacetNode');
+				facetNode = rootFacetNode.forPath(path);
+
+				
+				//console.warn(collection, facetNode);
+			}
+			//console.warn(facetSelectionCollection);
+
+			facetValuesConfigModel.set({
+				facetNode: facetNode
+			});
+
+		});
+		
+/*		
 		facetTree.facetWidget.on('facetSelected', function(ev) {
 			var facetNode = ev.facetNode;
 			
@@ -944,7 +1041,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			console.log("Select facet: ", facetNode);			
 		});
-		
+*/	
 		
         /**
          * Small hack to avoid shrinking of table view
@@ -1071,7 +1168,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		container.children().remove();
 
 		
-		widgetNs.createView(container, widget);
+		var view = widgetNs.createView(container, widget);
+		
+
+		view.on('renderDone', function() {
+			i18n = configModel.get('i18n');
+			i18n.update(this.$el);				
+		});
+
+		
 	
 		//console.log("INIT VIEWS", models);
     };
@@ -1128,6 +1233,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var sparqlService = configModel.get('sparqlService');
     	var labelFetcher = configModel.get('labelFetcher');
 
+   	
 		/*
 		var queryFactoryConcept = new facets.QueryFactoryQueryGenerator(
 				queryGenerator);
@@ -1149,7 +1255,6 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		//var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
     	var queryFactory = ns.createQueryFactoryConcept(concept);
     	
-		collectionColumns.addPath(facets.Path.fromString(""));
 
 
 		/*
@@ -1182,7 +1287,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		 */
 		var widget = widgetNs.createQueryBrowser();
 		
-		
+
 		/*
 		var resultCollection = new Backbone.Collection();
 		
@@ -1199,10 +1304,13 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	//console.log("Dammit", widget);
 
 		var tableModel = widget.models.tableModel;
-		tableModel.get('headerMap').add({id: 's', label: 'Item'});
+		//var headerMap = tableModel.get('headerMap');
+		
+		
+		//headerMap.add({id: 's', label: 'Item'});
 
+		
 		//tableModel.set({limit: 50});
-		//console.log("Fuuuuuu", tableModel);
 		
 		/*
 		 * Update table headings
@@ -1211,11 +1319,14 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 	    	var rootFacetNode = configModel.get('rootFacetNode');
 
-	    	var headerMap = tableModel.get('headerMap');
+	    	//var headerMap = tableModel.get('headerMap');
 	    	
-	    	headerMap.reset();
-	    	headerMap.add({id: 's', label: 'Item'});
+	    	//headerMap.reset();
+	    	//headerMap.add({id: 's', label: 'Item'});
 	    	
+	    	var labelMap = {};
+	    	
+	    	labelMap['s'] = 'Item';
 			
 			collectionColumns.each(function(model) {
 				var path = model.get('path');
@@ -1232,7 +1343,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				
 				var id = v.value;
 				var label = lastStep.propertyName;
-				headerMap.add({id: id, label: label});
+				
+				//labelMap[id] = label;
+				
+				labelMap[id] = '<span data-uri="' + label + '" />';
+				
+				//headerMap.add({id: id, label: label});
 				//headerMap.add({id: id, label: '<span data-uri="' + label + '" />'});
 				
 				
@@ -1240,7 +1356,24 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				//var rootVarNode = rootFacetNode.getVarNode();
 				//rootVarNode.findNodeByVarName()
 			});
+
+			tableModel.set({labelMap: labelMap});
 		});
+		
+		
+		collectionColumns.addPath(facets.Path.fromString(""));
+
+		// TODO Hack to update the table headings
+		// FIXME Does not work when the table model changes
+//		collectionColumns.on('add remove reset', function() {
+//	    	var i18n = configModel.get('i18n');
+//
+//	    	setTimeout(function() {
+//	    		i18n.update($(document.body));
+//	    	}, 500);
+//		});
+
+		
 		
 		widget.models.paginatorModel.set('maxSlotCount', 11);
 		
@@ -1295,6 +1428,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var constraintCollection = configModel.get('constraintCollection');
     	var modelFacetUpdater = configModel.get('modelFacetUpdater');
     	var collectionColumns = configModel.get('collectionColumns');
+		var facetSelectionCollection = configModel.get('facetSelectionCollection'); //new facets.CollectionColumns();
 
 		//var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
 
@@ -1402,9 +1536,77 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		
 		
+		
+		var highlightPlugin = new widgets.FacetTreeHighlightPlugin({
+			facetWidget: facetWidget,
+			collection: facetSelectionCollection,
+			property: 'isSelected',
+			
+			onInstall: function(view) {
+
+				var model = view.model;
+				var property = this.property;
+
+				view.on('facetSelected', function() {
+					var model = this.model;
+					
+					var value = model.get(property);
+					
+					// Allow only one facet to be selected.
+					facetSelectionCollection.reset();
+					
+					var data = {};
+					data[property] = !value;
+
+					model.set(data);
+				});
+				
+				model.on('change:' + property, function() {
+					var value = this.get(property);
+					
+					var $el = view.$el.find('a.activate:first > span');
+					if(value) {
+						$el.css({background: '#ddddff'});
+					} else {
+						$el.css({background: ''});
+					}
+					
+				});
+			}
+		}); 
+		
+//		facetSelectionCollection.on('add remove reset', function() {
+//			console.log(this);
+//		});
+
+
+		// TODO Change background color if isAddedToTable is true
+		// 
 		var tablePlugin = new widgets.FacetTreeTablePlugin({
 			facetWidget: facetWidget,
-			collection: collectionColumns
+			collection: collectionColumns,
+
+			onInstall: function(view) {
+				
+				//ns.FacetTreeTablePlugin.prototype.initialize.apply(this, arguments);
+
+				var model = view.model;				
+				model.on('change:isAddedToTable', function() {
+					
+					var isAddedToTable = this.get('isAddedToTable');
+					var $row = view.$el.find('> div:first'); 
+					
+					var css;
+					if(isAddedToTable) {
+						css = { 'background': '#dddddd' };
+					} else {
+						css = { 'background': '' };
+					}
+					
+					$row.css(css);
+				});
+								
+			}
 		});
 
 		
@@ -1521,7 +1723,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		models.paginatorModel.set('maxSlotCount', 11);
 
 		
-		tableModel.get('headerMap').add({id: 's', label: 'Item'});
+		//tableModel.get('headerMap').add({id: 's', label: 'Item'});
 
 		
 		var fnUpdateFacetValues = function() {
@@ -1535,6 +1737,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 						
 			
 			if(!facetNode) {
+				//console.warn(models);
+				models.resultSet.reset();
+				models.paginatorModel.set({
+					currentPage: 1,
+					pageCount: 1,
+					hasMorePages: false,
+					facingForward: true
+				});
+
 				console.log('[WARN] FacetNode not set');
 				return;
 			}
@@ -1623,18 +1834,41 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		container.children().remove();
 
 		
+		// We need one fake object for the header in order for the head renderer to become invoked
+		var headCollection = new Backbone.Collection();
+		headCollection.add({id: 'dummy'});
+		
 		var facetValuesWidget = widgetNs.createView(container, widget, function(options) {
 
 			// TODO Add headings
 			var result = new widgets.TableView2({
 				attributes: { 'class': 'table table-bordered table-striped table-condensed', style: 'margin: 0px' },
-				collection : options.collection,
+				//collection : options.collection,
+				model: new widgets.TableModel2({
+					bodyCollection: options.model.get('bodyCollection'),
+					headCollection: headCollection
+				}),
 				
-				renderHeader: function() {
-					return $('<tr><th>Facet value</th><th>Count</th><th>Restrict to value</th></tr>');
+				headRenderer: function(model) {
+					//return $('<th>Facet value</th><th>Count</th><th>Restrict to value</th>');
+					return [$('<th>Facet value</th>'), $('<th>Count</th>'), $('<th>Restrict to value</th>')];
 				},
 				
-				rowItemRenderer: function(model) {
+				bodyEmptyRenderer: function() {
+					return [$('<td colspan="3" style="text-align: center">Select a facet to show its values.</td>')];
+				},
+				
+				/*
+				columnMap: [{
+					id: s,
+					renderer: function() {
+					
+					} 
+				}]
+				
+				*/
+				
+				bodyRenderer: function(model) {
 					
 					//console.log("Row item", model);
 					

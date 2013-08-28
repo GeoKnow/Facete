@@ -23,12 +23,21 @@
 	</div>
 </div>
 <div class="region row-fluid" style="padding-top: 9px">
-	<div class="span2">
-		<a id="btn-open-settings" class="btn btn-small" style="padding:2px" href="#"><i class="icon-cog"></i> Settings</a>
-		<span id="service-summary"></span>
-	</div>
+<!-- 	<div class="span2"> -->
+<!-- 		<a id="btn-open-settings" class="btn btn-small" style="padding:2px" href="#"><i class="icon-cog"></i> Settings</a> -->
+<!-- 		<span id="service-summary"></span> -->
+<!-- 	</div> -->
 	
-	<div class="offset1 span8" id="config-summary" style="color:#cfcfcf; font-weight:bold; margin-top:3px">
+<!-- 	<div class="offset1 span8" id="config-summary" style="color:#cfcfcf; font-weight:bold; margin-top:3px"> -->
+<!-- 	</div> -->
+	<div id="config-summary" class="span9" style="color:#cfcfcf; font-weight:bold; padding-top: 4px;">
+					<div class="inline" style="max-width: 15%">Service:</div> <div id="sparql-service-selector" class="select2-container inline" style="width: 35%;"></div>
+	    			<div class="inline" style="max-width: 15%">Datasets:</div> <div id="default-graph-selector" class="select2-container multiple inline" style="width: 35%;"></div>
 	</div>
+
+	<a href="#" id="show-intro-screen" syle="">
+		<i class="icon-question-sign icon-4" style="position: absolute; right: 120px; top: 102px; font-size: 20px;"></i>
+	</a>
+
 </div>
 

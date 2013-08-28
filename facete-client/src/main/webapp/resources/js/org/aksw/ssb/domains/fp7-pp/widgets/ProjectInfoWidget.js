@@ -50,16 +50,30 @@
 	    initialize: function(){
 	    	_.bindAll(this);
 	    	
-	    	//this.model.bind('change', this.render, this);
+	    	this.model.bind('change', this.reset, this);
 	    	this.model.bind('remove', this.unrender, this);
 	    },
 	    render: function() {
-	    	var els = this.options.rowItemRenderer(this.model);
 
-	    	var tds = _.map(els, function(el) {
-				var td = $('<td></td>');
-				td.append(el);
-				return td;
+	    	this.renderChildren();
+
+			return this;
+	    },
+	    renderChildren: function() {
+	    	var children = this.options.rowItemRenderer(this.model);
+
+	    	var tds = _.map(children, function(child) {
+	    		
+	    		var $child = $(child);
+	    		var elementName = $child.prop("tagName");
+	    		
+	    		if(elementName == 'TD' || elementName == 'TH') {
+	    			return $child;
+	    		} else {
+					var td = $('<td></td>');
+					td.append($child);
+					return td;	    			
+	    		}
 			});
 	    	
 			var $el = this.$el;
@@ -67,18 +81,113 @@
 				$el.append(td);
 			});
 			
-			return this;
+			this.trigger('renderDone', this);	    	
 	    },
 	    unrender: function() {
 	      this.$el.remove();
+	    },
+	    reset: function() {
+	    	this.$el.empty();
+	    	this.renderChildren();
 	    }
 	});
 
-	/**
-	 *
-	 */
+	this.TableModel2 = Backbone.Model.extend({
+		defaults: {
+			headCollection: new Backbone.Collection(),
+			bodyCollection: new Backbone.Collection()
+			//headRenderer: function(model) { return []; },			
+			//bodyRenderer: function(model) {return []; }
+		}
+	});
+
 	this.TableView2 = Backbone.View.extend({
 		tagName: 'table',
+		attributes: {
+			'class': 'table table-condensed table-bordered table-striped'
+		},
+		initialize: function() {
+			_.bindAll(this);
+			
+			var headCollection = this.model.get('headCollection');
+			var bodyCollection = this.model.get('bodyCollection');
+			
+			
+			var options = this.options;
+			var headRenderer = this.options.headRenderer;
+			var bodyRenderer = this.options.bodyRenderer;
+			
+			var bodyEmptyRenderer = this.options.bodyEmptyRenderer;
+			
+			
+			this.headView = new ns.TableViewCollection2({
+				tagName: 'thead',
+				collection: headCollection, 
+				rowItemRenderer: headRenderer 
+			});
+						
+			
+			this.bodyView = new ns.TableViewCollection2({
+				tagName: 'tbody',
+				collection: bodyCollection, 
+				rowItemRenderer: bodyRenderer,
+				rowEmptyRenderer: bodyEmptyRenderer
+			});
+			
+			var self = this;
+			var fnPassEvent = function() {
+				self.trigger.apply(self, arguments);
+			};
+			
+			this.headView.on('all', fnPassEvent);
+			this.bodyView.on('all', fnPassEvent);
+
+	    	//this.collection.bind('add', this.renderRow, this);
+	    	//this.collection.bind('reset', this.reset, this);
+		},
+		render: function() {
+			
+			console.log('rending table');
+			
+			var $el = this.$el;
+			var $head = this.headView.render().$el;
+			
+			$el.append($head)
+			
+			var $body = this.bodyView.render().$el;
+			$el.append($body);
+			
+			this.trigger('renderDone', this);
+			
+			return this;
+		},
+		unrender: function() {
+			this.$el.remove();
+		}
+		/*
+	    reset: function() {
+	    	this.$el.empty();
+	    	this.render();
+	    }
+	    */
+	});
+
+	
+	/**
+	 * ISSUE The table model is based on a collection, however, this way we can't add a header
+	 * Possible solution: We need a tableBody model, possibly based on on a collection,
+	 * but have the table itself based on a model.
+	 * 
+	 * tableModel = {headerMap: ..., bodyCollection: }
+	 *
+	 * But actually, this sucks as well.
+	 * Maybe it would better if the headers were part of the collection?
+	 * 
+	 *
+	 *
+	 */
+	this.TableViewCollection2 = Backbone.View.extend({
+		tagName: 'tbody',
 		attributes: {
 			'class': 'table table-condensed table-bordered table-striped'
 		},
@@ -89,25 +198,73 @@
 	    	this.collection.bind('reset', this.reset, this);
 		},
 		render: function() {
-			var renderHeader = this.options.renderHeader; 
-			if(renderHeader) {
-				var header = renderHeader();
-				this.$el.append(header);
+			var collection = this.collection;
+			
+			//console.log('Rendering ' + collection.length + ' items')
+			
+			if(collection.isEmpty()) {
+				// TODO: get maximum number of headings, so we can do a colspan
+				this.renderEmptyRow();
+				
+			} else {
+				collection.each(this.renderRow);
 			}
 			
-			this.collection.each(this.renderRow);
 			
 			this.trigger('renderDone', this);
 			
 			return this;
 		},
+		
+		renderEmptyRow: function() {
+			var rowEmptyRenderer = this.options.rowEmptyRenderer;
+			
+			if(!rowEmptyRenderer) {
+				return;
+			}
+			
+			/*
+			var rowView = new ns.RowView2({
+				model: model,
+				rowItemRenderer: this.options.rowEmptyRenderer
+			});
+			*/
+			
+			//var $rowViewEl = rowView.render().$el;
+			
+			var $cols = rowEmptyRenderer();
+			
+			if($cols) {
+				var $tr = $('<tr></tr>');
+				this.$el.append($tr);
+				
+				for(var i = 0; i < $cols.length; ++i) {
+					var $col = $cols[i];
+					$tr.append($col);
+				}				
+			}
+			
+			
+		},
+		
 		renderRow: function(model) {
 			var rowView = new ns.RowView2({
 				model: model,
 				rowItemRenderer: this.options.rowItemRenderer
 			});
 			
+			// TODO Hack: this fires a renderDone event on every row, which is what we want to avoid.
+			var self = this;
+			var fnPassEvent = function() {
+				self.trigger.apply(self, arguments);
+			};
+			rowView.on('all', fnPassEvent);
+			
+
+			
 			var $rowViewEl = rowView.render().$el;
+			//console.log('Rendered ', model, ' with', $rowViewEl);
+			
 			this.$el.append($rowViewEl);
 		},
 		unrender: function() {
@@ -118,7 +275,8 @@
 	    	this.render();
 	    }
 	});
-	
+
+
 	/*
 	this.TableViewMap = this.TableViewBase.extend({
 		renderRow: function(model) {

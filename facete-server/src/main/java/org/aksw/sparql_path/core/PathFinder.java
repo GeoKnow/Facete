@@ -2,6 +2,7 @@ package org.aksw.sparql_path.core;
 
 import java.util.List;
 
+import org.aksw.sparql_path.core.domain.Concept;
 import org.aksw.sparqlify.core.ReplaceConstants;
 import org.aksw.sparqlify.database.FilterPlacementOptimizer2;
 import org.slf4j.Logger;

@@ -37,7 +37,7 @@
 	<properties>
 
 		<!-- Dependency Versions -->
-		<jena-sparql-api.version>2.10.0-5-SNAPSHOT</jena-sparql-api.version>
+<!-- 		<jena-sparql-api.version>2.10.0-14</jena-sparql-api.version> -->
 		<aksw-commons.version>0.7.1</aksw-commons.version>
 
 
@@ -105,7 +105,7 @@
 	<dependency>
 		<groupId>org.aksw.sparqlify</groupId>
 		<artifactId>sparqlify-core</artifactId>
-		<version>0.6.3</version>
+		<version>0.6.4</version>
 
 		<exclusions>
 			<exclusion>

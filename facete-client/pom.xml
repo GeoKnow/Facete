@@ -78,6 +78,8 @@
 								<!-- <param>ssb.namespacePrefixes.js</param> -->
 
 								<!-- The actual spatial semantic browsing widgets -->
+								<param>org/aksw/serializer/Serializer.js</param>
+
 								<param>org/aksw/ssb/collections/QuadTree.js</param>
 								<param>ssb.utils.js</param>
 								<param>Dispatcher.js</param>

@@ -154,7 +154,7 @@
 							
 							
 							var jsonNode = binding[v.value];
-							var indexNode = sparql.Node.fromJson(jsonNode);
+							var indexNode = sparql.Node.fromTalisJson(jsonNode);
 							var keyStr = indexNode.toString();
 							
 							nodeToData[keyStr] = binding;

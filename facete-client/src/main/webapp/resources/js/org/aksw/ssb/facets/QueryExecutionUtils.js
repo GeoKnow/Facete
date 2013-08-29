@@ -217,7 +217,7 @@
 					var binding = bindings[i];
 					var val = binding[facetVar.value];
 					
-					var valueNode = sparql.Node.fromJson(val);
+					var valueNode = sparql.Node.fromTalisJson(val);
 					var count = binding[countVar.value].value;// TODO Maybe parse as int
 					
 					var facetValue = new facets.FacetValue(valueNode, count);
@@ -328,7 +328,7 @@
 					var binding = bindings[i];
 					var val = binding[facetVar.value];
 					
-					var valueNode = sparql.Node.fromJson(val);
+					var valueNode = sparql.Node.fromTalisJson(val);
 					var count = binding[countVar.value].value;// TODO Maybe parse as int
 					
 					var facetValue = new facets.FacetValue(valueNode, count);
@@ -462,7 +462,7 @@
 			for(var i = 0; i < bindings.length; ++i) {
 				var binding = bindings[i];
 				var item = binding[variable.value];
-				var node = sparql.Node.fromJson(item);
+				var node = sparql.Node.fromTalisJson(item);
 				
 				list.push(node);
 			};

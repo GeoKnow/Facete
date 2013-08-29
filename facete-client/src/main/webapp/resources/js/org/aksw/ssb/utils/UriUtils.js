@@ -44,7 +44,7 @@
 	 */
 	ns.parseJsonRs = function(jsonRs) {
 		var result = ns.transformJsonRs(jsonRs, function(plainNode) {
-			var node = !plainNode ? null : sparql.Node.fromJson(plainNode);
+			var node = !plainNode ? null : sparql.Node.fromTalisJson(plainNode);
 			
 			return node;
 		});

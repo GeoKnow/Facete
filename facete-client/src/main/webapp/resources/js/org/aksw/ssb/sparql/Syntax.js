@@ -19,6 +19,23 @@
 
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 
+	
+		
+	
+	ns.Element = function() {
+			
+	};
+	
+	
+	ns.Element.fromJson = function() {
+		
+	};
+	
+	ns.Element.toJson = function() {
+		
+	};
+	
+	
 	ns.ElementUtils = {
 			flatten: function(elements) {
 				var result = _.map(elements, function(element) { return element.flatten(); });
@@ -169,6 +186,9 @@
 		this.datatype = datatype;
 	};
 	
+	
+	ns.Node.classLabel = 'Node';
+	
 	ns.Node.prototype = {
 			getValue: function() {
 				return this.value;
@@ -220,6 +240,10 @@
 			
 			isUri: function() {
 				return this.type === ns.Node.Type.Uri;
+			},
+			
+			toJson: function() {
+				throw "Not implemented yet";
 			}
 	};
 	
@@ -232,6 +256,10 @@
 	ns.Node.Type.TypedLiteral = 3;
 	
 	ns.Node.fromJson = function(talisJson) {
+		return ns.Node.fromTalisJson(talisJson);
+	};
+	
+	ns.Node.fromTalisJson = function(talisJson) {
 		var result = new ns.Node();
 		
 		if(!talisJson || typeof(talisJson.type) === 'undefined') {
@@ -244,7 +272,7 @@
 		case 'uri': type = 1; break;
 		case 'literal': type = 2; break;
 		case 'typed-literal': type = 3; break;
-		default: console.error("Unknown type: '" + talisJson.type + "'");
+		default: console.log("Unknown type: '" + talisJson.type + "'");
 		}
 		
 		result.type = type;
@@ -397,47 +425,51 @@
 		return "{ " + this.bgp + " }";
 	};
 	
+	
 	ns.ElementNamedGraph = function(element, namedGraphNode) {
 		this.element = element;
 		this.namedGraphNode = namedGraphNode;
 	};
+
+	ns.ElementNamedGraph.classLabel = 'ElementNamedGraph';
 	
-	ns.ElementNamedGraph.prototype.getArgs = function() {
-		return [this.element];
-	};
+	ns.ElementNamedGraph.prototype = {
+		getArgs: function() {
+			return [this.element];
+		},
 	
-	ns.ElementNamedGraph.prototype.copy = function(args) {
-		if(args.length != 1) {
-			throw "Invalid argument";
+		copy: function(args) {
+			if(args.length != 1) {
+				throw "Invalid argument";
+			}
+		
+			var newElement = args[0];
+			var result = new ns.ElementNamedGraph(newElement, this.namedGraphNode);
+			return result;
+		},
+	
+		toString: function() {
+			return "Graph " + this.namedGraphNode + " { " + this.element + " }";
+		},
+	
+		copySubstitute: function(fnNodeMap) {
+			return new ns.ElementNamedGraph(this.element.copySubstitute(fnNodeMap), this.namedGraphNode.copySubstitute(fnNodeMap));
+		},
+	
+		getVarsMentioned: function() {
+		
+			var result = this.element.getVarsMentioned();
+			if(this.namedGraphNode.isVar()) {
+				_.union(result, [this.namedGraphNode]);
+			}
+		
+			return result;
+		},
+	
+		flatten: function() {
+			return new ns.ElementNamedGraph(this.element.flatten(), this.namedGraphNode);
 		}
-		
-		var newElement = args[0];
-		var result = new ns.ElementNamedGraph(newElement, this.namedGraphNode);
-		return result;
 	};
-	
-	ns.ElementNamedGraph.prototype.toString = function() {
-		return "Graph " + this.namedGraphNode + " { " + this.element + " }";
-	};
-	
-	ns.ElementNamedGraph.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementNamedGraph(this.element.copySubstitute(fnNodeMap), this.namedGraphNode.copySubstitute(fnNodeMap));
-	};
-	
-	ns.ElementNamedGraph.prototype.getVarsMentioned = function() {
-		
-		var result = this.element.getVarsMentioned();
-		if(this.namedGraphNode.isVar()) {
-			_.union(result, [this.namedGraphNode]);
-		}
-		
-		return result;
-	};
-	
-	ns.ElementNamedGraph.prototype.flatten = function() {
-		return new ns.ElementNamedGraph(this.element.flatten(), this.namedGraphNode);
-	};
-		
 	
 	/**
 	 * An element that injects a string "as is" into a query.
@@ -448,34 +480,38 @@
 		this.varsMentioned = varsMentioned ? varsMentioned : [];
 	};
 
-	ns.ElementString.prototype.getArgs = function() {
-		return [];
-	};
+	ns.ElementString.classLabel = 'ElementString';
 	
-	ns.ElementString.prototype.copy = function(args) {
-		if(args.length != 0) {
-			throw "Invalid argument";
-		}
-		
-		// FIXME: Should we clone the attributes too?
-		var result = new ns.String(this.value, this.varsMentioned);
-		return result;
-	};
+	ns.ElementString.prototype = { 
+		getArgs: function() {
+			return [];
+		},
 	
-	ns.ElementString.prototype.toString = function() {
-		return this.value;
-	};
+		copy: function(args) {
+			if(args.length != 0) {
+				throw "Invalid argument";
+			}
+			
+			// FIXME: Should we clone the attributes too?
+			var result = new ns.String(this.value, this.varsMentioned);
+			return result;
+		},
+	
+		toString: function() {
+			return this.value;
+		},
 
-	ns.ElementString.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementString(this.value, this.varsMentioned);
-	};
+		copySubstitute: function(fnNodeMap) {
+			return new ns.ElementString(this.value, this.varsMentioned);
+		},
 	
-	ns.ElementString.prototype.getVarsMentioned = function() {
-		return this.varsMentioned;
-	};
+		getVarsMentioned: function() {
+			return this.varsMentioned;
+		},
 	
-	ns.ElementString.prototype.flatten = function() {
-		return this;
+		flatten: function() {
+			return this;
+		}
 	};
 
 	/*
@@ -493,109 +529,118 @@
 		this.query = query;
 	};
 	
-	ns.ElementSubQuery.prototype.getArgs = function() {
-		return [];
-	};
+	ns.ElementSubQuery.classLabel = "ElementSubQuery";
 	
-	ns.ElementSubQuery.prototype.copy = function(args) {
-		if(args.length != 0) {
-			throw "Invalid argument";
-		}
-		
-		// FIXME: Should we clone the attributes too?
-		var result = new ns.ElementSubQuery(query);
-		return result;
-	};
+	ns.ElementSubQuery.prototype = {
+		getArgs: function() {
+			return [];
+		},
 	
-	ns.ElementSubQuery.prototype.toString = function() {
-		return "{ " + this.query + " }";
-	};
+		copy: function(args) {
+			if(args.length != 0) {
+				throw "Invalid argument";
+			}
+			
+			// FIXME: Should we clone the attributes too?
+			var result = new ns.ElementSubQuery(query);
+			return result;
+		},
+	
+		toString: function() {
+			return "{ " + this.query + " }";
+		},
 
-	ns.ElementSubQuery.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementSubQuery(this.query.copySubstitute(fnNodeMap));
+		copySubstitute: function(fnNodeMap) {
+			return new ns.ElementSubQuery(this.query.copySubstitute(fnNodeMap));
+		},
+	
+		flatten: function() {
+			return new ns.ElementSubQuery(this.query.flatten());
+		}
 	};
-	
-	ns.ElementSubQuery.prototype.flatten = function() {
-		return new ns.ElementSubQuery(this.query.flatten());
-	};
-	
-	
 	
 	ns.ElementFilter = function(exprs) {
 		this.exprs = exprs;
 	};
-
-	ns.ElementFilter.prototype.getArgs = function() {
-		return [];
-	};
 	
-	ns.ElementFilter.prototype.copy = function(args) {
-		if(args.length != 0) {
-			throw "Invalid argument";
+	ns.ElementFilter.classLabel = 'ElementFilter';
+
+	ns.ElementFilter.prototype = {
+		getArgs: function() {
+			return [];
+		},
+	
+		copy: function(args) {
+			if(args.length != 0) {
+				throw "Invalid argument";
+			}
+		
+		// 	FIXME: Should we clone the attributes too?
+			var result = new ns.ElemenFilter(this.exprs);
+			return result;
+		},
+	
+		copySubstitute: function(fnNodeMap) {
+			var exprs = _.map(this.exprs, function(expr) {
+				return expr.copySubstitute(fnNodeMap);
+			});
+		
+			return new ns.ElementFilter(exprs);
+		},
+
+		getVarsMentioned: function() {
+			return [];
+		},
+	
+		flatten: function() {
+			return this;
+		},
+	
+		toString: function() {
+			
+			var expr = ns.andify(this.exprs);
+			
+			return "Filter(" + expr + ")";
 		}
-		
-		// FIXME: Should we clone the attributes too?
-		var result = new ns.ElemenFilter(this.exprs);
-		return result;
 	};
-	
-	ns.ElementFilter.prototype.copySubstitute = function(fnNodeMap) {
-		var exprs = _.map(this.exprs, function(expr) {
-			return expr.copySubstitute(fnNodeMap);
-		});
-		
-		return new ns.ElementFilter(exprs);
-	};
-
-	ns.ElementFilter.prototype.getVarsMentioned = function() {
-		return [];
-	};
-	
-	ns.ElementFilter.prototype.flatten = function() {
-		return this;
-	};
-	
-	ns.ElementFilter.prototype.toString = function() {
-		
-		var expr = ns.andify(this.exprs);
-		
-		return "Filter(" + expr + ")";
-	};
-	
 	
 	
 	ns.ElementOptional = function(element) {
 		this.optionalPart = element;
 	};
-
-	ns.ElementOptional.prototype.getArgs = function() {
-		return [this.optionalPart];
-	};
 	
-	ns.ElementOptional.prototype.copy = function(args) {
-		if(args.length != 1) {
-			throw "Invalid argument";
+	ns.ElementOptional.classLabel = 'ElementOptional';
+
+	ns.ElementOptional.prototype = {
+		getArgs: function() {
+			return [this.optionalPart];
+		},
+	
+		copy: function(args) {
+			if(args.length != 1) {
+				throw "Invalid argument";
+			}
+			
+			// FIXME: Should we clone the attributes too?
+			var result = new ns.ElementOptional(this.expr);
+			return result;
+		},
+	
+		getVarsMentioned: function() {
+			return this.optionalPart.getVarsMentioned();
+		},
+
+		copySubstitute: function(fnNodeMap) {
+			return new ns.ElementOptional(this.optionalPart.copySubstitute(fnNodeMap));
+		},
+	
+		flatten: function() {
+			return new ns.ElementOptional(this.optionalPart.flatten());
+		},
+	
+		toString: function() {
+			return "Optional {" + this.optionalPart + "}";
 		}
-		
-		// FIXME: Should we clone the attributes too?
-		var result = new ns.ElementOptional(this.expr);
-		return result;
-	};
-	
-	ns.ElementOptional.prototype.getVarsMentioned = function() {
-		return this.optionalPart.getVarsMentioned();
-	};
-
-	ns.ElementOptional.prototype.copySubstitute = function(fnNodeMap) {
-		return new ns.ElementOptional(this.optionalPart.copySubstitute(fnNodeMap));
-	};
-	
-	ns.ElementOptional.prototype.flatten = function() {
-		return new ns.ElementOptional(this.optionalPart.flatten());
-	};
-	
-	ns.ElementOptional.prototype.toString = function() {
-		return "Optional {" + this.optionalPart + "}";
 	};
 	
 	
@@ -603,37 +648,41 @@
 		this.elements = elements ? elements : [];
 	};
 
-	ns.ElementUnion.prototype.getArgs = function() {
-		return this.elements;
-	};
-	
-	ns.ElementUnion.prototype.copy = function(args) {		
-		var result = new ns.ElementUnion(args);
-		return result;
-	};
-	
-	ns.ElementUnion.prototype.getVarsMentioned = function() {
-		var result = [];
-		for(var i in this.elements) {
-			result = _.union(result, this.elements[i].getVarsMentioned());
-		}
-		return result;
-	};
+	ns.ElementUnion.classLabel = 'ElementUnion';
 
-	ns.ElementUnion.prototype.copySubstitute = function(fnNodeMap) {
-		var tmp = _.map(this.elements, function(element) { return element.copySubstitute(fnNodeMap); });
-		
-		return new ns.ElementUnion(tmp);		
-	};
+	ns.ElementUnion.prototype = {
+		getArgs: function() {
+			return this.elements;
+		},
 	
-	ns.ElementUnion.prototype.flatten = function() {
-		var tmp = _.map(this.elements, function(element) { return element.flatten(); });
-		
-		return new ns.ElementUnion(tmp);
-	};
+		copy: function(args) {		
+			var result = new ns.ElementUnion(args);
+			return result;
+		},
 	
-	ns.ElementUnion.prototype.toString = function() {
-		return "{" + this.elements.join("} Union {") + "}";
+		getVarsMentioned: function() {
+			var result = [];
+			for(var i in this.elements) {
+				result = _.union(result, this.elements[i].getVarsMentioned());
+			}
+			return result;
+		},
+
+		copySubstitute: function(fnNodeMap) {
+			var tmp = _.map(this.elements, function(element) { return element.copySubstitute(fnNodeMap); });
+		
+			return new ns.ElementUnion(tmp);		
+		},
+	
+		flatten: function() {
+			var tmp = _.map(this.elements, function(element) { return element.flatten(); });
+			
+			return new ns.ElementUnion(tmp);
+		},
+	
+		toString: function() {
+			return "{" + this.elements.join("} Union {") + "}";
+		}
 	};
 
 	
@@ -641,92 +690,101 @@
 		this.triples = triples ? triples : [];
 	};
 	
-	ns.ElementTriplesBlock.prototype.getArgs = function() {
-		return [];
-	};
+	ns.ElementTriplesBlock.classLabel = 'ElementTriplesBlock';
 	
-	ns.ElementTriplesBlock.prototype.copy = function(args) {
-		if(args.length != 0) {
-			throw "Invalid argument";
+	ns.ElementTriplesBlock.prototype = {
+		getArgs: function() {
+			return [];
+		},
+
+		copy: function(args) {
+			if(args.length != 0) {
+				throw "Invalid argument";
+			}
+	
+			var result = new ns.ElementTriplesBlock(this.triples);
+			return result;
+		},
+
+		getTriples: function() {
+			return this.triples;
+		},
+
+		addTriples: function(otherTriples) {
+			this.triples = this.triples.concat(otherTriples);
+		},
+
+		uniq: function() {
+			this.triples = ns.uniqTriples(this.triples);
+	//this.triples = _.uniq(this.triples, false, function(x) { return x.toString(); });
+		},
+
+		copySubstitute: function(fnNodeMap) {
+			var newElements = _.map(this.triples, function(x) { return x.copySubstitute(fnNodeMap); });
+			return new ns.ElementTriplesBlock(newElements);
+		},
+
+		getVarsMentioned: function() {
+			var result = [];
+			for(var i in this.triples) {
+				result = _.union(result, this.triples[i].getVarsMentioned());
+			}
+			return result;
+		},
+
+		flatten: function() {
+			return this;
+		},
+	
+		toString: function() {
+			return this.triples.join(" . ");
 		}
-		
-		var result = new ns.ElementTriplesBlock(this.triples);
-		return result;
 	};
+	
 
-	ns.ElementTriplesBlock.prototype.getTriples = function() {
-		return this.triples;
-	};
-
-	ns.ElementTriplesBlock.prototype.addTriples = function(otherTriples) {
-		this.triples = this.triples.concat(otherTriples);
-	};
-	
-	ns.ElementTriplesBlock.prototype.uniq = function() {
-		this.triples = ns.uniqTriples(this.triples);
-		//this.triples = _.uniq(this.triples, false, function(x) { return x.toString(); });
-	};
-	
-	ns.ElementTriplesBlock.prototype.copySubstitute = function(fnNodeMap) {
-		var newElements = _.map(this.triples, function(x) { return x.copySubstitute(fnNodeMap); });
-		return new ns.ElementTriplesBlock(newElements);
-	};
-	
-	ns.ElementTriplesBlock.prototype.getVarsMentioned = function() {
-		var result = [];
-		for(var i in this.triples) {
-			result = _.union(result, this.triples[i].getVarsMentioned());
-		}
-		return result;
-	};
-
-	ns.ElementTriplesBlock.prototype.flatten = function() {
-		return this;
-	};
-	
-	ns.ElementTriplesBlock.prototype.toString = function() {
-		return this.triples.join(" . ");
-	};
-	
 	ns.ElementGroup = function(elements) {
 		this.elements = elements ? elements : [];
 	};
 
-	ns.ElementGroup.prototype.getArgs = function() {
-		return this.elements;
-	};
-	
-	ns.ElementGroup.prototype.copy = function(args) {
-		var result = new ns.ElementTriplesBlock(args);
-		return result;
-	};
-	
-	ns.ElementGroup.prototype.copySubstitute = function(fnNodeMap) {
-		var newElements = _.map(this.elements, function(x) { return x.copySubstitute(fnNodeMap); });
-		return new ns.ElementGroup(newElements);
-	};
-	
-	ns.ElementGroup.prototype.getVarsMentioned = function() {
-		var result = [];
-		for(var i in this.elements) {
-			result = _.union(result, this.elements[i].getVarsMentioned());
-		}
-		return result;
-	};
+	ns.ElementGroup.classLabel = 'ElementGroup';
 
-	ns.ElementGroup.prototype.toString = function() {
-		//return this.elements.join(" . ");
-		return ns.joinElements(" . ", this.elements);
-	};
+	ns.ElementGroup.prototype = {
+		getArgs: function() {
+			return this.elements;
+		},
+	
+		copy: function(args) {
+			var result = new ns.ElementTriplesBlock(args);
+			return result;
+		},
+	
+		copySubstitute: function(fnNodeMap) {
+			var newElements = _.map(this.elements, function(x) { return x.copySubstitute(fnNodeMap); });
+			return new ns.ElementGroup(newElements);
+		},
+	
+		getVarsMentioned: function() {
+			var result = [];
+			for(var i in this.elements) {
+				result = _.union(result, this.elements[i].getVarsMentioned());
+			}
+			return result;
+		},
+
+		toString: function() {
+			//return this.elements.join(" . ");
+			return ns.joinElements(" . ", this.elements);
+		},
 		
 	
-	ns.ElementGroup.prototype.flatten = function() {
-		var processed = ns.ElementUtils.flatten(this.elements); 
-
-		if(processed.length === 1) {
-			return processed[0];
-		} else {
-			return new ns.ElementGroup(ns.flattenElements(processed));
+		flatten: function() {
+			var processed = ns.ElementUtils.flatten(this.elements); 
+	
+			if(processed.length === 1) {
+				return processed[0];
+			} else {
+				return new ns.ElementGroup(ns.flattenElements(processed));
+			}
 		}
 	};
 	
@@ -1810,6 +1868,22 @@
 	}; 
 
 	ns.opify = ns.opifyBalanced; 
+	
+		
+
+	/*
+	var testElement = new ns.ElementTriplesBlock([]);
+
+	var json = serializer.serialize(testElement);
+	
+	alert('serialized: ' + JSON.stringify(json));
+	
+	
+	var obj = serializer.deserialize(json);
+	alert('deserialized: ' + JSON.stringify(obj));
+	
+	//serializeElement(testElement);
+	*/
 	
 })(jQuery);
 		

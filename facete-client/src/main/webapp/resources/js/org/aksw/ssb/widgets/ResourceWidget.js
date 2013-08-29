@@ -272,7 +272,7 @@
 				for(var i = 0; i < os.length; ++i) {
 					var o = os[i];
 
-					var oNode = sparql.Node.fromJson(o);
+					var oNode = sparql.Node.fromTalisJson(o);
 					//console.log("oNode", o, oNode);
 					var oLabel = oNode.isUri() ? ns.getLabel(oNode.value, uriToLabel) : oNode.value.toString();
 					var oLabelHtml = stringUtils.escapeHTML(oLabel);

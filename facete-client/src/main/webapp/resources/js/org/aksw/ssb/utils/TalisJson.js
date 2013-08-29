@@ -32,7 +32,7 @@
 				for(var i = 0; i < os.length; ++i) {
 					var o = os[i];
 
-					var object = sparql.Node.fromJson(o);
+					var object = sparql.Node.fromTalisJson(o);
 
 					callback(subject, predicate, object);
 				}

@@ -36,7 +36,6 @@
 		this.variable = variable;
 	};
 	
-	
 	/**
 	 * Array version constructor
 	 * 
@@ -58,6 +57,15 @@
 	ns.ConceptInt.prototype = new ns.Concept();
 	_.extend(ns.ConceptInt.prototype, {
 			constructor: ns.ConceptInt,
+			
+			toJson: function() {
+				var result = {
+						element: JSON.parse(JSON.stringify(this.element)),
+						variable: this.variable
+				};
+				
+				return result;
+			},
 			
 			getElement: function() {
 				return this.element;

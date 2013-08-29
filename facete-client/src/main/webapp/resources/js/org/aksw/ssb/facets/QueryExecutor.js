@@ -172,7 +172,7 @@
 		var promise = this.sparqlService.executeSelect(query).pipe(function(jsonRs) {
 			var result = _.map(jsonRs.results.bindings, function(item) {
 				
-				var node = sparql.Node.fromJson(item[navigationVar.value]);
+				var node = sparql.Node.fromTalisJson(item[navigationVar.value]);
 				var countStr = item[countVar.value].value;
 				var count = parseInt(countStr);
 				
@@ -203,7 +203,7 @@
 		var promise = this.sparqlService.executeSelect(query).pipe(function(jsonRs) {
 			var result = _.map(jsonRs.results.bindings, function(item) {
 				
-				var node = sparql.Node.fromJson(item[facetVar.value]);
+				var node = sparql.Node.fromTalisJson(item[facetVar.value]);
 				var countStr = item[facetCountVar.value].value;
 				var count = parseInt(countStr);
 				

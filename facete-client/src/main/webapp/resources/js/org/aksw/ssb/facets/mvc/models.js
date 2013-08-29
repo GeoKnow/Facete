@@ -132,6 +132,15 @@
 			constraint : null
 		}
 	});
+	
+	ns.ModelConstraint.fromJSON = function(json) {
+
+		var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
+		var data = serializer.deserialize(json);
+		
+		var result = new ns.ModelConstraint(data);
+		return result;
+	};
 
 	
 	ns.ModelColumn = Backbone.Model.extend({
@@ -259,7 +268,7 @@
 		}
 	});
 	
-	
+		
 	/**
 	 * A collection for contraints.
 	 * 
@@ -269,6 +278,19 @@
 	 */
 	ns.ConstraintCollection2 = Backbone.Collection.extend({
 		model: ns.ModelConstraint,
+	
+
+		/*
+		fromJson: function(json) {
+			
+			var items = [];
+			for(var i = 0; i < json.length; ++i) {
+				var item = this.model.fromJson(json);
+				items.push(item);
+			};
+	
+			this.reset(items);
+		},*/
 		
 		clone: function() {
 			var result = new ns.ConstraintCollection2();
@@ -419,6 +441,7 @@
 	});
 
 	
+	ns.ConstraintCollection2.classLabel = 'ConstraintCollection';
 
 	
 	ns.createFacetNodes = function(constraintCollection, rootFacetNode) {

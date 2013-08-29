@@ -259,30 +259,44 @@
 		this.path = path;
 		this.constraint = constraint;
 	};
-
-	ns.PathConstraint.prototype.getPath = function() {
-		return this.path;
-	};
-
-	ns.PathConstraint.prototype.getConstraint = function() {
-		return this.constraint;
-	};
-
-	ns.PathConstraint.prototype.createConstraintElement = function(pathManager) {
-		
-		var breadcrumb = new facets.Breadcrumb(pathManager, this.path);
-		var expr = this.constraint.createExpr(breadcrumb);
-
-		var triples = breadcrumb.getTriples();
-		
-		var result = new ns.ConstraintElement(triples, expr);
-		
-		return result;
-
-	};
 	
-	ns.PathConstraint.prototype.toString = function() {
-		return "" + this.path + " " + this.constraint;
+	ns.PathConstraint.prototype = {
+		getPath: function() {
+			return this.path;
+		},
+
+		getConstraint: function() {
+			return this.constraint;
+		},
+		
+		createConstraintElement: function(pathManager) {
+		
+			var breadcrumb = new facets.Breadcrumb(pathManager, this.path);
+			var expr = this.constraint.createExpr(breadcrumb);
+	
+			var triples = breadcrumb.getTriples();
+			
+			var result = new ns.ConstraintElement(triples, expr);
+			
+			return result;
+		},
+	
+		toString: function() {
+			return "" + this.path + " " + this.constraint;
+		},
+		
+		toJson: function() {
+			var result = {
+					path: this.path.toJson(),
+					constraint: this.constraint.toJson()
+			};
+			
+			return result;
+			/*
+			this.path = path;
+			this.constraint = constraint;
+			*/
+		}
 	};
 	
 	

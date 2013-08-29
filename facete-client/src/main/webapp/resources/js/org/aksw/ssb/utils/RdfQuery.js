@@ -16,7 +16,7 @@
 				for(var i = 0; i < os.length; ++i) {
 					var o = os[i];
 					
-					var node = sparql.Node.fromJson(o);
+					var node = sparql.Node.fromTalisJson(o);
 					
 					//var t = "<" + s.toString() + "> " + "<" + p.toString() + "> " + node.toString() + "";
 					//var t = "<" + s.toString() + "> " + "<" + p.toString() + "> <" + s.toString() + "> .";

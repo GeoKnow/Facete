@@ -349,6 +349,8 @@
 		this._isInverse = isInverse;
 	};
 	
+	ns.Step.classLabel = 'Step';
+	
 	/**
 	 * Create a Step from a json specification:
 	 * {
@@ -358,7 +360,7 @@
 	 * 
 	 * @param json
 	 */
-	ns.Step.fromSpec = function(json) {
+	ns.Step.fromJson = function(json) {
 		var propertyName = checkNotNull(json.propertyName);
 		var isInverse = json.IsInverse();
 		
@@ -378,10 +380,10 @@
 
 	
 	ns.Step.prototype = {
-			toSpec: function() {
+			toJson: function() {
 				var result = {
 					isInverse: this.isInverse,
-					propertyname: this.propertyName
+					propertyName: this.propertyName
 				};
 				
 				return result;
@@ -434,6 +436,28 @@
 	ns.Path = function(steps) {
 		this.steps = steps ? steps : [];
 	};
+	
+	ns.Path.classLabel = 'Path';
+	
+	/**
+	 * Input must be a json array of json for the steps.
+	 * 
+	 */
+	ns.Path.fromJson = function(json) {
+		var steps = [];
+		
+		for(var i = 0; i < json.length; ++i) {
+			var item = json[i];
+			
+			var step = ns.Step.fromJson(item);
+			
+			steps.push(step);
+		}
+		
+		var result = new ns.Path(steps);
+		return result;
+	};
+
 	
 	ns.Path.fromString = function(pathStr) {
 		pathStr = $.trim(pathStr);
@@ -527,7 +551,21 @@
 			var result = new ns.Path(newSteps);
 			
 			return result;
-		}
+		},
+		
+		toJson: function() {
+			var result = [];
+			var steps = this.steps;
+			
+			for(var i = 0; i < steps.length; ++i) {
+				var step = steps[i];
+				
+				var stepJson = step.toJson(); 
+				result.push(stepJson);
+			}
+			
+			return result;
+		}		
 	};
 
 	

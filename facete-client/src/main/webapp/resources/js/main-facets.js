@@ -621,40 +621,103 @@ var SparqlBrowseModel = Backbone.Model.extend({
     };
     
     ns.exportState = function(configModel) {
-    	var state = ns.stringifyCyclic(configModel);
+    	//var state = ns.stringifyCyclic(configModel);
     	
-    	
-    	var exporter = {
-    		'sparqlServiceIri': 'default',
-    		'sparqlDefaultGraphIris': 'default',
-    		
-    		'concept': 'default',
-    		
-    			
+    	var classMap = {
+    		'equalsConstraint': ns.ConstraintEquals
     	};
+    	
+    	var masterState = configModel.attributes;
+
+    	
+
+    	
+    	var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
+
+    	// TODO Move to a better place
+    	serializer.indexClasses(sparql);
+    	serializer.indexClasses(facets);
+
+    	
+    	var serializeCollection = function(collection) {
+    		var result = [];
+    		collection.each(function(model) {
+    			
+    			var attributes = model.attributes;
+    			var item = serializer.serialize(attributes);
+    			result.push(item);
+    		});
+    		
+    		return result;
+    	}
+
+    	
+    	// An array can't have properties, so a collection has to be turned into an object. 
+    	/*
+    	serializer.registerOverride(
+    			'ConstraintCollection',
+    			function(collection) {
+    				result = {
+    					items: serializeCollection(collection);
+    				};
+    				return result;
+    			},
+    			function(clazz, json) {
+    				var result = new clazz();
+    				
+    				var result = [];
+    				// 
+    				
+    				return result;
+    			}
+    	);*/
+
+    	
+    	
+    	var state = {
+    		sparqlServiceIri: masterState.sparqlServiceIri,
+    		sparqlDefaultGraphIris: masterState.sparqlDefaultGraphIris,
+    		
+    		//concept: serializer.serialize(masterState.concept.getElement()),
+    		 
+    		constraintCollection: serializeCollection(masterState.constraintCollection),
+    		
+    		collectionColumns: serializeCollection(masterState.collectionColumns),
+    		mapCollection: serializeCollection(masterState.mapCollection),
+    		
+    		facetSelectionCollection: serializeCollection(masterState.facetSelectionCollection),
+    		
+    		isGeoPathAutoMode: masterState.isGeoPathAutoMode,
+    		geoPathCandidateCollection: serializeCollection(masterState.geoPathCandidateCollection),
+    		
+    		
+    	};
+
+    	alert(JSON.stringify(state));
+    	//console.log(state);
     	
     	//alert(state);
     	
     	
-    	// sparqlServiceIri
-    	// sparqlDefaultGraphIris
+    	// [done] sparqlServiceIri (string)
+    	// [done] sparqlDefaultGraphIris (string[])
     	//
-    	// concept
-    	// constraintCollection
+    	// [postponed] concept (json)
+    	// [done] constraintCollection json[]
     	//
-    	// collectionColumns
-    	// mapCollection
+    	// [done] collectionColumns
+    	// [done] mapCollection
+    	// [done] facetSelectionCollection
+    	
+    	// Selected markers
+    	// Main view page
 
-    	
-    	// We also need:
-    	// - Selected markers
-    	// - Main view page
-    	// - Selected facet
-    	// - facet value page
-    	// - Map center + zoom
-    	// - facet tree expansion -> implies a "can-be-deleted" attribute
+    	// facet value page
+    	// facet value ordering
+
+    	// Map center + zoom
+    	// facet tree expansion -> implies a "can-be-deleted" attribute
     	// - 
-    	
     	
     	console.log(configModel.attributes);
     };

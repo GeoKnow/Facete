@@ -688,12 +688,30 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		facetSelectionCollection: serializeCollection(masterState.facetSelectionCollection),
     		
     		isGeoPathAutoMode: masterState.isGeoPathAutoMode,
-    		geoPathCandidateCollection: serializeCollection(masterState.geoPathCandidateCollection),
-    		
+    		geoPathCandidateCollection: serializeCollection(masterState.geoPathCandidateCollection)
     		
     	};
 
-    	alert(JSON.stringify(state));
+    	//alert(JSON.stringify(state));
+    	
+    	//var request = $post(config.permaLinkApiUrl + '/saveState', {state: JSON.stringify(state)});
+
+    	var request = $.ajax({
+    		url: config.permaLinkApiUrl + '/saveState',
+    		type: 'POST',
+    		dataType: 'json',
+    		data: {
+    			state: JSON.stringify(state)
+    		}
+    	});
+    	
+    	
+    	request.done(function(json) {
+    		alert('success', json);
+    	}).fail(function() {
+    		alert('failed to create a perma link');
+    	});
+    	
     	//console.log(state);
     	
     	//alert(state);
@@ -719,7 +737,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	// facet tree expansion -> implies a "can-be-deleted" attribute
     	// - 
     	
-    	console.log(configModel.attributes);
+    	//console.log(configModel.attributes);
     };
     
     
@@ -1010,7 +1028,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		
 		
-		$('#createPermaLink').on('click', function() {
+		$('#createPermaLink').on('click', function(ev) {
+			ev.preventDefault();
 			ns.exportState(configModel);
 		});
 		

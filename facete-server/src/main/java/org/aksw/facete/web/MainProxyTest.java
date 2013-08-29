@@ -1,11 +1,10 @@
 package org.aksw.facete.web;
 
-import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.net.URL;
 
-import org.aksw.commons.util.StreamUtils;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.codec.binary.Base64;
 
 import com.hp.hpl.jena.query.Query;
@@ -18,6 +17,8 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 public class MainProxyTest {
 	public static void main(String[] args) throws Exception {
+		
+		System.out.println(MediaType.APPLICATION_JSON);
 	    String proxyHost = "aklakan.dyndns-server.com";
 	    String proxyPort = "80";
 	    System.out.println("Using proxy: " + proxyHost + ":" + proxyPort);

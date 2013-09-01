@@ -8,6 +8,8 @@ if(!window.console) {
 
 
 
+
+
 /**
  * TODO Move this to backboneUtils.
  * 
@@ -80,6 +82,33 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	var configNs = Namespace("org.aksw.ssb.config");
 
 
+	var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
+
+	// TODO Move to a better place
+	serializer.indexClasses(sparql);
+	serializer.indexClasses(facets);
+
+
+	utils.nodeToHtml = function(node) {
+
+		var result;
+		if(node) {
+			
+			var text = node.value;
+			
+			if(node.isUri()) {
+				result = '<span data-uri="' + text + '" />';
+			} else {
+				result = text; //'"' + node.value+ '"';
+			}
+		}
+		else {
+			result = '(null)';
+		}
+		
+		return result;
+	};
+	
 	
 	widgets.ViewItemConstraintBase = Backbone.View.extend({
 		tagName: 'li',
@@ -96,13 +125,34 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			
 			var constraint = model.get('constraint');
 			
+			
+			var path = constraint.path;
+			var steps = path.getSteps();
+			
+			var str = _.reduce(steps, function(memo, step) {
+				var result
+					= memo
+					+ (memo === '' ? '' : ' / ')
+					+ '<span data-uri="' + step.getPropertyName() + '" />' 
+					+ (step.isInverse() ? '<sup>-1</sup>' : '')
+					;					
+				
+				return result;
+			}, '');
+			
+			/*
+			for(var i = 0; i < steps.length; ++i) {
+				var step = steps[i];
+			}*/
+			
+			
 			// TODO Check constraint type - right now we assume equals
-			var str = "" + constraint.path + " is " + constraint.node;
+			var str = "" + str + " is " + utils.nodeToHtml(constraint.node);
 
-			var $elA = $('<a href="#" />');
-			$elA.text(str);
+			var $a = $('<a href="#" />');
+			$a.html(str);
 			//this.$el.text(str);
-			this.$el.append($elA);
+			this.$el.append($a);
 			/*
 			if(subView) {
 				var subViewEl = subView.render().$el;
@@ -620,6 +670,75 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	return result;
     };
     
+
+
+    
+	var resyncCollection = function(collectionName, targetModel, state) {
+		
+		var rawModels = state[collectionName];
+		var models = serializer.deserialize(rawModels);
+		
+		var targetCollection = targetModel.get(collectionName);
+		targetCollection.reset(models);
+	};
+
+    
+    ns.loadState = function(configModel, hash) {
+    	
+    	var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
+
+    	
+    	
+    	var request = $.ajax({
+    		url: config.permaLinkApiUrl + '/loadState',
+    		type: 'GET',
+    		dataType: 'json',
+    		data: {
+    			hash: hash
+    		}
+    	});
+
+    	
+    	request.done(function(state) {
+    	
+    		
+    		configModel.set({
+    			sparqlServiceIri: state.sparqlServiceIri,
+    			sparqlDefaultGraphIris: state.sparqlDefaultGraphIris,
+    			isGeoPathAutoMode: state.isGeoPathAutoMode
+    		});
+    		
+
+    		resyncCollection('constraintCollection', configModel, state);
+    		resyncCollection('mapCollection', configModel, state);
+    		resyncCollection('facetSelectionCollection', configModel, state);
+    		//resyncCollection('constraintCollection', configModel, state);
+    		
+    		
+    	}).fail(function(json) {
+    		alert('failed to load state for hash ' + hash + ': ' + JSON.stringify(state));
+    	});
+    	
+    	
+    	
+    	
+    	
+    }
+
+    
+	var serializeCollection = function(collection) {
+		var result = [];
+		collection.each(function(model) {
+			
+			var attributes = model.attributes;
+			var item = serializer.serialize(attributes);
+			result.push(item);
+		});
+		
+		return result;
+	};
+
+	
     ns.exportState = function(configModel) {
     	//var state = ns.stringifyCyclic(configModel);
     	
@@ -630,26 +749,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	var masterState = configModel.attributes;
 
     	
-
-    	
     	var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
 
-    	// TODO Move to a better place
-    	serializer.indexClasses(sparql);
-    	serializer.indexClasses(facets);
 
     	
-    	var serializeCollection = function(collection) {
-    		var result = [];
-    		collection.each(function(model) {
-    			
-    			var attributes = model.attributes;
-    			var item = serializer.serialize(attributes);
-    			result.push(item);
-    		});
-    		
-    		return result;
-    	}
+    	
 
     	
     	// An array can't have properties, so a collection has to be turned into an object. 
@@ -687,8 +791,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		facetSelectionCollection: serializeCollection(masterState.facetSelectionCollection),
     		
-    		isGeoPathAutoMode: masterState.isGeoPathAutoMode,
-    		geoPathCandidateCollection: serializeCollection(masterState.geoPathCandidateCollection)
+    		isGeoPathAutoMode: masterState.isGeoPathAutoMode
+    		//geoPathCandidateCollection: serializeCollection(masterState.geoPathCandidateCollection)
     		
     	};
 
@@ -707,7 +811,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	
     	
     	request.done(function(json) {
-    		alert('success', json);
+    		alert('success' + JSON.stringify(json));
     	}).fail(function() {
     		alert('failed to create a perma link');
     	});
@@ -1033,6 +1137,14 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			ns.exportState(configModel);
 		});
 		
+		$('#debugPermaLink').on('click', function(ev) {
+			ev.preventDefault();
+			
+			var hash = prompt('Enter the hash');
+			if(hash && hash != '') {
+				ns.loadState(configModel, hash);	
+			}
+		});
 		
 		/*
 		facetWidget.on('itemAdded', function(ev) {
@@ -1182,6 +1294,14 @@ var SparqlBrowseModel = Backbone.Model.extend({
 //			el: $el,
 			collection: constraintCollection
 		});
+		
+		view.on('renderDone', function(view) {
+			var $el = view.$el;
+			var i18n = configModel.get('i18n');
+			
+			i18n.update($el);
+		});
+		
 		
 		var $elContainer = $('#constraints');
 		var rendered = view.render().el
@@ -2478,7 +2598,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			//var geoPath = json[id]['http://ha.ck/geoPath'][0].value;
 			var node = sparql.Node.uri(id);
 			
-			console.log("Unselect " + id);
+			//console.log("Unselect " + id);
 
 			// Add a short delay for the case that another node was selected
 			// immediately after unselecting this one -

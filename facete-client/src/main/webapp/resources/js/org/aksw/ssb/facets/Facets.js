@@ -565,7 +565,24 @@
 			}
 			
 			return result;
-		}		
+		},
+		
+		/*
+		 * 
+		 * TODO Make result distinct
+		 */
+		getPropertyNames: function() {
+			var result = [];
+			var steps = this.steps;
+			
+			for(var i = 0; i < steps.length; ++i) {
+				var step = steps[i];
+				var propertyName = step.getPropertyName();
+				result.push(propertyName);
+			}
+			
+			return result;
+		}
 	};
 
 	

@@ -79,17 +79,23 @@
 			this.updateByConstraintModel(model);			
 		},
 		
-		onResetConstraints: function(collection) {
+		onResetConstraints: function(collection, options) {
 
 			var self = this;
 			
-			collection.each(function(model) {
+			var previousModels = options.previousModels;
+			for(var i = 0; i < previousModels.length; ++i) {
+				var model = previousModels[i];
+				
 				self.onRemoveConstraint(model);
+			}
+			
+			collection.each(function(model) {
+				//self.onRemoveConstraint(model);
+				self.onAddConstraint(model);
 			});
 			
-			console.log("TODO Maybe we need to add new models here?");
-			
-			throw "Not implemented yet";
+
 		}
 	};
 	
@@ -214,17 +220,27 @@
 			});
 		},
 		
-		onReset: function(collection) {
-			
+		onReset: function(collection, options) {
+
+			console.log("[WARN] Reset not thoroughly tested.");
+
 			var self = this;
 			
-			collection.each(function(model) {
+			var previousModels = options.previousModels;
+			for(var i = 0; i < previousModels.length; ++i) {
+				var model = previousModels[i];
+				
 				self.onRemoveConstraint(model);
+			}
+			
+			collection.each(function(model) {
+				//self.onRemoveConstraint(model);
+				self.onAddConstraint(model);
 			});
 			
-			console.log("TODO Maybe we need to add new models here?");
 
-			throw "Reset not supported yet";
+			//models.each(function(model))
+			//throw "Reset not supported yet";
 		},
 
 		setFacetNode: function(facetNode) {

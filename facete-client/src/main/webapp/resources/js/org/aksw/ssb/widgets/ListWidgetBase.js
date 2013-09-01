@@ -120,7 +120,8 @@
 	    	this.collection.bind('add', this.addModel, this);
 	    	this.collection.bind('remove', this.removeModel, this);
 	    	this.collection.bind('reset', this.reset, this);
-	    	
+
+	    	//this.collection.bind('change', this.)
 	    	
 	    	this.viewModels = new Backbone.Collection();
 	    	
@@ -167,6 +168,9 @@
     		else {
 	    		console.log("[ERROR] No corresponding view found for model: ", model);
 	    	}
+    		
+    		
+			this.trigger('renderDone', this);
 	    },
 	    
 	    addModel: function(model) {
@@ -193,6 +197,9 @@
 				target: this,
 				viewModel: viewModel
 			});
+			
+			
+			this.trigger('renderDone', this);
 	    },
 	    
 	    /*
@@ -217,6 +224,9 @@
 				*/
 			});
 			
+			
+			this.trigger('renderDone', this);
+			
 			return this;
 	    },
 	    unrender: function() {
@@ -236,7 +246,7 @@
 	    },
 
 	    reset: function() {
-	    	console.log("Resetting list.");
+	    	//console.log("Resetting list.");
 	    	
 	    	//console.log("Reset", arguments);
 	    	this.$el.empty();

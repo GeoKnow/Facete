@@ -48,7 +48,8 @@ public class FaceteIndexController {
 //	private MinifyHelper htmlIncludes;
 	
 	@Resource(name="facete.themeConfig")
-	FaceteThemeConfig themeConfig;
+	//@Autowired
+	private FaceteThemeConfig themeConfig;
 	
 	//@RequestMapping(method = RequestMethod.GET)
 	@RequestMapping(value = "/welcome.do", method = RequestMethod.GET)

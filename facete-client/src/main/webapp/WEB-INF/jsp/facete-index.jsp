@@ -70,13 +70,18 @@
 
 			 
 			var $showIntroScreen = $('#show-intro-screen');
+			var $introScreen = $('#myModal'); 			 
+
+			$introScreen.on('shown', function() {
+				$(window).resize();
+			});
+
 			$showIntroScreen.click(function(ev) {
 				ev.preventDefault();
-				
-				$introScreen.modal();
+			
+				$introScreen.modal('show');
 			});
 			 
-			var $introScreen = $('#myModal'); 			 
 			var $introScreenCheckbox = $('#introScreenCheckbox');
 			
 			$introScreen.on('hidden.bs.modal', function () {
@@ -287,6 +292,7 @@
 			});
 
 			
+			$('.modal-body').autoHeight();
 			
 			//$('.portlet-content').autoHeight();
 
@@ -432,27 +438,31 @@
 
 <!-- 			</div> -->
 </td>
+</tr>
 </table>
+</div>
+
+</div>
 
 <!--  		</div> -->
 		
 <!--     </div> -->
     
 <!-- Modal -->
-  <div class="modal fade" style="display: none; left: 10%; width: 80%; margin: 0px" id="myModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
+  <div class="modal fade" style="position: fixed; display: none; top: 5%; left: 5%; width: 90%; height: 90%; margin: 0px" id="myModal">
+    <div class="modal-dialog" style="height: 100%">
+      <div class="modal-content" style="height: 100%">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Welcome to SemMap - A tool for exploring (geographical) Linked Data datasets on the Web.</h4>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="max-height: 100%;">
           
 <h3>About SemMap</h3>
 The <i>Semmap</i> applications allows the user to explore the content of a Linked Data endpoint in a graphical way.
 It allows the user to select a specific slice of data that he or she is interested in, creating a '<i>facet</i>' of the database.
 The facet is created by defining a set of constraints on properties in the database. Once the facet is define, the information in the facet can be clicked-through in a tabular interface and visualized on a map.
-The user can ick a SPARQL endpoint and graph through the selection boxes on the top of the screen.
+The user can choose a SPARQL endpoint and graph through the selection boxes on the top of the screen.
 
 This screen is meant as a quick guide on how to use SemMap. The application's structure is shown below, with an explanation on how to use each part.
 A more in-depth tutorial is provided under <a href="http://odp.tenforce.com/semmap/tutorial">http://odp.tenforce.com/semmap/tutorial</a>.
@@ -469,8 +479,8 @@ A more in-depth tutorial is provided under <a href="http://odp.tenforce.com/semm
 <div class="section-heading">3. Geographical</div>
 </td>
 </tr>
-
-<td>
+<tr>
+<td style="border-left:none; width: 20%; background-color:#E9EFF3;">
 The facet tree shows the structure of the dataset to the user. It shows all items' properties and sub-properties as a tree.
 
 <img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-facets.png" />
@@ -483,7 +493,7 @@ The user can also place restrictions on items in the facet by clicking a propert
 
 All filters can be removed by clicking 'Clear Filters'.
 </td>
-<td>
+<td style="width: 35%;">		
 The Table view shows a tabular representation of the data in the facet.
 All properties that have been marked with an arrow symbol in the  facet tree are shown as columns.
 The columns contain the property values for every item according to the selected filter criteria.
@@ -498,7 +508,7 @@ The number of rows shown per page in the table is controlled by the the 'Max Row
 The user can flip pages using the controls at the bottom of the table. 
 </td>
 
-<td>
+<td style="border-right: none; background-color:#E9EFF3; width: 40%;">
 The map view shows a geographic representation of the elements in the facet if there are elements with geo-coordinates available.
 <img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-map.png" />
 It can happen that there are a lot of elements present in a region. That region is then shown as a blue rectangle to keep the application responsive. The user can zoom in on this region to view hidden items.
@@ -507,7 +517,7 @@ The user can click an item on the map to show all its property values below the 
 
 <img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-detailView.png" />
 </td>
-
+</tr>
 </table>
 <!--
 <img src="resources/images/facete-intro.png"></img>

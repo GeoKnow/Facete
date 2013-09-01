@@ -448,8 +448,70 @@
         </div>
         <div class="modal-body">
           
-          
-          <img src="resources/images/facete-intro.png"></img>
+<h3>About SemMap</h3>
+The <i>Semmap</i> applications allows the user to explore the content of a Linked Data endpoint in a graphical way.
+It allows the user to select a specific slice of data that he or she is interested in, creating a '<i>facet</i>' of the database.
+The facet is created by defining a set of constraints on properties in the database. Once the facet is define, the information in the facet can be clicked-through in a tabular interface and visualized on a map.
+The user can ick a SPARQL endpoint and graph through the selection boxes on the top of the screen.
+
+This screen is meant as a quick guide on how to use SemMap. The application's structure is shown below, with an explanation on how to use each part.
+A more in-depth tutorial is provided under <a href="http://odp.tenforce.com/semmap/tutorial">http://odp.tenforce.com/semmap/tutorial</a>.
+
+<table class="layout-table">
+<tr>
+<td style="border-left:none; width: 20%; background-color:#E9EFF3;">
+<div class="section-heading">1. Selection</div>
+</td>
+<td style="width: 35%;">		
+<div class="section-heading">2. Data</div>
+</td>          
+<td style="border-right: none; background-color:#E9EFF3; width: 40%;">
+<div class="section-heading">3. Geographical</div>
+</td>
+</tr>
+
+<td>
+The facet tree shows the structure ofthe dataset to the user. It shows all items' properties and sub-properties as a tree.
+
+<img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-facets.png" />
+
+The user can add a porperty as a column to the table view by hovering over the property and clicking the arrow symbol.
+<i>TODO Add image of arrow symbol</i>
+The user can also place restrictions on items in the facet by clicking a property and selecting a numer of values that are allowed for the property and selecting a number of values that are exist for the property.
+
+<img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-facetValues.png" />
+
+All filters can be removed by clicking 'Clear Filters'.
+</td>
+<td>
+The Table view shows a tublar representation of the data in the facet.
+All properties that have been marked with an arrow symbol in the  facet tree are shown as columns.
+The columns contain the property alues for every item according to the selected filter criteria.
+
+
+<img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-dataTable.png" />
+
+Every table view in SemMap has a 'filter' input field.
+The user can enter a word in this field.
+All elements in the table that do not contain this word are then hidden.
+The number of rows shown per page in the table is controlled by the the 'Max Rows' selection.
+The user can flip pages using the controls at the bottom of the table. 
+</td>
+
+<td>
+The map view shows a geographic representation of the elements in the facet if there are elements with geo-coordinates available.
+<img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-map.png" />
+It can happen that there are a lot of elements present in a region. That region is then shown as a blue rectangle to keep the application responsive. The user can zoom in on this region to view hidden items.
+
+The user can click an item on the map to show all its property values below the map.
+
+<img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-detailView.png" />
+</td>
+
+</table>
+<!--
+<img src="resources/images/facete-intro.png"></img>
+  -->
           
           
         </div>

@@ -928,6 +928,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				collectionColumns: new facets.CollectionColumns(),
 				facetSelectionCollection: new facets.CollectionColumns(),
 				
+				// Which nodes in the facet tree are expanded
+				expansionCollection: new facets.CollectionColumns(),
+				
 				// Map collection is the collection of paths added to the map
 				mapCollection: new facets.CollectionColumns(),
 		
@@ -1384,7 +1387,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     
     ns.createDetailView = function(configModel) {
     	
-		var widget = widgetNs.createQueryBrowser();
+		//var widget = widgetNs.createQueryBrowser();
+    	var widget = ns.createDataTableModel(configModel);
+
+    	
 		
 		var tableModel = widget.models.tableModel;
 
@@ -1398,7 +1404,16 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		container.children().remove();
 
 		
-		widgetNs.createView(container, widget);
+		var view = widgetNs.createView(container, widget);
+		
+		
+		view.on('renderDone', function(view) {
+			var $el = view.$el;
+			var i18n = configModel.get('i18n');
+			
+			i18n.update($el);
+		});
+
 		
 		
 		configModel.on('change:detailViewQueryFactory', function(model) {

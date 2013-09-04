@@ -738,7 +738,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		
     	}).fail(function(json) {
-    		alert('failed to load state for hash ' + hash + ': ' + JSON.stringify(state));
+    		alert('failed to load state for hash ' + hash); // + ': ' + JSON.stringify(json));
     	});
     	
     	
@@ -842,7 +842,18 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	
     	
     	request.done(function(json) {
-    		alert('success' + JSON.stringify(json));
+    		//alert('success' + JSON.stringify(json));
+    		
+    		var baseUrl = location.href;
+			
+			// cut off any hash string
+			var hashStringStart = baseUrl.indexOf("#");
+			if(hashStringStart >= 0) {
+				baseUrl = baseUrl.substring(0, hashStringStart);
+			}
+			
+			alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
+    		
     	}).fail(function() {
     		alert('failed to create a perma link');
     	});
@@ -1383,7 +1394,31 @@ var SparqlBrowseModel = Backbone.Model.extend({
         //updateBtnClearFilters.call(constraintCollection);
         
         
+        
+        
+        
+        ns.restoreState(configModel);
+        
 	};
+	
+	ns.restoreState = function(configModel) {
+		
+		var baseUrl = location.href;
+		
+		// cut off any hash string
+		var hashString = "";
+		var hashStringStart = baseUrl.indexOf("#");
+		if(hashStringStart >= 0) {
+			hashString = baseUrl.substring(hashStringStart + 1);
+			//baseUrl = baseUrl.substring(0, hashStringStart);
+			
+			ns.loadState(configModel, hashString);
+		}
+		
+		//alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
+
+	};
+	
 
 	
 	ns.createConstraintView = function(configModel) {

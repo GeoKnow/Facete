@@ -134,7 +134,7 @@
 		
 		
 		var result = ns.executeQuery(serviceUri, this.defaultGraphUris, queryString, httpOptions, ajaxOptions);
-			
+
 		return result;
 	};
 	

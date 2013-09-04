@@ -728,7 +728,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		
     		var mapState = state.mapState;
-        	alert(JSON.stringify(state.mapState));
+        	//alert(JSON.stringify(state.mapState));
     		
     		var mapModel = configModel.get('mapModel');
     		mapModel.set(mapState);

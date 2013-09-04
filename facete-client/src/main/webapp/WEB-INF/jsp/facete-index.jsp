@@ -486,7 +486,7 @@ The facet tree shows the structure of the dataset to the user. It shows all item
 <img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-facets.png" />
 
 The user can add a property as a column to the table view by hovering over the property and clicking the arrow symbol.
-<i>TODO Add image of arrow symbol</i>
+<!-- TODO Add image of arrow symbol -->
 The user can also place restrictions on items in the facet by clicking a property and selecting a number of values that are allowed for the property and selecting a number of values that are exist for the property.
 
 <img style="width: 100%;" src="resources/images/org/aksw/facete/intro/facete-intro-facetValues.png" />

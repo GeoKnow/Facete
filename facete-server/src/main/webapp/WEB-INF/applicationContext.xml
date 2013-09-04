@@ -31,6 +31,12 @@
 	</bean>
 
 
+<!-- 	<bean id="facete.dataSource" class="org.springframework.jndi.JndiObjectFactoryBean"> -->
+<!-- 	    <property name="jndiName"><value>jdbc/facete</value></property> -->
+<!-- 	    <property name="resourceRef"><value>true</value></property> -->
+<!-- 	</bean> -->
+
+
 	<!-- <task:annotation-driven /> -->
 
 

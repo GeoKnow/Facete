@@ -1,5 +1,6 @@
 
 /* Disable console for browsers without console object, such as IE7 */
+/* TODO Move this to a separate file - shouldn't some shim file provide it anyway? */
 if(!window.console) {
 	window.console = {
 			log: function() { }
@@ -684,6 +685,17 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     
     ns.loadState = function(configModel, hash) {
+
+    	/*
+		var mapModel = configModel.get('mapModel');
+		mapModel.set({
+			center: {lon: -50, lat: -50},
+			zoom : 14
+		});
+		
+		return;
+		*/
+
     	
     	var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
 
@@ -712,6 +724,16 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		resyncCollection('constraintCollection', configModel, state);
     		resyncCollection('mapCollection', configModel, state);
     		resyncCollection('facetSelectionCollection', configModel, state);
+    		
+    		
+    		
+    		var mapState = state.mapState;
+        	alert(JSON.stringify(state.mapState));
+    		
+    		var mapModel = configModel.get('mapModel');
+    		mapModel.set(mapState);
+
+    		
     		//resyncCollection('constraintCollection', configModel, state);
     		
     		
@@ -778,6 +800,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     	
     	
+    	var mapState = masterState.mapModel.attributes;
+    	
+    	
     	var state = {
     		sparqlServiceIri: masterState.sparqlServiceIri,
     		sparqlDefaultGraphIris: masterState.sparqlDefaultGraphIris,
@@ -791,11 +816,17 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		facetSelectionCollection: serializeCollection(masterState.facetSelectionCollection),
     		
-    		isGeoPathAutoMode: masterState.isGeoPathAutoMode
+    		isGeoPathAutoMode: masterState.isGeoPathAutoMode,
     		//geoPathCandidateCollection: serializeCollection(masterState.geoPathCandidateCollection)
     		
+    		mapState: {
+    			center: mapState.center,
+    			zoom: mapState.zoom
+    		}
     	};
 
+    	
+    	//alert(JSON.stringify(state.mapState));
     	//alert(JSON.stringify(state));
     	
     	//var request = $post(config.permaLinkApiUrl + '/saveState', {state: JSON.stringify(state)});
@@ -844,6 +875,32 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	//console.log(configModel.attributes);
     };
     
+    
+    
+    ns.pathToString = function(path, uriToLabel) {
+    	var steps = path.getSteps();
+    	
+    	var result = "";
+    	for(var i = 0; i < steps.length; ++i) {
+    		var step = steps[i];
+    		
+    		var uri = step.getPropertyName();
+    		var entry = uriToLabel[uri];
+
+    		// TODO Extract the local name of the URI
+    		var label = entry ? entry.value : uri;
+    		
+    		if(result.length != 0) {
+    			result += ' / ';
+    		}
+    		
+    		
+    		result += (step.isInverse() ? '-' : '') + label; 
+    	}
+    	
+    	
+    	return result;
+    };
     
     
     
@@ -944,6 +1001,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 				conceptPathFinderApiUrl: config.conceptPathFinderApiUrl,
 				
+				
+				mapModel: new facets.MapModel(),
+				
 				/*
 				 * Services based on above properties
 				 */
@@ -982,52 +1042,90 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var $elGeoLinkSelect = $('#geolink');
 		geoPathCandidateCollection.on('all', function() {
 			
+			var pathCollection = this;
+			
 			$elGeoLinkSelect.empty();
 			
-			// If we are on auto mode, set the first shortest path.
-			// Otherwise, check the entries that are in the mapCollection
-			var isGeoPathAutoMode = configModel.get('isGeoPathAutoMode');
-			var mapCollection = configModel.get('mapCollection');
-						
+			var self = this;
 			
-			$elGeoLinkSelect.append('<option value="disabled">Disabled</option>');
-			
-			var autoPath = null;
-			if(this.length > 0) {
-				autoPath = this.first().get('path');
-			}
-			
-			var pathStr = '' + autoPath;
-			if(pathStr === '') {
-				pathStr = 'empty path'
-			}
-			
-			var autoPathStr = autoPath ? 'Auto (' + pathStr + ')' : '(no path found)';
-			
-			var selectedStr = autoPath ? ' selected' : '';
-			$elGeoLinkSelect.append('<option value="auto"' + selectedStr + '>' + autoPathStr + '</option>');
-			
-			
-			this.each(function(model) {
+			// Fetch all labels for the paths
+			var uriStrs = [];
+			pathCollection.each(function(model) {
 				var id = model.id;
-				var path = model.get('path');				
-				
-				var n = path.getSteps().length;
-			
-				
-				var selectedStr = mapCollection.get(id) ? ' selected' : '';
-				
-				$elGeoLinkSelect.append('<option value="' + id + '"' + selectedStr + '>' + n + ': ' + path + '</option>');	
+				var path = model.get('path');
+
+				uriStrs.push.apply(uriStrs, path.getPropertyNames());
 			});
 			
+			uriStrs = _.uniq(uriStrs);
+			//console.log('path uris are:', uriStrs);
+
+			var labelFetcher = configModel.get('labelFetcher');
 			
-			if(autoPath) {
-				mapCollection.reset();
-				mapCollection.add({
-					id: '' + autoPath,
-					path: autoPath
+			var promise = labelFetcher.fetch(uriStrs);
+			
+			
+			
+			
+			promise.done(function(labelInfo) {
+
+				// If we are on auto mode, set the first shortest path.
+				// Otherwise, check the entries that are in the mapCollection
+				var isGeoPathAutoMode = configModel.get('isGeoPathAutoMode');
+				var mapCollection = configModel.get('mapCollection');
+
+				
+				var uriToLabel = labelInfo.uriToLabel;
+				
+				pathCollection.each(function(model) {
+					var id = model.id;
+					var path = model.get('path');				
+					
+					var n = path.getSteps().length;
+				
+					
+					var selectedStr = mapCollection.get(id) ? ' selected' : '';
+					
+					var pathStr = ns.pathToString(path, uriToLabel);
+					
+					$elGeoLinkSelect.append('<option value="' + id + '"' + selectedStr + '>' + n + ': ' + pathStr + '</option>');	
 				});
-			}
+
+				
+				
+				$elGeoLinkSelect.append('<option value="disabled">Disabled</option>');
+				
+				var autoPath = null;
+				if(pathCollection.length > 0) {
+					autoPath = pathCollection.first().get('path');
+				}
+				
+				var pathStr = null;
+				if(autoPath != null) {
+					pathStr = ns.pathToString(autoPath, uriToLabel);
+
+					if(pathStr === '') {
+						pathStr = 'empty path'
+					}
+				}
+				
+				var autoPathStr = autoPath ? 'Auto (' + pathStr + ')' : '(no path found)';
+				
+				var selectedStr = autoPath ? ' selected' : '';
+				$elGeoLinkSelect.append('<option value="auto"' + selectedStr + '>' + autoPathStr + '</option>');
+
+				
+				if(autoPath) {
+					mapCollection.reset();
+					mapCollection.add({
+						id: '' + autoPath,
+						path: autoPath
+					});
+				}
+
+			});
+			
+	
 		});
 
 		$elGeoLinkSelect.on('change', function() {
@@ -2268,8 +2366,13 @@ var SparqlBrowseModel = Backbone.Model.extend({
 //			data: {}
 //		});
 
-    	var mapModel = new facets.MapModel();
+    	//var mapModel = new facets.MapModel();
 		
+    	var mapModel = configModel.get('mapModel');
+    	
+		//Backbone.linkModels(configModel, facetValuesConfigModel, true, ['sparqlService', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n']);
+
+    	
 		var mapView = new widgets.MapView({
 			el: $("#map"),
 			model: mapModel
@@ -2280,9 +2383,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		 * TODO Hack for resizing the map...
 		 * TODO Get rid of this 
 		 */
-		constraintCollection.on('all', function() {
+//		constraintCollection.on('all', function() {
+//		mapView.getMap().updateSize();
+//	});
+
+		// TODO Untested, if it does not work, use above code again
+		$(window).on('resize', function() {
 			mapView.getMap().updateSize();
 		});
+		
 		
 		
 		/*
@@ -2522,7 +2631,20 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	updateMapHint();
     	
     	
-		mapView.on('mapevent', function() {
+    	mapView.on('mapevent', function() {
+    		var model = this.model;
+    		
+    		
+    		var basicState = this.getBasicState();
+    		//alert('Basic state:' + JSON.stringify(basicState));
+    		model.set(basicState);
+    	});
+
+    	    	
+		//mapView.on('mapevent', function() {
+    	
+    	// This event is based on a change to the backbone map model
+    	mapModel.on('change', function() {
 			//console.log("mapevent");
 			var map = mapView.getMap();
 
@@ -2622,7 +2744,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			// having no constraints at all for the blink of an eye, because
 			// each change in state triggers the data fetching workflow
 
-			// TODO Maybe there is a better solution to this? When a new feature is clicked, the old one first becomes de-selected
+			// TODO HACK Maybe there is a better solution to this? When a new feature is clicked, the old one first becomes de-selected
 			// Upon deselection, however, we may already initiate a workflow for updating the facets
 			setTimeout(function() {
 				constraintCollection.setEqualsConstraint(geoPath, node, false);				

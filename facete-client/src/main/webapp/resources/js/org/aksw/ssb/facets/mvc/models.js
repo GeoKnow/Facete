@@ -503,6 +503,9 @@
 	
 	ns.MapModel = Backbone.Model.extend({
 		defaults: {
+			center: {lat: 0, lon: 0},
+			zoom: 10,
+			
 			/**
 			 * The collection of resources that should be displayed. 
 			 */

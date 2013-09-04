@@ -46,6 +46,11 @@
 			var targetModel = this.rootFacetModel.forPath(path);
 			console.log("[ControllerSelectionCountSync] targetModel: ", targetModel);
 
+			if(!targetModel) {
+				console.log('[WARN] No targetModel found');
+				return;
+			}
+			
 			//var facetFacadeNode = targetModel.get('facetFacadeNode');			
 			//console.log("[ControllerSelectionCountSync] FacetFacadeNode is: ", facetFacadeNode);
 			

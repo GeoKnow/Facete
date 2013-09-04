@@ -65,8 +65,13 @@
 		<dispatcher>FORWARD</dispatcher>
 	</filter-mapping>
 
-
-
+<!-- 	<resource-ref> -->
+<!-- 	  <description>Facete database for perma links and SPARQL cache</description> -->
+<!-- 	  <res-ref-name>jdbc/facete</res-ref-name> -->
+<!--      <jndi-name>jdbc/PrimaryDBInTheContainer</jndi-name> -->
+<!-- 	  <res-type>javax.sql.DataSource</res-type> -->
+<!-- 	  <res-auth>CONTAINER</res-auth> -->
+<!-- 	</resource-ref> -->
 
 
 	<!-- <servlet> -->

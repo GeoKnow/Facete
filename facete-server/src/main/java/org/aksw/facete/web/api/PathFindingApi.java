@@ -46,20 +46,22 @@ public class PathFindingApi {
 	}
 	
 	public static QueryExecutionFactory createQef(ServiceDesc service) throws ClassNotFoundException, SQLException {
-	
-		if(cacheFrontend == null) {
-			synchronized(PathFindingApi.class) {
-				if(cacheFrontend == null) {
-					cacheFrontend = createCache();
-				}
-			}
-		}
+
+		// TODO The cache configuration needs to be injected from the outside, e.g. a debian package that gets deployed.
+		// Or an admin interface that is shown on first start (like mediawiki, wordpress, etc)
+//		if(cacheFrontend == null) {
+//			synchronized(PathFindingApi.class) {
+//				if(cacheFrontend == null) {
+//					cacheFrontend = createCache();
+//				}
+//			}
+//		}
 
 
-        QueryExecutionFactory qef = new QueryExecutionFactoryHttp(service.getServiceIri(), service.getDefaultGraphIris());
-        qef = new QueryExecutionFactoryDelay(qef, 10000l); // 10 second delay between queries
-        qef = new QueryExecutionFactoryRetry(qef, 5, 60000l); // 5 retries, 60 second delay between retries
-        qef = new QueryExecutionFactoryCacheEx(qef, cacheFrontend);
+        //QueryExecutionFactory qef = new QueryExecutionFactoryHttp(service.getServiceIri(), service.getDefaultGraphIris());
+        //qef = new QueryExecutionFactoryDelay(qef, 10000l); // 10 second delay between queries
+        //qef = new QueryExecutionFactoryRetry(qef, 5, 60000l); // 5 retries, 60 second delay between retries
+        //qef = new QueryExecutionFactoryCacheEx(qef, cacheFrontend);
 		
 		QueryExecutionFactory result = new QueryExecutionFactoryHttp(service.getServiceIri(), service.getDefaultGraphIris());
 		

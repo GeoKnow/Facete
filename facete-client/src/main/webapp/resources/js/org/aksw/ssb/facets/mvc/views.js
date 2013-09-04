@@ -81,6 +81,8 @@
 			
 			var property = this.targetProperty;
 			var self = this;
+
+
 			this.targetModel.on('change:' + property, function() {
 				var value = this.get(property);
 				if(value) {

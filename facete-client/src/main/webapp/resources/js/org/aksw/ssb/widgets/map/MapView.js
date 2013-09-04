@@ -513,6 +513,9 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	      var model = this.model;
 	      //model.on('change:uris change:json', this.updateView, this);
 	      
+	      
+	      model.on('change:center change:zoom', this.updateCenter, this);
+	      
 	      var items = model.get('items');
 	      items.on('add', this.addItem, this);
 	      items.on('remove', this.removeItem, this);
@@ -533,6 +536,42 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	      
 	      //itemCollection.on('add', this.addItem, this);
 	      //itemCollection.on('remove', this.removeItem, this);
+	    },
+	    
+	    updateCenter: function(model) {
+	    	
+	    	var map = this.getMap();
+	    	
+	    	var center = model.get('center');
+	    	var zoom = model.get('zoom');
+
+			center = center ? center : map.getCenter().transform(map.projection, map.displayProjection);
+			zoom = zoom ? zoom : map.getZoom();
+
+	    	
+	    	var tmp = new OpenLayers.LonLat(center.lon, center.lat);
+	    	var lonlat = tmp.transform(map.displayProjection, map.projection);
+	    	
+	    	
+	    	console.log('fuck', center, zoom, lonlat);
+
+			map.setCenter(lonlat, zoom, false, false);
+	    },
+
+	    getBasicState: function() {	    	
+	    	var map = this.getMap();
+	    	
+	    	var tmp = map.getCenter();
+	    	var lonlat = tmp.transform(map.projection, map.displayProjection);
+
+	    	var zoom = map.getZoom();
+	    	
+	    	var result = {
+	    		center: {lon: lonlat.lon, lat: lonlat.lat},
+	    		zoom: zoom
+	    	};
+	    	
+	    	return result;
 	    },
 	    
 	    addItem: function(model) {

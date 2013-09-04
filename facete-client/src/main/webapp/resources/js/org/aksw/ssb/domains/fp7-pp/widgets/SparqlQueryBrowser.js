@@ -427,7 +427,7 @@
 //							}
 //						}
 //						return result;
-					},
+					}
 					
 					//collection: models.resultSet, //browseConfig.collection,
 					//model: tableModel

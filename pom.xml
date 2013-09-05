@@ -77,6 +77,7 @@
 		<!-- <connection>scm:git:git@github.com:AKSW/Sparqlify.git</connection> -->
 		<!-- developerConnection></developerConnection -->
 		<!-- url>https://my-project.googlecode.com/svn</url -->
+		<connection>scm:git:git@github.com:GeoKnow/Facete.git</connection>
 		<tag>HEAD</tag>
 	</scm>
 

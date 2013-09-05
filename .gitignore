@@ -4,6 +4,11 @@
 .settings
 
 target
+
+release.properties
+pom.xml.releaseBackup
+
+
 deleteme
 tmp
 

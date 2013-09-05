@@ -11,16 +11,22 @@ CREATE TABLE IF NOT EXISTS "query_cache"(
     "time" TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS "permalinks"(
+    "link_hash" text PRIMARY KEY,
+    "ip" text NOT NULL,
+    "state" text NOT NULL,
+    "time" TIMESTAMP DEFAULT NOW()
+);
 
 -- TODO Possibly track the IP, so we can detect someone spamming the DB
 -- We could also use the tracking (anonymously) to figure out how people are
 -- using the application
-CREATE TABLE IF NOT EXISTS "permalink"(
-    "link_hash" bytea PRIMARY KEY,
+--CREATE TABLE IF NOT EXISTS "permalink"(
+--    "link_hash" bytea PRIMARY KEY,
     -- "title"
     -- "comment"
     -- "ip" cidr NOT NULL,
     -- "hit_count" INT, Keep track how often the link is used
-    "state" bytea,
-    "time" TIMESTAMP
-);
+--    "state" bytea,
+--    "time" TIMESTAMP
+--);

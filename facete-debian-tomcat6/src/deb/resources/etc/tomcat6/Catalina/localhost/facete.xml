@@ -2,8 +2,9 @@
    docBase="/var/lib/tomcat6/webapps/facete.war"
    crossContext="false"
    reloadable="false">
+
    <Resource
-      name="jdbc/facete"
+      name="jdbc/faceteDs"
       auth="Container"
       type="javax.sql.DataSource"
       driverClassName="org.postgresql.Driver"
@@ -23,5 +24,6 @@
       accessToUnderlyingConnectionAllowed="true"
       validationQuery="SELECT VERSION();"
    />
+
 </Context>
 

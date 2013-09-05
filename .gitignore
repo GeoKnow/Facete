@@ -12,6 +12,8 @@ install-rdf-author.sh
 facete-client/lib/jPages/
 facete-client/lib/jscache/
 
+facete-trash
+
 facete-client/lib/RDFauthor/current
 facete-client/lib/Font-Awesome/current
 

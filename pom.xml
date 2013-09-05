@@ -31,6 +31,7 @@
 	<modules>
 		<module>facete-client</module>
 		<module>facete-server</module>
+		<module>facete-debian-tomcat</module>
 	</modules>
 
 
@@ -88,6 +89,15 @@
 				<version>${project.version}</version>
 				<type>war</type>
 			</dependency>
+
+                        <dependency>
+                                <groupId>org.aksw.facete</groupId>
+                                <artifactId>facete-server</artifactId>
+                                <version>${project.version}</version>
+                                <type>war</type>
+                        </dependency>
+
+
 
 			<!-- Jena SPARQL API -->
 <!-- 			<dependency> -->

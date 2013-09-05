@@ -1,9 +1,10 @@
 package org.aksw.facete.web.api;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -11,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.aksw.commons.util.strings.StringUtils;
@@ -23,6 +25,7 @@ interface HashDao {
 */
 
 
+
 @javax.ws.rs.Path("/permalink")
 public class PermaLinkApi {
 
@@ -30,7 +33,10 @@ public class PermaLinkApi {
 	// Actually, we could use hibernate...
 	//private EntityManager entityManager;
 	
-	private static final Map<String, String> map = new HashMap<String, String>();
+	//private static final Map<String, String> map = new HashMap<String, String>();
+	
+	@Resource(name="facete.dataSource")
+	private DataSource dataSource;
 	
 	
 	/**
@@ -46,7 +52,7 @@ public class PermaLinkApi {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String store(@FormParam("state") String json) {
+	public String store(@FormParam("state") String json, @Context HttpServletRequest req) {
 		// TODO Validate against an object model. Otherwise, we script kiddies may fill the DB with rubbish
 		
 		
@@ -64,7 +70,7 @@ public class PermaLinkApi {
 	@Path("/loadState")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String load(@QueryParam("hash") String hash) {
+	public String load(@QueryParam("hash") String hash, @Context HttpServletRequest req) {
 		
 		String json = map.get(hash);
 		if(json == null) {

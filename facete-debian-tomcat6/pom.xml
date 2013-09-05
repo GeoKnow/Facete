@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.aksw.facete</groupId>
 		<artifactId>facete-parent</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.7.0</version>
 	</parent>
 
 	<profiles>
@@ -92,10 +92,7 @@
 						<configuration>
 							<target>
 								<mkdir dir="${project.build.directory}/deb/var/lib/tomcat6/webapps/" />
-								<symlink
-									link="${project.build.directory}/deb/var/lib/tomcat6/webapps/facete.war"
-									resource="../../../../usr/share/lib/facete/facete-debian-tomcat.war"
-								/>
+								<symlink link="${project.build.directory}/deb/var/lib/tomcat6/webapps/facete.war" resource="../../../../usr/share/lib/facete/facete-debian-tomcat.war" />
 <!-- 									resource="${project.build.directory}/deb/usr/share/lib/facete/facete-debian-tomcat.war"  -->
 <!-- 									resource="/usr/share/lib/facete/facete-debian-tomcat.war" -->
 							</target>

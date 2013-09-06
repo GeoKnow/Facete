@@ -724,6 +724,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		resyncCollection('constraintCollection', configModel, state);
     		resyncCollection('mapCollection', configModel, state);
     		resyncCollection('facetSelectionCollection', configModel, state);
+    		resyncCollection('collectionColumns', configModel, state);
     		
     		
     		
@@ -1038,6 +1039,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		});
 		
 		
+		// TODO WTF??? Why is this needed?
     	var geoPathStr = "http://fp7-pp.publicdata.eu/ontology/funding http://fp7-pp.publicdata.eu/ontology/partner http://fp7-pp.publicdata.eu/ontology/address http://fp7-pp.publicdata.eu/ontology/city http://www.w3.org/2002/07/owl#sameAs";
 		var geoPath = facets.Path.fromString(geoPathStr);
 
@@ -1445,6 +1447,16 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 	};
     
+	
+	/**
+	 * Event handler for changes to the configModel,
+	 * which updates derived attributes:
+	 * 
+	 * - sparqlService depends on sparqlServiceIri and sparqlDefaultGraphIris
+	 * - labelFetcher dependns on sparqlService and preferredLanguages
+	 *  
+	 * 
+	 */
     ns.initServices = function(configModel) {
     
     	
@@ -1498,7 +1510,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     ns.createDataTableView = function(configModel) {
     	
-    	var widget = ns.createDataTableModel(configModel);
+    	var widget = ns.createFacetedDataTableModel(configModel);
     	
 		var container = $('#instances');
 		container.children().remove();
@@ -1525,12 +1537,24 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	
     	// TODO: This config model uses the configModel's queryFactory, but in fact we want a different one.
     	
-    	var widget = ns.createDataTableModel(configModel);
+//		var configModel = new Backbone.Model({
+//			defaults: {
+//				queryFactory: null
+//			}
+//		});
+
+		// Link the facetValuesConfigModel to the configModel on a specific set of properties.
+		//Backbone.linkModels(rawConfigModel, configModel, true, ['sparqlService', 'concept', 'constraintCollection', 'rootFacetNode', 'i18n', 'collectionColumns']);
+    	
+    	var widget = ns.createQueryFactoryBasedDataTableModel(configModel);
 
     	
+		//Backbone.linkModels(configModel, tableModel, true, ['sparqlService', 'preferredLanguages']);
 		
 		var tableModel = widget.models.tableModel;
-
+		//tableModel.set({queryFactory: null});
+		
+		
 		attachLabelFetcher(tableModel);
     	
     	/*
@@ -1571,6 +1595,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     };
 
 
+    /**
+     * Creates a QueryFactory for a Concept
+     * 
+     */
     ns.createQueryFactoryConcept = function(concept) {
 
 		var queryGenerator = new facets.QueryGenerator(concept);
@@ -1580,90 +1608,28 @@ var SparqlBrowseModel = Backbone.Model.extend({
     };
     
     
-    ns.createDataTableModel = function(configModel) {
-
+    
+    ns.createQueryFactoryBasedDataTableModel = function(configModel) {
     	var sparqlService = configModel.get('sparqlService');
     	var labelFetcher = configModel.get('labelFetcher');
-
-   	
-		/*
-		var queryFactoryConcept = new facets.QueryFactoryQueryGenerator(
-				queryGenerator);
-
-		var queryFactoryFacets = facets.QueryFactoryFacets.create(queryFactoryConcept, concept.getVariable().getValue()); //v.value);
-
-		var constraintManager = queryFactoryFacets.getConstraintManager();
-*/
-    	
-    	var concept = configModel.get('concept');
-    	var constraintCollection = configModel.get('constraintCollection');
-    	
-    	var rootFacetNode = configModel.get('rootFacetNode');
-    	
-    	var collectionColumns = configModel.get('collectionColumns');
-    	
-
-		//var queryGenerator = new facets.QueryGenerator(concept);
-		//var queryFactory = new facets.QueryFactoryQueryGenerator(queryGenerator, {distinct:true});
-    	var queryFactory = ns.createQueryFactoryConcept(concept);
-    	
-
-
-		/*
-		 * This controller injects the projection into a query:
-		 * First, based on collectionColumns, a pair is returned, containing:
-		 * 
-		 * - the element
-		 * - the list of variables
-		 * - a mapping from varName To path 
-		 */		
-		var controllerColumnSelection = new facets.ControllerColumnSelection(collectionColumns);
-
-		/*
-		var es = rootFacetFacadeNode.forPathStr("").createElements();
-		
-
-		var conceptElement = concept.getElement();
-		es.push(conceptElement);
-		var e = new sparql.ElementGroup(es);
-
-		var v = rootFacetFacadeNode.forPath(facets.Path.fromString("")).getVariable();
-		var conc = new facets.ConceptInt(e, v);		
-		*/
-		
 
 
 		/*
 		 * Initialize the result table list
-		 * 
 		 */
 		var widget = widgetNs.createQueryBrowser();
-		
-
-		/*
-		var resultCollection = new Backbone.Collection();
-		
-		var syncer = new backboneUtils.SyncerRdfCollection(
-				resultCollection
-			//,backboneUtils.createDefaultPostProcessor(labelFetcher);
-		);
-		*/
-
-		
-		
-		
-		//console.log('dataTableModel', widget);
-    	//console.log("Dammit", widget);
-
 		var tableModel = widget.models.tableModel;
-		//var headerMap = tableModel.get('headerMap');
 		
-		
-		//headerMap.add({id: 's', label: 'Item'});
 
-		
-		//tableModel.set({limit: 50});
-		
+		ns.attachLabelMapToDataTable(tableModel, configModel);
+
+		return widget;
+    };
+    
+    
+    ns.attachLabelMapToDataTable = function(tableModel, configModel) {
+    	var collectionColumns = configModel.get('collectionColumns');
+
 		/*
 		 * Update table headings
 		 */
@@ -1671,60 +1637,64 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 	    	var rootFacetNode = configModel.get('rootFacetNode');
 
-	    	//var headerMap = tableModel.get('headerMap');
-	    	
-	    	//headerMap.reset();
-	    	//headerMap.add({id: 's', label: 'Item'});
-	    	
 	    	var labelMap = {};
-	    	
-	    	labelMap['s'] = 'Item';
-			
 			collectionColumns.each(function(model) {
 				var path = model.get('path');
 				
 				var lastStep = path.getLastStep();
 				
-				if(!lastStep) { //path.getLength() === 0) {
-					return;
-				} 
-				
-				var facetNode = rootFacetNode.forPath(path);
-				
+				var facetNode = rootFacetNode.forPath(path);				
 				var v = facetNode.getVariable();
 				
 				var id = v.value;
-				var label = lastStep.propertyName;
-				
-				//labelMap[id] = label;
+				var label = lastStep ? lastStep.propertyName : 'http://ns.aksw.org/facete/builtin/Item';
 				
 				labelMap[id] = '<span data-uri="' + label + '" />';
-				
-				//headerMap.add({id: id, label: label});
-				//headerMap.add({id: id, label: '<span data-uri="' + label + '" />'});
-				
-				
-				
-				//var rootVarNode = rootFacetNode.getVarNode();
-				//rootVarNode.findNodeByVarName()
 			});
 
 			tableModel.set({labelMap: labelMap});
 		});
+
+    };
+    
+    
+    /**
+     * TODO This method mixes view and model code. Clean this up.
+     * 
+     * Build a tableModel object that is synchronized with the
+     * following attributes of a configModel:
+     * 
+     * - sparqlService
+     * - rootFacetNode
+     * - constraintCollection
+     * - collectionColumns 
+     * 
+     * - labelFetcher
+     */
+    ns.createFacetedDataTableModel = function(configModel) {
+
+    	var sparqlService = configModel.get('sparqlService');
+    	var labelFetcher = configModel.get('labelFetcher');
+
+    	var concept = configModel.get('concept');
+    	var constraintCollection = configModel.get('constraintCollection');    	
+    	var rootFacetNode = configModel.get('rootFacetNode');    	
+    	var collectionColumns = configModel.get('collectionColumns');
+
+    	var queryFactory = ns.createQueryFactoryConcept(concept);
+
+
+		/*
+		 * Initialize the result table list
+		 */
+		var widget = widgetNs.createQueryBrowser();
+		var tableModel = widget.models.tableModel;
+		
+
+		ns.attachLabelMapToDataTable(tableModel, configModel);
 		
 		
 		collectionColumns.addPath(facets.Path.fromString(""));
-
-		// TODO Hack to update the table headings
-		// FIXME Does not work when the table model changes
-//		collectionColumns.on('add remove reset', function() {
-//	    	var i18n = configModel.get('i18n');
-//
-//	    	setTimeout(function() {
-//	    		i18n.update($(document.body));
-//	    	}, 500);
-//		});
-
 		
 		
 		widget.models.paginatorModel.set('maxSlotCount', 11);
@@ -1732,39 +1702,18 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		attachLabelFetcher(tableModel);
 		Backbone.linkModels(configModel, tableModel, true, ['sparqlService', 'preferredLanguages']);
-		
-		
-//		configModel.on('change:sparqlService', function() {
-//			console.log('BAM thats a BAM');
-//		});
-//
-//		tableModel.on('change:sparqlService', function() {
-//			console.log('BAM thats another BAM');
-//		});
-		
-		/*
-		console.log('Table model before link', tableModel);
-		eueue
-		*/
 
-		//console.log('Table Model after link', tableModel);
-		
-		
-		tableModel.set({
-			queryFactory : queryFactory
-		});
-		
-		// FIXME: This syncher updates the tableModel based on changes in the constraint collection
-		// However, we also need to update the list based on collectionColumns.
+
 		var ctrlInstaceListSyncer = new facets.ControllerInstanceListSyncer(
-				queryFactory,
-				rootFacetNode,
-				constraintCollection,
-				collectionColumns,
-				tableModel
+			queryFactory,
+			rootFacetNode,
+			constraintCollection,
+			collectionColumns,
+			tableModel
 		);
-		console.log("Table model", widget);
-
+		
+		// Update the table model
+		ctrlInstaceListSyncer.update();
 
 		return widget;
     }
@@ -2793,6 +2742,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			//			alert("Unselect " + id + " with data " + JSON.stringify(json));
 			
+			configModel.set({detailViewQueryFactory: null});
 		});
 
 		

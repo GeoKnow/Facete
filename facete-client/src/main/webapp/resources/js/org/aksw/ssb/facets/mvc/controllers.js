@@ -349,8 +349,20 @@
 	};
 	
 	
-	// Whenever the constraint collection changes, the view might
-	// have to be updated.
+	/**
+	 * Creates a QueryFactory and injects it into a targetModel.
+	 * Generation is based on the following properties:
+	 * 
+	 * - subQueryFactory
+	 * - facetNode
+	 * - constraintCollection
+	 * - collectionColumns
+	 * 
+	 * The creation is triggered by following conditions:
+	 *   - [add remove reset] on the constraintCollection
+	 *   - [add remove reset] on collectionColumns
+	 * 
+	 */
 	ns.ControllerInstanceListSyncer = function(subQueryFactory, facetNode, constraintCollection, collectionColumns, modelQueryFactory) {
 		_.bindAll(this);
 		
@@ -368,17 +380,20 @@
 	ns.ControllerInstanceListSyncer.prototype = {
 		bind: function() {
 			this.constraintCollection.on('add remove reset', this.onAnyChange);
-//			this.constraintCollection.on('remove', this.onAnyChange);
-//			this.constraintCollection.on('reset', this.onAnyChange);
-
 			this.collectionColumns.on('add remove reset', this.onAnyChange);
-//			this.collectionColumns.on('remove', this.onAnyChange);
-//			this.collectionColumns.on('reset', this.onAnyChange);
 		},
 		
 		createQueryFactory: function() {
 			var result = ns.createQueryFactoryFacete(this.subQueryFactory, this.facetNode, this.constraintCollection, this.collectionColumns);
 			return result;
+		},
+		
+		/**
+		 * Use this method to manually perform an update
+		 * 
+		 */
+		update: function() {
+			this.onAnyChange();
 		},
 		
 		onAnyChange: function() {
@@ -399,6 +414,12 @@
 	};
 
 	
+	/**
+	 * DEPRECATED
+	 * 
+	 * Dummy controller for logging additions and removals of models 
+	 * 
+	 */
 	ns.ControllerColumnSelection = function(collectionColumns) {
 		_.bindAll(this);
 		

@@ -4,14 +4,14 @@
 
 -- Does not work on postgres CREATE TYPE "BINARY" AS bytea(1000000);
 
-CREATE TABLE IF NOT EXISTS "query_cache"(
-    "query_hash" bytea PRIMARY KEY,
-    "query_string" VARCHAR(16383),
-    "data" bytea,
-    "time" TIMESTAMP
-);
+--CREATE TABLE IF NOT EXISTS "query_cache"(
+--    "query_hash" bytea PRIMARY KEY,
+--    "query_string" VARCHAR(16383),
+--    "data" bytea,
+--    "time" TIMESTAMP
+--);
 
-CREATE TABLE IF NOT EXISTS "permalinks"(
+CREATE TABLE "permalinks"(
     "link_hash" text PRIMARY KEY,
     "ip" text NOT NULL,
     "state" text NOT NULL,

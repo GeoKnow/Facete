@@ -1521,6 +1521,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     ns.createDetailView = function(configModel) {
     	
 		//var widget = widgetNs.createQueryBrowser();
+    	
+    	
+    	// TODO: This config model uses the configModel's queryFactory, but in fact we want a different one.
+    	
     	var widget = ns.createDataTableModel(configModel);
 
     	
@@ -2653,6 +2657,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			var isGeoPath = mapCollection.length != 0;
     			
     			if(isGeoPath) {
+    				// TODO The reason might be, that in the current viewport there are no items
+    				// We need to do an ask query independently!
     				$('#detailViewState').html('The selection is linked to the map, however for this link there are no spatial entities matching your filter criterias');
     			} else {
     				$('#detailViewState').html('No link to the map has been selected.');

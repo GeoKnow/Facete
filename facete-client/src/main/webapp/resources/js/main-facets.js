@@ -2309,10 +2309,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var tmpConcept = rootFacetFacadeNode.createConcept(true);
 		
 		//alert(JSON.stringify(constraintCollection.models));
-		var concept = baseConcept.combineWith(tmpConcept);
+		var rawConcept = baseConcept.combineWith(tmpConcept);
+		var concept = rawConcept.createOptimizedConcept();
 		
 		return  concept;
     };
+
 
     /**
      * TODO Hack. The geoConcept depends on the configuration i.e. the configModel

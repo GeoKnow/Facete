@@ -30,30 +30,6 @@
 	
 
 	
-	ns.ConceptInt = function(element, variable) {
-		ns.Concept.call(this, ns.ConceptType.Intensional);
-		this.element = element;
-		this.variable = variable;
-	};
-	
-	/**
-	 * Array version constructor
-	 * 
-	 */
-	ns.ConceptInt.createFromElements = function(elements, variable) {
-		var element;
-		if(elements.length == 1) {
-			element = elements[0];
-		} else {
-			element = new sparql.ElementGroup(elements);
-		}
-		
-		var result = new ns.ConceptInt(element, variable);
-		
-		return result;
-	};
-
-	
 	/**
 	 * Returns a new array of those triples, that are directly part of the given array of elements.
 	 * 
@@ -112,6 +88,31 @@
 		var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
 
 		return concept;
+	};
+
+
+	ns.ConceptInt = function(element, variable) {
+		ns.Concept.call(this, ns.ConceptType.Intensional);
+		this.element = element;
+		this.variable = variable;
+	};
+
+	
+	/**
+	 * Array version constructor
+	 * 
+	 */
+	ns.ConceptInt.createFromElements = function(elements, variable) {
+		var element;
+		if(elements.length == 1) {
+			element = elements[0];
+		} else {
+			element = new sparql.ElementGroup(elements);
+		}
+		
+		var result = new ns.ConceptInt(element, variable);
+		
+		return result;
 	};
 
 	
@@ -202,6 +203,15 @@
 
 			combineWith: function(that) {
 				var result = ns.createCombinedConcept(this, that);
+				return result;
+			},
+			
+			createOptimizedConcept: function() {
+				var element = this.getElement();
+				var newElement = element.flatten();
+				
+				var result = new ns.ConceptInt(newElement, this.variable);
+
 				return result;
 			},
 			

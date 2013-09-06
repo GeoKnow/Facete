@@ -791,7 +791,9 @@
 			createConcept: function(bounds) {
 				var geoConcept = this.geoConceptFactory.createConcept(bounds);
 				
-				var result = this.combineConcepts(geoConcept);
+				var rawResult = this.combineConcepts(geoConcept);
+				
+				var result = rawResult.createOptimizedConcept();
 				
 				//console.log('Create the combinedConcept with bounds: ', this.geoConceptFactory);
 				

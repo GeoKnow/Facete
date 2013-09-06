@@ -1177,8 +1177,8 @@
 			 * Creates the corresponding concept for the given node.
 			 * 
 			 * @param includeSelfConstraints Whether the created concept should
-			 *         include constraints that affect the variable
-			 *         corresponding to this node 
+			 *        include constraints that affect the variable
+			 *        corresponding to this node. 
 			 * 
 			 */
 			createConcept: function(includeSelfConstraints) {

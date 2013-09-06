@@ -54,6 +54,67 @@
 	};
 
 	
+	/**
+	 * Returns a new array of those triples, that are directly part of the given array of elements.
+	 * 
+	 */
+	ns.getElementsDirectTriples = function(elements) {
+		var result = [];
+		for(var i = 0; i < elements.length; ++i) {
+			var element = elements[i];
+			if(element instanceof sparql.ElementTriplesBlock) {
+				result.push.apply(result, element.triples);
+			}
+		}
+		
+		return result;
+	};
+	
+	
+	/**
+	 * Combines the elements of two concepts, yielding a new concept.
+	 * The new concept used the variable of the second argument.
+	 * 
+	 */
+	ns.createCombinedConcept = function(baseConcept, tmpConcept) {
+		// TODO The variables of baseConcept and tmpConcept must match!!!
+		// Right now we just assume that.
+		
+		
+		// Check if the concept of the facetFacadeNode is empty
+		var tmpElements = tmpConcept.getElements();
+		var baseElement = baseConcept.getElement();
+		
+		// Small workaround (hack) with constraints on empty paths:
+		// In this case, the tmpConcept only provides filters but
+		// no triples, so we have to include the base concept
+		var hasTriplesTmp = tmpConcept.hasTriples();
+		
+		var e;
+		if(tmpElements.length > 0) {
+
+			if(hasTriplesTmp && baseConcept.isSubjectConcept()) {
+				e = tmpConcept.getElement();
+			} else {
+				var baseElements = baseConcept.getElements();
+
+				var newElements = [];
+				newElements.push.apply(newElements, baseElements);
+				newElements.push.apply(newElements, tmpElements);
+				
+				e = new sparql.ElementGroup(newElements);
+			}
+		} else {
+			e = baseElement;
+		}
+		
+		
+		var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
+
+		return concept;
+	};
+
+	
 	ns.ConceptInt.prototype = new ns.Concept();
 	_.extend(ns.ConceptInt.prototype, {
 			constructor: ns.ConceptInt,
@@ -69,6 +130,14 @@
 			
 			getElement: function() {
 				return this.element;
+			},
+			
+			hasTriples: function() {
+				var elements = this.getElements();
+				var triples = ns.getElementsDirectTriples(elements);
+				var result = triples.length > 0;
+				
+				return result;
 			},
 			
 			/**
@@ -128,6 +197,11 @@
 				}
 
 				
+				return result;
+			},
+
+			combineWith: function(that) {
+				var result = ns.createCombinedConcept(this, that);
 				return result;
 			},
 			

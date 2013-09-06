@@ -2057,16 +2057,23 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			// TODO The root node should come from the facetNode!!!
 			// TODO Make a 1-line helper for these three lines
+			var baseConcept = configModel.get('concept');
+			
 			var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 			var facetFacadeNode = new facets.SimpleFacetFacade(constraintManager, facetNode);
-			var concept = facetFacadeNode.createConcept();
+			var tmpConcept = facetFacadeNode.createConcept();
+			
+			
+			var concept = baseConcept.combineWith(tmpConcept);
 			
 			//console.log("FacetValue concept: ", concept);
 			//var rootFacetNode = facetNode.getRootNode();
 			var rootFacetVar = rootFacetNode.getVariable();
 			//console.log('rootFacetNode', rootFacetNode);
 			
-			var conceptVar = concept.getVariable();			
+			var conceptVar = concept.getVariable();
+			
+			// TODO Avoid var clashes
 			var countVar = sparql.Node.v("c");
 			var conceptElement = concept.getElement();
 			
@@ -2299,12 +2306,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);
 
 		var rootFacetFacadeNode = new facets.SimpleFacetFacade(constraintManager, rootFacetNode);
-		//var hack = rootFacetFacadeNode.forPath(geoPath);
-		//hack.constraintManager = constraintManager; 
-						
-		var tmpConcept = rootFacetFacadeNode.createConcept();
-		var concept = facets.createCombinedConcept(baseConcept, tmpConcept);
-
+		var tmpConcept = rootFacetFacadeNode.createConcept(true);
+		
+		//alert(JSON.stringify(constraintCollection.models));
+		var concept = baseConcept.combineWith(tmpConcept);
+		
 		return  concept;
     };
 
@@ -2798,7 +2804,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				var tmpConcept = hack.createConcept();
 
 				
-				var concept = facets.createCombinedConcept(baseConcept, tmpConcept);
+				var concept = baseConcept.combineWith(tmpConcept);
 
 				var pathConstraintFactory = new facets.PathConstraintWgs84.Factory.create(geoPath);
 				var geoConceptFactoryBase = new facets.GeoConceptFactory(rootFacetNode, pathConstraintFactory);

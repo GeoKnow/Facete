@@ -196,7 +196,7 @@
 		},
 		
 		onAddConstraint: function(model) {
-			console.log("Adding constraint: ", model, this.constraintCollection);
+			//console.log("Adding constraint: ", model, this.constraintCollection);
 			
 			// Check the checkCollection of whether it contains such entry
 			var constraint = model.get("constraint");
@@ -273,8 +273,11 @@
 			//console.log('FacetValueEnricher', model);
 			
 			var path = facetNode.getPath();
-			var varName = facetNode.getVariable().value; //Name();
+			var varName = facetNode.getVar().value; //Name();
+
 			//console.log("VarName: ", varName, model);
+			//alert(JSON.stringify(model.attributes));
+			
 			var facetVal = model.get(varName);
 			var node = facetVal.node;
 	

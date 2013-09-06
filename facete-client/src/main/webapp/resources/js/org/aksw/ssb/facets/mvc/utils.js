@@ -12,36 +12,6 @@
 	var ns = facets;
 
 	
-	ns.createCombinedConcept = function(baseConcept, tmpConcept) {
-		//console.log("[TRACE] Concept for facet node is: " + tmpConcept.getElement());
-		
-		// TODO The variables of baseConcept and tmpConcept must match!!!
-		// Right now we just assume that.
-		
-		
-		// Check if the concept of the facetFacadeNode is empty
-		var tmpElement = tmpConcept.getElement();
-		var isEmptyTmpElement = tmpElement instanceof sparql.ElementGroup && tmpElement.elements.length === 0;
-		
-		var baseElement = baseConcept.getElement();
-		
-		var e;
-		if(!isEmptyTmpElement) {
-			
-			if(baseConcept.isSubjectConcept()) {
-				e = tmpElement;
-			} else {
-				e = new sparql.ElementGroup([baseElement, tmpElement]);
-			}
-		} else {
-			e = baseElement;
-		}
-		
-		
-		var concept = new facets.ConceptInt(e, tmpConcept.getVariable());
-
-		return concept;
-	};
 	
 
 	/**

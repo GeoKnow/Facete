@@ -34,7 +34,7 @@
 	config.preferredLanguages = ['de', 'en', ''];
 
 	config.conceptPathFinderApiUrl = "api/path-finding";
-
+	config.permaLinkApiUrl = "api/permalink";
 	
 	/*
 	 * IGNORE EVERYTHING BELOW FOR NOW 

@@ -102,9 +102,13 @@ Facete should now run under <http://localhost:8080/facete-server/welcome.do>.
 The following steps will get you going with a working Tomcat. Use at your own risk.
 
 
-Install Tomcat (and of course maven)
+Install Tomcat (and of course jdk + maven)
 
-    sudo apt-get install tomcat7 tomcat7-admin maven
+    sudo apt-get install openjdk-7-jdk maven
+    sudo apt-get install tomcat6 tomcat6-admin
+    
+    # Setup for tomcat7 is broken right now
+    sudo apt-get install tomcat7 tomcat7-admin
 
 Configure a tomcat user: 
 

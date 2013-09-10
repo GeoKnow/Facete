@@ -46,6 +46,8 @@
         <script type="text/javascript" src="resources/lib/select2/3.4.1/select2.js"></script>
         <script type="text/javascript" src="resources/lib/persist-js/0.1.0/persist.js"></script>
 
+        <script type="text/javascript" src="resources/lib/simpleresizabletables/simpleresizabletables.js"></script>
+
 
 	<!-- The actual spatial semantic browsing widgets -->
 	${jsIncludes}
@@ -58,6 +60,7 @@
 	<script type="text/javascript">
 
 		$(document).ready(function() {
+			
 			
 			var store = new Persist.Store('FaceteStore');
 			
@@ -286,7 +289,7 @@
 			    //var isPopover = $target.closest('.popover').length > 0;
 			    var inPopover = $target.closest('.popover').length > 0;
 			    
-			    //console.log('state', isPopover, inPopover, $target);
+			    console.log('state', isPopover, inPopover, $target);
 			    
 			    //hide only if clicked on button or inside popover
 			    	
@@ -302,6 +305,12 @@
 			//$('.portlet-content').autoHeight();
 
 			//$('.portlet-container').disableSelection();
+			
+			
+
+			//$('#main-layout-table').simpleResizableTable();
+
+			
 		});
 	
 	
@@ -343,7 +352,9 @@
 		<div class="row-fluid fill" id="css-index-mainContainer" style="overflow: visible;">
 		
 <!-- 			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;"> -->
-<table class="layout-table">
+<table id="main-layout-table" class="layout-table">
+<!-- <tr><th></th><th></th><th></th></tr> -->
+
 <tr>
 <td style="border-left:none; width: 20%; background-color:#E9EFF3;">
 				<div class="section-heading">1. Selection</div>
@@ -375,7 +386,7 @@
 <!-- 			</div> -->
 	
 </td>
-<td style="width: 35%;">		
+<td style="width: 38%;">		
 <!-- 			<div class="span4" style="margin-left: 5px; margin-top: 3px;"> -->
 
 <!-- 				<div class="portlet-group ui-sortable"> -->
@@ -402,7 +413,7 @@
 
 
 </td>
-<td style="border-right: none; background-color:#E9EFF3; width: 40%;">
+<td style="border-right: none; background-color:#E9EFF3; width: 42%;">
 
 <!-- 			<div class="span5 filler-right" style="margin-left: 5px; margin-top: 3px; background-color:#E9EFF3;"> -->
                             
@@ -421,7 +432,7 @@
                                     </table>
                                     
                                     <div id="mapContainer" class="portlet-content">
-                                        <div id="map" style="height: 300px;"></div>
+                                        <div id="map" style="height: 350px;"></div>
                                         <a id="centerMapOnPosition" href="#" style="display:none; position:absolute; bottom: 20px; z-index: 1000;">Center on user location</a>
                                     </div>
                                 </div>			

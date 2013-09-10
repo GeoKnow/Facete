@@ -858,17 +858,22 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			}
 			
 			//alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
-			
+
 			var $popover = $('#createPermaLink').popover({
 				html: true,
-				container: 'body',
+				//container: 'body',
 				placement: 'left',
-				title: 'Perma-Link Creation',
-				content: 'Copy the following URL:<br /> <input type="text" value="' + baseUrl + "#" + json.hash + '"></input>',
-				
+				title: 'Link Creation',
+				trigger: 'manual',
+				content: 'You current settings have been saved under this link:<br /> <input type="text" style="width: 500px" readonly="readonly" value="' + baseUrl + "#" + json.hash + '"></input>',
 			});
-			$popover.show();
-
+			$popover.popover('show');
+			
+			var $tip = $popover.data('popover').$tip; 
+			
+			$tip.css('color', '');
+			$tip.find('input').select().focus();
+			  
 			
     		
     	}).fail(function() {

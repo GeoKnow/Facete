@@ -91,7 +91,9 @@ div.framed {
   left: 0;
   z-index: 1010;
   display: none;
-  max-width: 600px;
+  max-width: 800px;
+  width: auto;
+/*   min-width: 200px; */
   padding: 1px;
   text-align: left;
   white-space: normal;
@@ -332,9 +334,15 @@ input[type='checkbox'] {
 }
 
 .region {
-	background: #1c3048 url("../images/header-bg.jpg") no-repeat right;
-	width:100%;
-	height:40px;
+/* 	background: #1c3048 url("../images/header-bg.jpg") no-repeat right; */
+	
+	background-color: #1c3048;
+	background-image: url("../images/header-bg.jpg");
+	background-position: top right;
+	background-repeat: no-repeat;
+	
+/* 	width:100%; */
+/* 	height:40px; */
 }
 
 .breadcrumb-custom {

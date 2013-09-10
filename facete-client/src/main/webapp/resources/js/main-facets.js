@@ -992,14 +992,24 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		var config = configNs;
 		
+		
+		
+		var urlConfig = ns.getConfigFromUrl();
+		
+		var keys = ['sparqlServiceIri', 'sparqlDefaultGraphIris'];
+
+		var sparqlConfig = ns.pickExpand(keys, [config, urlConfig]); 
+		
+		
+		
 		/*
 		 * This model should hold all information required to instanciate the browsing
 		 * component
 		 */
 		var ConfigModel = Backbone.Model.extend({
 			defaults: {
-				sparqlServiceIri: config.sparqlServiceIri,
-				sparqlDefaultGraphIris: config.sparqlDefaultGraphIris,
+				sparqlServiceIri: sparqlConfig.sparqlServiceIri,
+				sparqlDefaultGraphIris: sparqlConfig.sparqlDefaultGraphIris,
 				//sparqlServiceIri: null,
 				//sparqlServiceIri: 'http://localhost:5522/sparql-analytics/api/sparql',
 				//defaultGraphIris: ['http://fp7-pp.publicdata.eu/'],
@@ -1418,27 +1428,45 @@ var SparqlBrowseModel = Backbone.Model.extend({
         ns.restoreState(configModel);
         
         
-        // Set endpoint from the query string
-        // TODO Override settings from config
-        {
-	        var qsArgs = uriUtils.parseUrlQueryString();
-	
-	        var serviceUris = qsArgs['service-uri'];
-	        var data = {};
-	        
-	        if(serviceUris) {
-	        	data['sparqlServiceIri'] = serviceUris[0];
-	        }
-	        
-	        var defaultGraphUris = qsArgs['default-graph-uri'];
-	        if(defaultGraphUris) {
-	        	data['sparqlDefaultGraphIris'] = defaultGraphUris;
-	        }
-	        
-	        configModel.set(data);
-        }
         
 	};
+
+	
+	ns.getConfigFromUrl = function() {
+        var qsArgs = uriUtils.parseUrlQueryString();
+    	
+        var serviceUris = qsArgs['service-uri'];
+     
+        var data = {};
+        if(serviceUris) {
+        	data['sparqlServiceIri'] = serviceUris[0];
+        }
+        
+        var defaultGraphUris = qsArgs['default-graph-uri'];
+        if(defaultGraphUris) {
+        	data['sparqlDefaultGraphIris'] = defaultGraphUris;
+        }
+        		
+        return data;
+	}
+
+	/**
+	 * objects must be an array of objects
+	 * 
+	 */
+	ns.pickExpand = function(keys, objects) {
+		
+		var result = {};
+		for(var i = 0; i < objects.length; ++i) {
+			var obj = objects[i];
+			
+			var pick = _.pick(obj, keys);
+			var result = _.extend(result, pick);
+		}
+
+		return result;
+	};
+	
 	
 	ns.restoreState = function(configModel) {
 		

@@ -82,6 +82,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 	var configNs = Namespace("org.aksw.ssb.config");
 
+	var widgets = Namespace("org.aksw.ssb.widgets");
 
 	var serializer = Namespace('org.aksw.serializer').Serializer.singleton; 
 
@@ -842,6 +843,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	});
     	
     	
+    	
+    	
+    	
     	request.done(function(json) {
     		//alert('success' + JSON.stringify(json));
     		
@@ -853,7 +857,19 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				baseUrl = baseUrl.substring(0, hashStringStart);
 			}
 			
-			alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
+			//alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
+			
+			var $popover = $('#createPermaLink').popover({
+				html: true,
+				container: 'body',
+				placement: 'left',
+				title: 'Perma-Link Creation',
+				content: 'Copy the following URL:<br /> <input type="text" value="' + baseUrl + "#" + json.hash + '"></input>',
+				
+			});
+			$popover.show();
+
+			
     		
     	}).fail(function() {
     		alert('failed to create a perma link');
@@ -1245,7 +1261,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		ns.createConstraintView(configModel);
 		
 		
-		
+
 		$('#createPermaLink').on('click', function(ev) {
 			ev.preventDefault();
 			ns.exportState(configModel);
@@ -1400,6 +1416,27 @@ var SparqlBrowseModel = Backbone.Model.extend({
         
         
         ns.restoreState(configModel);
+        
+        
+        // Set endpoint from the query string
+        // TODO Override settings from config
+        {
+	        var qsArgs = uriUtils.parseUrlQueryString();
+	
+	        var serviceUris = qsArgs['service-uri'];
+	        var data = {};
+	        
+	        if(serviceUris) {
+	        	data['sparqlServiceIri'] = serviceUris[0];
+	        }
+	        
+	        var defaultGraphUris = qsArgs['default-graph-uri'];
+	        if(defaultGraphUris) {
+	        	data['sparqlDefaultGraphIris'] = defaultGraphUris;
+	        }
+	        
+	        configModel.set(data);
+        }
         
 	};
 	

@@ -237,7 +237,7 @@
 			//var $popover = $('[data-toggle=popover]').popover();
 			
 			var popoverSelector = '[rel=popover]';
-			var $popover = $('[rel=popover]').popover({
+			var $popover = $('.portlet-header a[rel=popover]').popover({
 				html: true, 
 				title: function() {
 					var $this = $(this);
@@ -277,17 +277,22 @@
 				//return true;
 			});
 
-			$(document).on("click", function (e) {
+			$(document).on('click', function (e) {
                 var $target = $(e.target);
+                var $popovers = $(popoverSelector);
+                
 			    //var isPopover = $target.is(popoverSelector);
 			    var isPopover = $target.closest(popoverSelector).length > 0;
+			    //var isPopover = $target.closest('.popover').length > 0;
 			    var inPopover = $target.closest('.popover').length > 0;
 			    
 			    //console.log('state', isPopover, inPopover, $target);
 			    
 			    //hide only if clicked on button or inside popover
+			    	
 			    if (!isPopover && !inPopover) {
-			    	$popover.popover('hide');
+					//alert('hide');
+			    	$popovers.popover('hide');
 			    }
 			});
 

@@ -680,6 +680,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var rawModels = state[collectionName];
 		var models = serializer.deserialize(rawModels);
 		
+		alert(JSON.stringify(models));
+		
 		var targetCollection = targetModel.get(collectionName);
 		targetCollection.reset(models);
 	};
@@ -755,7 +757,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var result = [];
 		collection.each(function(model) {
 			
-			var attributes = model.attributes;
+			var attributes = _.extend({}, model.attributes);
+			attributes['id'] = model.id;
 			var item = serializer.serialize(attributes);
 			result.push(item);
 		});
@@ -867,6 +870,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				trigger: 'manual',
 				content: popoverText 
 			};
+			
+			
+			$('#createPermaLink').popover('destroy');
 			
 			var $popover = $('#createPermaLink').popover(popoverData);
 			$popover.popover('show');
@@ -1267,7 +1273,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		    	//alert('data' + JSON.stringify(data));
 		    	var content = '';
 		    	if(!data) {
-		    		content = 'This dataset does not contain geographic data';
+		    		content = '<div class="alert"><strong>Note </strong> This dataset does not contain anything that can be shown on the map.</div>';
 		    	}
 	    		$mapNoticeArea.html(content);
 		    });
@@ -2702,7 +2708,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		//console.log("Path finder: ")
     	};
 
-		constraintCollection.on('add remove reset', updateGeoPaths); 
+		constraintCollection.on('add remove reset', updateGeoPaths);
+		configModel.on('change:conceptPathFinder', updateGeoPaths);
 		updateGeoPaths();
     	
     	

@@ -2,11 +2,13 @@ package org.aksw.sparql_path.core;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.sparql_path.core.algorithm.ConceptPathFinder;
 import org.aksw.sparql_path.core.domain.Concept;
+import org.aksw.sparql_path.core.domain.Path;
 import org.jgrapht.graph.DefaultEdge;
 
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -56,7 +58,7 @@ public class Main {
 	
 	
 	
-	public static void main(String[] args) throws IOException, SQLException {
+	public static void main2(String[] args) throws IOException, SQLException {
 		QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://localhost:8810/sparql", "http://fp7-pp.publicdata.eu/");
 				
 
@@ -67,7 +69,20 @@ public class Main {
 	
 		ConceptPathFinder.findPaths(qef, sourceConcept, tmpTargetConcept);
 	}
+
+	public static void main(String[] args) throws IOException, SQLException {
+		QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://localhost:8810/sparql");
+				
+
+		Concept sourceConcept = Concept.create("?s ?_p_ ?_o_", "s");
+		System.out.println(sourceConcept);
+
+		Concept tmpTargetConcept = Concept.create("?s <http://www.w3.org/2003/01/geo/wgs84_pos#long> ?lon ; <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ?lat", "s");
 	
+		List<Path> paths = ConceptPathFinder.findPaths(qef, sourceConcept, tmpTargetConcept);
+		System.out.println(paths);
+	}
+
 }
 
 

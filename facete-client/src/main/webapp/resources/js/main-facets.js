@@ -684,8 +684,18 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		targetCollection.reset(models);
 	};
 
-    
     ns.loadState = function(configModel, hash) {
+		
+    	var request = ns.fetchState(hash);
+    	
+    	request.done(function(state) {
+    		ns.applyState(configModel, state);
+		}).fail(function(json) {
+			alert('failed to load state for hash ' + hash); // + ': ' + JSON.stringify(json));
+		});
+    };
+	
+    ns.fetchState = function(hash) {
 
     	/*
 		var mapModel = configModel.get('mapModel');
@@ -702,7 +712,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
     	
     	
-    	var request = $.ajax({
+    	var result = $.ajax({
     		url: config.permaLinkApiUrl + '/loadState',
     		type: 'GET',
     		dataType: 'json',
@@ -710,44 +720,35 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			hash: hash
     		}
     	});
+    	
+    	return result;
+    };
+    	
+    ns.applyState = function(configModel, state) {
+		
+		configModel.set({
+			sparqlServiceIri: state.sparqlServiceIri,
+			sparqlDefaultGraphIris: state.sparqlDefaultGraphIris,
+			isGeoPathAutoMode: state.isGeoPathAutoMode
+		});
+		
 
-    	
-    	request.done(function(state) {
-    	
-    		
-    		configModel.set({
-    			sparqlServiceIri: state.sparqlServiceIri,
-    			sparqlDefaultGraphIris: state.sparqlDefaultGraphIris,
-    			isGeoPathAutoMode: state.isGeoPathAutoMode
-    		});
-    		
+		resyncCollection('constraintCollection', configModel, state);
+		resyncCollection('mapCollection', configModel, state);
+		resyncCollection('facetSelectionCollection', configModel, state);
+		resyncCollection('collectionColumns', configModel, state);
+		
+		
+		
+		var mapState = state.mapState;
+    	//alert(JSON.stringify(state.mapState));
+		
+		var mapModel = configModel.get('mapModel');
+		mapModel.set(mapState);
 
-    		resyncCollection('constraintCollection', configModel, state);
-    		resyncCollection('mapCollection', configModel, state);
-    		resyncCollection('facetSelectionCollection', configModel, state);
-    		resyncCollection('collectionColumns', configModel, state);
-    		
-    		
-    		
-    		var mapState = state.mapState;
-        	//alert(JSON.stringify(state.mapState));
-    		
-    		var mapModel = configModel.get('mapModel');
-    		mapModel.set(mapState);
-
-    		
-    		//resyncCollection('constraintCollection', configModel, state);
-    		
-    		
-    	}).fail(function(json) {
-    		alert('failed to load state for hash ' + hash); // + ': ' + JSON.stringify(json));
-    	});
-    	
-    	
-    	
-    	
-    	
-    }
+		
+		//resyncCollection('constraintCollection', configModel, state);
+    };
 
     
 	var serializeCollection = function(collection) {
@@ -849,13 +850,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
     	request.done(function(json) {
     		//alert('success' + JSON.stringify(json));
     		
-    		var baseUrl = location.href;
 			
 			// cut off any hash string
-			var hashStringStart = baseUrl.indexOf("#");
-			if(hashStringStart >= 0) {
-				baseUrl = baseUrl.substring(0, hashStringStart);
-			}
+			//var hashStringStart = baseUrl.indexOf("#");
+			var baseUrl = uriUtils.getUrlBase();//baseUrl.substring(0, hashStringStart);
 			
 			//alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
 
@@ -949,6 +947,26 @@ var SparqlBrowseModel = Backbone.Model.extend({
     
 	ns.facetTest = function(options) {
 		
+		var hash = uriUtils.getUrlHashFragment();
+		if(hash) {
+			var request = ns.fetchState(hash);
+			
+			request.done(function(state) {
+
+				ns.startApp(options, state);
+				
+			}).fail(function() {				
+				ns.startApp(options, null);
+				alert("Failed to load state for " + hash);
+			});
+			
+		} else {
+			ns.startApp(options, null);
+		}
+	};
+	
+	
+	ns.startApp = function(options, state) {
     	var v = sparql.Node.v("s");
 		//var element = new sparql.ElementString("?s a <http://fp7-pp.publicdata.eu/ontology/Project>", [ v ]);
 		
@@ -1013,7 +1031,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		var keys = ['sparqlServiceIri', 'sparqlDefaultGraphIris'];
 
-		var sparqlConfig = ns.pickExpand(keys, [config, urlConfig]); 
+		var sparqlConfig = ns.pickExpand(keys, [config, state, urlConfig]); 
 		
 		
 		
@@ -1440,7 +1458,10 @@ var SparqlBrowseModel = Backbone.Model.extend({
         
         
         
-        ns.restoreState(configModel);
+        //ns.restoreState(configModel);
+        if(state) {
+        	ns.applyState(configModel, state);
+        }
         
         
         
@@ -1474,6 +1495,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var result = {};
 		for(var i = 0; i < objects.length; ++i) {
 			var obj = objects[i];
+			if(!obj) {
+				continue;
+			}
 			
 			var pick = _.pick(obj, keys);
 			var result = _.extend(result, pick);
@@ -1483,13 +1507,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	};
 	
 	
+	
+
+	/*
 	ns.restoreState = function(configModel) {
 		
-		var baseUrl = location.href;
-		
-		// cut off any hash string
-		var hashString = "";
-		var hashStringStart = baseUrl.indexOf("#");
 		if(hashStringStart >= 0) {
 			hashString = baseUrl.substring(hashStringStart + 1);
 			//baseUrl = baseUrl.substring(0, hashStringStart);
@@ -1499,7 +1521,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		//alert('Please store this URL: "' + baseUrl + "#" + json.hash + '"')
 
-	};
+	};*/
 	
 
 	

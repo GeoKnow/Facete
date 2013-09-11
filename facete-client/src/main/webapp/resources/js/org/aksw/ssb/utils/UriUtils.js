@@ -5,6 +5,47 @@
 	
 	var ns = Namespace("org.aksw.ssb.utils.uris");
 
+	ns.getUrlBase = function(url) {
+		if(!url) {
+			url = location.href;
+		} 
+		
+		var startQs = url.indexOf('?');
+		var startHash = url.indexOf('#');
+		
+		var baseEnd;
+		if(startQs > 0) {
+			baseEnd = startQs;
+		}
+		else if(startHash > 0) {
+			baseEnd = startHash;
+		}
+		else {
+			baseEnd -1;
+		}
+		
+		var result = baseEnd > 0 ? url.substr(0, baseEnd) : url;
+
+		return result;
+	};
+	
+	ns.getUrlHashFragment = function(url) {
+		if(!url) {
+			url = location.href;
+		} 
+		
+		// cut off any hash string
+		var hashString = "";
+		var hashStringStart = url.indexOf("#");
+
+		var result = null;
+		if(hashStringStart >= 0) {
+			result = url.substring(hashStringStart + 1);
+		}
+		
+		return result;
+	};
+
 	
 	ns.parseUrlQueryString = function(urlQueryString) {
 		if(!urlQueryString) {

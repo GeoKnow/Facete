@@ -680,7 +680,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var rawModels = state[collectionName];
 		var models = serializer.deserialize(rawModels);
 		
-		alert(JSON.stringify(models));
+		//alert(JSON.stringify(models));
 		
 		var targetCollection = targetModel.get(collectionName);
 		targetCollection.reset(models);

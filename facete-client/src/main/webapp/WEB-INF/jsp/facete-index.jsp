@@ -289,7 +289,7 @@
 			    //var isPopover = $target.closest('.popover').length > 0;
 			    var inPopover = $target.closest('.popover').length > 0;
 			    
-			    console.log('state', isPopover, inPopover, $target);
+			    //console.log('state', isPopover, inPopover, $target);
 			    
 			    //hide only if clicked on button or inside popover
 			    	

@@ -735,10 +735,14 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		});
 		
 
-		resyncCollection('constraintCollection', configModel, state);
+		resyncCollection('collectionColumns', configModel, state);
 		resyncCollection('mapCollection', configModel, state);
 		resyncCollection('facetSelectionCollection', configModel, state);
-		resyncCollection('collectionColumns', configModel, state);
+		
+		// TODO HACK If we resync too fast, we get the 'is Item of' entry in the entry tree... why???
+		setTimeout(function() {
+			resyncCollection('constraintCollection', configModel, state);
+		}, 1000);
 		
 		
 		

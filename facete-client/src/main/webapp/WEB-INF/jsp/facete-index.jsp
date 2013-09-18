@@ -126,7 +126,7 @@
 			$('.portlet-header').disableSelection();
 			
 			$('.portlet')
-				.addClass('ui-widget') //ui-corner-all ui-widget-content
+				//.addClass('ui-widget') //ui-corner-all ui-widget-content
 				.find('.portlet-header')
 				//.addClass('ui-widget-header ui-corner-all')
 				.addClass('navbar portlet-navbar') // navbar-fixed-top
@@ -354,7 +354,7 @@
 <!-- 			<div class="span3 filler portlet-group ui-sortable" style="background-color:#E9EFF3;"> -->
 <table id="main-layout-table" class="layout-table">
 <!-- <tr><th></th><th></th><th></th></tr> -->
-
+<!-- <tr><td id="notification-area" colspan="3">The endpoint is not reachable!</td></tr> -->
 <tr>
 <td style="border-left:none; width: 20%; background-color:#E9EFF3;">
 				<div class="section-heading">1. Selection</div>

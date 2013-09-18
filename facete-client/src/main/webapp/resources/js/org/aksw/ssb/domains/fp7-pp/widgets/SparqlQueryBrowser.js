@@ -198,130 +198,6 @@
 			};
 			
 		
-			// TODO Replace with TableView2
-			var TableView = Backbone.View.extend({
-				tagName: 'table',
-				attributes: {
-					//'class': 'table table-bordered table-striped table-condensed',
-					'class': 'table table-bordered table-hover table-striped',
-					'style': 'margin: 0px'
-				},
-
-			    /**
-				 * options: colNames: [{id: "http://...", name: "age",
-				 * cellRenderer:}]
-				 * 
-				 */
-			    initialize: function(options) {	 
-			    	this.collection.bind('add', this.addModel, this);
-			    	this.collection.bind('remove', this.removeModel, this);
-			    	this.collection.bind('reset', this.reset, this);
-			    	
-			    	//this.collection.bind('change', this.reset, this);
-			    	
-			    	
-			    	this.model.bind('change', this.reset, this);
-			    },
-
-			    render: function() {
-			    	Backbone.View.prototype.render.call(this);
-			    
-			    	var self = this;
-					
-					var useThreePartTable = true;
-					if(useThreePartTable) {
-						this.thead = $('<thead />');
-						this.tbody = $('<tbody />');
-
-						this.$el.append(this.thead);
-						this.$el.append(this.tbody);
-					} else {
-						this.thead = this.$el;
-						this.tbody = this.$el;
-					}
-		
-					this.renderHeader();
-		
-					this.collection.each(function(model) {
-						self.addModel(model);
-					});
-					
-					//console.log("Status: ", this.$el, this.tbody);
-					
-					return this;
-			    },
-			    
-			    renderHeader: function() {
-			        var queryFactory = this.model.get('queryFactory');
-			        if(!queryFactory) {
-			        	return;
-			        }
-			        
-			    	var query = queryFactory.createQuery();
-			    	if(!query) {
-			    	    return;
-			    	}
-			    	
-			    	var model = this.model;
-			    	
-			    	var vars = query.projectVars.vars;
-			    	//console.log("Vars: ", vars);
-			    	var columns = [];
-			    	this.columns = columns;
-			    	for(var i = 0; i < vars.length; ++i) {
-			    	    var v = vars[i];
-			    	    
-			    	    var varName = v.value;
-			    	    			    	    
-			    	    //console.log("Creating column with " + v.value);
-			    	    columns.push(createColumn(varName));
-			    	}
-			    	
-			    	var tr = $('<tr />');
-			    	
-			    	var headerMap = model.get('headerMap');
-
-			    	
-			    	for(var i = 0; i < columns.length; ++i) {
-			    		var col = columns[i];
-			    		
-			    		var label = col.name;
-			    		
-			    		
-			    	    var mapped = headerMap.get(label);
-			    	    if(mapped) {
-			    	    	var tmp = mapped.get('label');
-			    	    	if(tmp) {
-			    	    		label = tmp;
-			    	    	}
-			    	    }
-
-			    		
-			    		
-			    		var th = $('<th>' + label + '</th>'); 
-			    		
-			    		tr.append(th);
-			    	}
-
-			    	this.thead.append(tr);
-			    },
-			    addModel: function(model) {
-					var rowView = new RowView({
-						model: model,
-						columns: this.columns
-					});					
-
-					var rendered = rowView.render();
-					this.tbody.append(rendered.el);
-			    },
-			    unrender: function() {
-			    	this.$el.remove();	
-			    },
-			    reset: function() {
-			    	this.$el.empty();			    	
-	    			this.render();
-			    }
-			});
 
 
 			// Synchronize the SPARQL result set variables with the table headings model
@@ -355,7 +231,8 @@
 			var options = {
 					model: new widgets.TableModel2({
 						headCollection: headCollection,
-						bodyCollection: resultCollection
+						bodyCollection: resultCollection,
+						tableModel: tableModel
 					}),
 					
 					headRenderer: function(model) {
@@ -409,30 +286,7 @@
 						}
 						
 						return result;
-						
-						//console.log("Column Model: ", model);
-//						var result = getLabel(model, name);
-//						if (!result) {
-//							var item = model.get(name);
-//							if (item) {
-//								result = item.node.value;
-//							}
-//
-//							if (!result) {
-//								//console.log("Null column. Name, Model: ", name, JSON.stringify(model), model);
-//								
-//								//model.on('change', function() { alert("Model changed afterwards"); });
-//								
-//								result = "(null)";
-//							}
-//						}
-//						return result;
-					}
-					
-					//collection: models.resultSet, //browseConfig.collection,
-					//model: tableModel
-					
-					//options: { attributes: { style: "margin: 0px;" } }
+					}					
 			};
 			
 			
@@ -571,3 +425,196 @@
 
 			
 })();
+
+
+
+
+
+
+
+
+//// TODO Replace with TableView2
+//var TableView = Backbone.View.extend({
+//	tagName: 'div',
+//	attributes: {
+//		style: 'position: relative; width: 100%;'
+//	},
+////	tagName: 'table',
+////	attributes: {
+////		//'class': 'table table-bordered table-striped table-condensed',
+////		'class': 'table table-bordered table-hover table-striped',
+////		'style': 'margin: 0px; position: relative;'
+////	},
+//
+//    /**
+//	 * options: colNames: [{id: "http://...", name: "age",
+//	 * cellRenderer:}]
+//	 * 
+//	 */
+//    initialize: function(options) {	 
+//    	this.collection.bind('add', this.addModel, this);
+//    	this.collection.bind('remove', this.removeModel, this);
+//    	this.collection.bind('reset', this.reset, this);
+//    	
+//    	//this.collection.bind('change', this.reset, this);
+//    	
+//    	
+//    	//this.model.bind('change', this.onChange, this);
+//    	this.model.bind('change', this.onChange, this);
+//    	//this.model.bind('change:isLoadingData', this.onChangeIsLoadingData, this);
+//    },
+//
+//    onChange: function() {
+//    	var model = this.model;
+//    	
+//    	if(model.hasChanged('isLoadingData')) {
+//    		// Nothing to do
+//    	} else {
+//	    	this.reset();			    		
+//    	}
+//    	
+//    },
+//    
+//    onChangeIsLoadingData: function() {
+//    	var model = this.model;
+//
+//    	var isLoadingData = model.get('isLoadingData');
+//    	
+//    	var $el = this.$el;
+//    	
+//    	if(isLoadingData) {
+//    	}
+//    	
+//    	
+//    },
+//    
+//    render: function() {
+//    	Backbone.View.prototype.render.call(this);
+//    
+//    	var self = this;
+//		
+//		var $el = this.$el;
+//
+//		var $elTable = $('<table class="table table-bordered table-hover table-striped style="margin: 0px; position: absolute; top: 0px; left: 0px; />');
+//		
+//		var useThreePartTable = true;
+//		if(useThreePartTable) {
+//			this.thead = $('<thead />');
+//			this.tbody = $('<tbody />');
+//
+//			$elTable.append(this.thead);
+//			$elTable.append(this.tbody);
+//		} else {
+//			$elTable.thead = this.$el;
+//			$elTable.tbody = this.$el;
+//		}
+//
+//		this.renderHeader();
+//
+//		this.collection.each(function(model) {
+//			self.addModel(model);
+//		});
+//		
+//		
+//		this.$loading = $('<i class="custom-icon-spinner" style="position:absolute; top: 0px; right = 0px;" /i>');
+//		$el.append($loading);
+//		
+//		//console.log("Status: ", this.$el, this.tbody);
+//		
+//		return this;
+//    },
+//    
+//    renderHeader: function() {
+//        var queryFactory = this.model.get('queryFactory');
+//        if(!queryFactory) {
+//        	return;
+//        }
+//        
+//    	var query = queryFactory.createQuery();
+//    	if(!query) {
+//    	    return;
+//    	}
+//    	
+//    	var model = this.model;
+//    	
+//    	var vars = query.projectVars.vars;
+//    	//console.log("Vars: ", vars);
+//    	var columns = [];
+//    	this.columns = columns;
+//    	for(var i = 0; i < vars.length; ++i) {
+//    	    var v = vars[i];
+//    	    
+//    	    var varName = v.value;
+//    	    			    	    
+//    	    //console.log("Creating column with " + v.value);
+//    	    columns.push(createColumn(varName));
+//    	}
+//    	
+//    	var tr = $('<tr />');
+//    	
+//    	var headerMap = model.get('headerMap');
+//
+//    	
+//    	for(var i = 0; i < columns.length; ++i) {
+//    		var col = columns[i];
+//    		
+//    		var label = col.name;
+//    		
+//    		
+//    	    var mapped = headerMap.get(label);
+//    	    if(mapped) {
+//    	    	var tmp = mapped.get('label');
+//    	    	if(tmp) {
+//    	    		label = tmp;
+//    	    	}
+//    	    }
+//
+//    		
+//    		
+//    		var th = $('<th>' + label + '</th>'); 
+//    		
+//    		tr.append(th);
+//    	}
+//
+//    	this.thead.append(tr);
+//    },
+//    addModel: function(model) {
+//		var rowView = new RowView({
+//			model: model,
+//			columns: this.columns
+//		});					
+//
+//		var rendered = rowView.render();
+//		this.tbody.append(rendered.el);
+//    },
+//    unrender: function() {
+//    	this.$el.remove();	
+//    },
+//    reset: function() {
+//    	this.$el.empty();			    	
+//		this.render();
+//    }
+//});
+
+//console.log("Column Model: ", model);
+//var result = getLabel(model, name);
+//if (!result) {
+//	var item = model.get(name);
+//	if (item) {
+//		result = item.node.value;
+//	}
+//
+//	if (!result) {
+//		//console.log("Null column. Name, Model: ", name, JSON.stringify(model), model);
+//		
+//		//model.on('change', function() { alert("Model changed afterwards"); });
+//		
+//		result = "(null)";
+//	}
+//}
+//return result;
+
+//collection: models.resultSet, //browseConfig.collection,
+//model: tableModel
+
+//options: { attributes: { style: "margin: 0px;" } }

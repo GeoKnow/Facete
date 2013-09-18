@@ -56,6 +56,8 @@
 	 * one specific kind of table.
 	 * i.e. TableModelSparqlResultSet extends TableModel
 	 * 
+	 * 
+	 * 
 	 */
 	var TableModel = Backbone.Model.extend({
 		defaults: {
@@ -73,7 +75,10 @@
 			labelMap: {},
 			//headerMap: new Backbone.Collection(), // Maps var names of the query to data items 
 			
-			elements: [] // Additional elements to be appended to the query // TODO Should be map, so we can reference additions by id
+			elements: [], // Additional elements to be appended to the query // TODO Should be map, so we can reference additions by id
+			
+			// Order by is an array of objects {id: , direction: }
+			orderBy: []
 			
 			//searchText: "",
 			//currentPage: 1,
@@ -134,6 +139,10 @@
 			*/
 			
 			this.tableModel.on('change', function() {
+				
+				if(this.hasChanged('isLoadingData')) {
+					return;
+				}
 				
 				//console.log("Table model changed");
 				
@@ -237,11 +246,17 @@
 
 			var result = $.Deferred();
 
+			//console.log('isLoading', self.tableModel.attributes);
+			self.paginatorModel.set({isLoadingPageCount: true});
 			
 			var successAction = function(info) {				
 				self.tableModel.set({
 					itemCount: info.count,
-					hasMoreItems: info.more
+					hasMoreItems: info.more,
+				});
+				
+				self.paginatorModel.set({
+					isLoadingPageCount: false
 				});
 				
 				result.resolve();
@@ -273,9 +288,13 @@
 				sampleTask.fail(function() {
 					console.log("[ERROR] Timout encountered during fallback sampling strategy - returning only 1 page")
 					
+					self.paginatorModel.set({
+						isLoadingPageCount: false
+					});
+
 					result.resolve({
 						itemCount: 1,
-						hasMoreItems: true
+						hasMoreItems: true,
 					});
 					
 				})
@@ -336,6 +355,7 @@
 			
 			var partitionLimit = this.tableModel.get("partitionLimit");
 			var partitionOffset = this.tableModel.get("partitionOffset");
+			var orderBy = this.tableModel.get('orderBy');
 			
 			this.tableConfig = new facets.TableModelQueryFactory();
 			
@@ -345,7 +365,7 @@
 			this.tableConfig.setQueryFactory(queryFactory);
 			this.tableConfig.setPartitionLimit(partitionLimit);
 			this.tableConfig.setPartitionOffset(partitionOffset);
-			
+			this.tableConfig.setOrderBy(orderBy);
 			
 			//console.log("Status of the tableConfig", this.tableConfig, sparqlService);
 			
@@ -382,6 +402,12 @@
 
 			var task = this.tableExecutor.fetchResultSet();
 
+
+			self.tableModel.set({isLoadingData: true});
+			
+			task.always(function() {
+				self.tableModel.set({isLoadingData: false});
+			});
 			
 			task.done(function(jsonRs) {				
 				//console.log("Syncing", jsonRs);

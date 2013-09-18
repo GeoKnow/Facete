@@ -3,6 +3,36 @@ html, body {
 	height: 100%;
 }
 
+
+/* input[type="text"],  */
+/* input[type="password"],  */
+/* input[type="date"],  */
+/* input[type="datetime"],  */
+/* input[type="datetime-local"],  */
+/* input[type="month"],  */
+/* input[type="week"],  */
+/* input[type="email"],  */
+/* input[type="number"],  */
+/* input[type="search"],  */
+/* input[type="tel"],  */
+/* input[type="time"],  */
+/* input[type="url"],  */
+/* textarea { */
+/*   -moz-box-sizing: inherit !important; */
+/* } */
+
+
+/* Override jquery-ui-widget font size */
+/* .ui-widget input { */
+/* 	font-size: 14px !important; */
+/* } */
+
+/* Search button http://forrst.com/posts/Fancy_search_box_using_Bootstrap_2_0-dG0*/
+/* .input-append button.add-on { */
+/*     height: inherit !important;  */
+/* } */
+
+
 /* This is the CSS for the side bar */
 
 .fill {
@@ -150,7 +180,7 @@ a {
 
 .facete-table-header {
 	width: 100%;
-	margin-bottom: 5px;
+	margin-bottom: 0px;
 }
 
 .facete-table-footer {
@@ -299,6 +329,12 @@ input[type='checkbox'] {
 	-moz-appearance: none;
 }
 
+.custom-icon-spinner {
+	display: inline-block;
+	background-image: url("../icons/loading.gif");
+	min-width: 14px;
+	min-height: 14px;
+}
 
 /*
  * Overrides of the ec css
@@ -331,6 +367,10 @@ input[type='checkbox'] {
 .top-breadcrumbs {
 	height: 20px;
 	padding-bottom: 0;
+}
+
+.region-background {
+	background-color: #1c3048;
 }
 
 .region {

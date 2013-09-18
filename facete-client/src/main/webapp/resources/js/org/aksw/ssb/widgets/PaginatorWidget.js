@@ -29,7 +29,10 @@
 			
 			hasMorePages: false,
 			prev: true,
-			next:true
+			next:true,
+			
+			pageRequest: null,
+			isLoadingPageCount: false, // Attribute to indicate whether pages are being loaded.
 		}
 	});
 	
@@ -373,20 +376,22 @@
 					pageRequest = clamp(pageRequest, 1, pageCount);
 				}
 	    		
-				console.log("Page Request: ", pageRequest);
+				//console.log("Page Request: ", pageRequest);
 	    		this.model.set({pageRequest: pageRequest});
 	    	});
 	    },
 	    render: function() {
 
 	    	$el = this.$el;
-	    	$el.children().remove();
+	    	$el.empty(); //children().remove();
 	    	
 	    	$ul = $('<ul />');
 	    	$el.append($ul);
 	    	
+	    	var attrs = this.model.attributes;
+	    	
 	    	var renderer = new ns.PaginatorItemRenderer();
-	    	var slotSpecs = ns.createSlotSpecs(this.model.attributes);
+	    	var slotSpecs = ns.createSlotSpecs(attrs);
 	    	
 	    	for(var i = 0; i < slotSpecs.length; ++i) {
 	    		var slotSpec = slotSpecs[i];
@@ -395,6 +400,10 @@
 	    		
 	    		//$(this.el).append(slot);
 	    		$ul.append(slot);
+	    	}
+	    	
+	    	if(attrs.isLoadingPageCount) {
+	    		$ul.append('<li><span><i class="custom-icon-spinner"> </i> (loading page count)</span></li>');
 	    	}
 	    	
 	    	

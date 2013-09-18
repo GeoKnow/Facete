@@ -64,6 +64,12 @@ var ns = Namespace("org.aksw.ssb.facets");
 	 * 
 	 * queryFactory // Enables exchanging the queryFactory
 	 * 
+	 * 
+	 * TODO: Actually, this class should feature a SPARQL independent view for a table.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	 ns.TableModelQueryFactory = function(queryFactory) {
 		this.queryFactory = queryFactory;
@@ -83,6 +89,15 @@ var ns = Namespace("org.aksw.ssb.facets");
 		
 		// Additional elements to be injected into the query
 		this.elements = [];
+		
+		
+		/* Each element of this array is an object
+		 * {
+		 *   id: // the id of the column - i.e. the sparql variable to sort
+		 *   dir: // the sort direction 'desc' for descending, 'asc' or any other value for ascending 
+		 * }
+		 */
+		this.orderBy = [];
 	};
 
 	ns.TableModelQueryFactory.prototype = {
@@ -140,7 +155,57 @@ var ns = Namespace("org.aksw.ssb.facets");
 		setQueryFactory: function(queryFactory) {
 			this.queryFactory = queryFactory;
 		},
+		
+		/*
+		 * TableModel functions
+		 * These function treate a query as a table, and abstract from
+		 * SPARQL specifics (e.g. the node/var objects)
+		 * 
+		 */
+		
+		/**
+		 * Returns an array of column names.
+		 * 
+		 */
+		getColumnIds: function() {
+			var query = this.createQuery();
 			
+			var vars;
+			
+			if(query.isResultStar()) {
+				vars = query.getVarsMentioned();
+			} else {
+				vars = query.getProjectVars().getVarList();
+			}
+
+			
+			var result = [];
+			for(var i = 0; i < vars.length; ++i) {
+				var v = vars[i];
+				var varName = v.value;
+				
+				result.push(varName);
+			}
+
+			return result;
+		},
+		
+		getOrderBy: function() {
+			return this.orderBy;
+		},
+		
+		
+		
+		getColumnAttrs: function() {
+			
+		},
+
+		// TODO Replacing the array may cause unwanted effects, maybe we should get rid of this method - however it is referenced
+		setOrderBy: function(orderBy) {
+			this.orderBy = orderBy;
+		},
+		
+		
 		createQuery: function() {
 			var baseQuery = this.queryFactory.createQuery();
 			
@@ -193,7 +258,21 @@ var ns = Namespace("org.aksw.ssb.facets");
 				baseQuery.limit = limit;
 			}
 			
-			
+			var orderBy = this.orderBy;
+			for(var i = 0; i < orderBy.length; ++i) {
+				var item = orderBy[i];
+				
+				var v = sparql.Node.v(item.id);
+				var ev = new sparql.ExprVar(v);
+
+				var dir = 1;
+				if(item.direction && item.direction < 0) {
+					dir = -1;
+				}
+				
+				var sc = new sparql.SortCondition(ev, dir);
+				baseQuery.getOrderBy().push(sc);
+			}
 			
 			return baseQuery;
 		},
@@ -517,6 +596,7 @@ var ns = Namespace("org.aksw.ssb.facets");
 			
 			var query = this.queryFactory.createQuery(); 
 			
+			
 			//console.log("Count Query base:" +  query);
 			
 			if(!query) {
@@ -527,6 +607,11 @@ var ns = Namespace("org.aksw.ssb.facets");
 				return result.promise();
 			}
 
+			// Remove any ordering
+			var orderBy = query.getOrderBy();
+			while(orderBy.length > 0) {
+				orderBy.pop();
+			}
 			
 			
 			var elements = query.getElements();

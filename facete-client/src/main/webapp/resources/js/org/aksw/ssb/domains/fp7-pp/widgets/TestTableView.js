@@ -18,7 +18,7 @@
 		tagName: 'table'
 	});
 
-	var ViewTextBox = Backbone.View.extend({
+	var ViewTextBoxOld = Backbone.View.extend({
 		tagName: 'input',
 		attributes: {
 			type: 'text',
@@ -41,6 +41,63 @@
 		}
 	});
 	
+	
+
+	/**
+	 * TODO Rename to ViewFilterBox or ViewSearchBox
+	 * 
+	 */
+	var ViewTextBox = Backbone.View.extend({
+		tagName: 'div',
+		attributes: {
+//			type: 'text',
+//			placeholder: 'Filter'
+			'class': 'input-append',
+			'style': 'margin-bottom: 0px'
+		},
+		events: {
+		    //'change input[type="text"]':  'contentChanged',
+			'keypress input[type="text"]': 'onKeyPress',
+		    'click button': 'buttonClicked'
+		},
+		initialize: function() {
+			_.bindAll(this); //, 'contentChanged');
+			
+			//console.log("inputContent", this.inputContent);
+		},
+		render: function() {
+			var html
+				//= '<div class="input-append">'
+				= '<input type="text" placeholder="Filter" class="input-medium" style="height: 20px" />'
+				+ '<button class="btn add-on" style="height: 30px" >'
+		        + '<i class="icon-search"></i>'
+		        + '</button>'
+		        //+ '</div>'
+		        ;
+			
+			this.$el.append(html);
+			return this;
+		},
+//		contentChanged: function(e) {
+//			this.updateModelWithInputValue();
+//		},
+		onKeyPress: function(e) {
+			if(e.keyCode == '13') {
+				this.updateModelWithInputValue();				
+			}
+		},
+		buttonClicked: function() {
+			this.updateModelWithInputValue();
+		},
+		updateModelWithInputValue: function() {
+			var $input = this.$el.find('input');
+
+			var val = $input.val();
+
+		    this.model.set({text: val});			
+		},
+	});
+
 	
 	
 

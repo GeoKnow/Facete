@@ -95,23 +95,34 @@
 	this.TableModel2 = Backbone.Model.extend({
 		defaults: {
 			headCollection: new Backbone.Collection(),
-			bodyCollection: new Backbone.Collection()
+			bodyCollection: new Backbone.Collection(),
+			tableModel: null
 			//headRenderer: function(model) { return []; },			
 			//bodyRenderer: function(model) {return []; }
 		}
 	});
 
 	this.TableView2 = Backbone.View.extend({
-		tagName: 'table',
+		tagName: 'div',
 		attributes: {
-			'class': 'table table-condensed table-bordered table-striped'
+			style: 'position: relative; width: 100%; vertical-align:middle; text-align:center;'
 		},
+//		tagName: 'table',
+//		attributes: {
+//			'class': 'table table-condensed table-bordered table-striped'
+//		},
 		initialize: function() {
 			_.bindAll(this);
 			
 			var headCollection = this.model.get('headCollection');
 			var bodyCollection = this.model.get('bodyCollection');
 			
+			
+			this.tableModel = this.model.get('tableModel');
+			
+			if(this.tableModel) {
+				 this.tableModel.on('change:isLoadingData', this.onChangeIsLoadingData, this);
+			}
 			
 			var options = this.options;
 			var headRenderer = this.options.headRenderer;
@@ -145,17 +156,39 @@
 	    	//this.collection.bind('add', this.renderRow, this);
 	    	//this.collection.bind('reset', this.reset, this);
 		},
+		
+		onChangeIsLoadingData: function() {
+			var isLoadingData = this.tableModel.get('isLoadingData');
+			
+			if(isLoadingData) {
+				this.$loadingData.show();
+			} else {
+				this.$loadingData.hide();
+			}
+		},
+		
+		
 		render: function() {
 			
 			console.log('rending table');
 			
 			var $el = this.$el;
+			
+			var $elTable = $('<table class="table table-bordered table-hover table-striped style="margin: 0px; position: absolute; top: 0px; left: 0px; />');
+			
 			var $head = this.headView.render().$el;
 			
-			$el.append($head)
+			$elTable.append($head)
 			
 			var $body = this.bodyView.render().$el;
-			$el.append($body);
+			$elTable.append($body);
+			
+			$el.append($elTable);
+
+			this.$loadingData = $('<div class="alert alert-info" style="position: absolute; top: 20px; display: inline;"><i class="custom-icon-spinner" />Loading data...</div>');
+			this.$loadingData.hide();
+			$el.append(this.$loadingData);
+
 			
 			this.trigger('renderDone', this);
 			

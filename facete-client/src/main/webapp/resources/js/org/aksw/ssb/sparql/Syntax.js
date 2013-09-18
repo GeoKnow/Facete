@@ -1481,6 +1481,8 @@
 	ns.QueryType.Ask = 2;
 	ns.QueryType.Describe = 3;
 	
+	
+	// TODO Duplication - ns.Order and ns.SortCondition are the same - the latter should be retained!
 	ns.OrderDir = {};
 	ns.OrderDir.Asc = 0;
 	ns.OrderDir.Desc = -1;
@@ -1656,6 +1658,10 @@
 		
 		getGroupBy: function() {
 			return this.groupBy;
+		},
+		
+		getOrderBy: function() {
+			return this.orderBy;
 		},
 		
 		toStringOrderBy: function() {

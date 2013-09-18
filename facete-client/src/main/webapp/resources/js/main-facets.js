@@ -221,6 +221,132 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	};
 
 	
+	
+	ns.ModelSort = Backbone.Model.extend({
+		sortDirection: 'none' // null, 'asc' or 'desc'
+	});
+	
+	
+	ns.ViewSort = Backbone.View.extend({
+		tagName: 'div',
+		attributes: {
+			//'class': 'inline',
+			'style': 'display: inline-block; position: relative; font-size: 14px;' 
+		},
+		events: {
+			'click a > i[class="icon-sort-up"]': function(ev) { this.sortAny(ev, 'asc'); },
+			'click a > i[class="icon-sort-down"]': function(ev) { this.sortAny(ev, 'desc'); }
+		},
+		initialize: function(options) {
+			_.bindAll(this);
+			
+			this.modelAttribute = options.modelAttribute ? options.modelAttribute : 'sortDirection';
+			
+			this.model.on('change', this.onChange, this);
+		},
+		render: function() {
+			var sortDir = this.model.get(this.modelAttribute);
+			
+			var $el = this.$el;
+			
+			this.$sortUp = $('<a href="#" style="position: absolute; top: 0px; left: 0px;"><i class="icon-sort-up" /></a>'); 
+			this.$sortDown = $('<a href="#" style="position: absolute; top: 3px; left: 0px;"><i class="icon-sort-down" /></a>');
+			
+			$el.append(this.$sortUp);
+			$el.append(this.$sortDown);
+
+			return this;
+		},
+		unrender: function() {
+			this.$el.empty();
+		},
+		onChange: function() {
+
+			var sortDir = this.model.get(this.modelAttribute);
+			
+			if(sortDir === 'desc') {
+				this.$sortUp.hide();
+			}
+			else {
+				this.$sortUp.show();
+			}
+			
+			if(sortDir === 'asc') {
+				this.$sortDown.hide();
+			}
+			else {
+				this.$sortDown.show();
+			}
+		},
+		sortAny: function(ev, newDir) {
+			ev.preventDefault();
+			
+			var current = this.model.get(this.modelAttribute);
+			var newDir = current ===  newDir ? 'none' : newDir;
+			
+			this.model.set({sortDirection: newDir});
+		},
+//		sortUp: function(ev) {
+//			ev.preventDefault();
+//			this.sortAny('asc');
+//		},
+//		sortDown: function(ev) {
+//			ev.preventDefault();
+//			this.sortAny('desc');
+//		}
+	});
+	
+	
+	ns.ViewFactoryCore = function(backboneViewClass) {
+		this.backboneViewClass = backboneViewClass;
+	};
+	
+	ns.ViewFactoryCore.prototype = {
+		createView: function(model) {
+			var result = new this.backboneViewClass(model);
+			return result;
+		}
+	};
+	
+	ns.ViewFactoryDecorator = function(coreViewFactory, backboneViewClass, fnCombine) {
+		this.coreViewFactory = coreViewFactory;
+		this.backboneViewClass = backboneViewClass;
+
+		this.fnCombine = fnCombine ? fnCombine : function(coreView, extView) {
+			var $core = coreView.render().$el;
+			var $ext = extView.render().el;
+			$core.append($el);
+		};
+	}
+	
+	ns.ViewFactoryDecorator.prototype = {
+		createView: function(model) {
+			var coreView = this.coreViewFactory.createView(model); 
+			var extView = new this.backboneViewClass(model);
+			
+			fnCombine(coreView, extView);
+	
+			return coreView;
+		}	
+	};
+	
+	
+	
+	/**
+	 * ModelFactory.create() {
+	 *     someDataStore
+	 * }
+	 * 
+	 * 
+	 */
+	
+	
+	
+	
+	
+	
+	
+	
 	ns.getOrCreateCol = function(collection, id) {
 		var result = collection.get(id);
 
@@ -234,6 +360,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		
 		return result;
 	};
+	
+	
 
 	/**
 	 * Returns the value of an attribute in the model,
@@ -584,6 +712,11 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	        	var data = { results: [firstItem] };
 	        	query.callback(data);
 
+	        	var disableCkanIntegration = true;
+	        	if(disableCkanIntegration) {
+	        		return;
+	        	}
+	        	
                 //this.postprocessResults(data, false);
 
                 //this.postRender();
@@ -1260,8 +1393,33 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			//alert(val);
 		});
 		
+		
+		/*
+		 * Check if the endpoint is even reachable
+		 * TODO The other components should not do a query unless this request succeeds 
+		 */
+		configModel.on('change:sparqlService', function() {
+			var sparqlService = this.get('sparqlService');
+			
+			var queryStr = 'Ask { <http://example.org/resource/test> <http://example.org/resource/test> <http://example.org/resource/test>}';
+			
+			var promise = sparqlService.executeAsk(queryStr);
+			
+			var $msgArea = $('#app-notification-area');
+			
+			promise.done(function() {
+				$msgArea.hide();
+			}).fail(function(data) {
+				$msgArea.html('<div class="alert alert-error" style="margin: 0px;"><strong>Failed to connect to SPARQL endpoint.</strong> Reason: ' + JSON.stringify(data.responseText) + '</div>');
+				$msgArea.show();
+			});
+			
+		});		
 
 		
+		/*
+		 * Check if the endpoint contains geographic data
+		 */
 		$mapNoticeArea = $('#mapNoticeArea');
 		configModel.on('change:sparqlService', function() {
 			var sparqlService = this.get('sparqlService');
@@ -1283,6 +1441,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		    });
 			
 		});
+		
+		
+		
 
 		
 		// Initialize the user interface
@@ -2114,6 +2275,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var tableModel = models.tableModel;
 		
 		
+		
+		tableModel.get('orderBy').push({id: 'c', direction: -1 });
 
 		
     	// We need to replace the model for the query result set
@@ -2262,6 +2425,36 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		// We need one fake object for the header in order for the head renderer to become invoked
 		var headCollection = new Backbone.Collection();
 		headCollection.add({id: 'dummy'});
+
+		
+		
+		var tableColumnRendererRegistry = {
+				
+			/**
+			 * Default renderer for sparql result sets.
+			 * 
+			 * For each column header the renderer takes the model's id,
+			 * and looks up a property of the same name for each data item.
+			 * 
+			 */
+			'defaultSparql': function(headModels, dataModel) {
+				
+//				headModels.each(function(model) {
+//					var id = model.id;
+//					
+//					dataModel.get(id);
+//					
+//				});
+//				
+//				var columnId = headModel.get('columnId');
+
+				return $('<span>test</span>')
+			}
+		};
+		
+		
+		
+		
 		
 		var facetValuesWidget = widgetNs.createView(container, widget, function(options) {
 
@@ -2275,8 +2468,16 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				}),
 				
 				headRenderer: function(model) {
+					
+					var sorter = new ns.ViewSort({
+						model: new ns.ModelSort()
+					});
+					
+					var $h1 = $('<th>Facet value</th>');
+					$h1.append(sorter.render().$el);
+					
 					//return $('<th>Facet value</th><th>Count</th><th>Restrict to value</th>');
-					return [$('<th>Facet value</th>'), $('<th>Count</th>'), $('<th>Restrict to value</th>')];
+					return [$h1, $('<th>Count</th>'), $('<th>Restrict to value</th>')];
 				},
 				
 				bodyEmptyRenderer: function() {

@@ -571,7 +571,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					
 					var $cell = row[index];
 	
-					var $el = $('<a href="#"><i class="icon-close" /i></a>');
+					var $el = $('<a href="#"><i class="icon-remove-circle" /i></a>');
 					$cell.prepend($el);
 					$el.on('click', function() {
 						collectionColumns.remove(model);

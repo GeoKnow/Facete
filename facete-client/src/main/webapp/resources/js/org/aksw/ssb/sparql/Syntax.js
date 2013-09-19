@@ -20,7 +20,68 @@
 	var ns = Namespace("org.aksw.ssb.sparql.syntax");
 
 	
+	/**
+	 * A binding is a map from variables to entries.
+	 * An entry is a on object {v: sparql.Var, node: sparql.Node }
+	 * 
+	 * The main speciality of this object is that
+	 * .entries() returns a *sorted* array of variable bindings (sorted by the variable name).
+	 *  .toString() re-uses the ordering.
+	 *  
+	 * This means, that two bindings are equal if their strings are equal.
+	 *  
+	 * TODO We could generalize this behaviour into some 'base class'. 
+	 *  
+	 * 
+	 */
+	ns.Binding = function(varNameToEntry) {
+		this.varNameToEntry = varNameToEntry;
+	};
+	
+	/**
+	 * Create method in case the variables are not objects
+	 * 
+	 */
+	ns.Binding.create = function(varNameToNode) {
 		
+		var tmp = {};
+		_.map(varNameToNode, function(node, vStr) {
+			tmp[vStr] = {v: ns.Node.v(vStr), node: node};
+		});
+		
+		var result = new ns.Binding(tmp);
+		return result;
+	},
+	
+	ns.Binding.prototype = {
+		put: function(v, node) {
+			this.varNameToEntry[v.value] = {v: v, node: node};
+		},
+	
+		entries: function() {
+			var tmp = _.values(this.varNameToEntry);
+			var result = _.sortBy(tmp, function(entry) { return entry.v.value; });
+			//alert(JSON.stringify(result));
+			return result;
+		},
+	
+		toString: function() {
+			var e = this.entries();
+			
+			//var result = "[" + e.join()
+			
+			var tmp = _.map(e, function(item) {
+				return '"' + item.v.value + '": "' + item.node + '"';  
+			});
+			
+			var result = '{' + tmp.join(', ') + '}'; 
+
+			return result;
+		}
+	};
+
+	
+
 	
 	ns.Element = function() {
 			

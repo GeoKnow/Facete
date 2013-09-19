@@ -66,7 +66,7 @@
 		//console.log("Backend: ", this.backend);
 		
 		var queryExecution = this.backend.executeSelect(query); 
-		queryExecution.success(function(jsonRs) {
+		queryExecution.done(function(jsonRs) {
 
 			if(!jsonRs) {
 				throw "Null result set for query: " + query;

@@ -2873,6 +2873,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		};
 		
 		
+		//var b = new sparql.Binding.create({'c': sparql.Node.uri('http://foo.org'), 'a': sparql.Node.uri('http://foo.org'), 'b': sparql.Node.uri('http://bar.org')});
+		//alert("" + b);
 		
 		
 		

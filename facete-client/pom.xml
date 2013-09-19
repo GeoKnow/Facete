@@ -76,6 +76,8 @@
 								<!-- Configuration files -->
 								<!-- <param>ssb.namespacePrefixes.js</param> -->
 
+								<param>org/aksw/ssb/utils/JSONCanonical.js</param>
+
 								<!-- The actual spatial semantic browsing widgets -->
 								<param>org/aksw/serializer/Serializer.js</param>
 

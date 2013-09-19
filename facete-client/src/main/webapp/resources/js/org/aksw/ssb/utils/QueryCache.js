@@ -40,7 +40,9 @@
 		
 		// TODO Only SELECT queries supported
 		
-		this.cache = varToNodeToData = {};
+		this.cache = {};
+		// TODO Replace with bindingToData
+		//this.bindingCache = {};
 	};
 		
 		
@@ -109,15 +111,11 @@
 				return result;
 			},
 			
-	
 			lookupChunk: function(v, nodes, retain) {
-		
-				var filterExpr = new sparql.E_In(v, nodes);
-				var filterElement = new sparql.ElementFilter([filterExpr]);
 				
-				var nodeToData = varToNodeToData[v.value];
+				var nodeToData = this.cache[v.value];
 				if(!nodeToData) {
-					varToNodeToData[v.value] = nodeToData = {};
+					this.cache[v.value] = nodeToData = {};
 				}
 				
 				
@@ -133,13 +131,21 @@
 					fetchList.push(node);
 				}
 				
+				//console.log('cache state', fetchList, nodeToData);
+				
 				fetchList = _.uniq(fetchList, function(node) { return node.toString(); });		
 		
+
+				
 				var promise;
 				
 				if(_.isEmpty(fetchList)) {			
 					promise = $.when();
 				} else {
+					var filterExpr = new sparql.E_In(v, fetchList);
+					var filterElement = new sparql.ElementFilter([filterExpr]);
+
+					
 					var copy = this.query.copySubstitute(function(x) { return x; });
 					copy.elements.push(filterElement);
 		
@@ -155,10 +161,24 @@
 							
 							var jsonNode = binding[v.value];
 							var indexNode = sparql.Node.fromTalisJson(jsonNode);
+							
 							var keyStr = indexNode.toString();
+
 							
 							nodeToData[keyStr] = binding;
 						}
+						
+						for(var i = 0; i < fetchList.length; ++i) {
+							var fetchItem = fetchList[i];
+							var keyStr = fetchItem.toString();
+							
+							//var entry = nodeToData[keyStr];
+							if(!(keyStr in nodeToData)) {
+								nodeToData[keyStr] = false;
+							}
+						}
+						
+						
 					});
 				}
 		
@@ -167,17 +187,27 @@
 					for(var i = 0; i < nodes.length; ++i) {
 						var node = nodes[i];
 						
-						var keyStr = node.toString(); 
-						if(keyStr in nodeToData) {
-							var cached = nodeToData[keyStr];
-							if(cached === null && !retain) {
-								continue;
-							} 
-							
-							data[keyStr] = nodeToData[keyStr];
-						} else {
-							//data[keyStr] = null;
-						}
+						var keyStr = node.toString();
+						
+						var cached = nodeToData[keyStr];
+						if(!cached && !retain) {
+							continue;
+						} 
+						
+						data[keyStr] = nodeToData[keyStr];
+						
+						
+//						if(keyStr in nodeToData) {
+//							var cached = nodeToData[keyStr];
+//							if(cached === null && !retain) {
+//								continue;
+//							} 
+//							
+//							data[keyStr] = nodeToData[keyStr];
+//						} else {
+//							//data[keyStr] = false;
+//							//data[keyStr] = null;
+//						}
 					}
 					
 					
@@ -195,7 +225,35 @@
 				});
 				
 				return result;	
+			},
+			
+			/*
+			 * Add functions which cache results based on bindings
+			 * rather than just single nodes
+			 */
+			
+			lookupBinding: function(bindings) {
+				
+			},
+			
+
+			lookupChunkBinding: function(v, nodes, retain) {
+				var bindings = _.map(nodes, function(node) {
+					
+					var map = {};
+					map[v.value] = node;
+					
+					return sparql.Binding.create(map);
+				});
+				
+				var dedup = _.uniq(bindings, false, function(item) {
+					return item.toString();
+				});
+				
+				var result = this.lookupChunkNode(bindings, retain);
+				return result;
 			}
+
 	}
 	
 })();

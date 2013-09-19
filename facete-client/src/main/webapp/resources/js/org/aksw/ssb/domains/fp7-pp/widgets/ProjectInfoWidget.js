@@ -91,7 +91,7 @@
 				$el.append(td);
 			});
 			
-			this.trigger('renderDone', this);	    	
+			//this.trigger('renderDone', this);	    	
 	    },
 	    unrender: function() {
 	      this.$el.remove();

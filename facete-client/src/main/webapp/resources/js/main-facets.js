@@ -367,6 +367,18 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	};
 	
 	
+	ns.RendererRowFn = function(fnDelegate) {
+		this.fnDelegate = fnDelegate;
+	};
+	
+	ns.RendererRowFn.prototype = {
+		renderRow: function(model, context) {
+			var result = this.fnDelegate(model, context);
+			return result;
+		}	
+	};
+	
+	
 	
 	
 	ns.RendererRowSort = function(decoratee, tableModel, collectionColumns, rootFacetNode, columnStates) {
@@ -559,8 +571,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					
 					var $cell = row[index];
 	
-					var $el = $('<span>test</span>');
-					$cell.append($el);
+					var $el = $('<a href="#"><i class="icon-close" /i></a>');
+					$cell.prepend($el);
 					$el.on('click', function() {
 						collectionColumns.remove(model);
 					});
@@ -2043,7 +2055,33 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var columnStates = new Backbone.Collection();
 		
 		
-		var renderer = new ns.RendererRowT('td');
+		//var renderer = new ns.RendererRowT('td');
+		var fnRenderHead = function(m, context) {
+			var columnStates = context.columnStates;
+			
+			var result = [];
+			columnStates.map(function(model) {
+				var path = model.get('path');
+				
+				var lastStep = path.getLastStep();
+				
+				var facetNode = rootFacetNode.forPath(path);				
+				var v = facetNode.getVariable();
+				
+				var id = v.value;
+				var label = lastStep ? lastStep.propertyName : 'http://ns.aksw.org/facete/builtin/Item';
+				
+				var $el = $('<td><span data-uri="' + label + '" /></td>');
+				
+				result.push($el);
+			});
+			
+			return result;
+		};
+		
+		
+		var renderer = new ns.RendererRowFn(fnRenderHead);
+		
 		renderer = new ns.RendererRowRemoveCol(renderer, collectionColumns, rootFacetNode);
 		renderer = new ns.RendererRowSort(renderer, tableModel, collectionColumns, rootFacetNode, columnStates);
 		
@@ -2059,7 +2097,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		headCollection.add({id: 'dummy'});
 
 		
-		collectionColumns.on('all', function() {
+		var fnSyncColStates = function() {
 			
 			// TODO: Retain prior states
 			columnStates.reset();
@@ -2072,9 +2110,15 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				var v = facetNode.getVar();
 				var colName = v.value;
 				
-				columnStates.add({id: colName});
+				columnStates.add({
+					id: colName,
+					path: path
+				});
 			});
-		});
+		};
+		
+		collectionColumns.on('all', fnSyncColStates);
+		fnSyncColStates();
 		
 		
 		//columnStates.add({id: 's', path: new facets.Path()});

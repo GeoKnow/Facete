@@ -261,8 +261,26 @@ var ns = Namespace("org.aksw.ssb.facets");
 			var orderBy = this.orderBy;
 			for(var i = 0; i < orderBy.length; ++i) {
 				var item = orderBy[i];
+				var id = item.id;
+
+				// if the id is a name, we interpret it as the variable name
+				// however, if the id is numeric, we interpret it as a 0-based column index
+				var v;
+				if(typeof id === 'number') {
+					vars = baseQuery.getProjectVars().getVarList();
+					if(id >= vars.length) {
+						console.log('[ERROR] Ignoring: Index ' + id + ' must be less than ' + vars.length, vars);
+						continue;
+					}
+					
+					v = vars[id];
+				}
+				else {
+					v = sparql.Node.v(id);
+				}
 				
-				var v = sparql.Node.v(item.id);
+				
+				
 				var ev = new sparql.ExprVar(v);
 
 				var dir = 1;

@@ -50,6 +50,14 @@
 	    initialize: function(){
 	    	_.bindAll(this);
 	    	
+	    	var self = this;
+	    	
+	    	var columnStates = this.options.context.columnStates;
+	    	
+	    	columnStates.on('add remove reset', function() {
+	    		self.reset();
+	    	});
+	    	
 	    	this.model.bind('change', this.reset, this);
 	    	this.model.bind('remove', this.unrender, this);
 	    },
@@ -60,7 +68,9 @@
 			return this;
 	    },
 	    renderChildren: function() {
-	    	var children = this.options.rowItemRenderer(this.model);
+			var $el = this.$el;
+
+	    	var children = this.options.rowItemRenderer(this.model, this.options.context);
 
 	    	var tds = _.map(children, function(child) {
 	    		
@@ -76,7 +86,7 @@
 	    		}
 			});
 	    	
-			var $el = this.$el;
+
 			_.each(tds, function(td) {
 				$el.append(td);
 			});
@@ -94,6 +104,8 @@
 
 	this.TableModel2 = Backbone.Model.extend({
 		defaults: {
+			rendererRegistry: null, // column states may use the 'renderer' property to refer to a specific renderer  in this registry
+			columnStates: new Backbone.Collection(),
 			headCollection: new Backbone.Collection(),
 			bodyCollection: new Backbone.Collection(),
 			tableModel: null
@@ -102,6 +114,15 @@
 		}
 	});
 
+	
+		
+	/**
+	 * The renderer functions are invoked with
+	 * render(model, columnStates)
+	 * 
+	 * Actually, a render should receive much more information, such as which row number (relative/absolute) it is rendering
+	 * 
+	 */
 	this.TableView2 = Backbone.View.extend({
 		tagName: 'div',
 		attributes: {
@@ -117,8 +138,16 @@
 			var headCollection = this.model.get('headCollection');
 			var bodyCollection = this.model.get('bodyCollection');
 			
+			// TODO columnStates should be part of the table model i suppose
+			
+			var self = this;
+//			columnStates.on('all', function() {
+//				self.reset();
+//			});
+			
 			
 			this.tableModel = this.model.get('tableModel');
+			var columnStates = this.model.get('columnStates');
 			
 			if(this.tableModel) {
 				 this.tableModel.on('change:isLoadingData', this.onChangeIsLoadingData, this);
@@ -130,21 +159,28 @@
 			
 			var bodyEmptyRenderer = this.options.bodyEmptyRenderer;
 			
+			var context = {
+				columnStates: columnStates, 					
+			};
+			
 			
 			this.headView = new ns.TableViewCollection2({
 				tagName: 'thead',
+				context: context,
 				collection: headCollection, 
-				rowItemRenderer: headRenderer 
+				rowItemRenderer: headRenderer
 			});
 						
 			
 			this.bodyView = new ns.TableViewCollection2({
 				tagName: 'tbody',
+				context: context,
 				collection: bodyCollection, 
 				rowItemRenderer: bodyRenderer,
 				rowEmptyRenderer: bodyEmptyRenderer
 			});
 			
+
 			var self = this;
 			var fnPassEvent = function() {
 				self.trigger.apply(self, arguments);
@@ -170,11 +206,9 @@
 		
 		render: function() {
 			
-			console.log('rending table');
-			
 			var $el = this.$el;
 			
-			var $elTable = $('<table class="table table-bordered table-hover table-striped style="margin: 0px; position: absolute; top: 0px; left: 0px; />');
+			var $elTable = $('<table class="table table-bordered table-hover table-striped" style="margin: 0px; position: relative; top: 0px; left: 0px;" />');
 			
 			var $head = this.headView.render().$el;
 			
@@ -195,14 +229,16 @@
 			return this;
 		},
 		unrender: function() {
-			this.$el.remove();
-		}
-		/*
+	    	this.headView.unrender();
+	    	this.bodyView.unrender();
+			this.$el.empty();
+		},
+
 	    reset: function() {
-	    	this.$el.empty();
+	    	this.unrender();
 	    	this.render();
 	    }
-	    */
+
 	});
 
 	
@@ -221,9 +257,9 @@
 	 */
 	this.TableViewCollection2 = Backbone.View.extend({
 		tagName: 'tbody',
-		attributes: {
-			'class': 'table table-condensed table-bordered table-striped'
-		},
+//		attributes: {
+//			'class': 'table table-condensed table-bordered table-striped'
+//		},
 		initialize: function() {
 			_.bindAll(this);
 			
@@ -250,6 +286,8 @@
 		},
 		
 		renderEmptyRow: function() {
+			var context = this.options.context;
+			
 			var rowEmptyRenderer = this.options.rowEmptyRenderer;
 			
 			if(!rowEmptyRenderer) {
@@ -265,7 +303,7 @@
 			
 			//var $rowViewEl = rowView.render().$el;
 			
-			var $cols = rowEmptyRenderer();
+			var $cols = rowEmptyRenderer(context);
 			
 			if($cols) {
 				var $tr = $('<tr></tr>');
@@ -283,7 +321,8 @@
 		renderRow: function(model) {
 			var rowView = new ns.RowView2({
 				model: model,
-				rowItemRenderer: this.options.rowItemRenderer
+				rowItemRenderer: this.options.rowItemRenderer,
+				context: this.options.context
 			});
 			
 			// TODO Hack: this fires a renderDone event on every row, which is what we want to avoid.
@@ -401,7 +440,7 @@
 	
 	this.renderBar = function(data) {
 	
-	    var template = '<div style="position:relative; width: 100%; height: {height}px;"><div style="position: absolute; right: 0px; background-color: #0080ff; border-color: #00a0ff; width: {width}px;  height: {height}px;">{innerHtml}</div></div>';
+	    var template = '<div style="position:relative; width: 100%; height: {height}px;"><div style="position: relative; right: 0px; background-color: #0080ff; border-color: #00a0ff; width: {width}px;  height: {height}px;">{innerHtml}</div></div>';
 	
 	
 	    var result = jsontemplate.expand(template, data);

@@ -286,7 +286,7 @@
 			
 			var finalPromise = $.when.apply(null, promises);
 			
-			finalPromise.then(function() {
+			finalPromise.always(function() {
 				model.set({
 					isLoading : false
 				});

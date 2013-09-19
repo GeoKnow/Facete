@@ -226,17 +226,21 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		sortDirection: 'none' // null, 'asc' or 'desc'
 	});
 	
-	
+
+	// TODO We need a controller that syncs the sortModel with the tablemodel:
+	// view.onClick -> update the tableModel
+	// change:tableModel.orderBy -> update the view model
+	// But we also need to sync a collection with ... ah fuck this....
 	ns.ViewSort = Backbone.View.extend({
 		tagName: 'div',
 		attributes: {
 			//'class': 'inline',
-			'style': 'display: inline-block; position: relative; font-size: 14px;' 
+			'style': 'display: inline; position: relative; font-size: 14px;' 
 		},
-		events: {
-			'click a > i[class="icon-sort-up"]': function(ev) { this.sortAny(ev, 'asc'); },
-			'click a > i[class="icon-sort-down"]': function(ev) { this.sortAny(ev, 'desc'); }
-		},
+//		events: {
+//			'click a > i[class="icon-sort-up"]': function(ev) { this.sortAny(ev, 'asc'); },
+//			'click a > i[class="icon-sort-down"]': function(ev) { this.sortAny(ev, 'desc'); }
+//		},
 		initialize: function(options) {
 			_.bindAll(this);
 			
@@ -249,8 +253,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			
 			var $el = this.$el;
 			
-			this.$sortUp = $('<a href="#" style="position: absolute; top: 0px; left: 0px;"><i class="icon-sort-up" /></a>'); 
-			this.$sortDown = $('<a href="#" style="position: absolute; top: 3px; left: 0px;"><i class="icon-sort-down" /></a>');
+			this.$sortUp = $('<a href="#" style="position: relative; top: 0px; left: 0px;"><i class="icon-sort-up" /></a>'); 
+			this.$sortDown = $('<a href="#" style="position: relative; top: 3px; left: 0px;"><i class="icon-sort-down" /></a>');
 			
 			$el.append(this.$sortUp);
 			$el.append(this.$sortDown);
@@ -264,14 +268,16 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			var sortDir = this.model.get(this.modelAttribute);
 			
-			if(sortDir === 'desc') {
+			//if(sortDir === 'desc') {
+			if(sortDir < 0) {
 				this.$sortUp.hide();
 			}
 			else {
 				this.$sortUp.show();
 			}
 			
-			if(sortDir === 'asc') {
+			//if(sortDir === 'asc') {
+			if(sortDir > 0) {
 				this.$sortDown.hide();
 			}
 			else {
@@ -329,6 +335,245 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			return coreView;
 		}	
 	};
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * new RendererRow('th');
+	 * 
+	 */
+	ns.RendererRowT = function(tagName) {
+		this.tagName = tagName;
+	};
+	
+	ns.RendererRowT.prototype = {
+		renderRow: function(model, context) {
+			var columnStates = context.columnStates;
+			var n = columnStates.length;
+			
+			var result = [];
+			for(var i = 0; i < n; ++i) {
+				var $el = $('<' + this.tagName + ' />');
+				result.push($el);
+			}
+			
+			return result;
+		}
+	};
+	
+	
+	
+	
+	ns.RendererRowSort = function(decoratee, tableModel, collectionColumns, rootFacetNode, columnStates) {
+		this.decoratee = decoratee;
+		this.tableModel = tableModel;
+		this.rootFacetNode = rootFacetNode;
+		this.collectionColumns = collectionColumns;		
+		this.columnStates = columnStates;
+		
+		this.bind();
+	};
+	
+	ns.RendererRowSort.prototype = {
+			
+		bind: function() {
+			
+			
+			var tableModel = this.tableModel;
+			var columnStates = this.columnStates;
+			
+			
+			// If the tableModel's orderBy changes, update the column models
+			tableModel.on('change:orderBy', function() {
+				
+				var orderBy = tableModel.get('orderBy');
+				var seenModels = [];
+				for(var i = 0; i < orderBy.length; ++i) {
+					var item = orderBy[i];
+					
+					var columnId = item.id;
+					
+					var state;
+					if(typeof columnId === 'number') {
+						state = columnStates.at(columnId);
+					} else {
+						state = columnStates.get(columnId);
+					}
+					
+					if(!state) {
+						logger.log('[WARN] tableModel has an ordering, but column ' + columnId + ' is not declared');
+						continue;
+					}
+					
+					seenModels.push(state);
+					
+					state.set({
+						sortDirection: item.direction,
+						sortIndex: i
+					});
+					
+					//alert(JSON.stringify(state));
+				}
+				
+				columnStates.each(function(model) {
+					var index = _.indexOf(seenModels, model);
+					if(index < 0) {
+						model.set({
+							sortIndex: null,
+							sortDirection: 0
+						})
+					}
+				});
+				
+			});
+			
+			
+//			columnStates.on('add', function(model) {
+//				var sorter = new ns.ViewSort({
+//					model: new ns.ModelSort()
+//				});
+//				
+//				//var $h1 = $('<th>Facet value</th>');
+//				$h1.append(sorter.render().$el);
+//				
+//			});
+//			
+			// TODO Where to listen for the column models???
+		},
+		
+		renderRow: function(model, context) {
+			
+			var columnStates = context.columnStates;
+			
+						
+			
+			var row = this.decoratee.renderRow(model, context);
+			
+			
+			var collectionColumns = this.collectionColumns;
+			var rootFacetNode = this.rootFacetNode;
+			var tableModel = this.tableModel;
+			
+			var MyViewSort = ns.ViewSort.extend({
+				events: {
+					'click a > i[class="icon-sort-up"]': function(ev) { this.doSort(ev, 1); },
+					'click a > i[class="icon-sort-down"]': function(ev) { this.doSort(ev, -1); }
+				},
+				doSort: function(ev, sortDirection) {
+					var oldSortDir = this.model.get('sortDirection');
+					if(oldSortDir === sortDirection) {
+						sortDirection = -sortDirection;
+					}
+					
+					
+					var newOrderBy = [];
+					
+					var model = this.model;
+					var colId = model.id;
+					
+					newOrderBy.push({
+						id: colId,
+						direction: sortDirection
+					});
+					
+					//alert(JSON.stringify(newOrderBy));
+					
+					tableModel.set({orderBy: newOrderBy});
+				}
+			});
+			
+			var result = [];
+			for(var i = 0; i < columnStates.length; ++i) {
+
+				var state = columnStates.at(i);
+				var $cell = row[i];
+
+
+				var sorter = new MyViewSort({
+					model: state
+				});
+				
+				var $el = sorter.render().$el;
+				
+				$cell.append($el);
+			
+
+//				model.on('change:sortDirection', function() {
+//					
+//				});
+				
+				result.push($cell);
+				
+			}
+			
+			return result;
+		}
+	};
+	
+
+	/**
+	 * Base on the column collection, add a remove column button
+	 * 
+	 */
+	ns.RendererRowRemoveCol = function(decoratee, collectionColumns, rootFacetNode) {
+		this.decoratee = decoratee;
+		this.rootFacetNode = rootFacetNode;
+		this.collectionColumns = collectionColumns;
+	};
+	
+	
+	ns.RendererRowRemoveCol.prototype = {
+		renderRow: function(model, context) {
+			var columnStates = context.columnStates;
+			
+			var row = this.decoratee.renderRow(model, context);
+			
+			
+			var collectionColumns = this.collectionColumns;
+			var rootFacetNode = this.rootFacetNode;
+			
+			for(var i = 0; i < collectionColumns.length; ++i) {
+				(function(i) {
+					var model = collectionColumns.at(i);
+					var path = model.get('path');
+					
+					var facetNode = rootFacetNode.forPath(path);
+					var v = facetNode.getVar();
+					
+					var colName = v.value; 
+					
+					var stateModel = columnStates.get(colName);
+					var index = columnStates.indexOf(stateModel);
+					
+					//console.log('resultrow path ', 'columnStates', columnStates, 'path', path, 'facetNode', facetNode, 'v', v, 'colName', colName, 'index', index);
+					//index = 0;
+					if(index < 0) {
+						console.log('[WARN] resultrow path ', 'columnStates: ', columnStates, 'colName: ' + colName, 'index', index);
+						return;
+					}
+					
+					var $cell = row[index];
+	
+					var $el = $('<span>test</span>');
+					$cell.append($el);
+					$el.on('click', function() {
+						collectionColumns.remove(model);
+					});
+				})(i);
+				
+			}
+
+			console.log('Resultrow is ', row);
+			return row;
+		}
+	};
+	
+	
 	
 	
 	
@@ -1789,7 +2034,136 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		container.children().remove();
 
 		
-		var view = widgetNs.createView(container, widget);
+		
+		var rootFacetNode = configModel.get('rootFacetNode');
+		var collectionColumns = configModel.get('collectionColumns');
+		var tableModel = widget.models.tableModel;
+
+		// TODO column states should become part of the table model
+		var columnStates = new Backbone.Collection();
+		
+		
+		var renderer = new ns.RendererRowT('td');
+		renderer = new ns.RendererRowRemoveCol(renderer, collectionColumns, rootFacetNode);
+		renderer = new ns.RendererRowSort(renderer, tableModel, collectionColumns, rootFacetNode, columnStates);
+		
+		
+		// TODO: Add sort plugin
+		// TODO: Add remove column plugin
+		 
+		
+		//var view = widgetNs.createView(container, widget);
+		
+		
+		var headCollection = new Backbone.Collection();
+		headCollection.add({id: 'dummy'});
+
+		
+		collectionColumns.on('all', function() {
+			
+			// TODO: Retain prior states
+			columnStates.reset();
+			
+			collectionColumns.each(function(model) {
+				
+				var path = model.get('path');
+				var facetNode = rootFacetNode.forPath(path);
+				
+				var v = facetNode.getVar();
+				var colName = v.value;
+				
+				columnStates.add({id: colName});
+			});
+		});
+		
+		
+		//columnStates.add({id: 's', path: new facets.Path()});
+		
+		var view = widgetNs.createView(container, widget, function(options) {
+			
+			
+			var result = new widgets.TableView2({
+//				attributes: {
+//					'class': 'table table-bordered table-striped table-condensed',
+//					style: 'margin: 0px'
+//				},
+				//collection : options.collection,
+				model: new widgets.TableModel2({
+					bodyCollection: options.model.get('bodyCollection'),
+					headCollection: headCollection,
+					tableModel: tableModel,
+					columnStates: columnStates
+					
+				}),
+				
+				headRenderer: function(model, context) {
+					var result = renderer.renderRow(model, context);
+					return result;
+				},
+				
+				bodyEmptyRenderer: function(context) {
+					var columnStates = context.columnStates;
+					var colspan = columnStates.length;
+					
+					return [$('<td colspan="' + colspan+ '">There is no data to be shown</td>')];
+				},
+								
+				bodyRenderer: function(model, context) {
+		
+					var columnStates = context.columnStates;
+					
+					var result = [];
+					for(var i = 0; i < columnStates.length; ++i) {
+						var state = columnStates.at(i);
+						var id = state.id;
+						
+						var item = model.get(id);
+						
+						var text;
+						if(item) {
+							var node = item.node;
+							
+							if(node) {
+							
+								text = node.value;
+							
+								if(node.isUri()) {
+									text = '<span data-uri="' + text + '" />';
+								} else {
+									text = node.value;
+								}
+							} else {
+								text = '(not specified)'
+							}
+						}
+						else {
+							text = '<span style="color: #a0a0a0">(no value)</span>';
+						}
+
+						
+						
+						var $td = $('<td />');
+						$td.html(text);
+						//var $content = $('<span>foobar</span>');
+						
+						//$td.append($content);
+						
+						result.push($td);
+					}
+					
+					
+					return result;
+					//alert(context.columnStates.length);
+					
+					//return [$(<td)]
+				}
+			});
+			
+			return result;
+			
+			
+			
+		});
 		
 
 		view.on('renderDone', function() {
@@ -1908,6 +2282,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		 */
 		collectionColumns.on('add remove reset', function() {
 
+			//console.log('collectionColumns', this);
+			
 	    	var rootFacetNode = configModel.get('rootFacetNode');
 
 	    	var labelMap = {};
@@ -2275,8 +2651,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		var tableModel = models.tableModel;
 		
 		
-		
 		tableModel.get('orderBy').push({id: 'c', direction: -1 });
+		tableModel.get('orderBy').push({id: 0, direction: 1 });
 
 		
     	// We need to replace the model for the query result set
@@ -2460,7 +2836,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 			// TODO Add headings
 			var result = new widgets.TableView2({
-				attributes: { 'class': 'table table-bordered table-striped table-condensed', style: 'margin: 0px' },
+				//attributes: { 'class': 'table table-bordered table-striped table-condensed', style: 'margin: 0px' },
 				//collection : options.collection,
 				model: new widgets.TableModel2({
 					bodyCollection: options.model.get('bodyCollection'),

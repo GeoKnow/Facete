@@ -1597,7 +1597,7 @@
 				var result;
 				if(this.direction >= 0) {
 					result = "Asc(" + this.expr + ")";
-				} else {
+				} else if(this.direction < 0) {
 					result = "Desc(" + this.expr + ")";
 				}
 				

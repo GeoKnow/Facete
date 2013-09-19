@@ -66,8 +66,6 @@
 			sparqlService: null,
 			
 			queryFactory: null,
-			offset: 0,
-			limit: 10,
 			
 			partitionLimit: null,
 			partitionOffset: null,
@@ -78,7 +76,20 @@
 			elements: [], // Additional elements to be appended to the query // TODO Should be map, so we can reference additions by id
 			
 			// Order by is an array of objects {id: , direction: }
+
+			/*
+			 * These are the actual table attributes;
+			 * above ones are sparql specific
+			 */
+			
+			offset: 0,
+			limit: 10,
 			orderBy: []
+			
+			// Columns are updated from the query generated from the queryFactory
+			//
+			//columns: new Backbone.Collection()
+
 			
 			//searchText: "",
 			//currentPage: 1,

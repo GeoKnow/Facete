@@ -286,7 +286,16 @@
 						}
 						
 						return result;
-					}					
+					},
+					
+					bodyEmptyRenderer: function(context) {
+						
+						var columnStates = context.columnStates;
+						var colspan = columnStates ? columnStates.length : 0;
+						
+						
+						return [$('<td colspan="' + colspan + '">No data to be shown</td>')];
+					}
 			};
 			
 			
@@ -407,10 +416,11 @@
 				header.append('<br />');
 				
 				
+				container.append(el);
 				
-				var body = $('<div />');
-				body.append(el);
-				container.append(body);
+//				var body = $('<div />');
+//				body.append(el);
+//				container.append(body);
 												
 				
 				//var footer = $('<div style="background-color:#F0F0F0; height: 26px; bottom: 0px; padding: 3px; margin: 0px;" />');

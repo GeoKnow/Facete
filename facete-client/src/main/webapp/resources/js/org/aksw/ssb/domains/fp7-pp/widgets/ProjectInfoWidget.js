@@ -91,7 +91,9 @@
 				$el.append(td);
 			});
 			
-			//this.trigger('renderDone', this);	    	
+			// Note: Each row triggers an event when it is done rendering
+			// However, the main table should not forward it if it is an a batch rendering sequence
+			this.trigger('renderDone', this);	    	
 	    },
 	    unrender: function() {
 	      this.$el.remove();
@@ -138,6 +140,8 @@
 			var headCollection = this.model.get('headCollection');
 			var bodyCollection = this.model.get('bodyCollection');
 			
+	    	this.isRendering = false;
+
 			// TODO columnStates should be part of the table model i suppose
 			
 			var self = this;
@@ -183,7 +187,9 @@
 
 			var self = this;
 			var fnPassEvent = function() {
-				self.trigger.apply(self, arguments);
+				if(!self.isRendering) {
+					self.trigger.apply(self, arguments);
+				}
 			};
 			
 			this.headView.on('all', fnPassEvent);
@@ -206,6 +212,9 @@
 		
 		render: function() {
 			
+			
+			this.isRendering = true;
+			
 			var $el = this.$el;
 			
 			var $elTable = $('<table class="table table-bordered table-hover table-striped" style="margin: 0px; position: relative; top: 0px; left: 0px;" />');
@@ -224,6 +233,8 @@
 			$el.append(this.$loadingData);
 
 			
+			this.isRendering = false;
+
 			this.trigger('renderDone', this);
 			
 			return this;
@@ -265,9 +276,14 @@
 			
 	    	this.collection.bind('add', this.renderRow, this);
 	    	this.collection.bind('reset', this.reset, this);
+	    	
+	    	this.isRendering = false;
+	    	
 		},
 		render: function() {
 			var collection = this.collection;
+			
+			this.isRendering = true;
 			
 			//console.log('Rendering ' + collection.length + ' items')
 			
@@ -279,6 +295,8 @@
 				collection.each(this.renderRow);
 			}
 			
+			
+			this.isRendering = false;
 			
 			this.trigger('renderDone', this);
 			
@@ -328,7 +346,9 @@
 			// TODO Hack: this fires a renderDone event on every row, which is what we want to avoid.
 			var self = this;
 			var fnPassEvent = function() {
-				self.trigger.apply(self, arguments);
+				if(!self.isRendering) {
+					self.trigger.apply(self, arguments);
+				}
 			};
 			rowView.on('all', fnPassEvent);
 			

@@ -253,8 +253,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			
 			var $el = this.$el;
 			
-			this.$sortUp = $('<a href="#" style="position: relative; top: 0px; left: 0px;"><i class="icon-sort-up" /></a>'); 
-			this.$sortDown = $('<a href="#" style="position: relative; top: 3px; left: 0px;"><i class="icon-sort-down" /></a>');
+			this.$sortUp = $('<a href="#" style="position: relative; top: 0px; left: 0px; margin-left: 3px;"><i class="icon-sort-up" /></a>'); 
+			this.$sortDown = $('<a href="#" style="position: relative; top: 0px; left: 0px;"><i class="icon-sort-down" /></a>');
 			
 			$el.append(this.$sortUp);
 			$el.append(this.$sortDown);
@@ -418,7 +418,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					}
 					
 					if(!state) {
-						logger.log('[WARN] tableModel has an ordering, but column ' + columnId + ' is not declared');
+						console.log('[WARN] tableModel has an ordering, but column ' + columnId + ' is not declared');
 						continue;
 					}
 					
@@ -477,6 +477,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					'click a > i[class="icon-sort-down"]': function(ev) { this.doSort(ev, -1); }
 				},
 				doSort: function(ev, sortDirection) {
+					ev.preventDefault();
+					
 					var oldSortDir = this.model.get('sortDirection');
 					if(oldSortDir === sortDirection) {
 						sortDirection = -sortDirection;
@@ -487,6 +489,22 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					
 					var model = this.model;
 					var colId = model.id;
+
+					// On shift key, append the sort condition ; remove prior condition
+					//
+					if(ev.shiftKey) {
+						var oldOrderBy = tableModel.get('orderBy');
+
+						for(var i = 0; i < oldOrderBy.length; ++i) {
+							var item = oldOrderBy[i];
+							
+							if(item.id != colId) {
+								newOrderBy.push(item);
+							} 
+						}
+						
+					} 
+
 					
 					newOrderBy.push({
 						id: colId,
@@ -573,7 +591,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	
 					var $el = $('<a href="#"><i class="icon-remove-circle" /i></a>');
 					$cell.prepend($el);
-					$el.on('click', function() {
+					$el.on('click', function(ev) {
+						ev.preventDefault();
 						collectionColumns.remove(model);
 					});
 				})(i);
@@ -2071,7 +2090,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				var id = v.value;
 				var label = lastStep ? lastStep.propertyName : 'http://ns.aksw.org/facete/builtin/Item';
 				
-				var $el = $('<td><span data-uri="' + label + '" /></td>');
+				var $el = $('<td style="white-space:nowrap;"><span data-uri="' + label + '" /></td>');
 				
 				result.push($el);
 			});
@@ -2891,12 +2910,12 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				
 				headRenderer: function(model) {
 					
-					var sorter = new ns.ViewSort({
-						model: new ns.ModelSort()
-					});
+//					var sorter = new ns.ViewSort({
+//						model: new ns.ModelSort()
+//					});
 					
 					var $h1 = $('<th>Facet value</th>');
-					$h1.append(sorter.render().$el);
+//					$h1.append(sorter.render().$el);
 					
 					//return $('<th>Facet value</th><th>Count</th><th>Restrict to value</th>');
 					return [$h1, $('<th>Count</th>'), $('<th>Restrict to value</th>')];

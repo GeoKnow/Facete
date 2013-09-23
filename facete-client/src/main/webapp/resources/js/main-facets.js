@@ -583,7 +583,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					//console.log('resultrow path ', 'columnStates', columnStates, 'path', path, 'facetNode', facetNode, 'v', v, 'colName', colName, 'index', index);
 					//index = 0;
 					if(index < 0) {
-						console.log('[WARN] resultrow path ', 'columnStates: ', columnStates, 'colName: ' + colName, 'index', index);
+						//**console.log('[WARN] resultrow path ', 'columnStates: ', columnStates, 'colName: ' + colName, 'index', index);
 						return;
 					}
 					
@@ -3437,7 +3437,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			//var json = data.json;
 
 			
-			console.log("clicked feature: ", data);
+			//console.log("clicked feature: ", data);
 			
 			//console.log("Select " + id + " with data " + JSON.stringify(json));
 			//console.log("Select " + id);
@@ -3478,7 +3478,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 
 		
 		mapView.on("featureUnselect", function(ev, data) {
-			console.log('unselect data', data);
+			//console.log('unselect data', data);
 			var id = data.id;
 			var globalItemData = data.get('globalItemData');
 			var geoPath = globalItemData.geoPath;

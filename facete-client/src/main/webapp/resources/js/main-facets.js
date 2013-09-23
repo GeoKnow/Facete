@@ -230,7 +230,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	// TODO We need a controller that syncs the sortModel with the tablemodel:
 	// view.onClick -> update the tableModel
 	// change:tableModel.orderBy -> update the view model
-	// But we also need to sync a collection with ... ah fuck this....
+	// But we also need to sync a collection with ... meh this is getting complicated again....
 	ns.ViewSort = Backbone.View.extend({
 		tagName: 'div',
 		attributes: {
@@ -3215,8 +3215,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     			mapItems.add(data);
     		}
     		
-    		console.log("[DEBUG] Removed " + removedItems.length + " items, Added " + addedItems.length + ", " + newState.visibleGeoms.length + " visible");
-    		console.log("[DEBUG] Map items in collection " + mapItems.length);
+    		//console.log("[DEBUG] Removed " + removedItems.length + " items, Added " + addedItems.length + ", " + newState.visibleGeoms.length + " visible");
+    		//console.log("[DEBUG] Map items in collection " + mapItems.length);
     		
     		var addedBoxes = _.values(delta.boxes.added);
 			mapBoxes.add(addedBoxes);
@@ -3228,7 +3228,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		
     		
     		var removedBoxes = _.keys(delta.boxes.removed);
-    		console.log('[DEBUG] Removed boxes', removedBoxes);
+    		//console.log('[DEBUG] Removed boxes', removedBoxes);
     		mapBoxes.remove(removedBoxes);
     		/*
     		for(var i = 0; i < removedBoxes.length; ++i) {

@@ -262,8 +262,8 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 				
 				var newViewState = new ns.ViewState(nodes, bounds);
 				
-				console.log("Loaded " + nodes.length + " nodes");
-				console.log("Nodes are:", nodes);
+				//console.log("[TRACE] Loaded " + nodes.length + " nodes");
+				//console.log("[TRACE] Nodes are:", nodes);
 				var delta = self.updateViews(oldViewState, newViewState);
 				
 				data = {
@@ -553,7 +553,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 	    	var lonlat = tmp.transform(map.displayProjection, map.projection);
 	    	
 	    	
-	    	console.log('fuck', center, zoom, lonlat);
+	    	//console.log('[DEBUG] Map state', center, zoom, lonlat);
 
 			map.setCenter(lonlat, zoom, false, false);
 	    },

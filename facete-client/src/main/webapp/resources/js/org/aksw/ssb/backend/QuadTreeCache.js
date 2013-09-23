@@ -312,8 +312,8 @@
 		// Maximum geoms to accept for global lookup
 		this.maxGlobalItemCount = options.maxGlobalItemCount ? options.maxGlobalItemCount : 50;
 		
-		console.log("[QuadTree] MaxTileItemCount: " + this.maxItemCount);
-		console.log("[QuadTree] MaxGlobalItemCount: " + this.maxGlobalItemCount);
+		//console.log("[QuadTree] MaxTileItemCount: " + this.maxItemCount);
+		//console.log("[QuadTree] MaxGlobalItemCount: " + this.maxGlobalItemCount);
 		
 //		this.labelFetcher = labelFetcher;
 		this.geomPosFetcher = geomPosFetcher;
@@ -484,10 +484,10 @@
 			
 			var self = this;
 			var result;
-			console.log("Initiating data fetching workflow");
+			//console.log("Initiating data fetching workflow");
 			if(!rootNode.checkedGlobal) {
 				
-				console.log("Checking applicability of global fetching strategy (was not checked before)");
+				//console.log("Checking applicability of global fetching strategy (was not checked before)");
 				
 				result = $.Deferred();
 				
@@ -500,7 +500,7 @@
 	
 				$.when(globalCheckTask).then(function(canUseGlobal) {
 	
-					console.log("Applicability: ", canUseGlobal);
+					//console.log("Applicability: ", canUseGlobal);
 					
 					rootNode.checkedGlobal = true;
 					task = canUseGlobal ? self.createGlobalWorkflow(rootNode) : self.loadTiles(bounds);
@@ -529,13 +529,13 @@
 	
 			// Fetch the items
 			var loadTask = self.backendFactory.forGlobal().fetchGeomToFeatureCount().pipe(function(geomToFeatureCount) {
-				console.log("Global fetching: ", geomToFeatureCount);
+				//console.log("Global fetching: ", geomToFeatureCount);
 				self.loadTaskAction(node, geomToFeatureCount);
 			});
 	
 			$.when(loadTask).then(function() {
 				$.when(self.postProcess([node])).then(function() {
-					console.log("Global workflow completed.");
+					//console.log("Global workflow completed.");
 					//console.debug("Workflow completed. Resolving deferred.");
 					result.resolve([node]);
 				}).fail(function() {
@@ -576,7 +576,7 @@
 			var self = this;
 				
 			
-			console.log("Aquiring nodes for " + bounds);
+			//console.log("Aquiring nodes for " + bounds);
 			var nodes = this.quadTree.aquireNodes(bounds, 2);
 	
 			// Init the data attribute if needed

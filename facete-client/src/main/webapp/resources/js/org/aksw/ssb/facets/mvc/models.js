@@ -345,7 +345,7 @@
 					}
 			};
 				
-			console.log("Setting constraint: ", modelData);
+			//console.log("Setting constraint: ", modelData);
 
 			var priorModel = this.findModelEquals(path, node);
 			

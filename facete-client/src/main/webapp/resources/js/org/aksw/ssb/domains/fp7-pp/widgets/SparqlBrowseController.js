@@ -392,7 +392,7 @@
 			}
 			
 			if(!this.tableExecutor) {
-				console.log('[WARN] No sparql executor set');
+				//**console.log('[WARN] No sparql executor set');
 			}
 //			else {
 //				console.log('[WARN] SPARQL Executor:', this.tableExecutor);
@@ -487,7 +487,7 @@
 		}
 		
 		
-		console.log('projectVars are:', projectVars);
+		//console.log('projectVars are:', projectVars);
 		
 		//console.log(vars);
 
@@ -573,7 +573,7 @@
 				resultSet,
 				(function(jsonRs) {
 					// Without having a post processor set, we omit any results
-					console.log("[WARN] Post processor not set - Discarding data.");
+					//**console.log("[WARN] Post processor not set - Discarding data.");
 					var deferred = $.Deferred();
 					deferred.resolve({results: {bindings: []}});
 					return deferred.promise();

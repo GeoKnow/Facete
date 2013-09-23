@@ -38,13 +38,13 @@
 		},
 		
 		updateByPath: function(path) {
-			console.log("[ControllerSelectionCountSync] rootFacetModel: ", this.rootFacetModel);
+			//console.log("[ControllerSelectionCountSync] rootFacetModel: ", this.rootFacetModel);
 
 			var facetNode = this.rootFacetModel.get('facetNode');
-			console.log("[ControllerSelectionCountSync] rootFacetNode", facetNode);
+			//console.log("[ControllerSelectionCountSync] rootFacetNode", facetNode);
 			
 			var targetModel = this.rootFacetModel.forPath(path);
-			console.log("[ControllerSelectionCountSync] targetModel: ", targetModel);
+			//console.log("[ControllerSelectionCountSync] targetModel: ", targetModel);
 
 			if(!targetModel) {
 				console.log('[WARN] No targetModel found');
@@ -64,7 +64,7 @@
 			
 			targetModel.set({selectionCount: n});
 			
-			console.log("Set selection count for path: " + path + " to " + n);
+			//console.log("Set selection count for path: " + path + " to " + n);
 		},
 		
 		updateByConstraintModel: function(model) {
@@ -227,7 +227,7 @@
 		
 		onReset: function(collection, options) {
 
-			console.log("[WARN] Reset not thoroughly tested.");
+			//console.log("[WARN] Reset not thoroughly tested.");
 
 			var self = this;
 			
@@ -267,7 +267,7 @@
 		process: function(model) {
 			var facetNode = this.facetNode;
 			if(!facetNode) {
-				console.log("FacetNode not set. Should not happen");
+				console.log("[WARN] FacetNode not set. Should not happen");
 				return;
 			}
 			//console.log('FacetValueEnricher', model);

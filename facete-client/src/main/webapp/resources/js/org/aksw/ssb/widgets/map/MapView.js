@@ -217,7 +217,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			var geomPosFetcher = model.get('geomPosFetcher');
 			
 			if(!(olBounds && sparqlService && geoConceptFactory && geomPosFetcher)) {
-				console.log('[WARN] Prerequisites for the MapView not met.');
+				//**console.log('[WARN] Prerequisites for the MapView not met.');
 				result.fail();
 				return result;
 			}
@@ -488,7 +488,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 					}
 			};
 
-			console.log("old/new", oldViewState, viewState);
+			//console.log("old/new", oldViewState, viewState);
 
 			return result;			
 		}

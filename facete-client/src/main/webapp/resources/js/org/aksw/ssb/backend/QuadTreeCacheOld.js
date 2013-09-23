@@ -615,13 +615,13 @@
 
 		// Fetch the items
 		var loadTask = self.backendFactory.forGlobal().fetchGeomToFeatureCount().pipe(function(geomToFeatureCount) {
-			console.log("Global fetching: ", geomToFeatureCount);
+			//console.log("Global fetching: ", geomToFeatureCount);
 			self.loadTaskAction(node, geomToFeatureCount);
 		});
 
 		$.when(loadTask).then(function() {
 			$.when(self.postProcess([node])).then(function() {
-				console.log("Global workflow completed.");
+				//console.log("Global workflow completed.");
 				//console.debug("Workflow completed. Resolving deferred.");
 				result.resolve([node]);
 			}).fail(function() {

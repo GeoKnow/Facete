@@ -717,7 +717,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     				for(var i = 0; i < pathStrs.length; ++i) {
     					var pathStr = pathStrs[i];
     					
-    					console.log("pathStr is", pathStr);
+    					//console.log("pathStr is", pathStr);
     					
     					var path = facets.Path.fromString(pathStr);
     					result.push(path);
@@ -3184,7 +3184,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		var delta = state.delta;
     		var newState = state.newState;
     		
-    		console.log("Delta is: ", delta);
+    		//console.log("Delta is: ", delta);
 
     		var mapItems = mapModel.get('items');
     		var mapBoxes = mapModel.get('boxes');
@@ -3302,9 +3302,9 @@ var SparqlBrowseModel = Backbone.Model.extend({
     				var pathStr = '' + path;
     				var id = pathStr !== '' ? pathStr : 'e';
     				
-    				if(id === 'e') {
-    					console.log('Path is now ' + path, path);
-    				}
+//    				if(id === 'e') {
+//    					console.log('Path is now ' + path, path);
+//    				}
     				
     				var model = {
     						id: id,
@@ -3544,7 +3544,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			
 			mapCollection.each(function(model) {
 				var geoPath = model.get('path');
-				console.log('Model for the geoPath', geoPath, mapCollection);
+				//console.log('Model for the geoPath', geoPath, mapCollection);
 
 			
 				var constraintManager = constraintCollection.createConstraintManager(rootFacetNode);

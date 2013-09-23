@@ -141,7 +141,7 @@
 	    },
 	    
 	    removeModel: function(model) {
-	    	console.log("[DEBUG] Remove model invoked - currently having " + this.viewModels.length + " models");
+	    	//console.log("[DEBUG] Remove model invoked - currently having " + this.viewModels.length + " models");
 	    	// Remove any corresponding view
 	    	
 	    	// Consistency check: If a model without a corresponding view gets

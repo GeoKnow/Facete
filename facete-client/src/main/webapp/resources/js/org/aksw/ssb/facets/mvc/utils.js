@@ -201,7 +201,7 @@
 			var promises = [];			
 			for(var i = 0; i < conceptItems.length; ++i) {
 				var conceptItem = conceptItems[i];
-				console.log("Fetching data for concept item: ", conceptItem);
+				//console.log("Fetching data for concept item: ", conceptItem);
 				var promise = this.fnFetchSubFacets(this.sparqlService, conceptItem);
 				promises.push(promise);
 			}
@@ -406,7 +406,7 @@
 			var limit = null;
 	
 			var query = queryUtils.createQueryCount(element, null, variable, outputVar, null, true, null);
-			console.log("Fetching facets with ", query);
+			//console.log("Fetching facets with ", query);
 			var queryExecution = queryUtils.fetchInt(sparqlService, query, outputVar);
 	
 			
@@ -415,7 +415,7 @@
 				//item.facetFacadeNode = subNode;
 				//item.step = step;
 	
-				console.log("ConceptItem: ", conceptItem);
+				//console.log("ConceptItem: ", conceptItem);
 				
 				// We need to return arrays for result 
 				var result = [conceptItem];

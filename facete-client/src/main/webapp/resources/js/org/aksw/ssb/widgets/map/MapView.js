@@ -309,7 +309,7 @@ var appvocab = Namespace("org.aksw.ssb.vocabs.appvocab");
 			
 			var hash = serviceHash + conceptHash; 
 			
-			console.log("[DEBUG] Query hash (including facets): " + hash);
+			//console.log("[DEBUG] Query hash (including facets): " + hash);
 
 			
 			var cacheEntry = this.hashToCache[hash];

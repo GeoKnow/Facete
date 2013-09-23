@@ -35,7 +35,7 @@
 			var query = queryUtils.createQueryFacetCount(concept, facetVar,
 					countVar, this.isInverse, sampleSize);
 
-			console.log("[DEBUG] Fetching facets with query: " + query);
+			//console.log("[DEBUG] Fetching facets with query: " + query);
 			
 			var uris = [];
 			if(steps && steps.length > 0) {
@@ -191,7 +191,7 @@
 			
 			// On the other hand, we can do a single query to capture all non-constrained paths
 			var constrainedSteps = facetFacadeNode.getConstrainedSteps();
-			console.log("[DEBUG] Constrained steps: " + JSON.stringify(constrainedSteps));
+			//console.log("[DEBUG] Constrained steps: " + JSON.stringify(constrainedSteps));
 
 			var conceptItems = this.createConceptItems(facetFacadeNode, constrainedSteps);
 						
@@ -282,7 +282,7 @@
 
 			promises.push.apply(promises, tmpPromises);
 
-			console.log("[DEBUG] Number of promises loading " + promises.length, promises);
+			//console.log("[DEBUG] Number of promises loading " + promises.length, promises);
 			
 			var finalPromise = $.when.apply(null, promises);
 			

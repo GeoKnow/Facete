@@ -675,7 +675,7 @@
 		
 		getVariable: function() {
 			if(!this.warningShown) {				
-				console.log('[WARN] Deprecated. Use .getVar() instead');
+				//console.log('[WARN] Deprecated. Use .getVar() instead');
 				this.warningShown = true;
 			}
 

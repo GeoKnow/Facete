@@ -254,7 +254,7 @@
 							result.push($('<th>' + label + '</th>'));
 						}
 						
-						console.log('table heading', result, headCollection.length);
+						//console.log('table heading', result, headCollection.length);
 						return result;
 						//return [$('<th>test</th>')];
 					},

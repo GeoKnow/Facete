@@ -599,7 +599,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 				
 			}
 
-			console.log('Resultrow is ', row);
+			//console.log('Resultrow is ', row);
 			return row;
 		}
 	};
@@ -709,7 +709,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
     				}
     			};
 
-    			console.log('[DEBUG] Path finding ajax spec', ajaxSpec);
+    			//console.log('[DEBUG] Path finding ajax spec', ajaxSpec);
     			
     			var result = $.ajax(ajaxSpec).pipe(function(pathStrs) {
     				var result = [];
@@ -1033,7 +1033,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
         	//var sparqlServiceIri = $elSparqlServiceSelector.val();
         	var sparqlServiceIri = $elSparqlServiceSelector.select2('data').text;
 
-        	console.log('[DEBUG] Selection: ' + sparqlServiceIri, ev);
+        	//console.log('[DEBUG] Selection: ' + sparqlServiceIri, ev);
         	configModel.set({sparqlServiceIri: sparqlServiceIri});
         });
 
@@ -1975,7 +1975,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 	ns.createConstraintView = function(configModel) {
 		var constraintCollection = configModel.get('constraintCollection');
 		
-		console.log('ConstraintCollection', constraintCollection);
+		//console.log('ConstraintCollection', constraintCollection);
 		
 		var view = new widgets.ViewConstraints({
 //			el: $el,
@@ -2655,7 +2655,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 		*/
 		
 		renderModel.on('change:renderCount', function() {
-			console.log("[DEBUG] Data loading task completed, updating labels of URIs in DOM");
+			//console.log("[DEBUG] Data loading task completed, updating labels of URIs in DOM");
 			var i18n = configModel.get('i18n');
 			i18n.update(facetWidget.$el);
 		});
@@ -3270,8 +3270,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
     		var sourceConcept = ns.createConcept(concept, constraintCollection, rootFacetNode);
     		var targetConcept = ns.createGeoConcept();
     		
-    		console.log("pathFinding sourceConcept: " + sourceConcept);
-    		console.log("pathFinding targetConcept: " + targetConcept);
+    		//console.log("pathFinding sourceConcept: " + sourceConcept);
+    		//console.log("pathFinding targetConcept: " + targetConcept);
     		
     		//var geoConceptFactory = this.get('geoConceptFactoryBase'); 
 

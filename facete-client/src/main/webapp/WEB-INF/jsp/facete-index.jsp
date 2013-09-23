@@ -92,7 +92,9 @@
 				var isSuppressed = !($introScreenCheckbox.is(':checked'));
 				//console.log('[DEBUG] Store data updated to ', isSuppressed);
 
-				store.set(suppressIntroScreenKey, '' + isSuppressed);	
+				if(isSuppressed) {
+					store.set(suppressIntroScreenKey, '' + isSuppressed);
+				}
 
 // 				if(isSuppressed) {
 // 					store.set(suppressIntroScreenKey, 'true');	
@@ -472,11 +474,11 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Welcome to SemMap - A tool for exploring (geographical) Linked Data datasets on the Web.</h4>
         </div>
-        <div class="modal-body" style="max-height: 100%;">
+        <div class="modal-body" style="max-height: 100%; font-size:13px;">
           
 <h3>About SemMap</h3>
-The <i>Semmap</i> applications allows the user to explore the content of a Linked Data endpoint in a graphical way.
-It allows the user to select a specific slice of data that he or she is interested in, creating a '<i>facet</i>' of the database.
+The <i>Semmap</i> application allows the user to explore the content of a Linked Data endpoint in a graphical way.
+It allows the user to select a specific slice of data that he or she is interested in, creating a '<i>facet</i>' of the dataset.
 The facet is created by defining a set of constraints on properties in the database. Once the facet is define, the information in the facet can be clicked-through in a tabular interface and visualized on a map.
 The user can choose a SPARQL endpoint and graph through the selection boxes on the top of the screen.
 

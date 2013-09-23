@@ -253,8 +253,8 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			
 			var $el = this.$el;
 			
-			this.$sortUp = $('<a href="#" style="position: relative; top: 0px; left: 0px; margin-left: 3px;"><i class="icon-sort-up" /></a>'); 
-			this.$sortDown = $('<a href="#" style="position: relative; top: 0px; left: 0px;"><i class="icon-sort-down" /></a>');
+			this.$sortUp = $('<a href="#" title="Order ascending. Hold the [shift] key when clicking to combine with prior ordering." style="position: relative; top: 0px; left: 0px; margin-left: 3px;"><i class="icon-sort-up" /></a>'); 
+			this.$sortDown = $('<a href="#" style="Order descending. Hold the [shift] key when clicking to combine with prior ordering. position: relative; top: 0px; left: 0px;"><i class="icon-sort-down" /></a>');
 			
 			$el.append(this.$sortUp);
 			$el.append(this.$sortDown);
@@ -589,7 +589,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 					
 					var $cell = row[index];
 	
-					var $el = $('<a href="#"><i class="icon-remove-circle" /i></a>');
+					var $el = $('<a title="Remove this column from the table." href="#"><i class="icon-remove-circle" /i></a>');
 					$cell.prepend($el);
 					$el.on('click', function(ev) {
 						ev.preventDefault();

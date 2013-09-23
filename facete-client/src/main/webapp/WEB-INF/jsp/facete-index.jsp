@@ -558,7 +558,7 @@ The user can click an item on the map to show all its property values below the 
           
         </div>
         <div class="modal-footer">
-			<div style="display:inline; font-size:13px; margin-bottom: 3px;" class="alert alert-error"><strong>When closing this dialog after having unchecked the checkbox, you give consent to accepting a cookie with the purpose of remembering your decision.</strong></div><br />
+			<div style="display:inline; font-size:13px; margin-bottom: 3px;" class="alert alert-info"><strong>When closing this dialog after having unchecked the checkbox, you give consent to accepting a cookie with the purpose of remembering your decision.</strong></div><br />
         	<label style="display: inline"><input id="introScreenCheckbox" type="checkbox" /> Show this introduction on next visit</label>
           <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
 <!--           <a href="#" class="btn btn-primary">Save changes</a> -->

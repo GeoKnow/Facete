@@ -263,7 +263,7 @@
 			var successAction = function(info) {				
 				self.tableModel.set({
 					itemCount: info.count,
-					hasMoreItems: info.more,
+					hasMoreItems: info.more
 				});
 				
 				self.paginatorModel.set({
@@ -305,7 +305,7 @@
 
 					result.resolve({
 						itemCount: 1,
-						hasMoreItems: true,
+						hasMoreItems: true
 					});
 					
 				})

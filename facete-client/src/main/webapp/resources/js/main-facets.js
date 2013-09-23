@@ -291,7 +291,7 @@ var SparqlBrowseModel = Backbone.Model.extend({
 			var newDir = current ===  newDir ? 'none' : newDir;
 			
 			this.model.set({sortDirection: newDir});
-		},
+		}
 //		sortUp: function(ev) {
 //			ev.preventDefault();
 //			this.sortAny('asc');

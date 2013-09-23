@@ -32,7 +32,7 @@
 			next:true,
 			
 			pageRequest: null,
-			isLoadingPageCount: false, // Attribute to indicate whether pages are being loaded.
+			isLoadingPageCount: false // Attribute to indicate whether pages are being loaded.
 		}
 	});
 	

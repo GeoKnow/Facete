@@ -95,7 +95,7 @@
 			var val = $input.val();
 
 		    this.model.set({text: val});			
-		},
+		}
 	});
 
 	

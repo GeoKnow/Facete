@@ -164,7 +164,7 @@
 			var bodyEmptyRenderer = this.options.bodyEmptyRenderer;
 			
 			var context = {
-				columnStates: columnStates, 					
+				columnStates: columnStates 					
 			};
 			
 			

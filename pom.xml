@@ -4,7 +4,7 @@
 
 	<groupId>org.aksw.facete</groupId>
 	<artifactId>facete-parent</artifactId>
-	<version>0.7.1</version>
+	<version>0.7.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Facete Slice 'n' Dice - Parent</name>
@@ -77,7 +77,7 @@
 		<!-- developerConnection></developerConnection -->
 		<!-- url>https://my-project.googlecode.com/svn</url -->
 		<connection>scm:git:git@github.com:GeoKnow/Facete.git</connection>
-		<tag>facete-parent-0.7.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 

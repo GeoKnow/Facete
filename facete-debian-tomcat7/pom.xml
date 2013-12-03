@@ -167,7 +167,7 @@
 				<artifactId>debian-maven-plugin</artifactId>
 				<version>1.0.5</version>
 				<configuration>
-					<packageName>facete</packageName>
+					<packageName>facete-tomcat7</packageName>
 					<packagePriority>extra</packagePriority>
 					<packageSection>web</packageSection>
 					<packageDependencies>

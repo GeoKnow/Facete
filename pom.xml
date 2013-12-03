@@ -31,6 +31,7 @@
 		<module>facete-client</module>
 		<module>facete-server</module>
 		<module>facete-debian-tomcat6</module>
+                <module>facete-debian-tomcat7</module>
 	</modules>
 
 

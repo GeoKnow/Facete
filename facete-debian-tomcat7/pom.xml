@@ -92,7 +92,7 @@
 						<configuration>
 							<target>
 								<mkdir dir="${project.build.directory}/deb/var/lib/tomcat7/webapps/" />
-								<symlink link="${project.build.directory}/deb/var/lib/tomcat7/webapps/facete.war" resource="../../../../usr/share/lib/facete/facete-debian-tomcat7.war" />
+								<symlink link="${project.build.directory}/deb/var/lib/tomcat7/webapps/facete.war" resource="../../../../usr/share/lib/facete-tomcat7/facete-debian-tomcat7.war" />
 <!-- 									resource="${project.build.directory}/deb/usr/share/lib/facete/facete-debian-tomcat.war"  -->
 <!-- 									resource="/usr/share/lib/facete/facete-debian-tomcat.war" -->
 							</target>

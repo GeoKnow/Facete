@@ -30,22 +30,29 @@ public class MainProxyTest {
 		String proxyPasswordEnc = new String(authEncBytes);
 	    
 		// http://stackoverflow.com/questions/7597925/scope-of-system-setproperty-in-tomcat
-	    System.setProperty("http.proxySet", "true");
-	    System.setProperty("http.proxyHost", proxyHost);
-	    System.setProperty("http.proxyPort", proxyPort);
+	    //System.setProperty("http.proxySet", "true");
 	    //System.setProperty("http.proxyUser", proxyUser);
 	    //System.setProperty("http.proxyPassword", proxyPassword);
-	    System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
+	    //System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
 
-	    
+        System.setProperty("http.proxyHost", proxyHost);
+        System.setProperty("http.proxyPort", proxyPort);
+
+        System.out.println("http.proxyUser:" + System.getProperty("http.proxyUser"));
+        System.out.println("http.proxyPassword: " + System.getProperty("http.proxyPassword"));
+        
 	    Authenticator.setDefault(new Authenticator() {
-	          @Override
-	         public PasswordAuthentication getPasswordAuthentication() {
-	               if(getRequestorType() == Authenticator.RequestorType.PROXY) 
-	                   return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
-	               else
-	                  return super.getPasswordAuthentication();
-	         }});
+	        @Override
+	        public PasswordAuthentication getPasswordAuthentication() {
+	            if(getRequestorType() == Authenticator.RequestorType.PROXY) {
+	                System.out.println("YAAAAYY ~~~ GO RPROXY GO!!!!");
+	                return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
+	            }
+	            else {
+	                return super.getPasswordAuthentication();
+	            }
+	        }
+	    });
 	    
 	    
 	    
@@ -56,16 +63,18 @@ public class MainProxyTest {
 //	    System.out.println(StreamUtils.toString(in));
 	    
 	    
-	    String q= "SELECT ?p ?o WHERE { <http://dbpedia.org/resource/Mendelian_inheritance> ?p    ?o . } Limit 10";
+	    String q= "SELECT ?s ?t WHERE {?s a ?t . } Limit 10";
 		Query query = QueryFactory.create(q);
-		QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
+		String serviceUrl = "http://dbpedia.org/sparql";
+		//String serviceUrl = "http://localhost:8800/sparql";
+		
+		QueryExecution qexec = QueryExecutionFactory.sparqlService(serviceUrl, query);
 		ResultSet results = qexec.execSelect();
 		while (results.hasNext()) {
 		QuerySolution result = results.nextSolution();
 		RDFNode s = result.get("s");
-		RDFNode p = result.get("p");
-		RDFNode o = result.get("o");
-		System.out.println( " { " + s + " " + p + " " + o + " . }");
+		RDFNode t = result.get("t");
+		System.out.println(result + " { " + s + " " + t + " . }");
 		}
 	}
 }

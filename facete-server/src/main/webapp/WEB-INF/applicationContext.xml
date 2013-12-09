@@ -97,5 +97,8 @@
 	<!-- <bean id="pubbyConfig" factory-bean="pubbyConfigFactory" factory-method="create" 
 		/> -->
 
+	<bean id="facete.proxyConfig"
+		class="org.aksw.facete.web.FaceteInitBean" init-method="init">
+	</bean>
 
 </beans>

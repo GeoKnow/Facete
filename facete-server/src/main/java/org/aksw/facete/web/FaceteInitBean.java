@@ -24,6 +24,8 @@ public class FaceteInitBean {
     }
 
     public static void init() {
+        //logger.info("FaceteInitBean invoked");
+
         final String proxyUser = System.getProperty("http.proxyUser");
         final String proxyPassword = System.getProperty("http.proxyPassword");
         
@@ -36,15 +38,18 @@ public class FaceteInitBean {
                 @Override
                 public PasswordAuthentication getPasswordAuthentication() {
                     if(getRequestorType() == Authenticator.RequestorType.PROXY) {
-                        logger.debug("Configured authenticator for proxy requests");
+                        logger.debug("[FaceteInitBean] Configured authenticator for proxy requests");
                         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
                     }
                     else {
+                        logger.debug("[FaceteInitBean] Configured defaulth authenticator for proxy requests");
                         return super.getPasswordAuthentication();
                     }
                 }
             });
 
+        } else {
+            logger.info("[FaceteInitBean] invoked");
         }
     }
 }

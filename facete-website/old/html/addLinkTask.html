@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<!--
+Halcyonic 1.0 by nodethirtythree + FCT
+http://nodethirtythree.com | @nodethirtythree
+Released under the Creative Commons Attribution 3.0 license (nodethirtythree.com/license)
+-->
+<html>
+	<head>
+		<title>VeriLinks Administration</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<BASE href="../">
+		<!--5grid--><script src="css/5grid/viewport.js"></script><!--[if lt IE 9]><script src="css/5grid/ie.js"></script><![endif]-->
+		<link rel="stylesheet" href="css/5grid/responsive.css" />
+		<!--/5grid-->
+		<link rel="stylesheet" href="css/style.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="css/style-ie9.css" /><![endif]-->
+		<script src="js/addLinkTask.js"></script>
+	</head>
+	<body class="subpage">
+
+		<!-- Header -->
+		<div id="header-wrapper">
+			<header id="header" class="5grid">
+				<div class="12u-first">
+
+					<!-- Logo -->
+					<h1><a href="#">Add Link Task</a></h1>
+
+					<!-- Nav -->
+							<nav>
+								<a href="index.html">Home</a>
+								<a href="html/games.html">Games</a>
+								<a href="html/verilinks.html">VeriLinks</a>
+								<a href="html/admin.html">Admin</a>
+<!-- 								<a href="#">Contact</a> -->
+								<!-- <a href="onecolumn.html">One Column</a> -->
+							</nav>
+
+				</div>
+			</header>
+		</div>
+
+		<!-- Content -->
+		<div id="content-wrapper">
+			<div id="content">
+				<div class="5grid">
+					<div class="9u-first">
+
+						<!-- Main Content -->
+						<section>
+							<header>
+								<h2>Add Link Task</h2>
+								<h3>Upload your links into our database!</h3>
+							</header>
+							<form id='addLinkTask'
+							enctype="multipart/form-data"
+							action="/upload" method="post" onsubmit='return addLinkTask.validate();'>
+								<table>
+									<tr>
+										<td class='fat'>1.Linkset</td>
+										<td>
+										<input class='noDisable' name="linksetElement" type="text" />
+										</td>
+										<td class='v_desc'>ID of linkset</td>
+									</tr>
+									<tr>
+										<td class='fat'>2.Linkfile</td>
+										<td>
+										<input class='noDisable' name="fileElement" type="file"
+										size="10" />
+										</td>
+										<td class='v_desc'>Upload rdf/xml or n-triple file</td>
+
+									</tr>
+									<tr>
+										<td class='lb'>existing template?</td>
+										<td>
+										<input class='noDisable' id='existsElement' type="checkbox" onChange='addLinkTask.cbChanged()'>
+										</td>
+										<td class='v_desc'>Check if template does exist in db</td>
+									</tr>
+									<tr>
+										<td class='fat'>3.Instances</td>
+										<td>Subject</td>
+										<td>Object</td>
+									</tr>
+									<tr>
+										<td class='lb'>ontology:</td>
+										<td>
+										<input class='noDisable' name="nameElement" type="text" />
+										</td>
+										<td>
+										<input class='noDisable' name="nameElement2" type="text" />
+										</td>
+										<td class='v_desc'>Name of ontology</td>
+									</tr>
+									<tr>
+										<td class='lb'>endpoint:</td>
+										<td>
+										<input name="endpointElement" type="text" />
+										</td>
+										<td>
+										<input name="endpointElement2" type="text" />
+										</td>
+										<td class='v_desc'>SPARQL endpoint</td>
+									</tr>
+									<tr>
+										<td class='lb'>property:</td>
+										<td>
+										<input value='Add Subject Property' type='button' onclick="addLinkTask.addProperty('subjectProperty');return false;"/>
+										</td>
+										<td>
+										<input value='Add Object Property' type='button' onclick="addLinkTask.addProperty('objectProperty');return false;"/>
+										</td>
+										<td class='v_desc'>Add field to specify property</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td id='subjectProperty'></td>
+										<td id='objectProperty'></td>
+									</tr>
+									<tr>
+										<td class='fat'>4.Predicate</td>
+										<td>
+										<input class='noDisable' name="predicateElement" type="text" />
+										</td>
+										<td class='v_desc'>Name of the relation</td>
+									</tr>
+									<tr>
+										<td class='fat'>5.Description</td>
+										<td>
+										<input class='noDisable' name="descriptionElement" type="text" />
+										</td>
+										<td class='v_desc'>Description of linkset</td>
+									</tr>
+									<tr>
+										<td class='fat'>6.Difficulty</td>
+										<td>
+										<select class='noDisable' name="difficultyElement">
+											<option value="easy">easy</option>
+											<option value="medium">medium</option>
+											<option value="hard">hard</option>
+										</select></td>
+										<td class='v_desc'>Describe difficulty of linkset</td>
+									</tr>
+									<tr>
+										<td class='fat'>7.JsRender Template</td>
+										<td>
+										<input class='noDisable' name="templateElement" type="text" />
+										</td>
+										<td class='v_desc'>ID of Template</td>
+									</tr>
+								</table>
+								<div class='v_desc'>
+									Define JsRender Template for diplaying data of linkset
+								</div>
+								<div>
+									<textarea id='template' cols="100" rows="10" name="jsrenderElement"></textarea>
+</div>								<button id='submitBtn' >
+									submit
+								</button>
+							</form>
+						</section>
+
+					</div>
+					<div class="3u">
+
+						<!-- Sidebar -->
+						<section>
+							<header>
+								<h2>What is a Link Task?</h2>
+							</header>
+							<p>
+								Link Task stuff
+							</p>
+						</section>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Footer -->
+		<div id="footer-wrapper">
+			<footer id="footer" class="5grid">
+				<div class="8u-first">
+
+					<!-- Links -->
+					<section>
+						<h2>Links</h2>
+						<div class="3u-first">
+							<ul class="link-list last-child">
+								<li>
+									<a href="https://github.com/AKSW/VeriLinks">Source Code</a>
+								</li>
+								<li>
+									<a href="https://docs.google.com/spreadsheet/ccc?key=0An8FWTPcYP2kdGh1QnMzRXhnbkQtRDIwYjUyYW0tckE#gid=0">Server API</a>
+								</li>
+							</ul>
+						</div>
+						<div class="3u">
+							<ul class="link-list last-child">
+								<li>
+									<a href="http://aksw.org/About.html">AKSW Leipzig</a>
+								</li>
+								<li>
+									<a href="http://aksw.org/Projects/VeriLinks.html">AKSW/VeriLinks</a>
+								</li>
+							</ul>
+						</div>
+					</section>
+
+				</div>
+				<div class="4u">
+
+					<!-- Blurb -->
+					<section>
+						<h2>Credits</h2>
+						<p>
+							Game development by the Research Group
+							</br>Agile Knowledge Engineering and Semantic Web (<a href="https://github.com/AKSW/VeriLinks">AKSW</a>).
+							Game design and implementation by
+							Quan Nguyen and <a href="http://bis.informatik.uni-leipzig.de/TimofeyErmilov">Timofey Ermilov</a>.
+							Project supervised by <a href="http://jens-lehmann.org/">Dr. Jens Lehmann</a>.
+							Template design by <a href="http://nodethirtythree.com/">nodethirtythree</a>.
+						</p>
+					</section>
+
+				</div>
+			</footer>
+		</div>
+
+		<!-- Copyright -->
+		<div id="copyright">
+			(c) 2012 VeriLinks. All rights reserved.
+		</div>
+
+	</body>
+</html>

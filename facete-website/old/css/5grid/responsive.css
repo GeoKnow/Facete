@@ -1,0 +1,111 @@
+/*****************************************************************/
+/* 5grid 0.2 by nodethirtythree.com | MIT+GPLv2 license licensed */
+/* responsive.css: Responsive (1200px/1000px/mobile) grid system */
+/*****************************************************************/
+
+/* Global */
+
+	/* Resets (by meyerweb.com/eric/tools/css/reset/) */
+
+		html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
+		}
+
+		article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+			display: block;
+		}
+
+		body {
+			line-height: 1;
+		}
+
+		ol, ul {
+			list-style: none;
+		}
+
+		blockquote, q {
+			quotes: none;
+		}
+
+		blockquote:before, blockquote:after, q:before, q:after {
+			content: '';
+			content: none;
+		}
+
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+		}
+
+	/* 5grid */
+
+		.\35 grid {
+			overflow: hidden;
+		}
+
+		.\35 grid-alt {
+			overflow: visible !important;
+		}
+
+		.\35 grid-clear {
+			clear: both;
+		}
+
+		.\35 grid .\31 2u { width: 100%; } .\35 grid .\31 1u { width: 91.5%; } .\35 grid .\31 0u { width: 83%; } .\35 grid .\39 u { width: 74.5%; } .\35 grid .\38 u { width: 66%; } .\35 grid .\37 u { width: 57.5%; } .\35 grid .\36 u { width: 49%; } .\35 grid .\35 u { width: 40.5%; } .\35 grid .\34 u { width: 32%; } .\35 grid .\33 u { width: 23.5%; } .\35 grid .\32 u { width: 15%; } .\35 grid .\31 u { width: 6.5%; }
+		
+		.\35 grid .\31 2u-first { width: 100%; } .\35 grid .\31 1u-first { width: 91.5%; } .\35 grid .\31 0u-first { width: 83%; } .\35 grid .\39 u-first { width: 74.5%; } .\35 grid .\38 u-first { width: 66%; } .\35 grid .\37 u-first { width: 57.5%; } .\35 grid .\36 u-first { width: 49%; } .\35 grid .\35 u-first { width: 40.5%; } .\35 grid .\34 u-first { width: 32%; } .\35 grid .\33 u-first { width: 23.5%; } .\35 grid .\32 u-first { width: 15%; } .\35 grid .\31 u-first { width: 6.5%; }
+
+		.\35 grid .\31 u, .\35 grid .\32 u, .\35 grid .\33 u, .\35 grid .\34 u, .\35 grid .\35 u, .\35 grid .\36 u, .\35 grid .\37 u, .\35 grid .\38 u, .\35 grid .\39 u, .\35 grid .\31 0u, .\35 grid .\31 1u, .\35 grid .\31 2u, .\35 grid .\31 u-first, .\35 grid .\32 u-first, .\35 grid .\33 u-first, .\35 grid .\34 u-first, .\35 grid .\35 u-first, .\35 grid .\36 u-first, .\35 grid .\37 u-first, .\35 grid .\38 u-first, .\35 grid .\39 u-first, .\35 grid .\31 0u-first, .\35 grid .\31 1u-first, .\35 grid .\31 2u-first {
+			margin: 1% 0 1% 2%;
+			float: left;
+		}
+
+		.\35 grid .\31 u-first, .\35 grid .\32 u-first, .\35 grid .\33 u-first, .\35 grid .\34 u-first, .\35 grid .\35 u-first, .\35 grid .\36 u-first, .\35 grid .\37 u-first, .\35 grid .\38 u-first, .\35 grid .\39 u-first, .\35 grid .\31 0u-first, .\35 grid .\31 1u-first, .\35 grid .\31 2u-first {
+			clear: left;
+			margin-left: 0;
+		}
+
+/* 1200px (>= 1200px) */
+
+	@media only screen and (min-width: 1200px) {
+		.\35 grid {
+			width: 1200px;
+			margin: 0 auto;
+		}
+	}
+	
+/* 1000px (> 480px && < 1200px) */
+
+	@media only screen and (max-width: 1199px) and (min-width: 481px) {
+		.\35 grid {
+			width: 1000px;
+			margin: 0 auto;
+		}
+	}
+	
+/* Mobile (<= 480px) */
+
+	@media only screen and (max-width: 480px) {
+		body {
+			-webkit-text-size-adjust: none;
+		}
+
+		.\35 grid .\31 u, .\35 grid .\32 u, .\35 grid .\33 u, .\35 grid .\34 u, .\35 grid .\35 u, .\35 grid .\36 u, .\35 grid .\37 u, .\35 grid .\38 u, .\35 grid .\39 u, .\35 grid .\31 0u, .\35 grid .\31 1u, .\35 grid .\31 2u, .\35 grid .\31 u-first, .\35 grid .\32 u-first, .\35 grid .\33 u-first, .\35 grid .\34 u-first, .\35 grid .\35 u-first, .\35 grid .\36 u-first, .\35 grid .\37 u-first, .\35 grid .\38 u-first, .\35 grid .\39 u-first, .\35 grid .\31 0u-first, .\35 grid .\31 1u-first, .\35 grid .\31 2u-first {
+			float: none;
+			width: 100%;
+			margin: 1% 0 1% 0;
+		}
+
+		.\35 grid .\31 u-first, .\35 grid .\32 u-first, .\35 grid .\33 u-first, .\35 grid .\34 u-first, .\35 grid .\35 u-first, .\35 grid .\36 u-first, .\35 grid .\37 u-first, .\35 grid .\38 u-first, .\35 grid .\39 u-first, .\35 grid .\31 0u-first, .\35 grid .\31 1u-first, .\35 grid .\31 2u-first {
+			margin-top: 0;
+		}
+
+		.\35 grid {
+			width: 100%;
+		}
+	}

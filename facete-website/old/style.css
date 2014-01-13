@@ -1,0 +1,99 @@
+body {
+	margin: 3% 12%;
+	border: 1px solid gray;
+	padding: 20px;
+	-moz-box-shadow: 1px 2px 5px 2px #ccc;
+	-webkit-box-shadow: 1px 2px 5px 2px #ccc;
+	box-shadow: 1px 2px 5px 2px #ccc;
+	text-align: center;
+	/*color: #424242;
+	font-family: "Adobe Caslon Pro", "Hoefler Text", Georgia, Garamond, Times, serif;
+	letter-spacing: 0.1em;
+	text-transform: lowercase;
+	line-height: 145%;
+	font-size: 14pt;
+	font-variant: small-caps;*/
+}
+
+h1{
+	margin: 40px 30%;
+}
+#menue{
+	margin-bottom: 40px;
+}
+/** Description */
+#descr{
+	text-align:center;
+}
+
+ul.games{
+	border-bottom: 1px solid lightgrey;
+	border-top: 1px solid lightgrey;
+	padding: 15px; 
+}
+
+li{
+	font-weight: bold;
+}
+
+.aksw{
+	color: #777777;
+	font-weight: bold;
+	font-style: italic;
+}
+/** Set ids using widget.getElement().setId("idOfElement") */
+#closeButton {
+  margin: 15px 6px 6px;
+}
+
+#processLinkTask{
+	overflow:hidden;
+	margin: 10px;
+	border: 1px solid lightgrey;
+	padding: 10px;
+}
+
+#linkTaskTable tbody tr th{
+	padding: 8px;
+	border: 1px solid black;
+}
+
+#addLinkTask{
+	overflow:hidden;
+	margin: 10px;
+	border: 1px solid lightgrey;
+	padding: 10px;
+}
+
+#addLinkTask td {
+	padding: 8px;
+/*	float:right;*/
+}
+
+#addLinkTask input[type="text"] {
+	width: 220px;
+}
+
+.lb {
+	text-align:left;
+/*	font-weight: bold;*/
+}
+.fat {
+	text-align:left;
+	font-weight: bold;
+	font-size: 110%;
+}
+.desc {
+	font-size: 80%;
+	font-style: italic;
+	color: 	#565051;
+}
+#li
+#linkfileElement{
+/*	width:100px;*/
+}
+#submitBtn{
+	margin: 20px 10px 0px;
+	float:right;
+	width:200px;
+}

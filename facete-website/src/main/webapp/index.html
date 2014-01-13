@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <title></title>
+        <meta name="description" content=""/>
+        <meta name="viewport" content="width=device-width"/>
+        <link rel="stylesheet" href="styles/main.css"/>
+
+        <link rel="stylesheet" href="libs/twitter-bootstrap/3.0.1/css/bootstrap.min.css" />
+
+		<style media="screen" type="text/css">
+		.image {
+	 	    max-width: 144px;
+	 	    max-height: 144px;
+		    vertical-align: middle;
+		}
+		
+		.image-frame {
+			display: table;
+	
+		    width: 150px;
+		    height: 150px;	
+			line-height: 150px; /* should match height */
+			text-align: center;
+	  
+			border: 1px;
+			border-collapse: true;
+			border-style: solid;
+			border-color: #CCCCCC;
+			background-color: #EEEEEE;
+		}
+		</style>
+
+    </head>
+    <body ng-app="faceteWebsiteApp">
+	
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 col-md-offset-0">
+					<div class="jumbotron">
+						<img src="resources/images/facete-banner.png" style="top: 0px; width: 100%" />
+
+						<h1 style="bottom: 80px" color: #8080ff">Facete</h1>
+						<p><i>Facete</i> is a JavaScript application for browsing (spatial) data that is accessible via SPARQL endpoints.
+						<a class="btn btn-primary" href="https://github.com/GeoKnow/Facete" role="button">Source Code »</a>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<h2>Demos</h2>
+				<table class="table table-striped">
+					<tr><th>Screenshot</th><th>Description</th><th>Links</th></tr>
+					<tr>
+						<td>
+                    		<div class="image-frame">
+                    			<img class="image" src="resources/images/facete-vanilla.png" />
+                    		</div>
+						</td>
+						<td>
+							This demo shows Facete on the <a href="http://fp7-pp.publicdata.eu">Framework Programme 7 Information and Communication Technologies Project Partners</a> dataset.
+							As such, one can for example browse the partners of respective EU projects and also how much money they were granted.
+							This dataset includes for instance the <a href="http://lod2.eu">LOD2</a> project, under which Facete was partially funded.							
+						</td>
+						<td>
+							<ul>
+							    <li><a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/">Initial View</a></li>
+							    <li><a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/#98c6490d19792f648a95105ee24a8bfe">Information on the LOD2 Project</a></li>
+							</ul>
+						</td>
+					</tr>
+					
+                    <tr>
+                    	<td>
+                    		<div class="image-frame">
+                    			<img class="image" src="resources/images/facete-airbases-industrial.png" />
+                    		</div>
+                    	</td>
+                    	<td>
+                    		Facete showing the public information on airport bases available at the public <a href="http://semantic.eea.europa.eu/sparql">European Environment Agency (EEA)</a> Sparql Endpoint. 
+                    	</td>
+                    	<td>
+                    		<a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/#90ad90b7646c189e91fbdb258ad96663">Airbase Stations for industrial use in Germany</a>
+                    	</td>
+                    </tr>
+
+                    <tr>
+                    	<td>
+                    		<div class="image-frame">
+                    			<img class="image" src="resources/images/youtube-publicdata-facete.png" />
+                    		</div>
+                    	</td>
+                    	<td>
+                    		<a class="btn btn-primary" role="button" href="http://www.youtube.com/watch?v=VzEvFJs89Wc&t=1m13s">Airbase Stations for industrial use</a>
+                    	</td>
+                    </tr>
+				</table>
+			</div>	
+			
+			
+			<h2>Related</h2>
+			 Screencast on publicdata.eu
+		</div>
+
+
+		<!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+        
+        <!--[if lt IE 9]>
+            <script src="scripts/vendor/es5-shim.min.js"></script>
+            <script src="scripts/vendor/json3.min.js"></script>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="container" ng-view></div>
+
+        <script src="scripts/vendor/angular.js"></script>
+
+        <!-- build:js scripts/scripts.js -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/controllers/main.js"></script>
+        <!-- endbuild -->
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+<!--         <script>
+             var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+             (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+             g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+             s.parentNode.insertBefore(g,s)}(document,'script'));
+             </script> -->
+    </body>
+</html>

@@ -53,6 +53,11 @@
 			</div>
 			<div class="row">
 				<h2>Demos</h2>
+				<div class="alert alert-warning">
+					<i>Note: There is a bug related to a race condition that sometimes causes Facete to not show the correct data when loading a saved state.
+					If you experience this problem, either try to reload the page, or e.g. pan the map and change the number of items shown in the table for Facete to update its views.</i>
+				</div>
+					
 				<table class="table table-striped">
 					<tr><th>Screenshot</th><th>Description</th><th>Links</th></tr>
 					<tr>
@@ -67,10 +72,8 @@
 							This dataset includes for instance the <a href="http://lod2.eu">LOD2</a> project, under which Facete was partially funded.							
 						</td>
 						<td>
-							<ul>
-							    <li><a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/">Initial View</a></li>
-							    <li><a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/#98c6490d19792f648a95105ee24a8bfe">Information on the LOD2 Project</a></li>
-							</ul>
+							<a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/">Initial View</a>
+							<a class="btn btn-primary" role="button" href="http://cstadler.aksw.org/facete/#98c6490d19792f648a95105ee24a8bfe">Information on the LOD2 Project</a>
 						</td>
 					</tr>
 					
@@ -95,15 +98,32 @@
                     		</div>
                     	</td>
                     	<td>
-                    		<a class="btn btn-primary" role="button" href="http://www.youtube.com/watch?v=VzEvFJs89Wc&t=1m13s">Airbase Stations for industrial use</a>
+                    		A Youtube video showing the Facete integration on the <a href="todo">CSV-to-RDF wiki</a> on <a href="http://publicdata.eu/" />publicdata.eu</a>.
+                    		On this wiki, users can edit mappings for converting CSV files to RDF. If such a mapping marks columns of a CSV file as longitude and latitude,
+                    		the resulting RDF can be browsed with Facete. 
+                    	</td>
+                    	<td>
+                    		<a class="btn btn-primary" role="button" href="http://www.youtube.com/watch?v=VzEvFJs89Wc&t=1m13s">Watch the Screencast</a>
+                    	</td>
+                    </tr>
+                    
+                    <tr>
+                    	<td>
+                    		<div class="image-frame">
+                    			<img class="image" src="resources/images/facete-odp.png" />
+                    		</div>
+                    	</td>
+                    	<td>
+                    		Facete is in the process of being deployed at the <a href="http://open-data.europa.eu">Open Data Portal of the European Commission"</a>, accessible via the <a href="http://open-data.europa.eu/en/apps">application section</a>.
+                    		
+                    	</td>
+                    	<td>
+                    		<a class="btn btn-primary" role="button" href="http://open-data.europa.eu/en/apps">Visit the Open Data Portal</a>
                     	</td>
                     </tr>
 				</table>
 			</div>	
-			
-			
-			<h2>Related</h2>
-			 Screencast on publicdata.eu
+
 		</div>
 
 

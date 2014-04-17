@@ -1,7 +1,10 @@
 # Welcome to Facete - Slice 'n' Dice RDF data explorer!
 
 
-This project will be released soon - stay tuned!
+___Discontinued Repository - Development continues with Facete2 [here](https://github.com/GeoKnow/Facete2)___
+
+This repository contains the first version of Facete which was finished at the beginning 2014 and deployed at the [European Open Data Portal](http://open-data.europa.eu/) under the name [SemMap](http://open-data.europa.eu/semmap/).
+
 
 
 Facete offers out-of-the-box faceted search over SPARQL endpoints.
